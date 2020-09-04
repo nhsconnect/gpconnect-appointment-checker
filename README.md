@@ -20,4 +20,4 @@ The GP Connect Appointment Configuration Checker is a web application that allow
 
 ## Links
 
-GP Connect Appointments API 1.2.7
+[GP Connect API 1.2.7](https://developer.nhs.uk/apis/gpconnect-1-2-7/)
