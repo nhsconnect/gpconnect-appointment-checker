@@ -16,6 +16,7 @@ This is to allow practice staff to validate their GP Connect appointment book co
   - Postgresql 11
     - Flyaway 6.5.5
   - [NHS UK frontend](https://github.com/nhsuk/nhsuk-frontend) styling
+  - [NHS Mail authenication](https://s3-eu-west-1.amazonaws.com/comms-mat/Comms-Archive/NHSmail+Single+Sign-on+Technical+Guidance.pdf)
   - Built according to [progressive enhancement](https://www.gov.uk/service-manual/technology/using-progressive-enhancement)
 
 ## Building
