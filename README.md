@@ -6,9 +6,23 @@ The GP Connect Appointment Configuration Checker is a web application that allow
 
 ## Tech stack
 
+- Back end
+  - .NET Core 3.1
+    - Razor pages
+    - Docker
+
+- Database
+  - Postgresql 11
+    - Flyaway 6.5.5
+
+- Front end
+  - [NHS UK frontend](https://github.com/nhsuk/nhsuk-frontend) styling
+  - Built according to [progressive enhancement](https://www.gov.uk/service-manual/technology/using-progressive-enhancement)
 
 ## Building
 
+[TBC]
 
-## Troubleshooting
+## Links
 
+GP Connect Appointments API 1.2.7
