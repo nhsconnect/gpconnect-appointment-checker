@@ -37,3 +37,5 @@ The GP Connect Appointment Configuration Checker is a web application for GP pra
     - [Spine Directory Service (SDS)](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_spine_directory_service.html)
     - [Spine Secure Proxy (SSP)](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_spine_secure_proxy.html)
 - [NHS Mail sign sign on integration guide](https://s3-eu-west-1.amazonaws.com/comms-mat/Comms-Archive/NHSmail+Single+Sign-on+Technical+Guidance.pdf)
+- [GOV.UK service manual - technology](https://www.gov.uk/service-manual/technology)
+  - [Progressive enhancement](https://www.gov.uk/service-manual/technology/using-progressive-enhancement)
