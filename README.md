@@ -27,4 +27,12 @@ The GP Connect Appointment Configuration Checker is a web application for GP pra
 
 ## Links
 
-[GP Connect API 1.2.7](https://developer.nhs.uk/apis/gpconnect-1-2-7/)
+- [GP Connect API 1.2.7](https://developer.nhs.uk/apis/gpconnect-1-2-7/)
+  - GP connect API calls
+    - [Search for free slots](https://developer.nhs.uk/apis/gpconnect-1-2-7/appointments_use_case_search_for_free_slots.html)
+    - [Get the FHIR capability statement](https://developer.nhs.uk/apis/gpconnect-1-2-7/foundations_use_case_get_the_fhir_capability_statement.html)
+  - Spine integration
+    - [Overview](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_illustrated.html)
+    - [Creating the audit JWT](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_cross_organisation_audit_and_provenance.html)
+    - [Spine Directory Service (SDS)](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_spine_directory_service.html)
+    - [Spine Secure Proxy (SSP)](https://developer.nhs.uk/apis/gpconnect-1-2-7/integration_spine_secure_proxy.html)
