@@ -10,7 +10,7 @@ $$;
 
 CREATE FUNCTION audit.insert_entry(entryid integer, entryip character varying, username character varying, odscode character varying, createddate date, loggedon date, loggedoff date, entrydescription character varying) RETURNS SETOF audit.entry
     LANGUAGE plpgsql
-    AS $_$
+AS $
 begin
 
 	insert into audit.entry
@@ -29,7 +29,7 @@ values
 end;
 $$;
 
-CREATE FUNCTION configuration.get_entry() RETURNS TABLE(entry_id integer, key character varying, value character varying)
+CREATE FUNCTION configuration.get_entry() RETURNS SETOF configuration.entry
     LANGUAGE plpgsql
     AS $$
 begin
@@ -61,7 +61,7 @@ begin
 end;
 $$;
 
-CREATE FUNCTION logging.get_entry() RETURNS TABLE(entry_id integer, url character varying, referrer_url character varying, description character varying, ip character varying, created_date date, created_by character varying, server character varying, response_code integer, session_id character varying, user_agent character varying)
+CREATE FUNCTION logging.get_entry() RETURNS SETOF logging.entry
     LANGUAGE plpgsql
     AS $$
 begin
@@ -72,7 +72,7 @@ end;
 $$;
 
 
-CREATE FUNCTION logging.insert_entry(entryid integer, entryurl character varying, entryreferrerurl character varying, entrydescription character varying, entryip character varying, entrycreateddate date, entrycreatedby character varying, entryserver character varying, entryresponsecode integer, entrysessionid character varying, entryuseragent character varying) RETURNS TABLE(entry_id integer, url character varying, referrer_url character varying, description character varying, ip character varying, created_date date, created_by character varying, server character varying, response_code integer, session_id character varying, user_agent character varying)
+CREATE FUNCTION logging.insert_entry(entryid integer, entryurl character varying, entryreferrerurl character varying, entrydescription character varying, entryip character varying, entrycreateddate date, entrycreatedby character varying, entryserver character varying, entryresponsecode integer, entrysessionid character varying, entryuseragent character varying) RETURNS SETOF logging.entry
     LANGUAGE plpgsql
     AS $$
 begin
