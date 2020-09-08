@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>gpconnect_apptconfig_checker.DAL</RootNamespace>
+    <RootNamespace>gpconnect_appointment_checker.GPConnect</RootNamespace>
   </PropertyGroup>
 
 </Project>

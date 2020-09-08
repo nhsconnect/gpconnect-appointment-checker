@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace gpconnect_apptconfig_checker
+namespace gpconnect_appointment_checker
 {
     public class Program
     {

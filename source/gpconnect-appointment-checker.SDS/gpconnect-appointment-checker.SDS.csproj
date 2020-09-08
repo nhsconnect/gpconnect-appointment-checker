@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>gpconnect_apptconfig_checker.GPConnect</RootNamespace>
+    <RootNamespace>gpconnect_appointment_checker.SDS</RootNamespace>
   </PropertyGroup>
 
 </Project>

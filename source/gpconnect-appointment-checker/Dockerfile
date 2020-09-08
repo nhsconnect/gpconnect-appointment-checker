@@ -10,16 +10,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-nanoserver-1903 AS build
 WORKDIR /src
-COPY ["gpconnect-apptconfig-checker/gpconnect-apptconfig-checker.csproj", "gpconnect-apptconfig-checker/"]
-RUN dotnet restore "gpconnect-apptconfig-checker/gpconnect-apptconfig-checker.csproj"
+COPY ["gpconnect-appointment-checker/gpconnect-appointment-checker.csproj", "gpconnect-appointment-checker/"]
+RUN dotnet restore "gpconnect-appointment-checker/gpconnect-appointment-checker.csproj"
 COPY . .
-WORKDIR "/src/gpconnect-apptconfig-checker"
-RUN dotnet build "gpconnect-apptconfig-checker.csproj" -c Release -o /app/build
+WORKDIR "/src/gpconnect-appointment-checker"
+RUN dotnet build "gpconnect-appointment-checker.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "gpconnect-apptconfig-checker.csproj" -c Release -o /app/publish
+RUN dotnet publish "gpconnect-appointment-checker.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "gpconnect-apptconfig-checker.dll"]
+ENTRYPOINT ["dotnet", "gpconnect-appointment-checker.dll"]

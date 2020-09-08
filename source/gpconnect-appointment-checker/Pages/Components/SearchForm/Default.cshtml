@@ -1,0 +1,42 @@
+﻿@model gpconnect_appointment_checker.ViewModels.Search.SearchForm
+
+<div class="search-box" id="search-box">
+    <div class="form">
+        <div class="search-select">
+            <select asp-for="@Model.SelectedProviderODSCode"
+                    asp-items="@Model.ProviderODSCodes"
+                    class="form-control"
+                    name="search-providerodscode"
+                    id="search-providerodscode">
+            </select>
+        </div>
+        <div class="search-select">
+            <select asp-for="@Model.SelectedConsumerODSCode"
+                    asp-items="@Model.ConsumerODSCodes"
+                    class="form-control"
+                    name="search-consumerodscode"
+                    id="search-consumerodscode">
+            </select>
+        </div>
+        <div class="search-select">
+            <select asp-for="@Model.SelectedDateRange"
+                    asp-items="@Model.DateRanges"
+                    class="form-control"
+                    name="search-daterange"
+                    id="search-daterange">
+            </select>
+        </div>
+    </div>
+</div>
+
+<div>
+    <button type="button" name="search-go">@Model.SearchButtonText</button>
+</div>
+
+<div>
+    <button type="button" name="search-clear">@Model.ClearButtonText</button>
+</div>
+
+
+<div id="divresults" class="table-body">
+</div>

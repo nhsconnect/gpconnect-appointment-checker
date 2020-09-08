@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpconnect_apptconfig_checker
+namespace gpconnect_appointment_checker
 {
     public class Startup
     {
