@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-apptconfig-checker", "gpconnect-apptconfig-checker\gpconnect-apptconfig-checker.csproj", "{299D7E01-5B75-4934-AE9E-260DD25BA417}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BEBFC7C8-20FC-4579-AA46-11B54CBDE77F}
+	EndGlobalSection
+EndGlobal
