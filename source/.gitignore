@@ -255,10 +255,3 @@ paket-files/
 
 # CodeRush
 .cr/
-
-# Python Tools for Visual Studio (PTVS)
-__pycache__/
-*.pyc
-/ScubaGo_Site_v1/Properties/PublishProfiles/scubago-live-site-scubago-live-staging-paul - Web Deploy1.pubxml
-/ScubaGo_Site_v1/Properties/PublishProfiles/scubago-live-site-scubago-live-staging-paul - ReadOnly - FTP1.pubxml
-/ScubaGo_Site_v1/Properties/PublishProfiles/scubago-live-site-scubago-live-staging-paul - FTP1.pubxml
