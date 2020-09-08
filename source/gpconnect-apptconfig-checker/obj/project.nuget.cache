@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RyEIonKhTscD/YJ98aGeuuEuk+iwIbPZnfPb4RNnGO19JbsZXLvaj3UagM2yFkUiwNHzNQkp3dHCOS6bagOWqw==",
+  "dgSpecHash": "m8d4H0Q3xhr4r0QXLWH7fZmZK9YLT2WGl8BAk7xYJVO1sQQY690BBpRGalJ7y+4dkxSEP3jBdnCNbZeVEd4VpQ==",
   "success": true,
-  "projectFilePath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
+  "projectFilePath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Chris\\.nuget\\packages\\microsoft.aspnetcore.mvc.razor.extensions\\3.1.7\\microsoft.aspnetcore.mvc.razor.extensions.3.1.7.nupkg.sha512",
     "C:\\Users\\Chris\\.nuget\\packages\\microsoft.aspnetcore.mvc.razor.runtimecompilation\\3.1.7\\microsoft.aspnetcore.mvc.razor.runtimecompilation.3.1.7.nupkg.sha512",

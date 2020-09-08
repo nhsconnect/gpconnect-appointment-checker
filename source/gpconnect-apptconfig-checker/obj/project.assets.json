@@ -734,11 +734,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
+      "projectUniqueName": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
       "projectName": "gpconnect-apptconfig-checker",
-      "projectPath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
+      "projectPath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker.csproj",
       "packagesPath": "C:\\Users\\Chris\\.nuget\\packages\\",
-      "outputPath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\obj\\",
+      "outputPath": "D:\\Users\\Chris\\Source Code\\gpconnect-apptconfig-checker\\gpconnect-apptconfig-checker\\source\\gpconnect-apptconfig-checker\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
