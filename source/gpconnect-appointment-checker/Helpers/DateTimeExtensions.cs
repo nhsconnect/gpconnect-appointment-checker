@@ -9,5 +9,10 @@ namespace gpconnect_appointment_checker.Helpers
             int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
             return dt.AddDays(-1 * diff).Date;
         }
+
+        public static string DurationFormatter(this int duration, string durationUnits)
+        {
+            return $"{duration} {durationUnits}";
+        }
     }
 }

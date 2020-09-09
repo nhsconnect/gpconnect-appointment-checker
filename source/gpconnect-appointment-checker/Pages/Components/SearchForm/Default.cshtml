@@ -3,17 +3,17 @@
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="input-providerodscode">Provider ODS Code:</label>
-            <input class="nhsuk-input" id="input-providerodscode" name="providerodscode" type="text" value="@Model.ProviderODSCode">
+            <label class="nhsuk-label" for="input-providerodscode">@Model.SearchAtText</label>
+            <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" name="providerodscode" type="text" aria-describedby="input-width-10-hint" value="@Model.ProviderODSCode">
         </div>
 
         <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS Code:</label>
-            <input class="nhsuk-input" id="input-consumerodscode" name="consumerodscode" type="text" value="@Model.ConsumerODSCode">
+            <label class="nhsuk-label" for="input-consumerodscode">@Model.SearchOnBehalfOfText</label>
+            <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" name="consumerodscode" type="text" aria-describedby="input-width-10-hint" value="@Model.ConsumerODSCode">
         </div>
 
         <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="input-daterange">Date Range:</label>
+            <label class="nhsuk-label" for="input-daterange">@Model.DateRangeText</label>
             <select asp-for="@Model.SelectedDateRange"
                     asp-items="@Model.DateRanges"
                     class="nhsuk-select"
@@ -25,62 +25,58 @@
 </div>
 
 <div class="nhsuk-grid-row">
-    <div class="nhsuk-grid-column-one-half">
+    <div class="nhsuk-grid-column-two-thirds">
         <button class="nhsuk-button" type="button">@Model.SearchButtonText</button>
     </div>
-    <div class="nhsuk-grid-column-one-half">
+    <div class="nhsuk-grid-column-one-third">
         <button class="nhsuk-button nhsuk-button--secondary" type="button">@Model.ClearButtonText</button>
     </div>
 </div>
 
-<div class="nhsuk-grid-row">
-    <div class="nhsuk-grid-column-full">
-        <div class="nhsuk-table__panel-with-heading-tab">
-            <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
-            <div class="nhsuk-table-responsive">
-                <table class="nhsuk-table">
-                    <thead class="nhsuk-table__head">
-                        <tr class="nhsuk-table__row">
-                            <th class="nhsuk-table__header" scope="col">Date</th>
-                            <th class="nhsuk-table__header" scope="col">Location</th>
-                            <th class="nhsuk-table__header" scope="col">Session Name</th>
-                            <th class="nhsuk-table__header" scope="col">Start Time</th>
-                            <th class="nhsuk-table__header" scope="col">Duration</th>
-                            <th class="nhsuk-table__header" scope="col">Slot Type</th>
-                            <th class="nhsuk-table__header" scope="col">Delivery Channel</th>
-                            <th class="nhsuk-table__header" scope="col">Practitioner</th>
-                            <th class="nhsuk-table__header" scope="col">Practitioner Role</th>
-                            <th class="nhsuk-table__header" scope="col">Practitioner Gender</th>
+@if (Model.SearchResults != null  && Model.SearchResults.Count > 0)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-table__panel-with-heading-tab">
+                <h3 class="nhsuk-table__heading-tab">@Model.SearchResultsHeadingText</h3>
+                <div class="nhsuk-table-responsive">
+                    <table class="nhsuk-table-responsive">
+                        <thead>
+                        <tr class="nhsuk-table__row"> 
+                            @foreach (var column in Model.ResultColumns)
+                            {
+                                <th class="nhsuk-table__header" scope="col">@column</th>
+                            }
                         </tr>
-                    </thead>
-                    <tbody class="nhsuk-table__body">
-                        <tr class="nhsuk-table__row">
-                            <td class="nhsuk-table__cell">Tuesday 15th August 2020</td>
-                            <td class="nhsuk-table__cell ">Laurel Bank Surgery, North Lane, Skipton</td>
-                            <td class="nhsuk-table__cell ">Nurse clinic</td>
-                            <td class="nhsuk-table__cell ">08:10</td>
-                            <td class="nhsuk-table__cell ">10 mins</td>
-                            <td class="nhsuk-table__cell ">Child immunisation</td>
-                            <td class="nhsuk-table__cell ">In Person</td>
-                            <td class="nhsuk-table__cell ">ROBERTS, Sam (Mr)</td>
-                            <td class="nhsuk-table__cell ">Nurse practitioner</td>
-                            <td class="nhsuk-table__cell ">Male</td>
-                        </tr>
-                        <tr class="nhsuk-table__row">
-                            <td class="nhsuk-table__cell">Tuesday 15th August 2020</td>
-                            <td class="nhsuk-table__cell ">Laurel Bank Surgery, North Lane, Skipton</td>
-                            <td class="nhsuk-table__cell ">Nurse clinic</td>
-                            <td class="nhsuk-table__cell ">08:20</td>
-                            <td class="nhsuk-table__cell ">10 mins</td>
-                            <td class="nhsuk-table__cell ">Adult immunisation</td>
-                            <td class="nhsuk-table__cell ">In Person</td>
-                            <td class="nhsuk-table__cell ">ROBERTS, Sam (Mr)</td>
-                            <td class="nhsuk-table__cell ">Nurse practitioner</td>
-                            <td class="nhsuk-table__cell ">Male</td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="nhsuk-table__body">
+                        @foreach (var searchResult in Model.SearchResults)
+                        {
+                            <tr class="nhsuk-table__row">
+                                <td class="nhsuk-table__cell">@searchResult.AppointmentDate</td>
+                                <td class="nhsuk-table__cell">@searchResult.Location</td>
+                                <td class="nhsuk-table__cell">@searchResult.SessionName</td>
+                                <td class="nhsuk-table__cell">@searchResult.StartTime</td>
+                                <td class="nhsuk-table__cell">@searchResult.Duration</td>
+                                <td class="nhsuk-table__cell">@searchResult.SlotType</td>
+                                <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
+                                <td class="nhsuk-table__cell">@searchResult.Practitioner</td>
+                                <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
+                                <td class="nhsuk-table__cell">@searchResult.PractitionerGender</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-inset-text">
+                <span class="nhsuk-u-visually-hidden">Information: </span>
+                <p>Search took 1<text>s</text> and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")</p>
+            </div>
+        </div>
+    </div>
+}

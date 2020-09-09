@@ -19,7 +19,7 @@ namespace gpconnect_appointment_checker.Components
             _contextAccessor = contextAccessor;
         }
 
-        public IViewComponentResult Invoke(List<SelectListItem> dateRanges, string providerODSCode, string consumerODSCode, string dateRange, string searchButtonText, string clearButtonText)
+        public IViewComponentResult Invoke(List<SelectListItem> dateRanges, SearchResultItemList searchResults, string providerODSCode, string consumerODSCode, string dateRange, string searchButtonText, string clearButtonText, string searchAtText, string searchOnBehalfOfText, string dateRangeText, string searchResultsHeadingText, string resultColumns)
         {
 
             var form = new SearchForm
@@ -29,7 +29,13 @@ namespace gpconnect_appointment_checker.Components
                 ConsumerODSCode = consumerODSCode,
                 SelectedDateRange = dateRange,
                 SearchButtonText = searchButtonText,
-                ClearButtonText = clearButtonText
+                ClearButtonText = clearButtonText,
+                SearchAtText = searchAtText,
+                SearchOnBehalfOfText = searchOnBehalfOfText,
+                DateRangeText = dateRangeText,
+                SearchResultsHeadingText = searchResultsHeadingText,
+                ResultColumns = resultColumns.Split(","),
+                SearchResults = searchResults
             };
 
             return View(form);

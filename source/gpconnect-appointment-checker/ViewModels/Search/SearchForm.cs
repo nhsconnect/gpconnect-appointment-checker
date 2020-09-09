@@ -15,5 +15,14 @@ namespace gpconnect_appointment_checker.ViewModels.Search
 
         public string SearchButtonText { get; set; }
         public string ClearButtonText { get; set; }
+
+        public string SearchAtText { get; set; }
+        public string SearchOnBehalfOfText { get; set; }
+        public string DateRangeText { get; set; }
+        public string SearchResultsHeadingText { get; set; }
+
+        public string[] ResultColumns { get; set; }
+
+        public SearchResultItemList SearchResults { get; set; }
     }
 }

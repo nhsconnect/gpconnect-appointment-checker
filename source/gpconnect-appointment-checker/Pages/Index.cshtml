@@ -7,8 +7,14 @@
 
 <vc:search-form clear-button-text="Clear"
                 date-ranges="@Model.DateRanges"
+                search-results="@Model.SearchResults"
                 provider-ods-code=""
                 consumer-ods-code=""
                 date-range=""
+                search-at-text="Provider ODS Code (search at):"
+                search-on-behalf-of-text="Consumer ODS Code (search on behalf of):"
+                date-range-text="Date Range:"
+                search-results-heading-text="Available Appointment Slots"
+                result-columns="Date,Location,Session Name,Start Time,Duration,Slot Type,Delivery Channel,Practitioner,Practitioner Role,Practitioner Gender"
                 search-button-text="Search for free slots">
 </vc:search-form>
