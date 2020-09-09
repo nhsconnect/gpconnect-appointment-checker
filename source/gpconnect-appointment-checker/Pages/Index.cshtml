@@ -1,14 +1,14 @@
 ﻿@page
 @model IndexModel
+@addTagHelper *, gpconnect-appointment-checker
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "GP Connect Appointment Checker";
 }
 
-<div class="text-center">
-    <vc:search-form
-        clear-button-text="Clear"
-        consumer-ods-codes=""
-        provider-ods-codes=""
-        search-button-text="Search for free slots">
-    </vc:search-form>
-</div>
+<vc:search-form clear-button-text="Clear"
+                date-ranges="@Model.DateRanges"
+                provider-ods-code=""
+                consumer-ods-code=""
+                date-range=""
+                search-button-text="Search for free slots">
+</vc:search-form>

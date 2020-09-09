@@ -1,42 +1,86 @@
 ﻿@model gpconnect_appointment_checker.ViewModels.Search.SearchForm
 
-<div class="search-box" id="search-box">
-    <div class="form">
-        <div class="search-select">
-            <select asp-for="@Model.SelectedProviderODSCode"
-                    asp-items="@Model.ProviderODSCodes"
-                    class="form-control"
-                    name="search-providerodscode"
-                    id="search-providerodscode">
-            </select>
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="input-providerodscode">Provider ODS Code:</label>
+            <input class="nhsuk-input" id="input-providerodscode" name="providerodscode" type="text" value="@Model.ProviderODSCode">
         </div>
-        <div class="search-select">
-            <select asp-for="@Model.SelectedConsumerODSCode"
-                    asp-items="@Model.ConsumerODSCodes"
-                    class="form-control"
-                    name="search-consumerodscode"
-                    id="search-consumerodscode">
-            </select>
+
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS Code:</label>
+            <input class="nhsuk-input" id="input-consumerodscode" name="consumerodscode" type="text" value="@Model.ConsumerODSCode">
         </div>
-        <div class="search-select">
+
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="input-daterange">Date Range:</label>
             <select asp-for="@Model.SelectedDateRange"
                     asp-items="@Model.DateRanges"
-                    class="form-control"
-                    name="search-daterange"
-                    id="search-daterange">
+                    class="nhsuk-select"
+                    name="daterange"
+                    id="input-daterange">
             </select>
         </div>
     </div>
 </div>
 
-<div>
-    <button type="button" name="search-go">@Model.SearchButtonText</button>
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-one-half">
+        <button class="nhsuk-button" type="button">@Model.SearchButtonText</button>
+    </div>
+    <div class="nhsuk-grid-column-one-half">
+        <button class="nhsuk-button nhsuk-button--secondary" type="button">@Model.ClearButtonText</button>
+    </div>
 </div>
 
-<div>
-    <button type="button" name="search-clear">@Model.ClearButtonText</button>
-</div>
-
-
-<div id="divresults" class="table-body">
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-table__panel-with-heading-tab">
+            <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
+            <div class="nhsuk-table-responsive">
+                <table class="nhsuk-table">
+                    <thead class="nhsuk-table__head">
+                        <tr class="nhsuk-table__row">
+                            <th class="nhsuk-table__header" scope="col">Date</th>
+                            <th class="nhsuk-table__header" scope="col">Location</th>
+                            <th class="nhsuk-table__header" scope="col">Session Name</th>
+                            <th class="nhsuk-table__header" scope="col">Start Time</th>
+                            <th class="nhsuk-table__header" scope="col">Duration</th>
+                            <th class="nhsuk-table__header" scope="col">Slot Type</th>
+                            <th class="nhsuk-table__header" scope="col">Delivery Channel</th>
+                            <th class="nhsuk-table__header" scope="col">Practitioner</th>
+                            <th class="nhsuk-table__header" scope="col">Practitioner Role</th>
+                            <th class="nhsuk-table__header" scope="col">Practitioner Gender</th>
+                        </tr>
+                    </thead>
+                    <tbody class="nhsuk-table__body">
+                        <tr class="nhsuk-table__row">
+                            <td class="nhsuk-table__cell">Tuesday 15th August 2020</td>
+                            <td class="nhsuk-table__cell ">Laurel Bank Surgery, North Lane, Skipton</td>
+                            <td class="nhsuk-table__cell ">Nurse clinic</td>
+                            <td class="nhsuk-table__cell ">08:10</td>
+                            <td class="nhsuk-table__cell ">10 mins</td>
+                            <td class="nhsuk-table__cell ">Child immunisation</td>
+                            <td class="nhsuk-table__cell ">In Person</td>
+                            <td class="nhsuk-table__cell ">ROBERTS, Sam (Mr)</td>
+                            <td class="nhsuk-table__cell ">Nurse practitioner</td>
+                            <td class="nhsuk-table__cell ">Male</td>
+                        </tr>
+                        <tr class="nhsuk-table__row">
+                            <td class="nhsuk-table__cell">Tuesday 15th August 2020</td>
+                            <td class="nhsuk-table__cell ">Laurel Bank Surgery, North Lane, Skipton</td>
+                            <td class="nhsuk-table__cell ">Nurse clinic</td>
+                            <td class="nhsuk-table__cell ">08:20</td>
+                            <td class="nhsuk-table__cell ">10 mins</td>
+                            <td class="nhsuk-table__cell ">Adult immunisation</td>
+                            <td class="nhsuk-table__cell ">In Person</td>
+                            <td class="nhsuk-table__cell ">ROBERTS, Sam (Mr)</td>
+                            <td class="nhsuk-table__cell ">Nurse practitioner</td>
+                            <td class="nhsuk-table__cell ">Male</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

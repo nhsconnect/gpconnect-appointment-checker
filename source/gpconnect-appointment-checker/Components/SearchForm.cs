@@ -19,16 +19,14 @@ namespace gpconnect_appointment_checker.Components
             _contextAccessor = contextAccessor;
         }
 
-        public IViewComponentResult Invoke(List<SelectListItem> providerODSCodes, List<SelectListItem> consumerODSCodes, List<SelectListItem> dateRanges, string providerODSCode, string consumerODSCode, string dateRange, string searchButtonText, string clearButtonText)
+        public IViewComponentResult Invoke(List<SelectListItem> dateRanges, string providerODSCode, string consumerODSCode, string dateRange, string searchButtonText, string clearButtonText)
         {
 
             var form = new SearchForm
             {
-                ProviderODSCodes = providerODSCodes,
-                ConsumerODSCodes = consumerODSCodes,
                 DateRanges = dateRanges,
-                SelectedProviderODSCode = providerODSCode,
-                SelectedConsumerODSCode = consumerODSCode,
+                ProviderODSCode = providerODSCode,
+                ConsumerODSCode = consumerODSCode,
                 SelectedDateRange = dateRange,
                 SearchButtonText = searchButtonText,
                 ClearButtonText = clearButtonText
