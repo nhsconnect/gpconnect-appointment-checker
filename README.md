@@ -23,6 +23,10 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
 
 <img src="documentation/images/gpc-appointment-checker-high-level-architecture.png">
 
+## User flow
+
+<img src="documentation/images/gpc-appointment-checker-page-routing.png">
+
 ## Building
 
 [TBC]
