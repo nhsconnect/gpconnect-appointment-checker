@@ -12,9 +12,11 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
     - Razor pages
     - hosted within Docker
   - Postgresql 11
+    - stored functions
+    - npgsql + dapper
     - patched with Flyaway 6.5.5
   - NHS UK frontend
-  - NHS Mail authenication
+  - NHS Mail authentication
   - Built according to progressive enhancement
 
 ## High level architecture
