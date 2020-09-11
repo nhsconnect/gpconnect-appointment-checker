@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace gpconnect_apptconfig_checker.DAL
+namespace gpconnect_appointment_checker.Logging
 {
     public class Class1
     {

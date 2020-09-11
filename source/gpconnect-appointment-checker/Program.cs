@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace gpconnect_appointment_checker
 {
@@ -21,6 +17,24 @@ namespace gpconnect_appointment_checker
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .ConfigureAppConfiguration((builderContext, config) =>
+                {
+                    if (builderContext.HostingEnvironment.IsDevelopment())
+                    {
+                        config.AddUserSecrets<Program>();
+                    }
+                }).ConfigureAppConfiguration(AddDbConfiguration);
+
+        private static void AddDbConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+        {
+            var configuration = builder.Build();
+
+            builder.GetCustomConfiguration(options =>
+            {
+                options.Configuration = configuration.GetSection("connectionStrings:Configuration").Value;
+                options.Query = configuration.GetSection("connectionStrings:Query").Value;
+            });
+        }
     }
 }

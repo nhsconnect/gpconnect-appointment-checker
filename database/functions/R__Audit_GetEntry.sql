@@ -1,4 +1,4 @@
-CREATE FUNCTION audit.get_entry() RETURNS SETOF audit.entry
+CREATE OR REPLACE FUNCTION audit.get_entry() RETURNS SETOF audit.entry
     LANGUAGE plpgsql
     AS $$
 begin

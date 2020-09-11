@@ -1,20 +1,14 @@
 ﻿@page
-@model IndexModel
 @addTagHelper *, gpconnect-appointment-checker
 @{
     ViewData["Title"] = "GP Connect Appointment Checker";
 }
 
-<vc:search-form clear-button-text="Clear"
-                date-ranges="@Model.DateRanges"
-                search-results="@Model.SearchResults"
-                provider-ods-code=""
-                consumer-ods-code=""
-                date-range=""
-                search-at-text="Provider ODS Code (search at):"
-                search-on-behalf-of-text="Consumer ODS Code (search on behalf of):"
-                date-range-text="Date Range:"
-                search-results-heading-text="Available Appointment Slots"
-                result-columns="Date,Location,Session Name,Start Time,Duration,Slot Type,Delivery Channel,Practitioner,Practitioner Role,Practitioner Gender"
-                search-button-text="Search for free slots">
-</vc:search-form>
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-two-thirds">
+        <div class="nhsuk-warning-callout">
+            <h3 class="nhsuk-warning-callout__label">Access to GP Connect Appointment Checker</h3>
+            <p>This application is restricted to registered users of the NHS. You need to sign in to use it.</p>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,18 @@ CREATE SCHEMA configuration;
 
 CREATE SCHEMA logging;
 
+CREATE TABLE logging.exception
+( 
+    Id serial primary key,
+    Application character varying(100) NULL,
+    Logged text,
+    Level character varying(100) NULL,
+    Message character varying(8000) NULL,
+    Logger character varying(8000) NULL, 
+    Callsite character varying(8000) NULL, 
+    Exception character varying(8000) NULL
+)
+
 CREATE TABLE audit.entry (
     entry_id integer NOT NULL,
     ip character varying(1000) NOT NULL,

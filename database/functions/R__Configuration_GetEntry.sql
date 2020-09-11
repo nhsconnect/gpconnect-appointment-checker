@@ -1,4 +1,4 @@
-CREATE FUNCTION configuration.get_entry() RETURNS SETOF configuration.entry
+CREATE OR REPLACE FUNCTION configuration.get_entry() RETURNS SETOF configuration.entry
     LANGUAGE plpgsql
     AS $$
 begin

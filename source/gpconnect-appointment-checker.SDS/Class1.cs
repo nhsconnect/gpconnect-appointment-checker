@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace gpconnect_apptconfig_checker.SDS
+namespace gpconnect_appointment_checker.SDS
 {
     public class Class1
     {
