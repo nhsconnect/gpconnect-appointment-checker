@@ -110,20 +110,6 @@ create table configuration.spine
     constraint configuration_spine_asid_ck check (char_length(trim(asid)) > 0)
 );
 
-create table configuration.spine_message_type
-(
-    spine_message_type_id smallint not null,
-    spine_message_type_name varchar(200) not null,
-    interaction_id varchar(200) not null,
-
-    constraint configuration_spinemessagetype_spinemessagetypeid_pk primary key (spine_message_type_id),
-    constraint configuration_spinemessagetype_spinemessagetypename_ck check (char_length(trim(spine_message_type_name)) > 0),
-    constraint configuration_spinemessagetype_interactionid_ck check (char_length(trim(interaction_id)) > 0)
-);
-
-create unique index configuration_spinemessagetype_spinemessagetypename_ix on configuration.spine_message_type (lower(spine_message_type_name));
-create unique index configuration_spinemessagetype_interactionid_ix on configuration.spine_message_type (lower(interaction_id));
-
 /*
     create tables - audit
 */
@@ -175,6 +161,20 @@ create table logging.log
     constraint logging_log_logid_pk primary key (log_id)
 );
 
+create table logging.spine_message_type
+(
+    spine_message_type_id smallint not null,
+    spine_message_type_name varchar(200) not null,
+    interaction_id varchar(200) not null,
+
+    constraint logging_spinemessagetype_spinemessagetypeid_pk primary key (spine_message_type_id),
+    constraint logging_spinemessagetype_spinemessagetypename_ck check (char_length(trim(spine_message_type_name)) > 0),
+    constraint logging_spinemessagetype_interactionid_ck check (char_length(trim(interaction_id)) > 0)
+);
+
+create unique index logging_spinemessagetype_spinemessagetypename_ix on logging.spine_message_type (lower(spine_message_type_name));
+create unique index logging_spinemessagetype_interactionid_ix on logging.spine_message_type (lower(interaction_id));
+
 create table logging.spine_message
 ( 
     spine_message_id serial not null,
@@ -190,7 +190,7 @@ create table logging.spine_message
     roundtriptime_ms integer not null,
 
     constraint logging_spinemessage_spinemessageid_pk primary key (spine_message_id),
-    constraint logging_spinemessage_spinemessagetypeid_fk foreign key (spine_message_type_id) references configuration.spine_message_type (spine_message_type_id),
+    constraint logging_spinemessage_spinemessagetypeid_fk foreign key (spine_message_type_id) references logging.spine_message_type (spine_message_type_id),
     constraint logging_spinemessage_usersessionid_fk foreign key (user_session_id) references audit.user_session (user_session_id),
     constraint logging_spinemessage_roundtriptimems_ck check (roundtriptime_ms > 0)
 );
@@ -218,30 +218,6 @@ create table logging.web_request (
 /*
     insert initial data
 */
-insert into configuration.spine_message_type
-(
-    spine_message_type_id,
-    spine_message_type_name,
-    interaction_id
-)
-values
-(
-    1,
-    'Spine Directory Service - LDAP query',
-    'urn:nhs:names:services:sds:ldap'
-),
-(
-
-    2,
-    'GP Connect - Read metadata (Appointment Management)',
-    'urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1'
-),
-(
-    3,
-    'GP Connect - Search for free slots',
-    'urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1'
-);
-
 insert into application.organisation_type
 (
     organisation_type_id,
@@ -284,4 +260,28 @@ values
     false, 
     now(), 
     now()
+);
+
+insert into logging.spine_message_type
+(
+    spine_message_type_id,
+    spine_message_type_name,
+    interaction_id
+)
+values
+(
+    1,
+    'Spine Directory Service - LDAP query',
+    'urn:nhs:names:services:sds:ldap'
+),
+(
+
+    2,
+    'GP Connect - Read metadata (Appointment Management)',
+    'urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1'
+),
+(
+    3,
+    'GP Connect - Search for free slots',
+    'urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1'
 );
