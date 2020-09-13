@@ -8,7 +8,6 @@
 create schema application;
 create schema configuration;
 create schema logging;
-create schema audit;
 
 /*
     create tables - application
@@ -53,20 +52,33 @@ create table application.user
 (
     user_id serial not null,
     email_address varchar(200) not null,
-    display_name varchar(100) not null,
+    display_name varchar(200) not null,
     organisation_id integer not null,
-    user_auth_status boolean not null,
-
+    is_authorised boolean not null,
     added_date timestamp not null,
-    last_loggedin_date timestamp not null,
+    authorised_date timestamp not null,
+    last_logon_date timestamp not null,
 
     constraint application_user_userid_pk primary key (user_id),
     constraint application_user_emailaddress_ck check (char_length(trim(email_address)) > 0),
     constraint application_user_displayname_ck check (char_length(trim(display_name)) > 0),
-    constraint application_user_organisationid_pk foreign key (organisation_id) references application.organisation (organisation_id)
+    constraint application_user_organisationid_pk foreign key (organisation_id) references application.organisation (organisation_id),
+    constraint application_user_isauthorised_authoriseddate_ck check ((is_authorised and authorised_date is not null) and (not is_authorised and authorised_date is null))
 );
 
 create unique index application_user_emailaddress_ix on application.user (lower(email_address));
+
+create table application.user_session
+(
+    user_session_id serial not null,
+    user_id integer not null,
+    start_time timestamp not null,
+    end_time timestamp null,
+
+    constraint application_usersession_usersessionid_pk primary key (user_session_id),
+    constraint application_usersession_userid_fk foreign key (user_id) references application.user (user_id),
+    constraint application_usersession_starttime_endtime_ck check (start_time < end_time)
+);
 
 /*
     create tables - configuration
@@ -110,25 +122,27 @@ create table configuration.spine
     constraint configuration_spine_asid_ck check (char_length(trim(asid)) > 0)
 );
 
-/*
-    create tables - audit
-*/
-create table audit.user_session
+create table configuration.spine_message_type
 (
-    user_session_id serial not null,
-    user_id integer not null,
-    start_time timestamp not null,
-    end_time timestamp null,
+    spine_message_type_id smallint not null,
+    spine_message_type_name varchar(200) not null,
+    interaction_id varchar(200) not null,
 
-    constraint audit_usersession_usersessionid_pk primary key (user_session_id),
-    constraint audit_usersession_userid_fk foreign key (user_id) references application.user (user_id),
-    constraint audit_usersession_starttime_endtime_ck check (start_time < end_time)
+    constraint configuration_spinemessagetype_spinemessagetypeid_pk primary key (spine_message_type_id),
+    constraint configuration_spinemessagetype_spinemessagetypename_ck check (char_length(trim(spine_message_type_name)) > 0),
+    constraint configuration_spinemessagetype_interactionid_ck check (char_length(trim(interaction_id)) > 0)
 );
 
-create table audit.slot_search
+create unique index configuration_spinemessagetype_spinemessagetypename_ix on configuration.spine_message_type (lower(spine_message_type_name));
+create unique index configuration_spinemessagetype_interactionid_ix on configuration.spine_message_type (lower(interaction_id));
+
+/*
+    create tables - logging
+*/
+create table logging.slot_search_audit
 (
     slot_search_id serial not null,
-    user_id integer not null,
+    user_session_id integer not null,
     consumer_ods_code varchar(20) not null,
     provider_ods_code varchar(20) not null,
     searchtime_ms integer not null,
@@ -137,16 +151,13 @@ create table audit.slot_search
     was_success boolean not null,
     error_message varchar(1000) null,
 
-    constraint audit_slotsearch_slotsearchid_pk primary key (slot_search_id),
-    constraint audit_slotsearch_userid_fk foreign key (user_id) references application.user (user_id),
-    constraint audit_slotsearch_searchtimems_ck check (searchtime_ms >= 0),
+    constraint logging_slotsearch_slotsearchid_pk primary key (slot_search_id),
+    constraint logging_slotsearch_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
+    constraint logging_slotsearch_searchtimems_ck check (searchtime_ms >= 0),
 
-    constraint audit_slotsearch_wassuccess_errormessage_ck check ((was_success and error_message is null) or ((not was_success) and (error_message is not null)))
+    constraint logging_slotsearch_wassuccess_errormessage_ck check ((was_success and error_message is null) or ((not was_success) and (error_message is not null)))
 );
 
-/*
-    create tables - logging
-*/
 create table logging.log
 ( 
     log_id serial not null,
@@ -160,20 +171,6 @@ create table logging.log
 
     constraint logging_log_logid_pk primary key (log_id)
 );
-
-create table logging.spine_message_type
-(
-    spine_message_type_id smallint not null,
-    spine_message_type_name varchar(200) not null,
-    interaction_id varchar(200) not null,
-
-    constraint logging_spinemessagetype_spinemessagetypeid_pk primary key (spine_message_type_id),
-    constraint logging_spinemessagetype_spinemessagetypename_ck check (char_length(trim(spine_message_type_name)) > 0),
-    constraint logging_spinemessagetype_interactionid_ck check (char_length(trim(interaction_id)) > 0)
-);
-
-create unique index logging_spinemessagetype_spinemessagetypename_ix on logging.spine_message_type (lower(spine_message_type_name));
-create unique index logging_spinemessagetype_interactionid_ix on logging.spine_message_type (lower(interaction_id));
 
 create table logging.spine_message
 ( 
@@ -190,8 +187,8 @@ create table logging.spine_message
     roundtriptime_ms integer not null,
 
     constraint logging_spinemessage_spinemessageid_pk primary key (spine_message_id),
-    constraint logging_spinemessage_spinemessagetypeid_fk foreign key (spine_message_type_id) references logging.spine_message_type (spine_message_type_id),
-    constraint logging_spinemessage_usersessionid_fk foreign key (user_session_id) references audit.user_session (user_session_id),
+    constraint logging_spinemessage_spinemessagetypeid_fk foreign key (spine_message_type_id) references configuration.spine_message_type (spine_message_type_id),
+    constraint logging_spinemessage_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
     constraint logging_spinemessage_roundtriptimems_ck check (roundtriptime_ms > 0)
 );
 
@@ -210,7 +207,7 @@ create table logging.web_request (
     user_agent varchar(1000) not null,
 
     constraint logging_webrequest_webrequestid_pk primary key (web_request_id),
-    constraint logging_webrequest_usersessionid_fk foreign key (user_session_id) references audit.user_session (user_session_id)
+    constraint logging_webrequest_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id)
 );
 
 
@@ -262,7 +259,7 @@ values
     now()
 );
 
-insert into logging.spine_message_type
+insert into configuration.spine_message_type
 (
     spine_message_type_id,
     spine_message_type_name,
