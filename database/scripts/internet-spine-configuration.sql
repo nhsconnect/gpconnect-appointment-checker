@@ -1,4 +1,4 @@
-insert into configuration.spine_configuration
+insert into configuration.spine
 (
     single_row_lock,
     use_ssp,

@@ -239,6 +239,21 @@ create table logging.web_request
 /*
     insert initial data
 */
+insert into configuration.general
+(
+    single_row_lock,
+    product_name,
+    product_version,
+    max_num_weeks_search
+)
+values
+(
+    true,
+    'GP Connect Appointment Checker',
+    '1.0.0',
+    12
+);
+
 insert into application.organisation_type
 (
     organisation_type_id,
@@ -281,6 +296,31 @@ values
     false, 
     now(), 
     now()
+);
+
+insert into configuration.spine
+(
+    single_row_lock,
+    use_ssp,
+    ssp_hostname,
+    sds_hostname,
+    sds_port,
+    sds_use_ldaps,
+    organisation_id,
+    party_key,
+    asid
+)
+values
+(
+    true,
+    false,
+    null,
+    'orange.testlab.nhs.uk',
+    636,
+    true,
+    1,
+    'ABC-123456',
+    '100000000001'
 );
 
 insert into configuration.spine_message_type
