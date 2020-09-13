@@ -23,16 +23,16 @@ begin
 	then
 		raise exception '_user_session_id and matching _email_address combination not found';
 		return;
-	end;
+	end if;
 
 	--------------------------------------------
 	-- end the session
 	--
-	update application.user_session us
+	update application.user_session
 	set
-		us.end_time = now()
-	where us.user_session_id = _user_session_id
-	and us.end_time is null;
+		end_time = now()
+	where user_session_id = _user_session_id
+	and end_time is null;
 
 end;
 $$ language plpgsql;
