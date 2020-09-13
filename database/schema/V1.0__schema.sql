@@ -8,6 +8,7 @@
 create schema application;
 create schema configuration;
 create schema logging;
+create schema audit;
 
 /*
     create tables - application
@@ -137,9 +138,26 @@ create unique index configuration_spinemessagetype_spinemessagetypename_ix on co
 create unique index configuration_spinemessagetype_interactionid_ix on configuration.spine_message_type (lower(interaction_id));
 
 /*
-    create tables - logging
+    create tables - audit
 */
-create table logging.slot_search_audit
+/* todo
+create table audit.audit_entry 
+(
+    audit_entry_id integer not null,
+    ip character varying(1000) not null,
+    user_name varchar(255) not null,
+    ods_code varchar(255),
+    created_date date not null,
+    description character varying(1000) not null
+);
+
+create table audit.entry_type 
+(
+    entry_type_id integer not null,
+    description varchar(1000) not null
+);
+
+create table audit.slot_search_audit
 (
     slot_search_id serial not null,
     user_session_id integer not null,
@@ -151,13 +169,17 @@ create table logging.slot_search_audit
     was_success boolean not null,
     error_message varchar(1000) null,
 
-    constraint logging_slotsearch_slotsearchid_pk primary key (slot_search_id),
-    constraint logging_slotsearch_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
-    constraint logging_slotsearch_searchtimems_ck check (searchtime_ms >= 0),
+    constraint audit_slotsearch_slotsearchid_pk primary key (slot_search_id),
+    constraint audit_slotsearch_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
+    constraint audit_slotsearch_searchtimems_ck check (searchtime_ms >= 0),
 
-    constraint logging_slotsearch_wassuccess_errormessage_ck check ((was_success and error_message is null) or ((not was_success) and (error_message is not null)))
+    constraint audit_slotsearch_wassuccess_errormessage_ck check ((was_success and error_message is null) or ((not was_success) and (error_message is not null)))
 );
+*/
 
+/*
+    create tables - logging
+*/
 create table logging.log
 ( 
     log_id serial not null,
