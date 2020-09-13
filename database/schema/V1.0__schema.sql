@@ -34,7 +34,7 @@ create table application.organisation
     locality varchar(100) not null,
     city varchar(100) not null,
     county varchar(100) not null,
-    postcode varchar(100) not null,
+    postcode varchar(10) not null,
     is_gpconnect_consumer boolean not null,
     is_gpconnect_provider boolean not null,
     added_date timestamp not null,
