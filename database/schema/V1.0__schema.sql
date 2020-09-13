@@ -104,7 +104,8 @@ create table configuration.general
 create table configuration.spine
 (
     single_row_lock boolean,
-    ssp_hostname varchar(100) not null,
+    use_ssp boolean not null,
+    ssp_hostname varchar(100) null,
     sds_hostname varchar(100) not null,
     sds_port integer not null,
     sds_use_ldaps boolean not null,
@@ -117,7 +118,7 @@ create table configuration.spine
 
     constraint configuration_spine_singlerowlock_pk primary key (single_row_lock),
     constraint configuration_spine_singlerowlock_ck check (single_row_lock = true),
-    constraint configuration_spine_ssphostname_ck check (char_length(trim(ssp_hostname)) > 0),
+    constraint configuration_spine_ssphostname_ck check ((char_length(trim(coalesce(ssp_hostname, ''))) > 0) or (not use_ssp)),
     constraint configuration_spine_sdshostname_ck check (char_length(trim(sds_hostname)) > 0),
     constraint configuration_spine_sdsport_ck check (sds_port > 0),
     constraint configuration_spine_organisationid_fk foreign key (organisation_id) references application.organisation (organisation_id),

@@ -3,6 +3,7 @@ create or replace function configuration.get_spine_configuration
 )
 returns table
 (
+    use_ssp boolean,
     ssp_hostname varchar(100),
     sds_hostname varchar(100),
     sds_port integer,
@@ -16,6 +17,7 @@ begin
 
 	return query
 	select
+	    s.use_ssp,
 	    s.ssp_hostname,
 	    s.sds_hostname,
 	    s.sds_port,
