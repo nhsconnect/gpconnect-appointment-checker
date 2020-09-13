@@ -56,14 +56,14 @@ create table application.user
     organisation_id integer not null,
     is_authorised boolean not null,
     added_date timestamp not null,
-    authorised_date timestamp not null,
-    last_logon_date timestamp not null,
+    authorised_date timestamp null,
+    last_logon_date timestamp null,
 
     constraint application_user_userid_pk primary key (user_id),
     constraint application_user_emailaddress_ck check (char_length(trim(email_address)) > 0),
     constraint application_user_displayname_ck check (char_length(trim(display_name)) > 0),
     constraint application_user_organisationid_pk foreign key (organisation_id) references application.organisation (organisation_id),
-    constraint application_user_isauthorised_authoriseddate_ck check ((is_authorised and authorised_date is not null) and (not is_authorised and authorised_date is null))
+    constraint application_user_isauthorised_authoriseddate_ck check ((is_authorised and authorised_date is not null) or ((not is_authorised) and authorised_date is null))
 );
 
 create unique index application_user_emailaddress_ix on application.user (lower(email_address));
