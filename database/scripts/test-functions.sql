@@ -55,3 +55,14 @@ from application.logoff_user
     1
 );
 
+select * 
+from logging.log_error
+(
+    'Appointments Checker', 
+    current_date::timestamp, 
+    'Trace', 
+    'Test', 
+    'SQL script', 
+    null, 
+    null
+);

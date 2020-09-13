@@ -181,9 +181,9 @@ create table audit.entry
 /*
     create tables - logging
 */
-create table logging.log
+create table logging.error_log
 ( 
-    log_id serial not null,
+    error_log_id serial not null,
     application varchar(100) null,
     logged timestamp,
     level varchar(100) null,
@@ -192,7 +192,7 @@ create table logging.log
     callsite varchar(8000) null, 
     exception varchar(8000) null,
 
-    constraint logging_log_logid_pk primary key (log_id)
+    constraint logging_errorlog_logid_pk primary key (error_log_id)
 );
 
 create table logging.spine_message
