@@ -6,7 +6,6 @@ returns table
 (
 	organisation_id integer,
 	ods_code varchar(10),
-	organisation_type_id smallint,
 	organisation_type_name varchar(200),
 	organisation_name varchar(100),
 	address_line_1 varchar(100),
@@ -21,11 +20,18 @@ returns table
 as $$
 begin
 
+	--------------------------------------------
+	-- clean parameters
+	--
+	_ods_code = trim(upper(coalesce(_ods_code, '')));
+
+	--------------------------------------------
+	-- return organisation
+	--
 	return query
 	select
 		o.organisation_id,
 		o.ods_code,
-		o.organisation_type_id,
 		ot.organisation_type_name,
 		o.organisation_name,
 		o.address_line_1,
@@ -38,8 +44,7 @@ begin
 		o.is_gpconnect_provider
 	from application.organisation o
 	inner join application.organisation_type ot on o.organisation_type_id = ot.organisation_type_id
-	where o.ods_code = trim(upper(coalesce(_ods_code, '')));
+	where o.ods_code = _ods_code;
 	
 end;
 $$ language plpgsql;
-

@@ -1,4 +1,4 @@
-create or replace function application.insert_update_organisation
+create or replace function application.synchronise_organisation
 (
 	_ods_code varchar(10),
 	_organisation_type_name varchar(200),
@@ -46,13 +46,12 @@ begin
 	--------------------------------------------
 	-- insert/get organisation type
 	--
-	if not exists
-	(
-		select 
-			*
-		from application.organisation_type
-		where lower(organisation_type_name) = lower(_organisation_type_name)
-	)
+	select 
+		ot.organisation_type_id into _organisation_type_id
+	from application.organisation_type ot
+	where lower(ot.organisation_type_name) = lower(_organisation_type_name);
+
+	if (_organisation_type_id is null)
 	then
 		insert into application.organisation_type
 		(
@@ -60,15 +59,11 @@ begin
 			organisation_type_name
 		)
 		select
-			coalesce(max(organisation_type_id), 0) + 1,
+			coalesce(max(ot.organisation_type_id), 0) + 1,
 			_organisation_type_name
-		from application.organisation_type;
+		from application.organisation_type ot
+		returning organisation_type_id into _organisation_type_id;
 	end if;
-
-	select 
-		organisation_type_id into _organisation_type_id
-	from application.organisation_type
-	where lower(organisation_type_name) = lower(_organisation_type_name);
 	
 	--------------------------------------------
 	-- insert/get organisation
