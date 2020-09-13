@@ -317,28 +317,28 @@ insert into audit.entry_type
 values
 (
     1,
-    'Logon success',
+    'User logon success',
     null,
     null,
     null
 ),
 (
     2,
-    'Logon failed',
+    'User logon failed',
     'reason',
     null,
     null
 ),
 (
     3,
-    'Logoff',
+    'User logoff',
     null,
     null,
     null
 ),
 (
     4,
-    'Slot search',
+    'User ran slot search',
     'consumer ods code',
     'provider ods code',
     'slot result count, or error message'
@@ -358,24 +358,17 @@ values
     null
 ),
 (
-    6,
+    7,
     'Organisation name changed',
     'old organisation_name',
     'new organisation_name',
     null
 ),
 (
-    7,
+    8,
     'Organisation type changed',
     'old organisation_type_name',
     'new organisation_type_name',
-    null
-),
-(
-    8,
-    'Organisation address changed',
-    'old organisation address',
-    'new organisation address',
     null
 ),
 (

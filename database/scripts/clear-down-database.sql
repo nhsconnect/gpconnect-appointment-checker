@@ -5,6 +5,6 @@
     drop schema application cascade;
     drop schema audit cascade;
     drop schema logging cascade;
-    drop schema logging cascade;
+    drop schema configuration cascade;
 
 */
