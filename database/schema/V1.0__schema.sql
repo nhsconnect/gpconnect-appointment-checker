@@ -2,6 +2,7 @@
     Schema V1.0: Initial schema
 */
 
+
 /* 
     create schemas
 */
@@ -9,6 +10,7 @@ create schema application;
 create schema configuration;
 create schema logging;
 create schema audit;
+
 
 /*
     create tables - application
@@ -81,6 +83,7 @@ create table application.user_session
     constraint application_usersession_starttime_endtime_ck check (start_time < end_time)
 );
 
+
 /*
     create tables - configuration
 */
@@ -137,45 +140,43 @@ create table configuration.spine_message_type
 create unique index configuration_spinemessagetype_spinemessagetypename_ix on configuration.spine_message_type (lower(spine_message_type_name));
 create unique index configuration_spinemessagetype_interactionid_ix on configuration.spine_message_type (lower(interaction_id));
 
+
 /*
     create tables - audit
 */
-/* todo
-create table audit.audit_entry 
-(
-    audit_entry_id integer not null,
-    ip character varying(1000) not null,
-    user_name varchar(255) not null,
-    ods_code varchar(255),
-    created_date date not null,
-    description character varying(1000) not null
-);
-
 create table audit.entry_type 
 (
-    entry_type_id integer not null,
-    description varchar(1000) not null
+    entry_type_id smallint not null,
+    entry_description varchar(200) not null,
+    item1_description varchar(100) null,
+    item2_description varchar(100) null,
+    item3_description varchar(100) null,
+
+    constraint audit_entrytype_entrytypeid_pk primary key (entry_type_id),
+    constraint audit_entrytype_entrydescription_ck check (char_length(trim(entry_description)) > 0)
 );
 
-create table audit.slot_search_audit
+create unique index audit_entrytype_entrydescription_ix on audit.entry_type (lower(entry_description));
+
+create table audit.entry 
 (
-    slot_search_id serial not null,
-    user_session_id integer not null,
-    consumer_ods_code varchar(20) not null,
-    provider_ods_code varchar(20) not null,
-    searchtime_ms integer not null,
-    results_count integer null,
-    logged_time timestamp not null,
-    was_success boolean not null,
-    error_message varchar(1000) null,
+    entry_id serial not null,
+    user_id integer null,
+    user_session_id integer null,
+    entry_type_id smallint not null,
+    item1 varchar(100) null,
+    item2 varchar(100) null,
+    item3 varchar(100) null,
+    details varchar(1000) null,
+    entry_elapsed_ms integer null,
+    entry_date timestamp not null,
 
-    constraint audit_slotsearch_slotsearchid_pk primary key (slot_search_id),
-    constraint audit_slotsearch_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
-    constraint audit_slotsearch_searchtimems_ck check (searchtime_ms >= 0),
-
-    constraint audit_slotsearch_wassuccess_errormessage_ck check ((was_success and error_message is null) or ((not was_success) and (error_message is not null)))
+    constraint audit_entry_entryid_pk primary key (entry_id),
+    constraint audit_entry_userid_fk foreign key (user_id) references application.user (user_id),
+    constraint audit_entry_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id),
+    constraint audit_entry_entrytypeid_fk foreign key (entry_type_id) references audit.entry_type (entry_type_id)
 );
-*/
+
 
 /*
     create tables - logging
@@ -232,7 +233,6 @@ create table logging.web_request
     constraint logging_webrequest_webrequestid_pk primary key (web_request_id),
     constraint logging_webrequest_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id)
 );
-
 
 
 /*
@@ -304,4 +304,35 @@ values
     3,
     'GP Connect - Search for free slots',
     'urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1'
+);
+
+insert into audit.entry_type
+(
+    entry_type_id,
+    entry_description,
+    item1_description,
+    item2_description,
+    item3_description
+)
+values
+(
+    1,
+    'Logon success',
+    null,
+    null,
+    null
+),
+(
+    2,
+    'Logon failed - not authorised',
+    null,
+    null,
+    null
+),
+(
+    3,
+    'Slot search',
+    'consumer ods code',
+    'provider ods code',
+    'slot result count, or error message'
 );
