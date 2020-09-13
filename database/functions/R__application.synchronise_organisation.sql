@@ -72,8 +72,8 @@ begin
 	(
 		select 
 			*
-		from application.organisation
-		where ods_code = _ods_code
+		from application.organisation o
+		where o.ods_code = _ods_code
 	)
 	then
 		insert into application.organisation
@@ -136,6 +136,9 @@ begin
 			or is_gpconnect_consumer != _is_gpconnect_consumer
 			or is_gpconnect_provider != _is_gpconnect_provider
 		);
+
+		-- TODO write audit based on fields changed
+
 	end if;
 
 end;

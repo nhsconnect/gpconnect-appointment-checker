@@ -324,15 +324,78 @@ values
 ),
 (
     2,
-    'Logon failed - not authorised',
-    null,
+    'Logon failed',
+    'reason',
     null,
     null
 ),
 (
     3,
+    'Logoff',
+    null,
+    null,
+    null
+),
+(
+    4,
     'Slot search',
     'consumer ods code',
     'provider ods code',
     'slot result count, or error message'
+),
+(
+    5,
+    'User display name changed',
+    'old display_name',
+    'new display_name',
+    null
+),
+(
+    6,
+    'User organisation changed',
+    'old organisation_id',
+    'new organisation_id',
+    null
+),
+(
+    6,
+    'Organisation name changed',
+    'old organisation_name',
+    'new organisation_name',
+    null
+),
+(
+    7,
+    'Organisation type changed',
+    'old organisation_type_name',
+    'new organisation_type_name',
+    null
+),
+(
+    8,
+    'Organisation address changed',
+    'old organisation address',
+    'new organisation address',
+    null
+),
+(
+    9,
+    'Organisation address changed',
+    'old organisation address',
+    'new organisation address',
+    null
+),
+(
+    10,
+    'Organisation GP Connect consumer status changed',
+    'old is_gpconnect_consumer',
+    'new is_gpconnect_consumer',
+    null
+),
+(
+    11,
+    'Organisation GP Connect provider status changed',
+    'old is_gpconnect_provider',
+    'new is_gpconnect_provider',
+    null
 );

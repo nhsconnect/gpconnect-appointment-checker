@@ -84,7 +84,8 @@ begin
 
 		-- TODO deal with change in display_name
 		-- TODO deal with change in organisation_id
-
+		-- TODO write audit based on fields changed
+		
 	end if;
 
 	--------------------------------------------
@@ -92,12 +93,14 @@ begin
 	--
 	if (_is_authorised)
 	then
+		-- update last logon date
 		update application.user u
 		set
 			last_logon_date = _logon_date
 		where u.user_id = _user_id
 		and u.is_authorised;
 
+		-- create user session
 		insert into application.user_session
 		(
 			user_id,
@@ -112,6 +115,27 @@ begin
 			user_session.user_session_id 
 		into
 			_user_session_id;
+
+		-- audit logon success
+		perform
+		from audit.add_entry
+		(
+    		_user_id := _user_id,
+    		_user_session_id := _user_session_id,
+    		_entry_type_id := 1
+		);
+	else
+
+		-- audit logon failure
+		perform
+		from audit.add_entry
+		(
+    		_user_id := _user_id,
+    		_user_session_id := _user_session_id,
+    		_entry_type_id := 2,
+    		_item1 := 'user not authorised'
+		);
+
 	end if;
 
 	--------------------------------------------
