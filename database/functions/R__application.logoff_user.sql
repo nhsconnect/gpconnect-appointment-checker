@@ -37,7 +37,7 @@ begin
 		where us.user_session_id = _user_session_id
 		and us.end_time is null
 	)
-	begin
+	then
 		update application.user_session
 		set
 			end_time = now()
@@ -48,10 +48,10 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-	    	_user_session_id := _user_session_id,
-	    	_entry_type_id := 3
+			_user_session_id := _user_session_id,
+			_entry_type_id := 3
 		);
-	end;
+	end if;
 
 end;
 $$ language plpgsql;
