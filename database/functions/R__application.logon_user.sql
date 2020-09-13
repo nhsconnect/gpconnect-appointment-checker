@@ -37,7 +37,7 @@ begin
 	then
 		raise exception '_organisation_id does not exist in application.organisation';
 		return;
-	end;
+	end if;
 
 	--------------------------------------------
 	-- find / create user
