@@ -188,6 +188,8 @@ create table logging.error_log
     application varchar(100) null,
     logged timestamp,
     level varchar(100) null,
+    user_id integer null,
+    user_session_id integer null,
     message varchar(8000) null,
     logger varchar(8000) null, 
     callsite varchar(8000) null, 
