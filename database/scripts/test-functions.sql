@@ -49,6 +49,13 @@ from application.logoff_user
     1
 );
 
+select * 
+from application.set_user_isauthorised
+(
+    'test@test.com',
+    true
+);
+
 select *
 from audit.add_entry
 (
