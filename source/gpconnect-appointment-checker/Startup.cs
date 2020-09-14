@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,21 @@ namespace gpconnect_appointment_checker
             {
                 options.SuppressXFrameOptionsHeader = true;
             });
+            services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = "GpConnectAppointmentChecker";
+                    }).AddCookie()
+                .AddOAuth("NHS-SSO", options =>
+                {
+                    options.ClientId = System.Guid.NewGuid().ToString(); //Configuration["GpConnectAppointmentChecker:ClientId"];
+                    options.ClientSecret = "icuJ3Ppo$5$X6HRTDx@g"; //Configuration["GpConnectAppointmentChecker:ClientSecret"];
+                    options.CallbackPath = new PathString("/signin-nhsmail");
+                    options.AuthorizationEndpoint = "/Auth";
+                    options.TokenEndpoint = "/Token";
+                });
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,18 +54,19 @@ namespace gpconnect_appointment_checker
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-            
-            
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }

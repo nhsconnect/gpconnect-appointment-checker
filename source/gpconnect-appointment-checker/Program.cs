@@ -1,7 +1,8 @@
-using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace gpconnect_appointment_checker
 {
@@ -18,23 +19,24 @@ namespace gpconnect_appointment_checker
                 {
                     webBuilder.UseStartup<Startup>();
                 })
+                .ConfigureLogging((builderContext, logging) =>
+                    {
+                        logging.ClearProviders();
+                        logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
+                    }
+                ).UseNLog()
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
-                    if (builderContext.HostingEnvironment.IsDevelopment())
-                    {
-                        config.AddUserSecrets<Program>();
-                    }
+                    config.AddEnvironmentVariables();
                 }).ConfigureAppConfiguration(AddDbConfiguration);
 
         private static void AddDbConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
         {
             var configuration = builder.Build();
-
-            builder.GetCustomConfiguration(options =>
-            {
-                options.Configuration = configuration.GetSection("connectionStrings:Configuration").Value;
-                options.Query = configuration.GetSection("connectionStrings:Query").Value;
-            });
+            //builder.GetCustomConfiguration(options =>
+            //{
+            //    options.Configuration = configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
+            //});
         }
     }
 }

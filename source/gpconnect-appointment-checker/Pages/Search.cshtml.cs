@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -38,13 +39,13 @@ namespace gpconnect_appointment_checker.Pages
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
+        protected ILogger<SearchModel> _logger;
 
-        public SearchModel(
-            IConfiguration configuration,
-            IHttpContextAccessor contextAccessor)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
+            _logger = logger;
         }
 
         public IActionResult OnGet()
@@ -54,21 +55,33 @@ namespace gpconnect_appointment_checker.Pages
 
         private List<SelectListItem> GetDateRanges()
         {
-            var weeksToGet = 12;
-            var dateRange = new List<SelectListItem>();
-            var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
-
-            for (var i = 0; i < weeksToGet; i++)
+            try
             {
-                var week = new SelectListItem
+                int zero = 0;
+                int result = 5 / zero;
+
+                _logger.LogInformation("Getting DateRanges");
+                var weeksToGet = 12;
+                var dateRange = new List<SelectListItem>();
+                var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+
+                for (var i = 0; i < weeksToGet; i++)
                 {
-                    Text = $"{firstDayOfCurrentWeek:ddd d-MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d-MMM}",
-                    Value = $"{firstDayOfCurrentWeek:d-MMM-yyyy}:{firstDayOfCurrentWeek.AddDays(6):d-MMM-yyyy}"
-                };
-                dateRange.Add(week);
-                firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
+                    var week = new SelectListItem
+                    {
+                        Text = $"{firstDayOfCurrentWeek:ddd d-MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d-MMM}",
+                        Value = $"{firstDayOfCurrentWeek:d-MMM-yyyy}:{firstDayOfCurrentWeek.AddDays(6):d-MMM-yyyy}"
+                    };
+                    dateRange.Add(week);
+                    firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
+                }
+                return dateRange;
             }
-            return dateRange;
+            catch (DivideByZeroException exc)
+            {
+                _logger.LogError(exc, "Whoops!");
+                return null;
+            }
         }
     }
 }
