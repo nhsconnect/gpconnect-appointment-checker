@@ -17,7 +17,7 @@ returns void
 as $$
 begin
 
-	insert into logging.log_web_request
+	insert into logging.web_request
 	(
 		user_id,
 		user_session_id,
