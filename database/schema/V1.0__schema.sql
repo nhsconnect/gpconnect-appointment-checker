@@ -220,7 +220,7 @@ create table logging.spine_message
 
 create table logging.web_request 
 (
-    web_request_id integer not null,
+    web_request_id serial not null,
     user_session_id integer null,
     url varchar(1000) not null,
     referrer_url varchar(1000),
