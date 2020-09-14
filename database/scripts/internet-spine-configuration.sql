@@ -1,0 +1,24 @@
+insert into configuration.spine
+(
+    single_row_lock,
+    use_ssp,
+    ssp_hostname,
+    sds_hostname,
+    sds_port,
+    sds_use_ldaps,
+    organisation_id,
+    party_key,
+    asid
+)
+values
+(
+	true,
+	false,
+	null,
+	'orange.testlab.nhs.uk',
+	636,
+	true,
+	1,
+	'ABC-123456',
+	'100000000001'
+);
