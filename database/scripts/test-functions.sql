@@ -66,3 +66,34 @@ from logging.log_error
     null, 
     null
 );
+
+select * 
+from logging.log_spine_message
+(
+    1,
+    1,
+    'command',
+    'headers',
+    'payload',
+    'status',
+    'headers',
+    'payload',
+    1
+);
+
+select *
+from logging.log_web_request
+(
+    1,
+    1,
+    'https://url',
+    'https://url',
+    'Description',
+    '100.1.1.1',
+    current_date::timestamp,
+    'Test',
+    'Test',
+    '200',
+    'Test',
+    'Test'
+);

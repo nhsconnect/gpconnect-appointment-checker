@@ -1,7 +1,7 @@
 create or replace function logging.log_spine_message
 (
     _user_session_id integer,
-    _spine_message_type_id smallint,
+    _spine_message_type_id integer,
     _command varchar(8000),
     _request_headers text,
     _request_payload text,
