@@ -3,15 +3,15 @@ create or replace function logging.log_web_request
 	_user_id integer,
 	_user_session_id integer,
 	_url varchar(1000),
-    _referrer_url varchar(1000),
-    _description varchar(1000),
-    _ip varchar(255),
-    _created_date timestamp,
-    _created_by varchar(255),
-    _server varchar(255),
-    _response_code integer,
-    _session_id varchar(1000),
-    _user_agent varchar(1000)
+	_referrer_url varchar(1000),
+	_description varchar(1000),
+	_ip varchar(255),
+	_created_date timestamp,
+	_created_by varchar(255),
+	_server varchar(255),
+	_response_code integer,
+	_session_id varchar(1000),
+	_user_agent varchar(1000)
 )
 returns void
 as $$
@@ -22,15 +22,15 @@ begin
 		user_id,
 		user_session_id,
 		url,
-    	referrer_url,
-    	description,
-    	ip,
-    	created_date,
-    	created_by,
-    	server,
-    	response_code,
-    	session_id,
-    	user_agent
+		referrer_url,
+		description,
+		ip,
+		created_date,
+		created_by,
+		server,
+		response_code,
+		session_id,
+		user_agent
 	)
 	values
 	(
