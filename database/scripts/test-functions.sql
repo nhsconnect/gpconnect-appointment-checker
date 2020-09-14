@@ -1,9 +1,3 @@
-select * 
-from configuration.get_general_configuration();
-
-select * 
-from configuration.get_spine_configuration();
-
 select *
 from application.get_organisation
 (
@@ -54,6 +48,25 @@ from application.logoff_user
     'test@test.com',
     1
 );
+
+select *
+from audit.add_entry
+(
+    1,
+    1,
+    1,
+    'one',
+    'two',
+    'three',
+    'details',
+    1
+);
+
+select * 
+from configuration.get_general_configuration();
+
+select * 
+from configuration.get_spine_configuration();
 
 select * 
 from logging.log_error
