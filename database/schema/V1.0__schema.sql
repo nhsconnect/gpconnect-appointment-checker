@@ -221,6 +221,7 @@ create table logging.spine_message
 create table logging.web_request 
 (
     web_request_id serial not null,
+    user_id integer null,
     user_session_id integer null,
     url varchar(1000) not null,
     referrer_url varchar(1000),
@@ -234,6 +235,7 @@ create table logging.web_request
     user_agent varchar(1000) not null,
 
     constraint logging_webrequest_webrequestid_pk primary key (web_request_id),
+    constraint logging_webrequest_userid_fk foreign key (user_id) references application.user (user_id),
     constraint logging_webrequest_usersessionid_fk foreign key (user_session_id) references application.user_session (user_session_id)
 );
 
