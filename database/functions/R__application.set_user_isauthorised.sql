@@ -45,11 +45,13 @@ begin
 	if (_is_authorised and _is_authorised_existing)
 	then
 		raise exception 'user is already authorised';
+		return;
 	end if;
 
 	if ((not _is_authorised) and (not _is_authorised_existing))
 	then
 		raise exception 'user is already unauthorised';
+		return;
 	end if;
 
 	--------------------------------------------
