@@ -4,8 +4,6 @@ create or replace function application.set_user_isauthorised
 	_is_authorised boolean
 )
 returns void
-(
-)
 as $$
 declare
 	_user_id integer;
@@ -46,12 +44,12 @@ begin
 
 	if (_is_authorised and _is_authorised_existing)
 	then
-		raise exception 'user is already authorised'
+		raise exception 'user is already authorised';
 	end if;
 
 	if ((not _is_authorised) and (not _is_authorised_existing))
 	then
-		raise exception 'user is already unauthorised'
+		raise exception 'user is already unauthorised';
 	end if;
 
 	--------------------------------------------

@@ -3,12 +3,12 @@ create or replace function logging.log_error
 	_application varchar(100),
 	_logged timestamp,
 	_level varchar(100),
-	_user_id integer null,
-	_user_session_id integer null,
 	_message varchar(8000),
 	_logger varchar(8000), 
 	_callsite varchar(8000), 
-	_exception varchar(8000)
+	_exception varchar(8000),
+	_user_id integer default null,
+	_user_session_id integer default null
 )
 returns void
 as $$
