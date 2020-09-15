@@ -185,17 +185,15 @@ create table audit.entry
 create table logging.error_log
 ( 
     error_log_id serial not null,
-    application varchar(100) null,
-    logged timestamp,
-    level varchar(100) null,
-    user_id integer null,
-    user_session_id integer null,
-    message varchar(8000) null,
-    logger varchar(8000) null, 
-    callsite varchar(8000) null, 
-    exception varchar(8000) null,
+    application character varying(100) null,
+    logged text,
+    level character varying(100) null,
+    message character varying(8000) null,
+    logger character varying(8000) null, 
+    callsite character varying(8000) null, 
+    exception character varying(8000) null,
 
-    constraint logging_errorlog_logid_pk primary key (error_log_id)
+    constraint logging_errorlog_logid_pk primary key (id)
 );
 
 create table logging.spine_message
