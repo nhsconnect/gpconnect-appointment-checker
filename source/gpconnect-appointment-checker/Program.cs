@@ -2,7 +2,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Config;
 using NLog.Web;
+using System;
+using System.Reflection;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace gpconnect_appointment_checker
 {
@@ -23,11 +28,18 @@ namespace gpconnect_appointment_checker
                     {
                         logging.ClearProviders();
                         logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
+                        logging.AddNLog(GetLoggingConfiguration());
                     }
-                ).UseNLog()
+                )
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
                     config.AddEnvironmentVariables();
                 });
+
+        public static LoggingConfiguration GetLoggingConfiguration()
+        {
+
+            return new LoggingConfiguration();
+        }
     }
 }

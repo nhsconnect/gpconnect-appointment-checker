@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace gpconnect_appointment_checker
 {
@@ -33,9 +35,9 @@ namespace gpconnect_appointment_checker
                     }).AddCookie()
                 .AddOAuth("NHS-SSO", options =>
                 {
-                    options.ClientId = System.Guid.NewGuid().ToString(); //Configuration["GpConnectAppointmentChecker:ClientId"];
-                    options.ClientSecret = "icuJ3Ppo$5$X6HRTDx@g"; //Configuration["GpConnectAppointmentChecker:ClientSecret"];
-                    options.CallbackPath = new PathString("/signin-nhsmail");
+                    options.ClientId = Configuration["GpConnectAppointmentChecker:ClientId"];
+                    options.ClientSecret = Configuration["GpConnectAppointmentChecker:ClientSecret"];
+                    options.CallbackPath = new PathString(Configuration["GpConnectAppointmentChecker:PathString"]);
                     options.AuthorizationEndpoint = "/Auth";
                     options.TokenEndpoint = "/Token";
                 });
