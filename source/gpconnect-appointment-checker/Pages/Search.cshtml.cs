@@ -55,33 +55,23 @@ namespace gpconnect_appointment_checker.Pages
 
         private List<SelectListItem> GetDateRanges()
         {
-            try
+            _logger.LogInformation("Getting DateRanges");
+            
+            var weeksToGet = 12;
+            var dateRange = new List<SelectListItem>();
+            var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+
+            for (var i = 0; i < weeksToGet; i++)
             {
-                int zero = 0;
-                int result = 5 / zero;
-
-                _logger.LogInformation("Getting DateRanges");
-                var weeksToGet = 12;
-                var dateRange = new List<SelectListItem>();
-                var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
-
-                for (var i = 0; i < weeksToGet; i++)
+                var week = new SelectListItem
                 {
-                    var week = new SelectListItem
-                    {
-                        Text = $"{firstDayOfCurrentWeek:ddd d-MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d-MMM}",
-                        Value = $"{firstDayOfCurrentWeek:d-MMM-yyyy}:{firstDayOfCurrentWeek.AddDays(6):d-MMM-yyyy}"
-                    };
-                    dateRange.Add(week);
-                    firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
-                }
-                return dateRange;
+                    Text = $"{firstDayOfCurrentWeek:ddd d-MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d-MMM}",
+                    Value = $"{firstDayOfCurrentWeek:d-MMM-yyyy}:{firstDayOfCurrentWeek.AddDays(6):d-MMM-yyyy}"
+                };
+                dateRange.Add(week);
+                firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
-            catch (DivideByZeroException exc)
-            {
-                _logger.LogError(exc, "Whoops!");
-                return null;
-            }
+            return dateRange;
         }
     }
 }

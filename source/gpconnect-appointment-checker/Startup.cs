@@ -1,10 +1,10 @@
+using gpconnect_appointment_checker.Logging.GlobalExceptionHandler;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace gpconnect_appointment_checker
 {
@@ -40,20 +40,14 @@ namespace gpconnect_appointment_checker
                     options.TokenEndpoint = "/Token";
                 });
             services.AddControllers();
+            services.AddSingleton<ILog, LogNLog>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
+        public void Configure(IApplicationBuilder app, ILog logger, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
+            app.ConfigureExceptionHandler(logger);
+            app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

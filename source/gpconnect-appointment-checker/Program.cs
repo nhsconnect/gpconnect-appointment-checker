@@ -28,15 +28,6 @@ namespace gpconnect_appointment_checker
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
                     config.AddEnvironmentVariables();
-                }).ConfigureAppConfiguration(AddDbConfiguration);
-
-        private static void AddDbConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
-        {
-            var configuration = builder.Build();
-            //builder.GetCustomConfiguration(options =>
-            //{
-            //    options.Configuration = configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
-            //});
-        }
+                });
     }
 }

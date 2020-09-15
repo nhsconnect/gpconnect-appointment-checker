@@ -10,7 +10,7 @@ namespace gpconnect_appointment_checker.Controllers
         {
             var properties = new AuthenticationProperties()
             {
-                RedirectUri = Url.Action("Index", "Auth")
+                RedirectUri = Url.Action("Index", "Auth"),
             };
 
             return Challenge(properties, "NHS-SSO");

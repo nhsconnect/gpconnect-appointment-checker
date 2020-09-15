@@ -29,6 +29,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
+    <ProjectReference Include="..\gpconnect-appointment-checker.Logging\gpconnect-appointment-checker.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logging\" />
   </ItemGroup>
 
 </Project>
