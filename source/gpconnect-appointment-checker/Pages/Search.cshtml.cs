@@ -53,6 +53,20 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
+        public IActionResult OnPostSearch(SearchForm searchForm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+            return Page();
+        }
+
+        public IActionResult OnPostClear()
+        {
+            return Page();
+        }
+
         private List<SelectListItem> GetDateRanges()
         {
             _logger.LogInformation("Getting DateRanges");
