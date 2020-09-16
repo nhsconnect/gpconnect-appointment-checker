@@ -27,6 +27,10 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
 
 <img src="documentation/images/gpc-appointment-checker-page-routing.png" width="65%">
 
+## Build status
+
+[![Build Actions Status](https://github.com/nhsconnect/gpconnect-appointment-checker/workflows/CI/badge.svg)](https://github.com/nhsconnect/gpconnect-appointment-checker/actions)
+
 ## Building
 
 [TBC]
