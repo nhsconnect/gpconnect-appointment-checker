@@ -21,11 +21,11 @@ jobs:
       - name: Setup PostgreSQL
         run: sudo apt-get -y install postgresql-11
 
-      - name: Wait
-        run: sleep 10s
-
       - name: Check Postgres running
         run: sudo pg_ctlcluster 11 main start
+
+      - name: Wait
+        run: sleep 10s
 
       - name: Check Postgres running
         run: sudo -u postgres psql -c "SELECT version()"
