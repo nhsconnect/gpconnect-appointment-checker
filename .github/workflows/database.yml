@@ -25,6 +25,9 @@ jobs:
         run: sleep 10s
 
       - name: Check Postgres running
+        run: sudo pg_ctlcluster 11 main start
+
+      - name: Check Postgres running
         run: sudo -u postgres psql -c "SELECT version()"
 
 
