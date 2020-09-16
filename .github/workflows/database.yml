@@ -22,6 +22,10 @@ jobs:
       - name: Setup PostgreSQL
         run: sudo apt install postgresql postgresql-contrib
 
+      - name: Check Postgres running
+        run: sudo -u postgres psql -c "SELECT version()"
+
+
 #      - name: Setup PostgreSQL
 #        uses: Harmon758/postgresql-action@v1.0.0
 #        with:
