@@ -28,7 +28,7 @@ jobs:
           postgresql version: '11'
           postgresql db: 'postgres'
           postgresql user: 'postgres'
-          postgresql password: 'postgres'
+#          postgresql password: 'postgres'
 
       - name: Wait
         uses: jakejarvis/wait-action@v0.1.0
