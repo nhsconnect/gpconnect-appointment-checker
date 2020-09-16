@@ -32,6 +32,16 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Check Postgres running
+        run: PGPASSWORD=postgres psql -U postgres -d postgres -h postgres -c "SELECT version()"
+
+
+      - name: Collect Docker Logs		
+        uses: jwalton/gh-docker-logs@v1.0.0		
+
+      - name: Check running containers		
+        run: docker ps -a
+
+      - name: Check Postgres running
         run: sudo -u postgres psql -c "SELECT version()"
 
 #      - name: Check Postgres running
