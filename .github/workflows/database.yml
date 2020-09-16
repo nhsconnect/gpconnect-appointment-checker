@@ -36,25 +36,13 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Check running containers		
-        run: docker ps -a
-
-      - name: Collect Docker Logs		
-        uses: jwalton/gh-docker-logs@v1.0.0		
-
       - name: Check Postgres running
         run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
 
-
-
-      - name: Check Postgres running
-        run: sudo -u postgres psql -c "SELECT version()"
-
-#      - name: Check Postgres running
-#        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
-
-#      - name: Get flyway
-#        run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
-
+      - name: Get flyway
+        run: |
+          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
+          cd database
+          flyway -url=jdbc:postgresql://localhost/jonny -user=postgres -password=postgres migrate
     
     
