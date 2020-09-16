@@ -43,8 +43,7 @@ jobs:
 
       - name: Check Postgres running
         run: |
-          PGPASSWORD=pass1234
-          psql -U postgres -d postgres -h localhost -c "SELECT version()"
+          PGPASSWORD=pass1234 psql -U postgres -d postgres -h localhost -c "SELECT version()"
 
       - name: Get flyway
         run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
