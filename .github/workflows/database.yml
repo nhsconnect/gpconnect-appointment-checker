@@ -19,7 +19,7 @@ jobs:
 #      - uses: actions/checkout@v2
 
       - name: Setup PostgreSQL
-        run: sudo apt-get -y install postgresql postgresql-contrib
+        run: sudo apt-get -y install postgresql-11
 
       - name: Wait
         run: sleep 10s
