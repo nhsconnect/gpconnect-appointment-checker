@@ -184,7 +184,7 @@ create table audit.entry
 */
 create table logging.error_log
 ( 
-    error_log_id serial not null,
+    id serial not null,
     application character varying(100) null,
     logged text,
     level character varying(100) null,
