@@ -16,11 +16,13 @@ jobs:
     
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v2
 
       - name: Setup PostgreSQL
         run: sudo apt install postgresql postgresql-contrib
+
+      - name: Wait
+        run: sleep 10s
 
       - name: Check Postgres running
         run: sudo -u postgres psql -c "SELECT version()"
@@ -34,8 +36,6 @@ jobs:
 #          postgresql user: 'postgres'
 #          postgresql password: 'postgres'
 
-#      - name: Wait
-#        run: sleep 10s
         
 #      - name: Collect Docker Logs
 #        uses: jwalton/gh-docker-logs@v1.0.0
