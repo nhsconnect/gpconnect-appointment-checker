@@ -39,10 +39,11 @@ jobs:
       - name: Check Postgres running
         run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
 
-      - name: Get flyway
-        run: |
-          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
-          cd database
-          flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres migrate
-    
-    
+      - name: Install flyway
+        run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
+
+      - name: Flyway migrate database schema 
+        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database/schema migrate
+
+      - name: Flyway install database functions 
+        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database/functions migrate
