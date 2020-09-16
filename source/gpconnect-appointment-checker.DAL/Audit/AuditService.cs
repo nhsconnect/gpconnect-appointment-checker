@@ -1,18 +1,19 @@
 ﻿using Dapper;
+using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace gpconnect_appointment_checker.DAL.Audit
 {
-    [Serializable]
-    public class AuditFactory : DataInterface
+    public class AuditService : IAuditService
     {
-        protected ILogger<AuditFactory> _logger;
+        private readonly ILogger<AuditService> _logger;
+        private readonly IDataService _dataService;
 
-        public AuditFactory(IConfiguration configuration, ILogger<AuditFactory> logger) : base(configuration, logger)
+        public AuditService(IConfiguration configuration, ILogger<AuditService> logger, IDataService dataService)
         {
             _logger = logger;
+            _dataService = dataService;
         }
 
         public async void AddEntry(DTO.Request.Audit.Entry auditEntry)
@@ -27,7 +28,7 @@ namespace gpconnect_appointment_checker.DAL.Audit
             parameters.Add("_item3", auditEntry.Item3);
             parameters.Add("_details", auditEntry.Details);
             parameters.Add("_entry_elapsed_ms", auditEntry.EntryElapsedMs);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
     }
 }

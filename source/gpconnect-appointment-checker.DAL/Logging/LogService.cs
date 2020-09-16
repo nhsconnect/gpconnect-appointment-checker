@@ -1,18 +1,19 @@
 ﻿using Dapper;
+using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace gpconnect_appointment_checker.DAL.Logging
 {
-    [Serializable]
-    public class LogFactory : DataInterface
+    public class LogService : ILogService
     {
-        protected ILogger<LogFactory> _logger;
+        private readonly ILogger<LogService> _logger;
+        private readonly IDataService _dataService;
 
-        public LogFactory(IConfiguration configuration, ILogger<LogFactory> logger) : base(configuration, logger)
+        public LogService(IConfiguration configuration, ILogger<LogService> logger, IDataService dataService)
         {
             _logger = logger;
+            _dataService = dataService;
         }
 
         public async void AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
@@ -28,7 +29,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_logger", errorLog.Logger);
             parameters.Add("_callsite", errorLog.Callsite);
             parameters.Add("_exception", errorLog.Exception);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
 
         public async void AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
@@ -44,7 +45,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_headers", spineMessage.ResponseHeaders);
             parameters.Add("_response_payload", spineMessage.ResponsePayload);
             parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
 
         public async void AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
@@ -63,7 +64,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_code", webRequest.ResponseCode);
             parameters.Add("_session_id", webRequest.SessionId);
             parameters.Add("_user_agent", webRequest.UserAgent);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
     }
 }

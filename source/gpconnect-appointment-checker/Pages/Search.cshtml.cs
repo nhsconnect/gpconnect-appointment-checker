@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using gpconnect_appointment_checker.SDS.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -16,36 +18,17 @@ namespace gpconnect_appointment_checker.Pages
         public List<SelectListItem> DateRanges => GetDateRanges();
         public SearchResultItemList SearchResults => GetSearchResults();
 
-        private SearchResultItemList GetSearchResults()
-        {
-            var results = new SearchResultItemList
-            {
-                new SearchResultItem()
-                {
-                    AppointmentDate = DateTime.Now.ToString("ddd d MMM yyyy"),
-                    DeliveryChannel = "In Person",
-                    Duration = 10.DurationFormatter("Mins"),
-                    Location = "Laurel Bank Surgery, North Lane, Skipton",
-                    Practitioner = "ROBERTS, Sam (Mr)",
-                    PractitionerRole = "Nurse Practitioner",
-                    PractitionerGender = "Male",
-                    SessionName = "Nurse Clinic",
-                    SlotType = "Child Immunisation",
-                    StartTime = DateTime.Now.ToString("t")
-                }
-            };
-            return results;
-        }
-
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<SearchModel> _logger;
+        protected ILdapService _ldapService;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
+            _ldapService = ldapService;
         }
 
         public IActionResult OnGet()
@@ -53,8 +36,10 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public IActionResult OnPostSearch(SearchForm searchForm)
+        public async Task<IActionResult> OnPostSearch(SearchForm searchForm)
         {
+            var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(searchForm.ConsumerODSCode);
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -86,6 +71,27 @@ namespace gpconnect_appointment_checker.Pages
                 firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
             return dateRange;
+        }
+
+        private SearchResultItemList GetSearchResults()
+        {
+            var results = new SearchResultItemList
+            {
+                new SearchResultItem()
+                {
+                    AppointmentDate = DateTime.Now.ToString("ddd d MMM yyyy"),
+                    DeliveryChannel = "In Person",
+                    Duration = 10.DurationFormatter("Mins"),
+                    Location = "Laurel Bank Surgery, North Lane, Skipton",
+                    Practitioner = "ROBERTS, Sam (Mr)",
+                    PractitionerRole = "Nurse Practitioner",
+                    PractitionerGender = "Male",
+                    SessionName = "Nurse Clinic",
+                    SlotType = "Child Immunisation",
+                    StartTime = DateTime.Now.ToString("t")
+                }
+            };
+            return results;
         }
     }
 }

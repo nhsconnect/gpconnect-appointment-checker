@@ -19,7 +19,7 @@ namespace gpconnect_appointment_checker.Logging.GlobalExceptionHandler
                     if (contextFeature != null)
                     {
                         logger.Error($"An error has occurred in the application - {contextFeature.Error}");
-                        context.Response.Redirect("/Error");
+                        //context.Response.Redirect("/Error");
                     }
                 });
             });

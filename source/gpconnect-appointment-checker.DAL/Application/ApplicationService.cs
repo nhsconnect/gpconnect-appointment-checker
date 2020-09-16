@@ -1,20 +1,24 @@
 ﻿using Dapper;
+using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL.Application
 {
-    [Serializable]
-    public class ApplicationFactory : DataInterface
+    public class ApplicationService : IApplicationService
     {
-        protected ILogger<ApplicationFactory> _logger;
+        private readonly ILogger<ApplicationService> _logger;
+        private readonly IDataService _dataService;
+        private readonly IAuditService _auditService;
 
-        public ApplicationFactory(IConfiguration configuration, ILogger<ApplicationFactory> logger) : base(configuration, logger)
+        public ApplicationService(IConfiguration configuration, ILogger<ApplicationService> logger, IDataService dataService, IAuditService auditService)
         {
             _logger = logger;
+            _dataService = dataService;
+            _auditService = auditService;
         }
 
         public async Task<DTO.Response.Application.Organisation> GetOrganisation(string odsCode)
@@ -22,8 +26,8 @@ namespace gpconnect_appointment_checker.DAL.Application
             var functionName = "application.get_organisation";
             var parameters = new DynamicParameters();
             parameters.Add("_ods_code", odsCode, DbType.String, ParameterDirection.Input);
-            var result = await ExecuteFunction<DTO.Response.Application.Organisation>(functionName, parameters);
-            return result;
+            var result = await _dataService.ExecuteFunction<DTO.Response.Application.Organisation>(functionName, parameters);
+            return result.FirstOrDefault();
         }
 
         public async void SynchroniseOrganisation(DTO.Request.Application.Organisation organisation)
@@ -41,7 +45,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_postcode", organisation.Postcode);
             parameters.Add("_is_gpconnect_consumer", organisation.IsGPConnectConsumer);
             parameters.Add("_is_gpconnect_provider", organisation.IsGPConnectProvider);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
         public async void LogonUser(DTO.Request.Application.User user)
         {
@@ -50,7 +54,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_display_name", user.DisplayName);
             parameters.Add("_organisation_id", user.OrganisationId);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
 
         public async void LogoffUser(DTO.Request.Application.User user)
@@ -59,7 +63,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_user_session_id", user.UserSessionId);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
 
         public async void SetUserAuthorised(DTO.Request.Application.User user)
@@ -68,7 +72,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_is_authorised", user.IsAuthorised);
-            await ExecuteFunction(functionName, parameters);
+            await _dataService.ExecuteFunction(functionName, parameters);
         }
     }
 }

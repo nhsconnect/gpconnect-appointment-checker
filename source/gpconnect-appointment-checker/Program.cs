@@ -28,12 +28,12 @@ namespace gpconnect_appointment_checker
                     {
                         logging.ClearProviders();
                         logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
-                        logging.AddNLog(GetLoggingConfiguration());
+                        //logging.AddNLog(GetLoggingConfiguration());
                     }
-                )
+                ).UseNLog()
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
-                    config.AddEnvironmentVariables();
+                    config.AddEnvironmentVariables(prefix: "GPCONNECTAPPOINTMENTCHECKER_");
                 });
 
         public static LoggingConfiguration GetLoggingConfiguration()
