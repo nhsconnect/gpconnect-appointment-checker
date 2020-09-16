@@ -15,36 +15,24 @@ jobs:
   build:
     
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ci_db_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5         
+    
     steps:
-#      - uses: actions/checkout@v2
 
-      - name: Setup PostgreSQL
-        run: sudo apt-get -y install postgresql-11
-
-      - name: Check Postgres running
-        run: sudo pg_ctlcluster 11 main start
-
-      - name: Wait
-        run: sleep 10s
+      - uses: actions/checkout@v2
 
       - name: Check Postgres running
         run: sudo -u postgres psql -c "SELECT version()"
-
-
-#      - name: Setup PostgreSQL
-#        uses: Harmon758/postgresql-action@v1.0.0
-#        with:
-#          postgresql version: '11'
-#          postgresql db: 'postgres'
-#          postgresql user: 'postgres'
-#          postgresql password: 'postgres'
-
-        
-#      - name: Collect Docker Logs
-#        uses: jwalton/gh-docker-logs@v1.0.0
-   
-#      - name: Check running containers
-#        run: docker ps -a
 
 #      - name: Check Postgres running
 #        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
