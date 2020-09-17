@@ -1,5 +1,5 @@
 select *
 from application.get_organisation
 (
-    'YES'
+    _ods_code := 'YES'
 );
