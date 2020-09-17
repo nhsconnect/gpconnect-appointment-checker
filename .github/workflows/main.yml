@@ -47,3 +47,7 @@ jobs:
 
       - name: Flyway migrate database
         run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+
+      - name: Flyway test database
+        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -repeatableSqlMigrationPrefix=T -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+
