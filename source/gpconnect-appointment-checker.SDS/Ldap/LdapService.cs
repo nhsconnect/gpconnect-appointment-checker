@@ -2,7 +2,6 @@
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.SDS.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Novell.Directory.Ldap;
@@ -15,17 +14,13 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapService : ILdapService
     {
         private readonly ILogger<LdapService> _logger;
-        private readonly ILogService _logService;
-        private readonly IConfiguration _configuration;
-        private static readonly ILdapConnection _connection;
         private readonly IConfigurationService _configurationService;
+        private readonly LdapConnection _connection;
 
-        public LdapService(IConfiguration configuration, ILogger<LdapService> logger, IConfigurationService configurationService, ILogService logService)
+        public LdapService(ILogger<LdapService> logger, IConfigurationService configurationService)
         {
             _logger = logger;
-            _configuration = configuration;
             _configurationService = configurationService;
-            _logService = logService;
         }
 
         public async Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode)
@@ -143,7 +138,7 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var spineConnectionSettings = await _configurationService.GetSpineConfiguration();
-                var ldapConn = _connection as LdapConnection;
+                var ldapConn = _connection;
 
                 if (ldapConn == null)
                 {
