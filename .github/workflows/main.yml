@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DB_HOST: localhost
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gpconnect
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5         
+
+    steps:
+
+      - name: Check out main branch
+        uses: actions/checkout@main
+        
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      
+      - name: Build dotnet solution
+        run: dotnet build source/gpconnect-appointment-checker.sln
+
+      - name: Check Postgres running
+        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
+
+      - name: Install flyway
+        run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
+
+      - name: Flyway migrate database
+        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+
+      - name: Flyway test database
+        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -repeatableSqlMigrationPrefix=T -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+

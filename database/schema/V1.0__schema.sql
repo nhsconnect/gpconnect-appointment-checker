@@ -80,7 +80,7 @@ create table application.user_session
 
     constraint application_usersession_usersessionid_pk primary key (user_session_id),
     constraint application_usersession_userid_fk foreign key (user_id) references application.user (user_id),
-    constraint application_usersession_starttime_endtime_ck check (start_time < end_time)
+    constraint application_usersession_starttime_endtime_ck check (start_time <= end_time)
 );
 
 
@@ -184,7 +184,7 @@ create table audit.entry
 */
 create table logging.error_log
 ( 
-    error_log_id serial not null,
+    id serial not null,
     application character varying(100) null,
     logged text,
     level character varying(100) null,
@@ -264,7 +264,7 @@ insert into application.organisation_type
 values
 (
     1,
-    'National Application Service Provider'
+    'Executive Agency Programme'
 );
 
 insert into application.organisation 
@@ -285,15 +285,15 @@ insert into application.organisation
 )
 values
 (
-    'YES',
+    'X26010',
     1,
-    'NATIONAL CARE RECORDS SERVICE SPINE II',
-    'PRINCES EXCHANGE',
-    '2 PRINCES SQUARE',
-    '',
-    'LEEDS',
-    'WEST YORKSHIRE',
-    'LS1 4HY', 
+    'SYSTEMS & SERVICE DELIVERY',
+    'HEXAGON HOUSE',
+    'PYNES HILL',
+    'RYDON LANE',
+    'EXETER',
+    'DEVON',
+    'EX2 5SE', 
     true, 
     false, 
     now(), 
