@@ -1,20 +1,93 @@
-﻿@page "{handler?}"
+﻿@page
 @model SearchModel
-@addTagHelper *, gpconnect-appointment-checker
-@{
-    ViewData["Title"] = "GP Connect Appointment Checker";
-}
 
-<vc:search-form clear-button-text="Clear"
-                date-ranges="@Model.DateRanges"
-                search-results="@Model.SearchResults"
-                provider-ods-code=""
-                consumer-ods-code=""
-                date-range=""
-                search-at-text="Provider ODS Code (search at):"
-                search-on-behalf-of-text="Consumer ODS Code (search on behalf of):"
-                date-range-text="Date Range:"
-                search-results-heading-text="Available Appointment Slots"
-                result-columns="Date,Location,Session Name,Start Time,Duration,Slot Type,Delivery Channel,Practitioner,Practitioner Role,Practitioner Gender"
-                search-button-text="Search for free slots">
-</vc:search-form>
+<form method="post">
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-form-group">
+                <label class="nhsuk-label" for="input-providerodscode">Provider ODS Code (Search At):</label>
+                <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-width-10-hint">
+            </div>
+
+            <div class="nhsuk-form-group">
+                <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS Code (Search For):</label>
+                <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-width-10-hint">
+            </div>
+
+            <div class="nhsuk-form-group">
+                <label class="nhsuk-label" for="input-daterange">Date Range:</label>
+                <select asp-for="@Model.SelectedDateRange"
+                        asp-items="@Model.DateRanges"
+                        class="nhsuk-select"
+                        name="daterange"
+                        id="input-daterange">
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-two-thirds">
+            <button type="submit" class="nhsuk-button">Search for free slots</button>
+        </div>
+        <div class="nhsuk-grid-column-one-third">
+            <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
+        </div>
+    </div>
+
+    @if (Model.SearchResults != null && Model.SearchResults.Count > 0)
+    {
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-full">
+                <div class="nhsuk-warning-callout">
+                    <p>
+                        <br/>
+                        Searching at: @Model.SearchAtResultsText<br/>
+                        Searching on behalf of: @Model.SearchOnBehalfOfResultsText
+                    </p>
+                </div>
+                <div class="nhsuk-table__panel-with-heading-tab">
+                    <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
+                    <div class="nhsuk-table-responsive">
+                        <table class="nhsuk-table-responsive">
+                            <thead>
+                            <tr class="nhsuk-table__row">
+                                @foreach (var column in Model.ResultColumns)
+                                {
+                                    <th class="nhsuk-table__header" scope="col">@column</th>
+                                }
+                            </tr>
+                            </thead>
+                            <tbody class="nhsuk-table__body">
+                            @foreach (var searchResult in Model.SearchResults)
+                            {
+                                <tr class="nhsuk-table__row">
+                                    <td class="nhsuk-table__cell">@searchResult.AppointmentDate</td>
+                                    <td class="nhsuk-table__cell">@searchResult.Location</td>
+                                    <td class="nhsuk-table__cell">@searchResult.SessionName</td>
+                                    <td class="nhsuk-table__cell">@searchResult.StartTime</td>
+                                    <td class="nhsuk-table__cell">@searchResult.Duration</td>
+                                    <td class="nhsuk-table__cell">@searchResult.SlotType</td>
+                                    <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
+                                    <td class="nhsuk-table__cell">@searchResult.Practitioner</td>
+                                    <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
+                                    <td class="nhsuk-table__cell">@searchResult.PractitionerGender</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-full">
+                <div class="nhsuk-inset-text">
+                    <span class="nhsuk-u-visually-hidden">Information: </span>
+                    <p>Search took 1<text>s</text> and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")</p>
+                </div>
+            </div>
+        </div>
+    }
+</form>

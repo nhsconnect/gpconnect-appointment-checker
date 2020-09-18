@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,7 +48,6 @@ namespace gpconnect_appointment_checker
                     options.AuthorizationEndpoint = "/Auth";
                     options.TokenEndpoint = "/Token";
                 });
-            services.AddControllers();
         }
 
         private void AddScopedServices(IServiceCollection services)
@@ -69,15 +69,13 @@ namespace gpconnect_appointment_checker
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
-
-            app.UseAuthentication(); 
             app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapControllers();
             });
         }
     }

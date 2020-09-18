@@ -1,4 +1,5 @@
 ﻿using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.SDS.Interfaces;
 using gpconnect_appointment_checker.ViewModels.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,15 +9,33 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.SDS.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
     public class SearchModel : PageModel
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
-        public SearchResultItemList SearchResults => GetSearchResults();
+
+        public SearchResultItemList SearchResults { get; set; }
+
+        [Required]
+        [BindProperty]
+        public string ProviderODSCode { get; set; }
+        
+        [Required]
+        [BindProperty]
+        public string ConsumerODSCode { get; set; }
+
+        [BindProperty]
+        public string SearchAtResultsText { get; set; }
+        [BindProperty]
+        public string SearchOnBehalfOfResultsText { get; set; }
+        [BindProperty] 
+        public string SelectedDateRange { get; set; }
+
+        public string[] ResultColumns { get; set; }
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -36,9 +55,15 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSearch(SearchForm searchForm)
+        public async Task<IActionResult> OnPostAsync()
         {
-            var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(searchForm.ConsumerODSCode);
+            var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+            var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
+
+            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+            SearchResults = GetSearchResults();
+            ResultColumns = new [] { "Appointment Date", "Location", "Session Name", "Start Time", "Duration", "Slot Type", "Delivery Channel", "Practitioner", "Practitioner Role", "Practitioner Gender"};
 
             if (!ModelState.IsValid)
             {
@@ -49,6 +74,9 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
+            ModelState.Clear();
+            ProviderODSCode = string.Empty;
+            ConsumerODSCode = string.Empty;
             return Page();
         }
 
