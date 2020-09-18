@@ -35,7 +35,7 @@ from
 application.set_user_isauthorised
 (
 	_email_address := 'user.name@test.com'
-	_is_authorised := true
+	_is_authorised := true,
 );
 
 -- existing user, authorised
