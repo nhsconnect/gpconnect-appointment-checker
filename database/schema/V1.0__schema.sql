@@ -264,7 +264,7 @@ insert into application.organisation_type
 values
 (
     1,
-    'National Application Service Provider'
+    'Executive Agency Programme'
 );
 
 insert into application.organisation 
@@ -285,15 +285,15 @@ insert into application.organisation
 )
 values
 (
-    'YES',
+    'X26010',
     1,
-    'NATIONAL CARE RECORDS SERVICE SPINE II',
-    'PRINCES EXCHANGE',
-    '2 PRINCES SQUARE',
-    '',
-    'LEEDS',
-    'WEST YORKSHIRE',
-    'LS1 4HY', 
+    'SYSTEMS & SERVICE DELIVERY',
+    'HEXAGON HOUSE',
+    'PYNES HILL',
+    'RYDON LANE',
+    'EXETER',
+    'DEVON',
+    'EX2 5SE', 
     true, 
     false, 
     now(), 
