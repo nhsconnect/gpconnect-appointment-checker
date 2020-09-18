@@ -80,7 +80,7 @@ create table application.user_session
 
     constraint application_usersession_usersessionid_pk primary key (user_session_id),
     constraint application_usersession_userid_fk foreign key (user_id) references application.user (user_id),
-    constraint application_usersession_starttime_endtime_ck check (start_time < end_time)
+    constraint application_usersession_starttime_endtime_ck check (start_time <= end_time)
 );
 
 
