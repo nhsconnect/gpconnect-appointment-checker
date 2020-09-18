@@ -15,15 +15,17 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapService : ILdapService
     {
         private readonly ILogger<LdapService> _logger;
+        private readonly ILogService _logService;
         private readonly IConfiguration _configuration;
         private static readonly ILdapConnection _connection;
         private readonly IConfigurationService _configurationService;
 
-        public LdapService(IConfiguration configuration, ILogger<LdapService> logger, IConfigurationService configurationService)
+        public LdapService(IConfiguration configuration, ILogger<LdapService> logger, IConfigurationService configurationService, ILogService logService)
         {
             _logger = logger;
             _configuration = configuration;
             _configurationService = configurationService;
+            _logService = logService;
         }
 
         public async Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode)
@@ -34,7 +36,7 @@ namespace gpconnect_appointment_checker.SDS
                 var filter = $"(uniqueidentifier={odsCode})";
                 var attributes = new [] {"postalAddress", "postalCode", "nhsIDCode", "nhsOrgType", "o"};
 
-                var results = await ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
+                var results = await ExecuteLdapQuery<Organisation>(searchBase, filter, null);
                 return results;
             }
             catch (Exception exc)
@@ -120,10 +122,14 @@ namespace gpconnect_appointment_checker.SDS
                         results.Add(attribute.Name, attribute.StringValue);
                     }
                 }
-                
-                string jsonDictionary = JsonConvert.SerializeObject(results);
-                var result = JsonConvert.DeserializeObject<T>(jsonDictionary);
-                return result;
+
+                if (results.Count > 0)
+                {
+                    string jsonDictionary = JsonConvert.SerializeObject(results);
+                    var result = JsonConvert.DeserializeObject<T>(jsonDictionary);
+                    return result;
+                }
+                return null;
             }
             catch (Exception exc)
             {

@@ -60,8 +60,16 @@ namespace gpconnect_appointment_checker.Pages
             var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
             var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
-            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+            if (providerOrganisationDetails != null)
+            {
+                SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+            }
+
+            if (consumerOrganisationDetails != null)
+            {
+                SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+            }
+
             SearchResults = GetSearchResults();
             ResultColumns = new [] { "Appointment Date", "Location", "Session Name", "Start Time", "Duration", "Slot Type", "Delivery Channel", "Practitioner", "Practitioner Role", "Practitioner Gender"};
 

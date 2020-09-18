@@ -5,17 +5,17 @@
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-providerodscode">Provider ODS Code (Search At):</label>
+                <label class="nhsuk-label nhsuk-label--s" for="input-providerodscode">Provider ODS Code (Search At):</label>
                 <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-width-10-hint">
             </div>
 
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS Code (Search For):</label>
+                <label class="nhsuk-label nhsuk-label--s" for="input-consumerodscode">Consumer ODS Code (Search For):</label>
                 <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-width-10-hint">
             </div>
 
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-daterange">Date Range:</label>
+                <label class="nhsuk-label nhsuk-label--s" for="input-daterange">Date Range:</label>
                 <select asp-for="@Model.SelectedDateRange"
                         asp-items="@Model.DateRanges"
                         class="nhsuk-select"

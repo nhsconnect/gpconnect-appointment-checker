@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -65,14 +64,11 @@ namespace gpconnect_appointment_checker
         {
             app.ConfigureExceptionHandler(logger);
             app.UseHsts();
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseAuthorization();
             app.UseAuthentication();
             app.UseRouting();
-
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
