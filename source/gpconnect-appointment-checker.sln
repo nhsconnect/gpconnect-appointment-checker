@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Logging", "gpconnect-appointment-checker.Logging\gpconnect-appointment-checker.Logging.csproj", "{05C4443E-738B-4109-920C-A9569FD240FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.UnitTest", "gpconnect-appointment-checker.UnitTest\gpconnect-appointment-checker.UnitTest.csproj", "{A127F3C8-5123-416B-A3CA-81E70898AC5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.UnitTest", "gpconnect-appointment-checker.UnitTest\gpconnect-appointment-checker.UnitTest.csproj", "{A127F3C8-5123-416B-A3CA-81E70898AC5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1CF9EC71-48D2-4F5F-BF42-AA89113AB41D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A127F3C8-5123-416B-A3CA-81E70898AC5B} = {1CF9EC71-48D2-4F5F-BF42-AA89113AB41D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BEBFC7C8-20FC-4579-AA46-11B54CBDE77F}
