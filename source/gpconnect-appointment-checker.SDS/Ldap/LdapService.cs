@@ -11,13 +11,13 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapService : ILdapService
     {
         private readonly ILogger<LdapService> _logger;
-        private readonly IQueryExecutionService _queryExecutionService;
+        private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
         private readonly IConfiguration _configuration;
 
-        public LdapService(ILogger<LdapService> logger, IQueryExecutionService queryExecutionService, IConfiguration configuration)
+        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration)
         {
             _logger = logger;
-            _queryExecutionService = queryExecutionService;
+            _sdsQueryExecutionService = sdsQueryExecutionService;
             _configuration = configuration;
         }
 
@@ -29,7 +29,7 @@ namespace gpconnect_appointment_checker.SDS
                 var filter = _configuration[Constants.LdapQuery.GetOrganisationDetailsByOdsCode].Replace("{odsCode}", odsCode);
                 var attributes = new [] {"postalAddress", "postalCode", "nhsIDCode", "nhsOrgType", "o"};
 
-                var results = await _queryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, null);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, null);
                 return results;
             }
             catch (Exception exc)
@@ -47,7 +47,7 @@ namespace gpconnect_appointment_checker.SDS
                 var filter = _configuration[Constants.LdapQuery.OrganisationHasAppointmentsProviderSystemByOdsCode].Replace("{odsCode}", odsCode);
                 var attributes = new[] { "nhsMhsSvcIA", "nhsMHSPartyKey", "nhsIDCode", "nhsMHSEndPoint" };
 
-                var results = await _queryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
                 return results;
             }
             catch (Exception exc)
@@ -65,7 +65,7 @@ namespace gpconnect_appointment_checker.SDS
                 var filter = _configuration[Constants.LdapQuery.OrganisationHasAppointmentsConsumerSystemByOdsCode].Replace("{odsCode}", odsCode);
                 var attributes = new[] { "nhsAsSvcIA", "nhsMhsPartyKey", "uniqueIdentifier", "nhsIDCode" };
 
-                var results = await _queryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
                 return results;
             }
             catch (Exception exc)
@@ -82,18 +82,18 @@ namespace gpconnect_appointment_checker.SDS
                 var searchBase = _configuration[Constants.SearchBase.Services];
                 var filterToGetEndpointAndPartyKey = _configuration[Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode].Replace("{odsCode}", odsCode);
                 var attributesToGetEndpointAndPartyKey = new[] { "nhsMhsEndPoint", "nhsMhsPartyKey" };
-                var resultEndpointAndPartyKey = await _queryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetEndpointAndPartyKey, attributesToGetEndpointAndPartyKey);
+                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetEndpointAndPartyKey, attributesToGetEndpointAndPartyKey);
 
-                if (resultEndpointAndPartyKey != null)
+                if (result != null)
                 {
                     var filterToGetAsId = _configuration[Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey]
-                        .Replace("{odsCode}", odsCode).Replace("{partyKey}", resultEndpointAndPartyKey.Party_Key);
+                        .Replace("{odsCode}", odsCode).Replace("{partyKey}", result.Party_Key);
 
                     var attributesToGetAsId = new[] {"uniqueidentifier"};
-                    var results = await _queryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetAsId, attributesToGetAsId);
-                    return results;
+                    var asIdResult = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetAsId, attributesToGetAsId);
+                    result.AsId = asIdResult.AsId;
                 }
-                return null;
+                return result;
             }
             catch (Exception exc)
             {

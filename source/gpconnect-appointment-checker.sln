@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1CF9EC71-48D2-4F5F-BF42-AA89113AB41D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerTest", "DockerTest\DockerTest.csproj", "{21A002EB-D4B1-480F-B31E-67757FE1CC19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A002EB-D4B1-480F-B31E-67757FE1CC19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A002EB-D4B1-480F-B31E-67757FE1CC19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A002EB-D4B1-480F-B31E-67757FE1CC19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A002EB-D4B1-480F-B31E-67757FE1CC19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,7 +28,6 @@ namespace gpconnect_appointment_checker
                     {
                         logging.ClearProviders();
                         logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
-                        //logging.AddNLog(GetLoggingConfiguration());
                     }
                 ).UseNLog()
                 .ConfigureAppConfiguration((builderContext, config) =>

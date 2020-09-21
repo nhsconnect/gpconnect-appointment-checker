@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.SDS
 {
-    public class QueryExecutionService : IQueryExecutionService
+    public class SDSQueryExecutionService : ISDSQueryExecutionService
     {
-        private readonly ILogger<QueryExecutionService> _logger;
+        private readonly ILogger<SDSQueryExecutionService> _logger;
         private readonly ILogService _logService;
         private readonly IConfigurationService _configurationService;
         private readonly LdapConnection _connection;
 
-        public QueryExecutionService(ILogger<QueryExecutionService> logger, IConfigurationService configurationService, ILogService logService)
+        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService)
         {
             _logger = logger;
             _configurationService = configurationService;

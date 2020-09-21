@@ -2,7 +2,7 @@
 
 namespace gpconnect_appointment_checker.SDS.Interfaces
 {
-    public interface IQueryExecutionService
+    public interface ISDSQueryExecutionService
     {
         Task<T> ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class;
     }
