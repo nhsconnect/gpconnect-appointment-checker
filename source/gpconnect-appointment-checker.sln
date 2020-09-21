@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Logging", "gpconnect-appointment-checker.Logging\gpconnect-appointment-checker.Logging.csproj", "{05C4443E-738B-4109-920C-A9569FD240FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.UnitTest", "gpconnect-appointment-checker.UnitTest\gpconnect-appointment-checker.UnitTest.csproj", "{A127F3C8-5123-416B-A3CA-81E70898AC5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{05C4443E-738B-4109-920C-A9569FD240FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05C4443E-738B-4109-920C-A9569FD240FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05C4443E-738B-4109-920C-A9569FD240FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A127F3C8-5123-416B-A3CA-81E70898AC5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

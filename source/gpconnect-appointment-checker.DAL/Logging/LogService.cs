@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,13 @@ namespace gpconnect_appointment_checker.DAL.Logging
     {
         private readonly ILogger<LogService> _logger;
         private readonly IDataService _dataService;
+
+        public enum SpineMessageTypes
+        {
+            SDSLdapQuery = 1,
+            GpConnectReadMetaData = 2,
+            GpConnectFreeSearchSlot = 3
+        }
 
         public LogService(IConfiguration configuration, ILogger<LogService> logger, IDataService dataService)
         {
@@ -44,7 +52,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_status", spineMessage.ResponseStatus);
             parameters.Add("_response_headers", spineMessage.ResponseHeaders);
             parameters.Add("_response_payload", spineMessage.ResponsePayload);
-            parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs);
+            parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs, DbType.Int32);
             await _dataService.ExecuteFunction(functionName, parameters);
         }
 

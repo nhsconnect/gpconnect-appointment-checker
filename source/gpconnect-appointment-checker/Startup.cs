@@ -34,19 +34,19 @@ namespace gpconnect_appointment_checker
                 options.SuppressXFrameOptionsHeader = true;
             });
             services.AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = "GpConnectAppointmentChecker";
-                    }).AddCookie()
-                .AddOAuth("NHS-SSO", options =>
-                {
-                    options.ClientId = "ClientId"; //Configuration["OAuthClientId"];
-                    options.ClientSecret = "ClientSecret"; //Configuration["GpConnectAppointmentChecker:ClientSecret"];
-                    options.CallbackPath = new PathString("/signin"); //Configuration["GpConnectAppointmentChecker:PathString"]);
-                    options.AuthorizationEndpoint = "/Auth";
-                    options.TokenEndpoint = "/Token";
-                });
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "GpConnectAppointmentChecker";
+            }).AddCookie()
+            .AddOAuth("NHS-SSO", options =>
+            {
+                options.ClientId = Configuration["OAuthClientId"];
+                options.ClientSecret = Configuration["OAuthClientSecret"];
+                options.CallbackPath = new PathString(Configuration["OAuthPathString"]);
+                options.AuthorizationEndpoint = "/Auth";
+                options.TokenEndpoint = "/Token";
+            });
         }
 
         private void AddScopedServices(IServiceCollection services)

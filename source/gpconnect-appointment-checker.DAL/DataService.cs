@@ -30,7 +30,7 @@ namespace gpconnect_appointment_checker.DAL
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error has occurred", exc);
+                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
@@ -45,7 +45,7 @@ namespace gpconnect_appointment_checker.DAL
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error has occurred", exc);
+                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
@@ -55,12 +55,12 @@ namespace gpconnect_appointment_checker.DAL
             try
             {
                 await using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var rowsInserted = connection.Execute(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+                var rowsInserted = await connection.ExecuteAsync(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure);
                 return rowsInserted;
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error has occurred", exc);
+                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
