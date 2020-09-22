@@ -4,10 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Config;
 using NLog.Web;
-using System;
-using System.Reflection;
-using NLog;
-using NLog.Extensions.Logging;
 
 namespace gpconnect_appointment_checker
 {
