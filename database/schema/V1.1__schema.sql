@@ -41,6 +41,7 @@ create table configuration.sso
     client_secret varchar(1000) not null,
     callback_path varchar(1000) not null,
     auth_scheme varchar(100) not null,
+    challenge_scheme varchar(100) not null,
     auth_endpoint varchar(1000) not null,
     token_endpoint varchar(1000) not null,
     
@@ -50,6 +51,7 @@ create table configuration.sso
     constraint configuration_sso_clientsecret_ck check (char_length(trim(client_secret)) > 0),
     constraint configuration_sso_callbackpath_ck check (char_length(trim(callback_path)) > 0),
     constraint configuration_sso_authscheme_ck check (char_length(trim(auth_scheme)) > 0),
+    constraint configuration_sso_challengescheme_ck check (char_length(trim(challenge_scheme)) > 0),
     constraint configuration_sso_authendpoint_ck check (char_length(trim(auth_endpoint)) > 0),
     constraint configuration_sso_tokenendpoint_ck check (char_length(trim(token_endpoint)) > 0)    
 );
@@ -94,6 +96,7 @@ insert into configuration.sso
     client_secret,
     callback_path,
     auth_scheme,
+    challenge_scheme,
     auth_endpoint,
     token_endpoint
 )
@@ -104,6 +107,7 @@ values
     'client_secret',
     'https://callback_path',
     'auth_scheme',
+    'GpConnectAppointmentChecker',
     'https://auth_endpoint',
     'https://token_endpoint'
 );
