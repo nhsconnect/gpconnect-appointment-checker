@@ -65,7 +65,7 @@ namespace gpconnect_appointment_checker
 
         public void Configure(IApplicationBuilder app, ILog logger, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
         {
-            //app.ConfigureExceptionHandler(logger);
+            app.ConfigureExceptionHandler(logger);
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
