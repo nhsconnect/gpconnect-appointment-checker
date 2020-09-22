@@ -1,9 +1,12 @@
-﻿using gpconnect_appointment_checker.DTO.Response.Application;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.SDS
@@ -13,23 +16,24 @@ namespace gpconnect_appointment_checker.SDS
         private readonly ILogger<LdapService> _logger;
         private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
         private readonly IConfiguration _configuration;
+        private readonly IConfigurationService _configurationService;
+        private readonly List<SdsQuery> _sdsQueries;
 
-        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration)
+        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration, IConfigurationService configurationService)
         {
             _logger = logger;
             _sdsQueryExecutionService = sdsQueryExecutionService;
             _configuration = configuration;
+            _configurationService = configurationService;
         }
 
         public async Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode)
         {
             try
             {
-                var searchBase = _configuration[Constants.SearchBase.Organisation];
-                var filter = _configuration[Constants.LdapQuery.GetOrganisationDetailsByOdsCode].Replace("{odsCode}", odsCode);
-                var attributes = new [] {"postalAddress", "postalCode", "nhsIDCode", "nhsOrgType", "o"};
-
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, null);
+                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 return results;
             }
             catch (Exception exc)
@@ -43,11 +47,9 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var searchBase = _configuration[Constants.SearchBase.Services];
-                var filter = _configuration[Constants.LdapQuery.OrganisationHasAppointmentsProviderSystemByOdsCode].Replace("{odsCode}", odsCode);
-                var attributes = new[] { "nhsMhsSvcIA", "nhsMHSPartyKey", "nhsIDCode", "nhsMHSEndPoint" };
-
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
+                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.OrganisationHasAppointmentsProviderSystemByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 return results;
             }
             catch (Exception exc)
@@ -61,11 +63,9 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var searchBase = _configuration[Constants.SearchBase.Services];
-                var filter = _configuration[Constants.LdapQuery.OrganisationHasAppointmentsConsumerSystemByOdsCode].Replace("{odsCode}", odsCode);
-                var attributes = new[] { "nhsAsSvcIA", "nhsMhsPartyKey", "uniqueIdentifier", "nhsIDCode" };
-
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(searchBase, filter, attributes);
+                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.OrganisationHasAppointmentsConsumerSystemByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
+                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 return results;
             }
             catch (Exception exc)
@@ -79,25 +79,36 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var searchBase = _configuration[Constants.SearchBase.Services];
-                var filterToGetEndpointAndPartyKey = _configuration[Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode].Replace("{odsCode}", odsCode);
-                var attributesToGetEndpointAndPartyKey = new[] { "nhsMhsEndPoint", "nhsMhsPartyKey" };
-                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetEndpointAndPartyKey, attributesToGetEndpointAndPartyKey);
+                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
+                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
 
                 if (result != null)
                 {
-                    var filterToGetAsId = _configuration[Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey]
-                        .Replace("{odsCode}", odsCode).Replace("{partyKey}", result.Party_Key);
-
-                    var attributesToGetAsId = new[] {"uniqueidentifier"};
-                    var asIdResult = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(searchBase, filterToGetAsId, attributesToGetAsId);
-                    result.AsId = asIdResult.AsId;
+                    sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
+                    filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode).Replace("{partyKey}", result.PartyKey);
+                    var result2 = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                    result.AsId = result2.AsId;
                 }
                 return result;
             }
             catch (Exception exc)
             {
                 _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
+                throw;
+            }
+        }
+
+        private async Task<SdsQuery> GetSdsQueryByName(string queryName)
+        {
+            try
+            {
+                var sdsQueryList = _sdsQueries ?? await _configurationService.GetSdsQueryConfiguration();
+                return sdsQueryList.FirstOrDefault(x => x.QueryName == queryName);
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An error has occurred while attempting to load LDAP queries from the database", exc);
                 throw;
             }
         }

@@ -86,7 +86,6 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
-            ModelState.Clear();
             ProviderODSCode = string.Empty;
             ConsumerODSCode = string.Empty;
             return Page();

@@ -26,6 +26,11 @@ namespace gpconnect_appointment_checker.SDS
             _logService = logService;
         }
 
+        public async Task<T> ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
+        {
+            return await ExecuteLdapQuery<T>(searchBase, filter, null);
+        }
+
         public async Task<T> ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class
         {
             try
@@ -83,8 +88,8 @@ namespace gpconnect_appointment_checker.SDS
                     string userName = string.Empty;
                     string password = string.Empty;
 
-                    ldapConn = new LdapConnection { SecureSocketLayer = spineConnectionSettings.SDS_Use_Ldaps };
-                    ldapConn.Connect(spineConnectionSettings.SDS_Hostname, spineConnectionSettings.SDS_Port);
+                    ldapConn = new LdapConnection { SecureSocketLayer = spineConnectionSettings.SDSUseLdaps };
+                    ldapConn.Connect(spineConnectionSettings.SDSHostname, spineConnectionSettings.SDSPort);
                     ldapConn.Bind(userName, password);
                 }
                 return ldapConn;

@@ -1,10 +1,12 @@
+using Dapper.FluentMap;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Audit;
 using gpconnect_appointment_checker.DAL.Configuration;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DAL.Logging;
-using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.DAL.Mapping;
 using gpconnect_appointment_checker.GPConnect;
+using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.Logging.GlobalExceptionHandler;
 using gpconnect_appointment_checker.SDS;
 using gpconnect_appointment_checker.SDS.Interfaces;
@@ -35,19 +37,39 @@ namespace gpconnect_appointment_checker
             {
                 options.SuppressXFrameOptionsHeader = true;
             });
+            AddAuthenticationServices(services);
+            AddDapperMappings();
+        }
+
+        private void AddDapperMappings()
+        {
+            FluentMapper.Initialize(config =>
+            {
+                config.AddMap(new SsoMap());
+                config.AddMap(new SdsQueryMap());
+                config.AddMap(new GeneralMap());
+                config.AddMap(new SpineMap());
+            });
+        }
+
+        private async void AddAuthenticationServices(IServiceCollection services)
+        {
+            var configurationService = new ConfigurationService(Configuration);
+            var ssoConfiguration = await configurationService.GetSsoConfiguration();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = "GpConnectAppointmentChecker";
+                options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
             }).AddCookie()
-            .AddOAuth("NHS-SSO", options =>
+            .AddOAuth(ssoConfiguration.AuthScheme, options =>
             {
-                options.ClientId = Configuration["OAuthClientId"];
-                options.ClientSecret = Configuration["OAuthClientSecret"];
-                options.CallbackPath = new PathString(Configuration["OAuthPathString"]);
-                options.AuthorizationEndpoint = "/Auth";
-                options.TokenEndpoint = "/Token";
+                options.ClientId = ssoConfiguration.ClientId;
+                options.ClientSecret = ssoConfiguration.ClientSecret;
+                options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
+                options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
+                options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
             });
         }
 

@@ -7,5 +7,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
     {
         Task<List<DTO.Response.Configuration.General>> GetGeneralConfigurations();
         Task<DTO.Response.Configuration.Spine> GetSpineConfiguration();
+        Task<List<DTO.Response.Configuration.SdsQuery>> GetSdsQueryConfiguration();
+        Task<DTO.Response.Configuration.Sso> GetSsoConfiguration();
     }
 }

@@ -8,7 +8,8 @@ returns table
     callback_path varchar(1000),
     auth_scheme varchar(100),
     auth_endpoint varchar(1000),
-    token_endpoint varchar(1000)
+    token_endpoint varchar(1000),
+    challenge_scheme varchar(100)
 )
 as $$
 begin
@@ -20,7 +21,8 @@ begin
 	    s.callback_path,
 	    s.auth_scheme,
 	    s.auth_endpoint,
-	    s.token_endpoint
+	    s.token_endpoint,
+	    s.challenge_scheme
    	from configuration.sso s;
 	
 end;
