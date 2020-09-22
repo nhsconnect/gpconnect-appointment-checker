@@ -75,6 +75,12 @@ from configuration.get_general_configuration();
 select * 
 from configuration.get_spine_configuration();
 
+select *
+from configuration.get_sso_configuration();
+
+select *
+from configuration.get_sds_queries();
+
 select * 
 from logging.log_error
 (
