@@ -1,4 +1,3 @@
-using System;
 using Dapper.FluentMap;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Audit;
