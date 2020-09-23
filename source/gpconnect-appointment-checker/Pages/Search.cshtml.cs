@@ -57,28 +57,32 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
-            var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
-
-            var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
-            var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
-
-
-            if (providerOrganisationDetails != null)
+            if (ModelState.IsValid)
             {
-                SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-            }
+                var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+                var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
-            if (consumerOrganisationDetails != null)
-            {
-                SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
-            }
+                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
+                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
 
-            SearchResults = GetSearchResults();
-            ResultColumns = new [] { "Appointment Date", "Location", "Session Name", "Start Time", "Duration", "Slot Type", "Delivery Channel", "Practitioner", "Practitioner Role", "Practitioner Gender"};
+                if (providerOrganisationDetails != null)
+                {
+                    SearchAtResultsText =
+                        $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+                }
 
-            if (!ModelState.IsValid)
-            {
+                if (consumerOrganisationDetails != null)
+                {
+                    SearchOnBehalfOfResultsText =
+                        $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                }
+
+                SearchResults = GetSearchResults();
+                ResultColumns = new[]
+                {
+                    "Appointment Date", "Session Name", "Start Time", "Duration", "Slot Type", "Delivery Channel",
+                    "Practitioner", "Practitioner Role", "Practitioner Gender"
+                };
                 return Page();
             }
             return Page();
@@ -92,8 +96,8 @@ namespace gpconnect_appointment_checker.Pages
         private List<SelectListItem> GetDateRanges()
         {
             _logger.LogInformation("Getting DateRanges");
-            
-            var weeksToGet = 12;
+
+            var weeksToGet = _configuration["MaxNumberOfWeeks"].StringToInteger(12);
             var dateRange = new List<SelectListItem>();
             var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
 
@@ -126,6 +130,19 @@ namespace gpconnect_appointment_checker.Pages
                     SessionName = "Nurse Clinic",
                     SlotType = "Child Immunisation",
                     StartTime = DateTime.Now.ToString("t")
+                },
+                new SearchResultItem()
+                {
+                    AppointmentDate = DateTime.Now.AddDays(2).ToString("ddd d MMM yyyy"),
+                    DeliveryChannel = "In Person",
+                    Duration = 10.DurationFormatter("Mins"),
+                    Location = "Laurel Bank Surgery, North Lane, Skipton",
+                    Practitioner = "JEFFERIES, Lisa (Mrs)",
+                    PractitionerRole = "Nurse Practitioner",
+                    PractitionerGender = "Female",
+                    SessionName = "Nurse Clinic",
+                    SlotType = "Adult Immunisation",
+                    StartTime = DateTime.Now.AddDays(2).ToString("t")
                 }
             };
             return results;

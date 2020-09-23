@@ -28,7 +28,7 @@ namespace gpconnect_appointment_checker
                 throw new ArgumentNullException(nameof(configuration));
 
             if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionStrings.DefaultConnection)))
-                throw new ArgumentException(string.Format("Environment variable ConnectionStrings:{0} is not present", ConnectionStrings.DefaultConnection));
+                throw new ArgumentException($"Environment variable ConnectionStrings:{ConnectionStrings.DefaultConnection} is not present");
 
             Configuration = configuration;
         }

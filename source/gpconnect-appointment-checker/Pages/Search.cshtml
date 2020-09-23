@@ -7,12 +7,12 @@
 
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-with-hint-text">Provider ODS code (search at):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode">
+                <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode">
             </div>
 
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-with-hint-text">Consumer ODS code (search on behalf of):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode">
+                <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" required asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode">
             </div>
 
             <div class="nhsuk-form-group">
@@ -43,29 +43,33 @@
                     <div class="nhsuk-table-responsive">
                         <table class="nhsuk-table-responsive">
                             <thead>
-                            <tr class="nhsuk-table__row">
-                                @foreach (var column in Model.ResultColumns)
-                                {
-                                    <th class="nhsuk-table__header" scope="col">@column</th>
-                                }
-                            </tr>
+                                <tr class="nhsuk-table__row">
+                                    @foreach (var column in Model.ResultColumns)
+                                    {
+                                        <th class="nhsuk-table__header" scope="col">@column</th>
+                                    }
+                                </tr>
                             </thead>
                             <tbody class="nhsuk-table__body">
-                            @foreach (var searchResult in Model.SearchResults)
-                            {
                                 <tr class="nhsuk-table__row">
-                                    <td class="nhsuk-table__cell">@searchResult.AppointmentDate</td>
-                                    <td class="nhsuk-table__cell">@searchResult.Location</td>
-                                    <td class="nhsuk-table__cell">@searchResult.SessionName</td>
-                                    <td class="nhsuk-table__cell">@searchResult.StartTime</td>
-                                    <td class="nhsuk-table__cell">@searchResult.Duration</td>
-                                    <td class="nhsuk-table__cell">@searchResult.SlotType</td>
-                                    <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
-                                    <td class="nhsuk-table__cell">@searchResult.Practitioner</td>
-                                    <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
-                                    <td class="nhsuk-table__cell">@searchResult.PractitionerGender</td>
+                                    <td colspan="9" class="nhsuk-table__cell">
+                                        <h4>Laurel Bank Surgery, North Lane, Skipton</h4>
+                                    </td>
                                 </tr>
-                            }
+                            @foreach (var searchResult in Model.SearchResults)
+                                {
+                                    <tr class="nhsuk-table__row">
+                                        <td class="nhsuk-table__cell">@searchResult.AppointmentDate</td>
+                                        <td class="nhsuk-table__cell">@searchResult.SessionName</td>
+                                        <td class="nhsuk-table__cell">@searchResult.StartTime</td>
+                                        <td class="nhsuk-table__cell">@searchResult.Duration</td>
+                                        <td class="nhsuk-table__cell">@searchResult.SlotType</td>
+                                        <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
+                                        <td class="nhsuk-table__cell">@searchResult.Practitioner</td>
+                                        <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
+                                        <td class="nhsuk-table__cell">@searchResult.PractitionerGender</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
