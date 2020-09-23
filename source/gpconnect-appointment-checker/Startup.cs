@@ -1,3 +1,4 @@
+using System;
 using Dapper.FluentMap;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Audit;
@@ -23,6 +24,12 @@ namespace gpconnect_appointment_checker
     {
         public Startup(IConfiguration configuration)
         {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionStrings.DefaultConnection)))
+                throw new ArgumentException(string.Format("Environment variable ConnectionStrings:{0} is not present", ConnectionStrings.DefaultConnection));
+
             Configuration = configuration;
         }
 
