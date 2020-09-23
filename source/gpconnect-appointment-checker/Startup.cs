@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.Extensions.Hosting;
 
 namespace gpconnect_appointment_checker
 {
@@ -98,7 +99,14 @@ namespace gpconnect_appointment_checker
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
         {
-            app.UseExceptionHandler("/Error");
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
