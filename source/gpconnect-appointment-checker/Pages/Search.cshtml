@@ -3,36 +3,31 @@
 
 <form method="post">
     <div class="nhsuk-grid-row">
-        <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-grid-column-two-thirds">
+
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label nhsuk-label--s" for="input-providerodscode">Provider ODS Code (Search At):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-width-10-hint">
+                <label class="nhsuk-label" for="input-with-hint-text">Provider ODS code (search at):</label>
+                <input class="nhsuk-input" id="input-with-hint-text" asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-with-hint-text-hint">
             </div>
 
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label nhsuk-label--s" for="input-consumerodscode">Consumer ODS Code (Search For):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-width-10-hint">
+                <label class="nhsuk-label" for="input-with-hint-text">Consumer ODS code (search on behalf of):</label>
+                <input class="nhsuk-input" id="input-with-hint-text" asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-with-hint-text-hint">
             </div>
 
             <div class="nhsuk-form-group">
-                <label class="nhsuk-label nhsuk-label--s" for="input-daterange">Date Range:</label>
+                <label class="nhsuk-label" for="input-with-hint-text">Date range:</label>
                 <select asp-for="@Model.SelectedDateRange"
                         asp-items="@Model.DateRanges"
                         class="nhsuk-select"
                         name="daterange"
                         id="input-daterange">
                 </select>
+                <div style="float: right">
+                    <button type="submit" class="nhsuk-button">Search for free slots</button>
+                    <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
+                </div>
             </div>
-        </div>
-    </div>
-
-
-    <div class="nhsuk-grid-row">
-        <div class="nhsuk-grid-column-two-thirds">
-            <button type="submit" class="nhsuk-button">Search for free slots</button>
-        </div>
-        <div class="nhsuk-grid-column-one-third">
-            <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
         </div>
     </div>
 
@@ -41,11 +36,7 @@
         <div class="nhsuk-grid-row">
             <div class="nhsuk-grid-column-full">
                 <div class="nhsuk-warning-callout">
-                    <p>
-                        <br/>
-                        Searching at: @Model.SearchAtResultsText<br/>
-                        Searching on behalf of: @Model.SearchOnBehalfOfResultsText
-                    </p>
+                    <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3><p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
                 </div>
                 <div class="nhsuk-table__panel-with-heading-tab">
                     <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
