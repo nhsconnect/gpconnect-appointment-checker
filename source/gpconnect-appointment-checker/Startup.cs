@@ -7,7 +7,6 @@ using gpconnect_appointment_checker.DAL.Logging;
 using gpconnect_appointment_checker.DAL.Mapping;
 using gpconnect_appointment_checker.GPConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
-using gpconnect_appointment_checker.Logging.GlobalExceptionHandler;
 using gpconnect_appointment_checker.SDS;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace gpconnect_appointment_checker
 {
@@ -27,6 +27,7 @@ namespace gpconnect_appointment_checker
         }
 
         public IConfiguration Configuration { get; }
+        public IConfigurationService ConfigurationService => new ConfigurationService(Configuration);
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -39,6 +40,7 @@ namespace gpconnect_appointment_checker
             });
             AddAuthenticationServices(services);
             AddDapperMappings();
+            AddGeneralConfiguration(services);
         }
 
         private void AddDapperMappings()
@@ -52,10 +54,14 @@ namespace gpconnect_appointment_checker
             });
         }
 
+        private async void AddGeneralConfiguration(IServiceCollection services)
+        {
+            var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
+        }
+
         private async void AddAuthenticationServices(IServiceCollection services)
         {
-            var configurationService = new ConfigurationService(Configuration);
-            var ssoConfiguration = await configurationService.GetSsoConfiguration();
+            var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
 
             services.AddAuthentication(options =>
             {
@@ -82,12 +88,11 @@ namespace gpconnect_appointment_checker
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<ILogService, LogService>();
-            services.AddSingleton<ILog, LogNLog>();
         }
 
-        public void Configure(IApplicationBuilder app, ILog logger, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
         {
-            app.ConfigureExceptionHandler(logger);
+            app.UseExceptionHandler("/Error");
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();

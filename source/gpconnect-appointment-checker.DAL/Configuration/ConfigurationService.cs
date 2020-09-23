@@ -26,11 +26,11 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             _dataService = new DataService(_configuration, null);
         }
 
-        public async Task<List<DTO.Response.Configuration.General>> GetGeneralConfigurations()
+        public async Task<DTO.Response.Configuration.General> GetGeneralConfiguration()
         {
             var functionName = "configuration.get_general_configuration";
             var results = await _dataService.ExecuteFunction<DTO.Response.Configuration.General>(functionName);
-            return results;
+            return results.FirstOrDefault();
         }
 
         public async Task<DTO.Response.Configuration.Spine> GetSpineConfiguration()

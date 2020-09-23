@@ -86,9 +86,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
-            ProviderODSCode = string.Empty;
-            ConsumerODSCode = string.Empty;
-            return Page();
+            return RedirectToPage("Search");
         }
 
         private List<SelectListItem> GetDateRanges()

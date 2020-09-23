@@ -13,13 +13,14 @@ namespace gpconnect_appointment_checker.Logging.GlobalExceptionHandler
                 appError.Run(context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.ContentType = "application/json";
+                    context.Response.ContentType = "text/html";
 
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                     if (contextFeature != null)
                     {
                         logger.Error($"An error has occurred in the application - {contextFeature.Error}");
                     }
+                    context.Response.Redirect("/Error");
                     return null;
                 });
             });
