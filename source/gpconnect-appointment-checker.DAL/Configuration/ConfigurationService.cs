@@ -1,6 +1,5 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,13 +8,11 @@ namespace gpconnect_appointment_checker.DAL.Configuration
 {
     public class ConfigurationService : IConfigurationService
     {
-        private readonly ILogger<ConfigurationService> _logger;
         private readonly IDataService _dataService;
         private readonly IConfiguration _configuration;
 
-        public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService> logger, IDataService dataService)
+        public ConfigurationService(IConfiguration configuration, IDataService dataService)
         {
-            _logger = logger;
             _dataService = dataService;
             _configuration = configuration;
         }

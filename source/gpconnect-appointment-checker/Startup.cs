@@ -15,8 +15,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
+using NLog.Web;
 
 namespace gpconnect_appointment_checker
 {
@@ -24,12 +27,6 @@ namespace gpconnect_appointment_checker
     {
         public Startup(IConfiguration configuration)
         {
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
-
-            if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionStrings.DefaultConnection)))
-                throw new ArgumentException($"Environment variable ConnectionStrings:{ConnectionStrings.DefaultConnection} is not present");
-
             Configuration = configuration;
         }
 
@@ -48,6 +45,7 @@ namespace gpconnect_appointment_checker
             AddAuthenticationServices(services);
             AddDapperMappings();
             AddGeneralConfiguration(services);
+            
         }
 
         private void AddDapperMappings()
@@ -63,27 +61,27 @@ namespace gpconnect_appointment_checker
 
         private async void AddGeneralConfiguration(IServiceCollection services)
         {
-            var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
+            //var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
         }
 
         private async void AddAuthenticationServices(IServiceCollection services)
         {
-            var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
+            //var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
-            }).AddCookie()
-            .AddOAuth(ssoConfiguration.AuthScheme, options =>
-            {
-                options.ClientId = ssoConfiguration.ClientId;
-                options.ClientSecret = ssoConfiguration.ClientSecret;
-                options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
-                options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
-                options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
-            });
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
+            //}).AddCookie()
+            //.AddOAuth(ssoConfiguration.AuthScheme, options =>
+            //{
+            //    options.ClientId = ssoConfiguration.ClientId;
+            //    options.ClientSecret = ssoConfiguration.ClientSecret;
+            //    options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
+            //    options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
+            //    options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
+            //});
         }
 
         private void AddScopedServices(IServiceCollection services)
@@ -107,6 +105,7 @@ namespace gpconnect_appointment_checker
             {
                 app.UseExceptionHandler("/Error");
             }
+
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();

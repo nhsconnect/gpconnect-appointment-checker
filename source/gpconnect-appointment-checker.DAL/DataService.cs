@@ -30,7 +30,7 @@ namespace gpconnect_appointment_checker.DAL
             }
             catch (Exception exc)
             {
-                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
+                _logger?.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
@@ -45,7 +45,7 @@ namespace gpconnect_appointment_checker.DAL
             }
             catch (Exception exc)
             {
-                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
+                _logger?.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
@@ -60,7 +60,7 @@ namespace gpconnect_appointment_checker.DAL
             }
             catch (Exception exc)
             {
-                _logger.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
+                _logger?.LogError($"An error has occurred while attempting to execute the function {functionName}", exc);
                 throw;
             }
         }
