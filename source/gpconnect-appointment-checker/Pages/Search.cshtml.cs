@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.GPConnect.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -41,13 +42,17 @@ namespace gpconnect_appointment_checker.Pages
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<SearchModel> _logger;
         protected ILdapService _ldapService;
+        protected ITokenService _tokenService;
+        protected IGPConnectQueryExecutionService _queryExecutionService;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGPConnectQueryExecutionService queryExecutionService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _ldapService = ldapService;
+            _tokenService = tokenService;
+            _queryExecutionService = queryExecutionService;
         }
 
         public IActionResult OnGet()
@@ -65,6 +70,8 @@ namespace gpconnect_appointment_checker.Pages
                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
                 var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
 
+                var auditToken = _tokenService.GenerateToken(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails);
+                
                 if (providerOrganisationDetails != null)
                 {
                     SearchAtResultsText =

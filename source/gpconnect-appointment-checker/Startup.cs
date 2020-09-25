@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Dapper.FluentMap;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Audit;
@@ -96,6 +97,12 @@ namespace gpconnect_appointment_checker
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddHttpClient();
+            //services.AddHttpClient<GPConnectQueryExecutionService>(c =>
+            //{
+            //    c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
+            //});
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
