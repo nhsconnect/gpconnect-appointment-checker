@@ -30,17 +30,15 @@ namespace gpconnect_appointment_checker
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((builderContext, config) =>
-                {
-                    config.AddEnvironmentVariables(prefix: "GPCONNECTAPPOINTMENTCHECKER_");
-                }).ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                }).ConfigureLogging((builderContext, logging) =>
-                    {
-                        logging.ClearProviders();
-                        logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
-                    }
-                ).UseNLog();
+                }).ConfigureAppConfiguration((builderContext, config) =>
+                {
+                    config.AddEnvironmentVariables(prefix: "GPCONNECTAPPOINTMENTCHECKER_");
+                }).ConfigureLogging((builderContext, logging) => {
+                    logging.ClearProviders();
+                    logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
+                }).UseNLog();
     }
 }

@@ -17,9 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Extensions.Logging;
-using NLog.Web;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace gpconnect_appointment_checker
 {
@@ -35,6 +33,11 @@ namespace gpconnect_appointment_checker
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(builder =>
+                builder.AddDebug()
+                    .AddConsole().AddConfiguration(Configuration.GetSection("Logging"))
+                    .SetMinimumLevel(LogLevel.Trace));
+
             AddScopedServices(services);
             services.AddHttpContextAccessor();
             services.AddRazorPages();
@@ -61,27 +64,27 @@ namespace gpconnect_appointment_checker
 
         private async void AddGeneralConfiguration(IServiceCollection services)
         {
-            //var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
+            var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
         }
 
         private async void AddAuthenticationServices(IServiceCollection services)
         {
-            //var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
+            var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
 
-            //services.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
-            //}).AddCookie()
-            //.AddOAuth(ssoConfiguration.AuthScheme, options =>
-            //{
-            //    options.ClientId = ssoConfiguration.ClientId;
-            //    options.ClientSecret = ssoConfiguration.ClientSecret;
-            //    options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
-            //    options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
-            //    options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
-            //});
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
+            }).AddCookie()
+            .AddOAuth(ssoConfiguration.AuthScheme, options =>
+            {
+                options.ClientId = ssoConfiguration.ClientId;
+                options.ClientSecret = ssoConfiguration.ClientSecret;
+                options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
+                options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
+                options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
+            });
         }
 
         private void AddScopedServices(IServiceCollection services)
