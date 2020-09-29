@@ -27,6 +27,10 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
 
 <img src="documentation/images/gpc-appointment-checker-page-routing.png" width="65%">
 
+## Build status
+
+[![Build Actions Status](https://github.com/nhsconnect/gpconnect-appointment-checker/workflows/CI/badge.svg)](https://github.com/nhsconnect/gpconnect-appointment-checker/actions)
+
 ## Build and run
 
 Create a blank database in postgres, then patch the database as follows, replacing the `PG_` variables with your postgres database connection details:
@@ -48,10 +52,6 @@ Run the Docker image, replacing the `PG_` variables with your postgres database 
 ```
 docker run -d -p 8000:80 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" --name gpconnect-appointment-checker gpconnect-appointment-checker:dev
 ```
-
-## Build status
-
-[![Build Actions Status](https://github.com/nhsconnect/gpconnect-appointment-checker/workflows/CI/badge.svg)](https://github.com/nhsconnect/gpconnect-appointment-checker/actions)
 
 ## Test
 
