@@ -55,13 +55,7 @@ docker run -d -p 8000:80 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;
 
 ## Test
 
-Run the database tests as follows, replacing the `PG_` variables with your postgres database connection details: 
-
-```
-cd database
-flyway -url=jdbc:postgresql://PG_HOST/PG_DBNAME -user=PG_USER -password=PG_PASS -repeatableSqlMigrationPrefix=T -locations=filesystem:. migrate
-```
-
+TBC
 
 ## Links
 
