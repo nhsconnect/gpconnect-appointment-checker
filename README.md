@@ -33,6 +33,10 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
 
 ## Build and run
 
+Create and patch the database:
+
+[TODO]
+
 Build the Docker image:
 
 ```
