@@ -33,7 +33,7 @@ The GP Connect Appointment Checker is a web application for GP practice and oper
 
 ## Build and run
 
-Create and patch the database:
+Create a blank database in postgres, then patch the database as follows, replacing the `PG_` variables with your postgres database connection details:
 
 ```
 cd database
@@ -47,11 +47,21 @@ cd source
 docker build -t gpconnect-appointment-checker:dev .
 ```
 
-Run the Docker image, replacing the `PG_` variables with your Postgres database connection details:
+Run the Docker image, replacing the `PG_` variables with your postgres database connection details:
 
 ```
 docker run -d -p 8000:80 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" --name gpconnect-appointment-checker gpconnect-appointment-checker:dev
 ```
+
+## Test
+
+Run the database tests as follows, replacing the `PG_` variables with your postgres database connection details: 
+
+```
+cd database
+flyway -url=jdbc:postgresql://PG_HOST/PG_DBNAME -user=PG_USER -password=PG_PASS -repeatableSqlMigrationPrefix=T -locations=filesystem:. migrate
+```
+
 
 ## Links
 
