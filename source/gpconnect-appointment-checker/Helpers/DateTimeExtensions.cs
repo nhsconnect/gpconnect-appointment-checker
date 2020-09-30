@@ -4,15 +4,15 @@ namespace gpconnect_appointment_checker.Helpers
 {
     public static class DateTimeExtensions
     {
-        public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+        public static DateTime StartOfWeek(this DateTime valueIn, DayOfWeek startOfWeek) =>
+            valueIn switch
+            {
+                _ => valueIn.AddDays(-1 * (7 + (valueIn.DayOfWeek - startOfWeek)) % 7).Date
+            };
+        
+        public static string DateFormatter(this DateTime? valueIn, string dateFormat)
         {
-            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
-            return dt.AddDays(-1 * diff).Date;
-        }
-
-        public static string DurationFormatter(this int duration, string durationUnits)
-        {
-            return $"{duration} {durationUnits}";
+            return valueIn.HasValue ? valueIn.Value.ToString(dateFormat) : string.Empty;
         }
     }
 }

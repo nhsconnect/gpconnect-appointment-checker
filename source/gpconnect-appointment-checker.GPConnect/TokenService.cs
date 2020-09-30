@@ -9,8 +9,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -27,98 +29,144 @@ namespace gpconnect_appointment_checker.GPConnect
             _logService = logService;
         }
 
-        public async Task<string> GenerateToken(Uri requestUri, Spine spineMessage, Organisation organisationDetails)
+        public async Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails)
         {
-            var spineConfiguration = await _configurationService.GetSpineConfiguration();
-            var generalConfiguration = await _configurationService.GetGeneralConfiguration();
-
-            var requestingDevice = new RequestingDevice
+            try
             {
-                ResourceType = "Device",
-                Identifier = new List<Identifier>
-                {
-                    new Identifier {
-                        System = requestUri.AbsoluteUri,
-                        Value = requestUri.Host
-                    }
-                },
-                Model = generalConfiguration.ProductName,
-                Version = generalConfiguration.ProductVersion
-            };
+                var spineConfiguration = await _configurationService.GetSpineConfiguration();
+                var generalConfiguration = await _configurationService.GetGeneralConfiguration();
+                var userGuid = Guid.NewGuid().ToString();
+                var userFamilyName = "...";
+                var userGivenName = "...";
 
-            var requestingOrganisation = new RequestingOrganisation
-            {
-                ResourceType = "Organization",
-                Identifier = new List<Identifier>
+                var tokenHandler = new JwtSecurityTokenHandler
                 {
-                    new Identifier {
-                        System = spineMessage.SSPHostname,
-                        Value = organisationDetails.ODSCode
-                    }
-                },
-                Name = organisationDetails.OrganisationName
-            };
+                    SetDefaultTimesOnTokenCreation = false
+                };
 
-            var requestingPractitioner = new RequestingPractitioner
-            {
-                ResourceType = "Practitioner",
-                Id = organisationDetails.OrganisationId.ToString(),
-                Identifier = new List<Identifier>
+                var tokenIssuer = spineConfiguration.SDSHostname;
+                var tokenAudience = providerSpineMessage.SSPHostname;
+                var tokenIssuedAt = DateTimeOffset.Now;
+                var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
+
+                var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
+                AddRequestingDeviceClaim(requestUri, tokenDescriptor, generalConfiguration);
+                AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
+                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid, userFamilyName, userGivenName);
+
+                var token = AddTokenHeader(tokenHandler, tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                var requestParameters = new RequestParameters
                 {
-                    new Identifier {
-                        System = spineMessage.SSPHostname,
-                        Value = organisationDetails.ODSCode
-                    }
-                },
-                Name = new List<Name>
+                    BearerToken = tokenString,
+                    SspFrom = spineConfiguration.AsId,
+                    SspTo = providerSpineMessage.AsId,
+                    UseSSP = spineConfiguration.UseSSP,
+                    SspHostname = spineConfiguration.SSPHostname,
+                    ConsumerODSCode = consumerOrganisationDetails.ODSCode,
+                    ProviderODSCode = providerOrganisationDetails.ODSCode
+                };
+
+                return requestParameters;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An error has occurred in trying to build the JWT security token", exc);
+                throw;
+            }
+        }
+
+        private static void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
+            string userGuid, string userFamilyName, string userGivenName)
+        {
+            tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
+            {
+                resourceType = "Practitioner",
+                id = userGuid,
+                name = new List<Name>
                 {
                     new Name
                     {
-                        Family = "Test",
-                        Given = new List<string>
-                        {
-                            "Test"
-                        },
-                        Prefix = new List<string>
-                        {
-                            "Test"
-                        }
+                        family = userFamilyName,
+                        given = new List<string> {userGivenName}
+                    }
+                },
+                identifier = new List<Identifier>
+                {
+                    new Identifier
+                    {
+                        system = "https://fhir.nhs.uk/Id/sds-user-id",
+                        value = "UNK"
+                    },
+                    new Identifier
+                    {
+                        system = "https://fhir.nhs.uk/Id/sds-role-profile-id",
+                        value = "UNK"
+                    },
+                    new Identifier
+                    {
+                        system = $"{requestUri.AbsoluteUri}/user-id",
+                        value = userGuid
                     }
                 }
-            };
+            });
+        }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            tokenHandler.TokenLifetimeInMinutes = 5;
+        private static void AddRequestingOrganisationClaim(Organisation organisationDetails,
+            SecurityTokenDescriptor tokenDescriptor)
+        {
+            tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+            {
+                resourceType = "Organization",
+                name = organisationDetails.OrganisationName,
+                identifier = new List<Identifier>
+                {
+                    new Identifier
+                    {
+                        system = "https://fhir.nhs.uk/Id/ods-organization-code",
+                        value = organisationDetails.ODSCode
+                    }
+                }
+            });
+        }
 
-            var tokenIssuer = spineConfiguration.SDSHostname;
-            var tokenAudience = spineMessage.SSPHostname;
-            var tokenIssuedAt = DateTimeOffset.UtcNow;
-            var tokenExpiration = DateTimeOffset.UtcNow.AddMinutes(5);
+        private static void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
+            General generalConfiguration)
+        {
+            tokenDescriptor.Claims.Add("requesting_device", new RequestingDevice
+            {
+                resourceType = "Device",
+                model = generalConfiguration.ProductName,
+                version = generalConfiguration.ProductVersion,
+                identifier = new List<Identifier>
+                {
+                    new Identifier
+                    {
+                        system = requestUri.AbsoluteUri,
+                        value = requestUri.Host
+                    }
+                }
+            });
+        }
 
+        private static SecurityTokenDescriptor BuildSecurityTokenDescriptor(string tokenIssuer, string tokenAudience,
+            string userGuid, DateTimeOffset tokenIssuedAt, DateTimeOffset tokenExpiration)
+        {
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Issuer = tokenIssuer,
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, spineMessage.OrganisationId.ToString())
-                }),
                 Audience = tokenAudience,
                 Claims = new Dictionary<string, object>()
                 {
-                    { Constants.TokenRequestValues.TokenExpiration, tokenExpiration.ToUnixTimeSeconds() },
-                    { Constants.TokenRequestValues.IssuedAt, tokenIssuedAt.ToUnixTimeSeconds() },
-                    { Constants.TokenRequestValues.ReasonForRequestKey, Constants.TokenRequestValues.ReasonForRequestValue },
-                    { Constants.TokenRequestValues.RequestedScopeKey, Constants.TokenRequestValues.RequestedScopeValue },
-                    { Constants.TokenRequestValues.RequestingDevice, JsonConvert.SerializeObject(requestingDevice) },
-                    { Constants.TokenRequestValues.RequestingOrganization, JsonConvert.SerializeObject(requestingOrganisation) },
-                    { Constants.TokenRequestValues.RequestingPractitioner, JsonConvert.SerializeObject(requestingPractitioner) }
-            },
+                    {Constants.TokenRequestValues.ReasonForRequestKey, Constants.TokenRequestValues.ReasonForRequestValue},
+                    {Constants.TokenRequestValues.RequestedScopeKey, Constants.TokenRequestValues.RequestedScopeValue},
+                    {Constants.TokenRequestValues.TokenSubject, userGuid}
+                },
                 IssuedAt = tokenIssuedAt.DateTime,
                 Expires = tokenExpiration.DateTime
             };
-
-            var token = AddTokenHeader(tokenHandler, tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return tokenDescriptor;
         }
 
         private static JwtSecurityToken AddTokenHeader(JwtSecurityTokenHandler tokenHandler, SecurityTokenDescriptor tokenDescriptor)

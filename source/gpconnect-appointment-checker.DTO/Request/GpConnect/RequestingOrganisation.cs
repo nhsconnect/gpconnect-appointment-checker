@@ -8,6 +8,6 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
     public class RequestingOrganisation : BaseRequest
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string name { get; set; }
     }
 }

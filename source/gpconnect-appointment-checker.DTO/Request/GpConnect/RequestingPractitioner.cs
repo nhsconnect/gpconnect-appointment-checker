@@ -8,18 +8,18 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
     public class RequestingPractitioner : BaseRequest
     {
         [JsonProperty("name")]
-        public List<Name> Name { get; set; }
+        public List<Name> name { get; set; }
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string id { get; set; }
     }
 
     public class Name
     {
         [JsonProperty("family")]
-        public string Family { get; set; }
+        public string family { get; set; }
         [JsonProperty("given")]
-        public List<string> Given { get; set; }
+        public List<string> given { get; set; }
         [JsonProperty("prefix")]
-        public List<string> Prefix { get; set; }
+        public List<string> prefix { get; set; }
     }
 }

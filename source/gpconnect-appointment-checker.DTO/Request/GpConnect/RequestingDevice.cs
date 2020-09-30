@@ -4,9 +4,7 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
 {
     public class RequestingDevice : BaseRequest
     {
-        [JsonProperty("model")]
-        public string Model { get; set; }
-        [JsonProperty("version")]
-        public string Version { get; set; }
+        public string model { get; set; }
+        public string version { get; set; }
     }
 }

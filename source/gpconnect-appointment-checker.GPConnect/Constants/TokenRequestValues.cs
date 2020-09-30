@@ -8,6 +8,7 @@
         public const string TokenHeaderTypeValue = "JWT";
         public const string TokenExpiration = "exp";
         public const string IssuedAt = "iat";
+        public const string TokenSubject = "sub";
         public const string ReasonForRequestKey = "reason_for_request";
         public const string ReasonForRequestValue = "directcare";
         public const string RequestedScopeKey = "requested_scope";

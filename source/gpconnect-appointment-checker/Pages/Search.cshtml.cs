@@ -1,6 +1,9 @@
-﻿using gpconnect_appointment_checker.Helpers;
+﻿using gpconnect_appointment_checker.DTO.Response.Application;
+using gpconnect_appointment_checker.DTO.Response.Configuration;
+using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
-using gpconnect_appointment_checker.ViewModels.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,8 +13,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.GPConnect.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -19,7 +22,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
 
-        public SearchResultItemList SearchResults { get; set; }
+        public List<SlotSimple> SearchResults { get; set; }
 
         [Required]
         [BindProperty]
@@ -36,7 +39,7 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty] 
         public string SelectedDateRange { get; set; }
 
-        public string[] ResultColumns { get; set; }
+        public double SearchDuration { get; set; }
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -64,35 +67,50 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
-                var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
-                var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
-
-                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
-                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
-
-                var auditToken = _tokenService.GenerateToken(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails);
-                
-                if (providerOrganisationDetails != null)
-                {
-                    SearchAtResultsText =
-                        $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-                }
-
-                if (consumerOrganisationDetails != null)
-                {
-                    SearchOnBehalfOfResultsText =
-                        $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
-                }
-
-                SearchResults = GetSearchResults();
-                ResultColumns = new[]
-                {
-                    "Appointment Date", "Session Name", "Start Time", "Duration", "Slot Type", "Delivery Channel",
-                    "Practitioner", "Practitioner Role", "Practitioner Gender"
-                };
-                return Page();
+                var searchTimer = new Stopwatch();
+                searchTimer.Start();
+                await GetSearchResults();
+                searchTimer.Stop();
+                SearchDuration = searchTimer.Elapsed.TotalSeconds;
             }
             return Page();
+        }
+
+        private async Task GetSearchResults()
+        {
+            var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+            var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
+
+            var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
+            var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
+
+            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+
+            if (providerOrganisationDetails != null)
+            {
+                SearchAtResultsText =
+                    $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+            }
+
+            if (consumerOrganisationDetails != null)
+            {
+                SearchOnBehalfOfResultsText =
+                    $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+            }
+        }
+
+        private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
+            Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
+        {
+            var requestParameters = await _tokenService.ConstructRequestParameters(
+                _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
+                consumerGpConnectDetails, consumerOrganisationDetails);
+            if (requestParameters != null)
+            {
+                var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Today,
+                    DateTime.Today.AddDays(7), providerGpConnectDetails.SSPHostname);
+                SearchResults = searchResults;
+            }
         }
 
         public IActionResult OnPostClear()
@@ -119,40 +137,6 @@ namespace gpconnect_appointment_checker.Pages
                 firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
             return dateRange;
-        }
-
-        private SearchResultItemList GetSearchResults()
-        {
-            var results = new SearchResultItemList
-            {
-                new SearchResultItem()
-                {
-                    AppointmentDate = DateTime.Now.ToString("ddd d MMM yyyy"),
-                    DeliveryChannel = "In Person",
-                    Duration = 10.DurationFormatter("Mins"),
-                    Location = "Laurel Bank Surgery, North Lane, Skipton",
-                    Practitioner = "ROBERTS, Sam (Mr)",
-                    PractitionerRole = "Nurse Practitioner",
-                    PractitionerGender = "Male",
-                    SessionName = "Nurse Clinic",
-                    SlotType = "Child Immunisation",
-                    StartTime = DateTime.Now.ToString("t")
-                },
-                new SearchResultItem()
-                {
-                    AppointmentDate = DateTime.Now.AddDays(2).ToString("ddd d MMM yyyy"),
-                    DeliveryChannel = "In Person",
-                    Duration = 10.DurationFormatter("Mins"),
-                    Location = "Laurel Bank Surgery, North Lane, Skipton",
-                    Practitioner = "JEFFERIES, Lisa (Mrs)",
-                    PractitionerRole = "Nurse Practitioner",
-                    PractitionerGender = "Female",
-                    SessionName = "Nurse Clinic",
-                    SlotType = "Adult Immunisation",
-                    StartTime = DateTime.Now.AddDays(2).ToString("t")
-                }
-            };
-            return results;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page
+@using gpconnect_appointment_checker.Helpers
 @model SearchModel
 
 <form method="post">
@@ -31,7 +32,7 @@
         </div>
     </div>
 
-    @if (Model.SearchResults != null && Model.SearchResults.Count > 0)
+    @if (Model.SearchResults != null)
     {
         <div class="nhsuk-grid-row">
             <div class="nhsuk-grid-column-full">
@@ -44,30 +45,35 @@
                         <table class="nhsuk-table-responsive">
                             <thead>
                                 <tr class="nhsuk-table__row">
-                                    @foreach (var column in Model.ResultColumns)
-                                    {
-                                        <th class="nhsuk-table__header" scope="col">@column</th>
-                                    }
+                                    <th class="nhsuk-table__header" scope="col">Appointment date</th>
+                                    <th class="nhsuk-table__header" scope="col">Session name</th>
+                                    <th class="nhsuk-table__header" scope="col">Start time</th>
+                                    <th class="nhsuk-table__header" scope="col">Duration</th>
+                                    <th class="nhsuk-table__header" scope="col">Slot type</th>
+                                    <th class="nhsuk-table__header" scope="col">Delivery channel</th>
+                                    <th class="nhsuk-table__header" scope="col">Practitioner</th>
+                                    <th class="nhsuk-table__header" scope="col">Practitioner role</th>
+                                    <th class="nhsuk-table__header" scope="col">Practitioner gender</th>
                                 </tr>
                             </thead>
                             <tbody class="nhsuk-table__body">
-                                <tr class="nhsuk-table__row">
-                                    <td colspan="9" class="nhsuk-table__cell">
-                                        <h4>Laurel Bank Surgery, North Lane, Skipton</h4>
-                                    </td>
-                                </tr>
                             @foreach (var searchResult in Model.SearchResults)
                                 {
                                     <tr class="nhsuk-table__row">
-                                        <td class="nhsuk-table__cell">@searchResult.AppointmentDate</td>
+                                        <td colspan="9" class="nhsuk-table__cell">
+                                            <h4>@searchResult.LocationName, @string.Join(", ", searchResult.LocationAddressLines), @searchResult.LocationDistrict @searchResult.LocationCity @searchResult.LocationPostalCode @searchResult.LocationCountry</h4>
+                                        </td>
+                                    </tr>
+                                    <tr class="nhsuk-table__row">
+                                        <td class="nhsuk-table__cell">@searchResult.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
                                         <td class="nhsuk-table__cell">@searchResult.SessionName</td>
-                                        <td class="nhsuk-table__cell">@searchResult.StartTime</td>
-                                        <td class="nhsuk-table__cell">@searchResult.Duration</td>
+                                        <td class="nhsuk-table__cell">@searchResult.StartTime.DateFormatter("t")</td>
+                                        <td class="nhsuk-table__cell">@searchResult.Duration.UnitsFormatter("mins")</td>
                                         <td class="nhsuk-table__cell">@searchResult.SlotType</td>
                                         <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
-                                        <td class="nhsuk-table__cell">@searchResult.Practitioner</td>
+                                        <td class="nhsuk-table__cell">@searchResult.PractitionerFamilyName.ToUpper(),<br/>@searchResult.PractitionerGivenName&nbsp;(@searchResult.PractitionerPrefix)</td>
                                         <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
-                                        <td class="nhsuk-table__cell">@searchResult.PractitionerGender</td>
+                                        <td class="nhsuk-table__cell">@searchResult.PractitionerGender.FirstCharToUpper()</td>
                                     </tr>
                                 }
                             </tbody>
@@ -80,7 +86,7 @@
             <div class="nhsuk-grid-column-full">
                 <div class="nhsuk-inset-text">
                     <span class="nhsuk-u-visually-hidden">Information: </span>
-                    <p>Search took 1<text>s</text> and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")</p>
+                    <p>Search took @Model.SearchDuration.ToString("#.##s") and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")<br />@Model.SearchResults.Count free slots found</p>
                 </div>
             </div>
         </div>
