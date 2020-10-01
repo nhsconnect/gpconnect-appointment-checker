@@ -1,0 +1,35 @@
+﻿@model SearchModel
+
+@if (!Model.ConsumerODSCodeFound && !Model.ProviderODSCodeFound)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">Issue with ODS codes</h3>
+                <p>Sorry, but the ODS codes '@Model.ProviderODSCode' and '@Model.ConsumerODSCode' have not been found</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ConsumerODSCodeFound)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">Issue with Consumer ODS code</h3>
+                <p>Sorry, but the Consumer ODS code '@Model.ConsumerODSCode' has not been found</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ProviderODSCodeFound)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
+                <p>Sorry, but the Provider ODS code '@Model.ProviderODSCode' has not been found</p>
+            </div>
+        </div>
+    </div>
+}

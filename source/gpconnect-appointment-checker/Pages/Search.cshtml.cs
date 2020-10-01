@@ -23,7 +23,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
 
-        public List<SlotSimple> SearchResults { get; set; }
+        public List<SlotSimple> SearchResults { get; set; } = null;
 
         [Required]
         [BindProperty]
@@ -98,8 +98,7 @@ namespace gpconnect_appointment_checker.Pages
                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
                 var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
 
-                await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails,
-                    consumerGpConnectDetails, consumerOrganisationDetails);
+                await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
 
                 SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
                 SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";

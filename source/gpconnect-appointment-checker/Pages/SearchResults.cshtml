@@ -1,0 +1,73 @@
+﻿@using gpconnect_appointment_checker.Helpers
+@model SearchModel
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-warning-callout">
+            <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3>
+            <p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
+        </div>
+        @if (Model.SearchResults.Count > 0)
+        {
+            <div class="nhsuk-table">
+                <table class="nhsuk-table">
+                    <caption class="nhsuk-table__caption">Available Appointment Slots</caption>
+                    <thead role="rowgroup" class="nhsuk-table__head">
+                        <tr role="row">
+                            <th role="columnheader" class="" scope="col">Appointment date</th>
+                            <th role="columnheader" class="" scope="col">Session name</th>
+                            <th role="columnheader" class="" scope="col">Start time</th>
+                            <th role="columnheader" class="" scope="col">Duration</th>
+                            <th role="columnheader" class="" scope="col">Slot type</th>
+                            <th role="columnheader" class="" scope="col">Delivery channel</th>
+                            <th role="columnheader" class="" scope="col">Practitioner</th>
+                            @*<th role="columnheader" class="" scope="col">Practitioner role</th>
+                                <th role="columnheader" class="" scope="col">Practitioner gender</th>*@
+                        </tr>
+                    </thead>
+                    <tbody class="nhsuk-table__body">
+                        @for (int i = 0; i < Model.SearchResults.Count; i++)
+                        {
+                            var location = $"{string.Join(", ", Model.SearchResults[i].LocationAddressLines)}, {Model.SearchResults[i].LocationDistrict} {Model.SearchResults[i].LocationCity} {Model.SearchResults[i].LocationPostalCode} {Model.SearchResults[i].LocationCountry}";
+
+                            @if (i > 0)
+                            {
+                                @if (Model.SearchResults[i].LocationName != Model.SearchResults[i - 1].LocationName)
+                                {
+                                    <tr role="row" class="nhsuk-table__row">
+                                        <td colspan="9" class="nhsuk-table__cell">
+                                            <h4>@Model.SearchResults[i].LocationName<br />@location</h4>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr role="row" class="nhsuk-table__row">
+                                    <td colspan="9" class="nhsuk-table__cell">
+                                        <h4>@Model.SearchResults[i].LocationName<br />@location</h4>
+                                    </td>
+                                </tr>
+                            }
+                            <tr role="row" class="nhsuk-table__row">
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].SessionName</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].StartTime.DateFormatter("t")</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].Duration.UnitsFormatter("mins")</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
+                                <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)<div>@Model.SearchResults[i].PractitionerRole</div><div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div></td>
+                                @*<td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerRole</td>
+                                    <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</td>*@
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>No available appointment slots found</p>
+        }
+    </div>
+</div>

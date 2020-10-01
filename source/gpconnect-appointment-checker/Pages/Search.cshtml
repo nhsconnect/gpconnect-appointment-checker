@@ -1,151 +1,15 @@
 ﻿@page
-@using gpconnect_appointment_checker.Helpers
 @model SearchModel
 
 <form method="post">
-    <div class="nhsuk-grid-row">
-        <div class="nhsuk-grid-column-two-thirds">
-
-            <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-with-hint-text">Provider ODS code (search at):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode">
-            </div>
-
-            <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-with-hint-text">Consumer ODS code (search on behalf of):</label>
-                <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" required asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode">
-            </div>
-
-            <div class="nhsuk-form-group">
-                <label class="nhsuk-label" for="input-with-hint-text">Date range:</label>
-                <select asp-for="@Model.SelectedDateRange"
-                        asp-items="@Model.DateRanges"
-                        class="nhsuk-select"
-                        id="@Model.SelectedDateRange">
-                </select>
-                <div style="float: right">
-                    <button type="submit" class="nhsuk-button">Search for free slots</button>
-                    <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <partial name="SearchInput" />
     @if (Model.SearchResults != null)
     {
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <div class="nhsuk-warning-callout">
-                    <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3>
-                    <p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
-                </div>
-                @if (Model.SearchResults.Count > 0)
-                {
-                    <div class="nhsuk-table__panel-with-heading-tab">
-                        <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
-                        <div class="nhsuk-table-responsive">
-
-                            <table class="nhsuk-table-responsive">
-                                <thead>
-                                    <tr class="nhsuk-table__row">
-                                        <th class="nhsuk-table__header" scope="col">Appointment date</th>
-                                        <th class="nhsuk-table__header" scope="col">Session name</th>
-                                        <th class="nhsuk-table__header" scope="col">Start time</th>
-                                        <th class="nhsuk-table__header" scope="col">Duration</th>
-                                        <th class="nhsuk-table__header" scope="col">Slot type</th>
-                                        <th class="nhsuk-table__header" scope="col">Delivery channel</th>
-                                        <th class="nhsuk-table__header" scope="col">Practitioner</th>
-                                        <th class="nhsuk-table__header" scope="col">Practitioner role</th>
-                                        <th class="nhsuk-table__header" scope="col">Practitioner gender</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="nhsuk-table__body">
-                                    @for (int i = 0; i < Model.SearchResults.Count; i++)
-                                    {
-                                        var location = $"{Model.SearchResults[i].LocationName}, {string.Join(", ", Model.SearchResults[i].LocationAddressLines)}, {Model.SearchResults[i].LocationDistrict} {Model.SearchResults[i].LocationCity} {Model.SearchResults[i].LocationPostalCode} {Model.SearchResults[i].LocationCountry}";
-
-                                        @if (i > 0)
-                                        {
-                                            @if (Model.SearchResults[i].LocationName != Model.SearchResults[i - 1].LocationName)
-                                            {
-                                                <tr class="nhsuk-table__row">
-                                                    <td colspan="9" class="nhsuk-table__cell">
-                                                        <h4>@location</h4>
-                                                    </td>
-                                                </tr>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <tr class="nhsuk-table__row">
-                                                <td colspan="9" class="nhsuk-table__cell">
-                                                    <h4>@location</h4>
-                                                </td>
-                                            </tr>
-                                        }
-                                        <tr class="nhsuk-table__row">
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].SessionName</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].StartTime.DateFormatter("t")</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].Duration.UnitsFormatter("mins")</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerFamilyName.ToUpper(),<br />@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerRole</td>
-                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <p>No available appointment slots found</p>
-                }
-            </div>
-        </div>
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <div class="nhsuk-inset-text">
-                    <span class="nhsuk-u-visually-hidden">Information: </span>
-                    <p>Search took @Model.SearchDuration.ToString("#.##s") and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")<br />@Model.SearchResults.Count free slots found</p>
-                </div>
-            </div>
-        </div>
+        <partial name="SearchResults" />
+        <partial name="SearchStats" />
     }
-    else if (!Model.ConsumerODSCodeFound && !Model.ProviderODSCodeFound)
+    else
     {
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <div class="nhsuk-warning-callout">
-                    <h3 class="nhsuk-warning-callout__label">Issue with ODS codes</h3>
-                    <p>Sorry, but the ODS codes '@Model.ProviderODSCode' and '@Model.ConsumerODSCode' have not been found</p>
-                </div>
-            </div>
-        </div>
-    }
-    else if (!Model.ConsumerODSCodeFound)
-    {
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <div class="nhsuk-warning-callout">
-                    <h3 class="nhsuk-warning-callout__label">Issue with Consumer ODS code</h3>
-                    <p>Sorry, but the Consumer ODS code '@Model.ConsumerODSCode' has not been found</p>
-                </div>
-            </div>
-        </div>
-    }
-    else if (!Model.ProviderODSCodeFound)
-    {
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <div class="nhsuk-warning-callout">
-                    <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
-                    <p>Sorry, but the Provider ODS code '@Model.ProviderODSCode' has not been found</p>
-                </div>
-            </div>
-        </div>
+        <partial name="CodeError" />
     }
 </form>
