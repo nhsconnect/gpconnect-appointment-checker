@@ -123,24 +123,8 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private async Task<CapabilityStatement> SupportFhirCapabilityStatement(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
-            Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
-        {
-            var requestParameters = await _tokenService.ConstructRequestParameters(
-                _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectReadMetaData);
-            if (requestParameters != null)
-            {
-                var statement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.SSPHostname);
-                return statement;
-            }
-            return null;
-        }
-
         private List<SelectListItem> GetDateRanges()
         {
-            _logger.LogInformation("Getting DateRanges");
-
             var weeksToGet = _configuration["MaxNumberOfWeeks"].StringToInteger(12);
             var dateRange = new List<SelectListItem>();
             var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);

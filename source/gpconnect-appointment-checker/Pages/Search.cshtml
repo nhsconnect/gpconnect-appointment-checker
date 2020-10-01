@@ -19,7 +19,7 @@
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-with-hint-text">Date range:</label>
                 <select asp-for="@Model.SelectedDateRange"
-                        asp-items=@(new SelectList(Model.DateRanges, "Value", "Text"))
+                        asp-items="@Model.DateRanges"
                         class="nhsuk-select"
                         id="@Model.SelectedDateRange">
                 </select>
