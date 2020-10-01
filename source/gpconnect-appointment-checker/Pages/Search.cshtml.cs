@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.GPConnect.Constants;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -40,6 +41,8 @@ namespace gpconnect_appointment_checker.Pages
         public string SelectedDateRange { get; set; }
 
         public double SearchDuration { get; set; }
+        public bool ProviderODSCodeFound { get; set; } = true;
+        public bool ConsumerODSCodeFound { get; set; } = true;
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -87,21 +90,19 @@ namespace gpconnect_appointment_checker.Pages
             var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
             var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
-            var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
-            var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
+            ProviderODSCodeFound = providerOrganisationDetails != null;
+            ConsumerODSCodeFound = consumerOrganisationDetails != null;
 
-            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-
-            if (providerOrganisationDetails != null)
+            if (ProviderODSCodeFound && ConsumerODSCodeFound)
             {
-                SearchAtResultsText =
-                    $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-            }
+                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
+                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
 
-            if (consumerOrganisationDetails != null)
-            {
-                SearchOnBehalfOfResultsText =
-                    $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails,
+                    consumerGpConnectDetails, consumerOrganisationDetails);
+
+                SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+                SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
             }
         }
 
@@ -110,7 +111,7 @@ namespace gpconnect_appointment_checker.Pages
         {
             var requestParameters = await _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails);
+                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
 
             if (requestParameters != null)
             {
@@ -127,7 +128,7 @@ namespace gpconnect_appointment_checker.Pages
         {
             var requestParameters = await _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails);
+                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectReadMetaData);
             if (requestParameters != null)
             {
                 var statement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.SSPHostname);

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -29,12 +30,14 @@ namespace gpconnect_appointment_checker.GPConnect
             _logService = logService;
         }
 
-        public async Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails)
+        public async Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
         {
             try
             {
                 var spineConfiguration = await _configurationService.GetSpineConfiguration();
                 var generalConfiguration = await _configurationService.GetGeneralConfiguration();
+                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
+
                 var userGuid = Guid.NewGuid().ToString();
                 var userFamilyName = "...";
                 var userGivenName = "...";
@@ -65,7 +68,9 @@ namespace gpconnect_appointment_checker.GPConnect
                     UseSSP = spineConfiguration.UseSSP,
                     SspHostname = spineConfiguration.SSPHostname,
                     ConsumerODSCode = consumerOrganisationDetails.ODSCode,
-                    ProviderODSCode = providerOrganisationDetails.ODSCode
+                    ProviderODSCode = providerOrganisationDetails.ODSCode,
+                    InteractionId = spineMessageType?.InteractionId,
+                    SpineMessageTypeId = spineMessageTypeId
                 };
 
                 return requestParameters;

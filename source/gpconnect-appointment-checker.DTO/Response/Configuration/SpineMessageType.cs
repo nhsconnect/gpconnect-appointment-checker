@@ -1,4 +1,6 @@
-﻿namespace gpconnect_appointment_checker.DTO.Response.Configuration
+﻿using Newtonsoft.Json;
+
+namespace gpconnect_appointment_checker.DTO.Response.Configuration
 {
     public class SpineMessageType
     {

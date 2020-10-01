@@ -37,6 +37,13 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             return result.FirstOrDefault();
         }
 
+        public async Task<List<DTO.Response.Configuration.SpineMessageType>> GetSpineMessageTypes()
+        {
+            var functionName = "configuration.get_spine_message_type";
+            var result = await _dataService.ExecuteFunction<DTO.Response.Configuration.SpineMessageType>(functionName);
+            return result;
+        }
+
         public async Task<List<DTO.Response.Configuration.SdsQuery>> GetSdsQueryConfiguration()
         {
             var functionName = "configuration.get_sds_queries";

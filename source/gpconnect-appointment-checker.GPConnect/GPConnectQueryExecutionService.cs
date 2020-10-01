@@ -7,12 +7,13 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using System.Web;
+using gpconnect_appointment_checker.DTO.Request.Logging;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -36,18 +37,13 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var client = _clientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
-                client.DefaultRequestHeaders.Add("Ssp-From", requestParameters.SspFrom);
-                client.DefaultRequestHeaders.Add("Ssp-To", requestParameters.SspTo);
-                client.DefaultRequestHeaders.Add("Ssp-InteractionID", "urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1");
-                client.DefaultRequestHeaders.Add("Ssp-TraceID", Guid.NewGuid().ToString());
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
-
+                AddRequiredRequestHeaders(requestParameters, client);
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata");
 
                 var uriBuilder = new UriBuilder(requestUri.ToString());
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 var response = await client.SendAsync(request);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var responseStream = await response.Content.ReadAsStringAsync();
@@ -68,14 +64,13 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
-                var client = _clientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
-                client.DefaultRequestHeaders.Add("Ssp-From", requestParameters.SspFrom);
-                client.DefaultRequestHeaders.Add("Ssp-To", requestParameters.SspTo);
-                client.DefaultRequestHeaders.Add("Ssp-InteractionID", "urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1");
-                client.DefaultRequestHeaders.Add("Ssp-TraceID", Guid.NewGuid().ToString());
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
 
+                var client = _clientFactory.CreateClient();
+                AddRequiredRequestHeaders(requestParameters, client);
+                loggingSpineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
 
                 var uriBuilder = new UriBuilder(requestUri.ToString());
@@ -93,9 +88,16 @@ namespace gpconnect_appointment_checker.GPConnect
                 var slotResultList = new List<SlotSimple>();
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 var response = await client.SendAsync(request);
+
+                loggingSpineMessage.ResponseStatus = response.StatusCode.ToString();
+                loggingSpineMessage.RequestPayload = request.ToString();
+                loggingSpineMessage.ResponseHeaders = response.Headers.ToString();
+
                 if (response.IsSuccessStatusCode)
                 {
                     var responseStream = await response.Content.ReadAsStringAsync();
+                    loggingSpineMessage.ResponsePayload = responseStream;
+
                     var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
                     if (results.entry == null || results.entry.Count == 0) return slotResultList;
                     var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
@@ -131,6 +133,9 @@ namespace gpconnect_appointment_checker.GPConnect
                         }).ToList();
                     slotResultList.AddRange(slotList);
                 }
+                stopWatch.Stop();
+                loggingSpineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _logService.AddSpineMessageLog(loggingSpineMessage);
                 return slotResultList;
             }
             catch (Exception exc)
@@ -138,6 +143,16 @@ namespace gpconnect_appointment_checker.GPConnect
                 _logger.LogError("An error occurred in trying to execute a GET request", exc);
                 throw;
             }
+        }
+
+        private static void AddRequiredRequestHeaders(RequestParameters requestParameters, HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
+            client.DefaultRequestHeaders.Add("Ssp-From", requestParameters.SspFrom);
+            client.DefaultRequestHeaders.Add("Ssp-To", requestParameters.SspTo);
+            client.DefaultRequestHeaders.Add("Ssp-InteractionID", requestParameters.InteractionId);
+            client.DefaultRequestHeaders.Add("Ssp-TraceID", Guid.NewGuid().ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
         }
 
         private double GetDuration(DateTime? start, DateTime? end)

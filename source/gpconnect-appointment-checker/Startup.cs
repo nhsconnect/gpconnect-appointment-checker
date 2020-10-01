@@ -60,6 +60,7 @@ namespace gpconnect_appointment_checker
                 config.AddMap(new SdsQueryMap());
                 config.AddMap(new GeneralMap());
                 config.AddMap(new SpineMap());
+                config.AddMap(new SpineMessageTypeMap());
             });
         }
 

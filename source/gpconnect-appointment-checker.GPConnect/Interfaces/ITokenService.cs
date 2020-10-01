@@ -8,6 +8,6 @@ namespace gpconnect_appointment_checker.GPConnect.Interfaces
 {
     public interface ITokenService
     {
-        Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails);
+        Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId);
     }
 }
