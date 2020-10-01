@@ -76,6 +76,12 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
+        public IActionResult OnPostClear()
+        {
+            return RedirectToPage("Search");
+        }
+
+
         private async Task GetSearchResults()
         {
             var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
@@ -105,17 +111,29 @@ namespace gpconnect_appointment_checker.Pages
             var requestParameters = await _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails);
+
             if (requestParameters != null)
             {
-                var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Today,
-                    DateTime.Today.AddDays(7), providerGpConnectDetails.SSPHostname);
+                var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+                var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
+                var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate,
+                    endDate, providerGpConnectDetails.SSPHostname);
                 SearchResults = searchResults;
             }
         }
 
-        public IActionResult OnPostClear()
+        private async Task<CapabilityStatement> SupportFhirCapabilityStatement(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
+            Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
         {
-            return RedirectToPage("Search");
+            var requestParameters = await _tokenService.ConstructRequestParameters(
+                _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
+                consumerGpConnectDetails, consumerOrganisationDetails);
+            if (requestParameters != null)
+            {
+                var statement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.SSPHostname);
+                return statement;
+            }
+            return null;
         }
 
         private List<SelectListItem> GetDateRanges()

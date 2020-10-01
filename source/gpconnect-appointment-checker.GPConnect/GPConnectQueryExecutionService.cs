@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -28,6 +29,39 @@ namespace gpconnect_appointment_checker.GPConnect
             _configurationService = configurationService;
             _logService = logService;
             _clientFactory = clientFactory;
+        }
+
+        public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+        {
+            try
+            {
+                var client = _clientFactory.CreateClient();
+                client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
+                client.DefaultRequestHeaders.Add("Ssp-From", requestParameters.SspFrom);
+                client.DefaultRequestHeaders.Add("Ssp-To", requestParameters.SspTo);
+                client.DefaultRequestHeaders.Add("Ssp-InteractionID", "urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1");
+                client.DefaultRequestHeaders.Add("Ssp-TraceID", Guid.NewGuid().ToString());
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
+
+                var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata");
+
+                var uriBuilder = new UriBuilder(requestUri.ToString());
+                var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+                var response = await client.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseStream = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<CapabilityStatement>(responseStream);
+                    return result;
+                }
+                return null;
+
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An error occurred in trying to execute a GET request", exc);
+                throw;
+            }
         }
 
         public async Task<List<SlotSimple>> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
@@ -56,47 +90,48 @@ namespace gpconnect_appointment_checker.GPConnect
                 query.Add("searchFilter", $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
                 uriBuilder.Query = query.ToString();
 
+                var slotResultList = new List<SlotSimple>();
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 var response = await client.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     var responseStream = await response.Content.ReadAsStringAsync();
                     var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
+                    if (results.entry == null || results.entry.Count == 0) return slotResultList;
+                    var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
+                    if (slotResources.Count == 0) return slotResultList;
 
-                    var organisationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Organization).ToList();
                     var practitionerResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
                     var locationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
-                    var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
                     var scheduleResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
 
                     var slotList = (from slot in slotResources
-                                    let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
-                                    let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
-                                    let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
-                                    select new SlotSimple
-                                    {
-                                        AppointmentDate = slot.resource.start,
-                                        SessionName = schedule.resource.serviceCategory.text,
-                                        StartTime = slot.resource.start,
-                                        Duration = GetDuration(slot.resource.start, slot.resource.end),
-                                        SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
-                                        DeliveryChannel = slot.resource.extension.FirstOrDefault()?.valueCode,
-                                        PractitionerGivenName = practitioner.name.FirstOrDefault()?.given.FirstOrDefault(),
-                                        PractitionerFamilyName = practitioner.name.FirstOrDefault()?.family,
-                                        PractitionerPrefix = practitioner.name.FirstOrDefault()?.prefix.FirstOrDefault(),
-                                        PractitionerRole = schedule.resource.extension.FirstOrDefault()?.valueCodeableConcept.coding.FirstOrDefault()?.display,
-                                        PractitionerGender = practitioner.gender,
-                                        LocationName = location.name,
-                                        LocationAddressLines = location.address.line,
-                                        LocationCity = location.address.city,
-                                        LocationCountry = location.address.country,
-                                        LocationDistrict = location.address.district,
-                                        LocationPostalCode = location.address.postalCode
-                                    }).ToList();
-                    return slotList;
+                        let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
+                        let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
+                        let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
+                        select new SlotSimple
+                        {
+                            AppointmentDate = slot.resource.start,
+                            SessionName = schedule.resource.serviceCategory.text,
+                            StartTime = slot.resource.start,
+                            Duration = GetDuration(slot.resource.start, slot.resource.end),
+                            SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
+                            DeliveryChannel = slot.resource.extension.FirstOrDefault()?.valueCode,
+                            PractitionerGivenName = practitioner.name.FirstOrDefault()?.given.FirstOrDefault(),
+                            PractitionerFamilyName = practitioner.name.FirstOrDefault()?.family,
+                            PractitionerPrefix = practitioner.name.FirstOrDefault()?.prefix.FirstOrDefault(),
+                            PractitionerRole = schedule.resource.extension.FirstOrDefault()?.valueCodeableConcept.coding.FirstOrDefault()?.display,
+                            PractitionerGender = practitioner.gender,
+                            LocationName = location.name,
+                            LocationAddressLines = location.address.line,
+                            LocationCity = location.address.city,
+                            LocationCountry = location.address.country,
+                            LocationDistrict = location.address.district,
+                            LocationPostalCode = location.address.postalCode
+                        }).ToList();
+                    slotResultList.AddRange(slotList);
                 }
-                return null;
-
+                return slotResultList;
             }
             catch (Exception exc)
             {

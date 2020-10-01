@@ -19,10 +19,9 @@
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-with-hint-text">Date range:</label>
                 <select asp-for="@Model.SelectedDateRange"
-                        asp-items="@Model.DateRanges"
+                        asp-items=@(new SelectList(Model.DateRanges, "Value", "Text"))
                         class="nhsuk-select"
-                        name="daterange"
-                        id="input-daterange">
+                        id="@Model.SelectedDateRange">
                 </select>
                 <div style="float: right">
                     <button type="submit" class="nhsuk-button">Search for free slots</button>
@@ -37,49 +36,74 @@
         <div class="nhsuk-grid-row">
             <div class="nhsuk-grid-column-full">
                 <div class="nhsuk-warning-callout">
-                    <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3><p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
+                    <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3>
+                    <p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
                 </div>
-                <div class="nhsuk-table__panel-with-heading-tab">
-                    <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
-                    <div class="nhsuk-table-responsive">
-                        <table class="nhsuk-table-responsive">
-                            <thead>
-                                <tr class="nhsuk-table__row">
-                                    <th class="nhsuk-table__header" scope="col">Appointment date</th>
-                                    <th class="nhsuk-table__header" scope="col">Session name</th>
-                                    <th class="nhsuk-table__header" scope="col">Start time</th>
-                                    <th class="nhsuk-table__header" scope="col">Duration</th>
-                                    <th class="nhsuk-table__header" scope="col">Slot type</th>
-                                    <th class="nhsuk-table__header" scope="col">Delivery channel</th>
-                                    <th class="nhsuk-table__header" scope="col">Practitioner</th>
-                                    <th class="nhsuk-table__header" scope="col">Practitioner role</th>
-                                    <th class="nhsuk-table__header" scope="col">Practitioner gender</th>
-                                </tr>
-                            </thead>
-                            <tbody class="nhsuk-table__body">
-                            @foreach (var searchResult in Model.SearchResults)
-                                {
+                @if (Model.SearchResults.Count > 0)
+                {
+                    <div class="nhsuk-table__panel-with-heading-tab">
+                        <h3 class="nhsuk-table__heading-tab">Available Appointment Slots</h3>
+                        <div class="nhsuk-table-responsive">
+
+                            <table class="nhsuk-table-responsive">
+                                <thead>
                                     <tr class="nhsuk-table__row">
-                                        <td colspan="9" class="nhsuk-table__cell">
-                                            <h4>@searchResult.LocationName, @string.Join(", ", searchResult.LocationAddressLines), @searchResult.LocationDistrict @searchResult.LocationCity @searchResult.LocationPostalCode @searchResult.LocationCountry</h4>
-                                        </td>
+                                        <th class="nhsuk-table__header" scope="col">Appointment date</th>
+                                        <th class="nhsuk-table__header" scope="col">Session name</th>
+                                        <th class="nhsuk-table__header" scope="col">Start time</th>
+                                        <th class="nhsuk-table__header" scope="col">Duration</th>
+                                        <th class="nhsuk-table__header" scope="col">Slot type</th>
+                                        <th class="nhsuk-table__header" scope="col">Delivery channel</th>
+                                        <th class="nhsuk-table__header" scope="col">Practitioner</th>
+                                        <th class="nhsuk-table__header" scope="col">Practitioner role</th>
+                                        <th class="nhsuk-table__header" scope="col">Practitioner gender</th>
                                     </tr>
-                                    <tr class="nhsuk-table__row">
-                                        <td class="nhsuk-table__cell">@searchResult.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
-                                        <td class="nhsuk-table__cell">@searchResult.SessionName</td>
-                                        <td class="nhsuk-table__cell">@searchResult.StartTime.DateFormatter("t")</td>
-                                        <td class="nhsuk-table__cell">@searchResult.Duration.UnitsFormatter("mins")</td>
-                                        <td class="nhsuk-table__cell">@searchResult.SlotType</td>
-                                        <td class="nhsuk-table__cell">@searchResult.DeliveryChannel</td>
-                                        <td class="nhsuk-table__cell">@searchResult.PractitionerFamilyName.ToUpper(),<br/>@searchResult.PractitionerGivenName&nbsp;(@searchResult.PractitionerPrefix)</td>
-                                        <td class="nhsuk-table__cell">@searchResult.PractitionerRole</td>
-                                        <td class="nhsuk-table__cell">@searchResult.PractitionerGender.FirstCharToUpper()</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="nhsuk-table__body">
+                                    @for (int i = 0; i < Model.SearchResults.Count; i++)
+                                    {
+                                        var location = $"{Model.SearchResults[i].LocationName}, {string.Join(", ", Model.SearchResults[i].LocationAddressLines)}, {Model.SearchResults[i].LocationDistrict} {Model.SearchResults[i].LocationCity} {Model.SearchResults[i].LocationPostalCode} {Model.SearchResults[i].LocationCountry}";
+
+                                        @if (i > 0)
+                                        {
+                                            @if (Model.SearchResults[i].LocationName != Model.SearchResults[i - 1].LocationName)
+                                            {
+                                                <tr class="nhsuk-table__row">
+                                                    <td colspan="9" class="nhsuk-table__cell">
+                                                        <h4>@location</h4>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="nhsuk-table__row">
+                                                <td colspan="9" class="nhsuk-table__cell">
+                                                    <h4>@location</h4>
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr class="nhsuk-table__row">
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].SessionName</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].StartTime.DateFormatter("t")</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].Duration.UnitsFormatter("mins")</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerFamilyName.ToUpper(),<br />@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerRole</td>
+                                            <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <p>No available appointment slots found</p>
+                }
             </div>
         </div>
         <div class="nhsuk-grid-row">
