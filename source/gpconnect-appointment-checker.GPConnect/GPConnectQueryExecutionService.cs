@@ -40,6 +40,10 @@ namespace gpconnect_appointment_checker.GPConnect
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
                 var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
+                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
+
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
+                requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var client = _clientFactory.CreateClient();
                 AddRequiredRequestHeaders(requestParameters, client);
@@ -77,8 +81,11 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
-                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
                 var capabilityStatement = await ExecuteFhirCapabilityStatement(requestParameters, baseAddress);
+
+                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
+                requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
