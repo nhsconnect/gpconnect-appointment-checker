@@ -10,10 +10,13 @@ namespace gpconnect_appointment_checker.Controllers
         {
             var properties = new AuthenticationProperties()
             {
-                RedirectUri = Url.Action("Index", "Auth")
+                RedirectUri = Url.Action("Index", "Auth"),
+                Items =
+                {
+                    { "scheme", "nhs-sso" }
+                }
             };
-
-            return Challenge(properties, "NHS-SSO");
+            return Challenge(properties, "nhs-sso");
         }
 
         public IActionResult Index()

@@ -1,3 +1,21 @@
+drop table logging.error_log;
+
+create table logging.error_log
+( 
+    id serial not null,
+    application character varying(100) null,
+    logged text,
+    level character varying(100) null,
+    message character varying(8000) null,
+    logger character varying(8000) null, 
+    callsite character varying(8000) null, 
+    exception character varying(8000) null,
+    user_id integer null,
+    user_session_id integer null,
+
+    constraint logging_errorlog_logid_pk primary key (id)
+);
+
 drop table logging.spine_message;
 
 create table logging.spine_message

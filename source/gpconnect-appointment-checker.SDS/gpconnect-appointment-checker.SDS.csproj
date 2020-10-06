@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
+    <ProjectReference Include="..\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj" />
   </ItemGroup>
 
 </Project>

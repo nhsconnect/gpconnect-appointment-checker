@@ -1,5 +1,4 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.DAL.Logging;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -40,7 +39,7 @@ namespace gpconnect_appointment_checker.SDS
                 var logMessage = new SpineMessage
                 {
                     RequestPayload = $"{searchBase} {filter} {attributes}",
-                    SpineMessageTypeId = (int)LogService.SpineMessageTypes.SDSLdapQuery
+                    SpineMessageTypeId = (int)GPConnect.Constants.SpineMessageTypes.SpineLdapQuery
                 };
                 var ldapConnection = await GetConnection();
                 var results = new Dictionary<string, object>();

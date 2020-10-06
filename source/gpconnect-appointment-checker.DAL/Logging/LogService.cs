@@ -11,13 +11,6 @@ namespace gpconnect_appointment_checker.DAL.Logging
         private readonly ILogger<LogService> _logger;
         private readonly IDataService _dataService;
 
-        public enum SpineMessageTypes
-        {
-            SDSLdapQuery = 1,
-            GpConnectReadMetaData = 2,
-            GpConnectFreeSearchSlot = 3
-        }
-
         public LogService(IConfiguration configuration, ILogger<LogService> logger, IDataService dataService)
         {
             _logger = logger;

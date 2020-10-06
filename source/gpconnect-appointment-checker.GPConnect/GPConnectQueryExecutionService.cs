@@ -37,14 +37,33 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
+
                 var client = _clientFactory.CreateClient();
                 AddRequiredRequestHeaders(requestParameters, client);
+                loggingSpineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata");
 
                 var uriBuilder = new UriBuilder(requestUri.ToString());
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 var response = await client.SendAsync(request);
-                return response.IsSuccessStatusCode;
+
+                loggingSpineMessage.ResponseStatus = response.StatusCode.ToString();
+                loggingSpineMessage.RequestPayload = request.ToString();
+                loggingSpineMessage.ResponseHeaders = response.Headers.ToString();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseStream = await response.Content.ReadAsStringAsync();
+                    loggingSpineMessage.ResponsePayload = responseStream;
+                    stopWatch.Stop();
+                    loggingSpineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                    _logService.AddSpineMessageLog(loggingSpineMessage); 
+                    return response.IsSuccessStatusCode;
+                }
+                return false;
 
             }
             catch (Exception exc)
@@ -58,6 +77,7 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
                 var capabilityStatement = await ExecuteFhirCapabilityStatement(requestParameters, baseAddress);
 
                 var stopWatch = new Stopwatch();
