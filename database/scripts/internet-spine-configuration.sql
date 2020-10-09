@@ -8,7 +8,8 @@ insert into configuration.spine
     sds_use_ldaps,
     organisation_id,
     party_key,
-    asid
+    asid,
+    timeout_seconds
 )
 values
 (
@@ -20,5 +21,6 @@ values
 	true,
 	1,
 	'ABC-123456',
-	'100000000001'
+	'100000000001',
+	30
 );

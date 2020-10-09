@@ -6,7 +6,8 @@ select
 	sds_use_ldaps,
 	organisation_id,
 	party_key,
-	asid
+	asid,
+	timeout_seconds
 from configuration.get_spine_configuration
 (
 );

@@ -15,9 +15,7 @@ from application.synchronise_organisation
     '',
     'Leeds',
     '',
-    'LS1 1AA',
-    false,
-    false
+    'LS1 1AA'
 );
 
 select *
