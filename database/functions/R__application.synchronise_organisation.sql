@@ -29,18 +29,6 @@ begin
 	_county = trim(coalesce(_county, ''));
 	_postcode = upper(trim(coalesce(_postcode, '')));
 
-	if (_is_gpconnect_consumer is null) 
-	then
-		raise exception '_is_gpconnect_consumer is null';
-		return;
-	end if;
-
-	if (_is_gpconnect_provider is null) 
-	then
-		raise exception '_is_gpconnect_provider is null';
-		return;
-	end if;
-
 	--------------------------------------------
 	-- insert/get organisation type
 	--
