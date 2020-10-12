@@ -13,9 +13,7 @@ returns table
 	locality varchar(100),
 	city varchar(100),
 	county varchar(100),
-	postcode varchar(100),
-	is_gpconnect_consumer boolean,
-	is_gpconnect_provider boolean
+	postcode varchar(100)
 )
 as $$
 begin
@@ -39,9 +37,7 @@ begin
 		o.locality,
 		o.city,
 		o.county,
-		o.postcode,
-		o.is_gpconnect_provider,
-		o.is_gpconnect_provider
+		o.postcode
 	from application.organisation o
 	inner join application.organisation_type ot on o.organisation_type_id = ot.organisation_type_id
 	where o.ods_code = _ods_code;

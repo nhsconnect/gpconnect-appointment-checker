@@ -8,9 +8,7 @@ select
 	locality,
 	city,
 	county,
-	postcode,
-	is_gpconnect_consumer,
-	is_gpconnect_provider
+	postcode
 from application.get_organisation
 (
     _ods_code := 'X26010'

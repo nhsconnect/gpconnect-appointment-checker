@@ -10,7 +10,8 @@ returns table
     sds_use_ldaps boolean,
     organisation_id integer,
     party_key varchar(20),
-    asid varchar(20)
+    asid varchar(20),
+    timeout_seconds integer
 )
 as $$
 begin
@@ -24,7 +25,8 @@ begin
 	    s.sds_use_ldaps,
 	    s.organisation_id,
 	    s.party_key,
-	    s.asid
+	    s.asid,
+	    s.timeout_seconds
 	from configuration.spine s;
 	
 end;

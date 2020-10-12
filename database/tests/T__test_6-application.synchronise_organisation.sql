@@ -11,9 +11,7 @@ from application.synchronise_organisation
 	_locality := '',
 	_city := 'City',
 	_county := '',
-	_postcode := 'AA1 1AA',
-	_is_gpconnect_consumer := true,
-	_is_gpconnect_provider := true
+	_postcode := 'AA1 1AA'
 );
 
 
@@ -30,9 +28,7 @@ from application.synchronise_organisation
 	_locality := '',
 	_city := 'City',
 	_county := '',
-	_postcode := 'AA1 1AA',
-	_is_gpconnect_consumer := true,
-	_is_gpconnect_provider := true
+	_postcode := 'AA1 1AA'
 );
 
 -- existing organisation and existing organisation type
@@ -48,7 +44,5 @@ from application.synchronise_organisation
 	_locality := '',
 	_city := 'City',
 	_county := '',
-	_postcode := 'AA2 1AA',
-	_is_gpconnect_consumer := true,
-	_is_gpconnect_provider := false
+	_postcode := 'AA2 1AA'
 );

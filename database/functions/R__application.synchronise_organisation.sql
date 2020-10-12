@@ -8,9 +8,7 @@ create or replace function application.synchronise_organisation
 	_locality varchar(100),
 	_city varchar(100),
 	_county varchar(100),
-	_postcode varchar(100),
-	_is_gpconnect_consumer boolean,
-	_is_gpconnect_provider boolean
+	_postcode varchar(100)
 )
 returns void
 as $$
@@ -30,18 +28,6 @@ begin
 	_city = trim(coalesce(_city, ''));
 	_county = trim(coalesce(_county, ''));
 	_postcode = upper(trim(coalesce(_postcode, '')));
-
-	if (_is_gpconnect_consumer is null) 
-	then
-		raise exception '_is_gpconnect_consumer is null';
-		return;
-	end if;
-
-	if (_is_gpconnect_provider is null) 
-	then
-		raise exception '_is_gpconnect_provider is null';
-		return;
-	end if;
 
 	--------------------------------------------
 	-- insert/get organisation type
@@ -87,8 +73,6 @@ begin
 			city,
 			county,
 			postcode,
-			is_gpconnect_consumer,
-			is_gpconnect_provider,
 			added_date,
 			last_sync_date
 		)
@@ -103,8 +87,6 @@ begin
 			_city,
 			_county,
 			_postcode,
-			_is_gpconnect_consumer,
-			_is_gpconnect_provider,
 			now(),
 			now()
 		);
@@ -119,8 +101,6 @@ begin
 			city = _city,
 			county = _county,
 			postcode = _postcode,
-			is_gpconnect_consumer = _is_gpconnect_consumer,
-			is_gpconnect_provider = _is_gpconnect_provider,
 			last_sync_date = now()
 		where ods_code = _ods_code
 		and
@@ -133,8 +113,6 @@ begin
 			or lower(city) != lower(_city)
 			or lower(county) != lower(_county)
 			or lower(postcode) != lower(_postcode)
-			or is_gpconnect_consumer != _is_gpconnect_consumer
-			or is_gpconnect_provider != _is_gpconnect_provider
 		);
 
 		-- TODO write audit based on fields changed
