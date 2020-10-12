@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace gpconnect_appointment_checker.Controllers
 {
+    [Route("[controller]/[action]")]
     public class AuthController : Controller
     {
         [HttpGet("/Auth/ExternalLogin")]
-        public IActionResult ExternalLogin()
+        public IActionResult ExternalLogin(string returnUrl = "/")
         {
             var properties = new AuthenticationProperties()
             {
-                RedirectUri = Url.Action("Index", "Auth"),
+                RedirectUri = returnUrl,
                 Items =
                 {
                     { "scheme", "nhs-sso" }
@@ -21,7 +22,7 @@ namespace gpconnect_appointment_checker.Controllers
 
         public IActionResult Index()
         {
-            return View("Auth");
+            return View("Public/Auth");
         }
     }
 }

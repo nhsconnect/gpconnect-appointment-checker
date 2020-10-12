@@ -19,10 +19,8 @@
                             <th role="columnheader" class="" scope="col">Start time</th>
                             <th role="columnheader" class="" scope="col">Duration</th>
                             <th role="columnheader" class="" scope="col">Slot type</th>
-                            <th role="columnheader" class="" scope="col">Delivery channel</th>
+                            <th role="columnheader" class="" scope="col">Mode of appointment</th>
                             <th role="columnheader" class="" scope="col">Practitioner</th>
-                            @*<th role="columnheader" class="" scope="col">Practitioner role</th>
-                                <th role="columnheader" class="" scope="col">Practitioner gender</th>*@
                         </tr>
                     </thead>
                     <tbody class="nhsuk-table__body">
@@ -57,8 +55,6 @@
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)<div>@Model.SearchResults[i].PractitionerRole</div><div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div></td>
-                                @*<td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerRole</td>
-                                    <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</td>*@
                             </tr>
                         }
                     </tbody>

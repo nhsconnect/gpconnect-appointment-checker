@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.GPConnect.Constants;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -43,6 +44,9 @@ namespace gpconnect_appointment_checker.Pages
         public double SearchDuration { get; set; }
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;
+
+        public bool ConsumerEnabledForGpConnect { get; set; } = true;
+        public bool ProviderEnabledForGpConnectAppointmentManagement { get; set; } = true;
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -95,13 +99,22 @@ namespace gpconnect_appointment_checker.Pages
 
             if (ProviderODSCodeFound && ConsumerODSCodeFound)
             {
+                //We have both codes in SDS so we can continue to the next step and validate consumer ods code in Spine Directory
+                //Is the consumer ODS code configured as a GP connect consumer system?
+                //var consumerIsGpConnectSystem = await _ldapService.OrganisationHasAppointmentsConsumerSystemByOdsCode(ConsumerODSCode);
+
                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
                 var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
 
-                await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                //ConsumerEnabledForGpConnect = consumerIsGpConnectSystem != null;
+                ProviderEnabledForGpConnectAppointmentManagement = true;//!organisationHasAppointments.IsGPConnectProvider;
 
-                SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-                SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                if (ProviderEnabledForGpConnectAppointmentManagement)
+                {
+                    await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                    SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+                    SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                }
             }
         }
 

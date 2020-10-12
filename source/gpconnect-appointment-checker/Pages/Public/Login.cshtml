@@ -1,0 +1,12 @@
+﻿@page
+@model LoginModel
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <a asp-action="ExternalLogin" asp-controller="Auth" class="nhsuk-button">Sign in</a>
+}
+else
+{
+    <div>Hello @Model.UserName (@Model.OrganisationName)</div>
+    <div><button type="submit" asp-page-handler="SignOut" class="nhsuk-button nhsuk-button--secondary">Sign out</button></div>
+}

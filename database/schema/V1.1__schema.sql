@@ -52,6 +52,8 @@ create table configuration.sds_query
 
 create unique index configuration_sdsquery_queryname_ix on configuration.sds_query (lower(query_name));
 
+drop table configuration.sso;
+
 create table configuration.sso
 (
     single_row_lock boolean not null,
@@ -71,7 +73,7 @@ create table configuration.sso
     constraint configuration_sso_authscheme_ck check (char_length(trim(auth_scheme)) > 0),
     constraint configuration_sso_challengescheme_ck check (char_length(trim(challenge_scheme)) > 0),
     constraint configuration_sso_authendpoint_ck check (char_length(trim(auth_endpoint)) > 0),
-    constraint configuration_sso_tokenendpoint_ck check (char_length(trim(token_endpoint)) > 0)    
+    constraint configuration_sso_tokenendpoint_ck check (char_length(trim(token_endpoint)) > 0)
 );
 
 insert into configuration.sds_query
@@ -126,6 +128,6 @@ values
     'https://callback_path',
     'auth_scheme',
     'GpConnectAppointmentChecker',
-    'https://auth_endpoint',
+    'https://login.hscic.gov.uk/Login.aspx?version=4&referrer={referrer}&info=',
     'https://token_endpoint'
 );

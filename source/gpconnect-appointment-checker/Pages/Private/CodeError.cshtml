@@ -33,3 +33,25 @@ else if (!Model.ProviderODSCodeFound)
         </div>
     </div>
 }
+else if (!Model.ConsumerEnabledForGpConnect)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">Issue with Consumer ODS code</h3>
+                <p>This provider (consumer) organisation is not enabled for GP Connect</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
+                <p>This provider organisation is not enabled for GP Connect Appointment Management</p>
+            </div>
+        </div>
+    </div>
+}

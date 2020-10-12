@@ -9,7 +9,7 @@ using gpconnect_appointment_checker.GPConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.SDS;
 using gpconnect_appointment_checker.SDS.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +20,8 @@ using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Targets;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace gpconnect_appointment_checker
 {
@@ -39,7 +41,13 @@ namespace gpconnect_appointment_checker
             AddLoggingAndConfigure(services);
             AddScopedServices(services);
             services.AddHttpContextAccessor();
-            services.AddRazorPages();
+            services.AddRazorPages(options =>
+            {
+                //options.Conventions.AuthorizeFolder("/Private");
+                options.Conventions.AllowAnonymousToFolder("/Public");
+                options.Conventions.AddPageRoute("/Private/Search", "/Search");
+                options.Conventions.AddPageRoute("/Public/Index", "");
+            });
             services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
             AddAuthenticationServices(services);
             AddDapperMappings();
@@ -182,21 +190,47 @@ namespace gpconnect_appointment_checker
         private async void AddAuthenticationServices(IServiceCollection services)
         {
             var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
-            //services.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    options.DefaultChallengeScheme = ssoConfiguration.ChallengeScheme;
-            //}).AddOAuth(ssoConfiguration.AuthScheme, options =>
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services.AddAuthentication(ssoConfiguration.AuthScheme)
+                .AddOpenIdConnect(ssoConfiguration.ChallengeScheme, options =>
+                {
+                    options.SignInScheme = ssoConfiguration.AuthScheme;
+                    options.RequireHttpsMetadata = false;
+                    options.Authority = ssoConfiguration.AuthEndpoint;
+                    options.ClientId = ssoConfiguration.ClientId;
+                    options.ClientSecret = ssoConfiguration.ClientSecret;
+                    options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
+                    options.SaveTokens = true;
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                    options.ClaimActions.MapJsonKey("Organisation", "organisation");
+                    options.ClaimActions.MapJsonKey("OdsCode", "odscode");
+                });
+            //.AddOAuth(ssoConfiguration.AuthScheme, options =>
             //{
             //    options.ClientId = ssoConfiguration.ClientId;
             //    options.ClientSecret = ssoConfiguration.ClientSecret;
             //    options.CallbackPath = new PathString(ssoConfiguration.CallbackPath);
             //    options.AuthorizationEndpoint = ssoConfiguration.AuthEndpoint;
             //    options.TokenEndpoint = ssoConfiguration.TokenEndpoint;
+            //    options.SaveTokens = true;
+
+            //    options.Events = new OAuthEvents()
+            //    {
+            //        OnCreatingTicket = async context =>
+            //        {
+            //            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+            //            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+            //            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+            //            response.EnsureSuccessStatusCode();
+            //            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            //            context.RunClaimActions(json.RootElement);
+            //        }
+            //    };
             //});
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
         }
 
         private void AddScopedServices(IServiceCollection services)
@@ -228,7 +262,8 @@ namespace gpconnect_appointment_checker
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseRouting();
-            app.UseAuthorization();
+            //app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();

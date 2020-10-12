@@ -1,0 +1,37 @@
+﻿@model SearchModel
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-two-thirds">
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-one-half">
+                <p><label class="nhsuk-label" for="input-with-hint-text">Provider ODS code<span class="nhsuk-hint">(search at):</span></label></p>
+            </div>
+            <div class="nhsuk-grid-column-one-half">
+                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode"></p>
+            </div>
+        </div>
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-one-half">
+                <p><label class="nhsuk-label" for="input-with-hint-text">Consumer ODS code<span class="nhsuk-hint">(search on behalf of):</span></label></p>
+            </div>
+            <div class="nhsuk-grid-column-one-half">
+                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" required asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode"></p>
+            </div>
+        </div>
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-one-half">
+                <p><label class="nhsuk-label" for="input-with-hint-text">Date range:</label></p>
+            </div>
+            <div class="nhsuk-grid-column-one-half"><p><select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select></p>
+            </div>
+        </div>
+        <div class="nhsuk-grid-row">
+            <div class="nhsuk-grid-column-one-half">
+                <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
+            </div>
+            <div class="nhsuk-grid-column-one-half">
+                <button type="submit" class="nhsuk-button">Search for free slots</button>
+            </div>
+        </div>
+    </div>
+</div>
