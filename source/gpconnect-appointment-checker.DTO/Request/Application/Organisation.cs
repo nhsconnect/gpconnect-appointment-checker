@@ -15,8 +15,6 @@ namespace gpconnect_appointment_checker.DTO.Request.Application
         public string City { get; set; }
         public string County { get; set; }
         public string Postcode { get; set; }
-        public bool IsGPConnectConsumer { get; set; }
-        public bool IsGPConnectProvider { get; set; }
         public DateTime AddedDate { get; set; }
         public DateTime LastSyncDate { get; set; }
     }

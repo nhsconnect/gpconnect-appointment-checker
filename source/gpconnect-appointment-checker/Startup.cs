@@ -22,6 +22,7 @@ using NLog.Targets;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using gpconnect_appointment_checker.DAL.Application;
 
 namespace gpconnect_appointment_checker
 {
@@ -187,6 +188,12 @@ namespace gpconnect_appointment_checker
             var generalConfiguration = await ConfigurationService.GetGeneralConfiguration();
         }
 
+        private async void AddSpineConfiguration(IServiceCollection services)
+        {
+            var spineConfiguration = await ConfigurationService.GetSpineConfiguration();
+
+        }
+
         private async void AddAuthenticationServices(IServiceCollection services)
         {
             var ssoConfiguration = await ConfigurationService.GetSsoConfiguration();
@@ -243,6 +250,7 @@ namespace gpconnect_appointment_checker
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IApplicationService, ApplicationService>();
             services.AddHttpClient();
         }
 

@@ -33,7 +33,7 @@ namespace gpconnect_appointment_checker.GPConnect
             _clientFactory = clientFactory;
         }
 
-        public async Task<bool> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+        public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
         {
             try
             {
@@ -58,16 +58,13 @@ namespace gpconnect_appointment_checker.GPConnect
                 loggingSpineMessage.RequestPayload = request.ToString();
                 loggingSpineMessage.ResponseHeaders = response.Headers.ToString();
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseStream = await response.Content.ReadAsStringAsync();
-                    loggingSpineMessage.ResponsePayload = responseStream;
-                    stopWatch.Stop();
-                    loggingSpineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                    _logService.AddSpineMessageLog(loggingSpineMessage); 
-                    return response.IsSuccessStatusCode;
-                }
-                return false;
+                var responseStream = await response.Content.ReadAsStringAsync();
+                loggingSpineMessage.ResponsePayload = responseStream;
+                var results = JsonConvert.DeserializeObject<CapabilityStatement>(responseStream);
+                stopWatch.Stop();
+                loggingSpineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _logService.AddSpineMessageLog(loggingSpineMessage);
+                return results;
 
             }
             catch (Exception exc)
@@ -77,12 +74,10 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        public async Task<List<SlotSimple>> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
         {
             try
             {
-                var capabilityStatement = await ExecuteFhirCapabilityStatement(requestParameters, baseAddress);
-
                 var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
                 requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                 requestParameters.InteractionId = spineMessageType?.InteractionId;
@@ -92,6 +87,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
 
                 var client = _clientFactory.CreateClient();
+                client.Timeout = new TimeSpan(0,0,30);
                 AddRequiredRequestHeaders(requestParameters, client);
                 loggingSpineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
@@ -108,7 +104,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 query.Add("searchFilter", $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
                 uriBuilder.Query = query.ToString();
 
-                var slotResultList = new List<SlotSimple>();
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 var response = await client.SendAsync(request);
 
@@ -116,52 +111,63 @@ namespace gpconnect_appointment_checker.GPConnect
                 loggingSpineMessage.RequestPayload = request.ToString();
                 loggingSpineMessage.ResponseHeaders = response.Headers.ToString();
 
-                if (response.IsSuccessStatusCode)
+                var slotSimple = new SlotSimple();
+                var responseStream = await response.Content.ReadAsStringAsync();
+                loggingSpineMessage.ResponsePayload = responseStream;
+                var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
+
+                if (results.Issue != null)
                 {
-                    var responseStream = await response.Content.ReadAsStringAsync();
-                    loggingSpineMessage.ResponsePayload = responseStream;
-
-                    var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
-                    if (results.entry == null || results.entry.Count == 0) return slotResultList;
-                    var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
-                    if (slotResources.Count == 0) return slotResultList;
-
-                    var practitionerResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
-                    var locationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
-                    var scheduleResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
-
-                    var slotList = (from slot in slotResources
-                            let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
-                            let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
-                            let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
-                            select new SlotSimple
-                            {
-                                AppointmentDate = slot.resource.start,
-                                SessionName = schedule.resource.serviceCategory.text,
-                                StartTime = slot.resource.start,
-                                Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
-                                SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
-                                DeliveryChannel = slot.resource.extension.FirstOrDefault()?.valueCode,
-                                PractitionerGivenName = practitioner.name.FirstOrDefault()?.given.FirstOrDefault(),
-                                PractitionerFamilyName = practitioner.name.FirstOrDefault()?.family,
-                                PractitionerPrefix = practitioner.name.FirstOrDefault()?.prefix.FirstOrDefault(),
-                                PractitionerRole = schedule.resource.extension.FirstOrDefault()?.valueCodeableConcept.coding.FirstOrDefault()?.display,
-                                PractitionerGender = practitioner.gender,
-                                LocationName = location.name,
-                                LocationAddressLines = location.address.line,
-                                LocationCity = location.address.city,
-                                LocationCountry = location.address.country,
-                                LocationDistrict = location.address.district,
-                                LocationPostalCode = location.address.postalCode
-                            }).OrderBy(z => z.LocationName)
-                        .ThenBy(s => s.AppointmentDate)
-                        .ThenBy(s => s.StartTime);
-                    slotResultList.AddRange(slotList);
+                    slotSimple.Issue = results.Issue;
+                    return slotSimple;
                 }
+
+                slotSimple.SlotEntrySimple = new List<SlotEntrySimple>();
+
+                if (results.entry == null || results.entry.Count == 0) return slotSimple;
+                var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
+                if (slotResources.Count == 0) return slotSimple;
+
+                var practitionerResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
+                var locationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
+                var scheduleResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
+
+                var slotList = (from slot in slotResources
+                                let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
+                                let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
+                                let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
+                                select new SlotEntrySimple
+                                {
+                                    AppointmentDate = slot.resource.start,
+                                    SessionName = schedule.resource.serviceCategory.text,
+                                    StartTime = slot.resource.start,
+                                    Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
+                                    SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
+                                    DeliveryChannel = slot.resource.extension.FirstOrDefault()?.valueCode,
+                                    PractitionerGivenName = practitioner.name.FirstOrDefault()?.given.FirstOrDefault(),
+                                    PractitionerFamilyName = practitioner.name.FirstOrDefault()?.family,
+                                    PractitionerPrefix = practitioner.name.FirstOrDefault()?.prefix.FirstOrDefault(),
+                                    PractitionerRole = schedule.resource.extension.FirstOrDefault()?.valueCodeableConcept.coding.FirstOrDefault()?.display,
+                                    PractitionerGender = practitioner.gender,
+                                    LocationName = location.name,
+                                    LocationAddressLines = location.address.line,
+                                    LocationCity = location.address.city,
+                                    LocationCountry = location.address.country,
+                                    LocationDistrict = location.address.district,
+                                    LocationPostalCode = location.address.postalCode
+                                }).OrderBy(z => z.LocationName)
+                    .ThenBy(s => s.AppointmentDate)
+                    .ThenBy(s => s.StartTime);
+                slotSimple.SlotEntrySimple.AddRange(slotList);
                 stopWatch.Stop();
                 loggingSpineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(loggingSpineMessage);
-                return slotResultList;
+                return slotSimple;
+            }
+            catch (TimeoutException timeoutException)
+            {
+                _logger.LogError("A timeout error has occurred", timeoutException);
+                throw;
             }
             catch (Exception exc)
             {

@@ -33,13 +33,13 @@ else if (!Model.ProviderODSCodeFound)
         </div>
     </div>
 }
-else if (!Model.ConsumerEnabledForGpConnect)
+else if (!Model.ProviderASIDPresent)
 {
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with Consumer ODS code</h3>
-                <p>This provider (consumer) organisation is not enabled for GP Connect</p>
+                <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
+                <p>ODS code is not fully configured as a GP Connect provider system</p>
             </div>
         </div>
     </div>
@@ -51,6 +51,17 @@ else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
                 <p>This provider organisation is not enabled for GP Connect Appointment Management</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">An error occured when sending a message to the provider system</h3>
+                <p>The error returned was "@Model.ProviderErrorDisplay (@Model.ProviderErrorCode)".</p>
             </div>
         </div>
     </div>

@@ -30,21 +30,19 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public async void SynchroniseOrganisation(DTO.Request.Application.Organisation organisation)
+        public async void SynchroniseOrganisation(DTO.Response.Application.Organisation organisation)
         {
             var functionName = "application.synchronise_organisation";
             var parameters = new DynamicParameters();
             parameters.Add("_ods_code", organisation.ODSCode);
-            parameters.Add("_organisation_type_name", organisation.OrganisationTypeName);
+            parameters.Add("_organisation_type_name", organisation.OrganisationTypeCode);
             parameters.Add("_organisation_name", organisation.OrganisationName);
-            parameters.Add("_address_line_1", organisation.AddressLine1);
-            parameters.Add("_address_line_2", organisation.AddressLine2);
-            parameters.Add("_locality", organisation.Locality);
-            parameters.Add("_city", organisation.City);
-            parameters.Add("_county", organisation.County);
-            parameters.Add("_postcode", organisation.Postcode);
-            parameters.Add("_is_gpconnect_consumer", organisation.IsGPConnectConsumer);
-            parameters.Add("_is_gpconnect_provider", organisation.IsGPConnectProvider);
+            parameters.Add("_address_line_1", organisation.PostalAddress);
+            parameters.Add("_address_line_2", string.Empty);
+            parameters.Add("_locality", string.Empty);
+            parameters.Add("_city", string.Empty);
+            parameters.Add("_county", string.Empty);
+            parameters.Add("_postcode", organisation.PostalCode);
             await _dataService.ExecuteFunction(functionName, parameters);
         }
         public async void LogonUser(DTO.Request.Application.User user)

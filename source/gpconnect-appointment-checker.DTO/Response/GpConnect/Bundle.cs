@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
@@ -114,5 +115,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public RootMeta meta { get; set; }
         public string type { get; set; }
         public List<RootEntry> entry { get; set; }
+        [JsonProperty("issue")]
+        public List<Issue> Issue { get; set; }
     }
 }

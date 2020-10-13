@@ -8,7 +8,7 @@ namespace gpconnect_appointment_checker.GPConnect.Interfaces
 {
     public interface IGPConnectQueryExecutionService
     {
-        Task<List<SlotSimple>> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress);
-        Task<bool> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress);
+        Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress);
+        Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress);
     }
 }

@@ -1,19 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.DTO.Response.Configuration
 {
     public class Spine
     {
-        public bool UseSSP { get; set; }
+        public bool use_ssp { get; set; }
         [JsonProperty("nhsMHSEndPoint")]
-        public string SSPHostname { get; set; }
-        public string SDSHostname { get; set; }
-        public int SDSPort { get; set; }
-        public bool SDSUseLdaps { get; set; }
-        public int OrganisationId { get; set; }
+        public string ssp_hostname { get; set; }
+        public string sds_hostname { get; set; }
+        public int sds_port { get; set; }
+        public bool sds_use_ldaps { get; set; }
+        public int organisation_id { get; set; }
         [JsonProperty("nhsMHSPartyKey")]
-        public string PartyKey { get; set; }
+        public string party_key { get; set; }
         [JsonProperty("uniqueIdentifier")]
-        public string AsId { get; set; }
+        public string asid { get; set; }
+        public int timeout_seconds { get; set; }
     }
 }

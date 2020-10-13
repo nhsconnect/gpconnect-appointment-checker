@@ -15,5 +15,6 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
         public string ConsumerODSCode { get; set; }
         public string InteractionId { get; set; }
         public int SpineMessageTypeId { get; set; }
+        public int RequestTimeout { get; set; }
     }
 }

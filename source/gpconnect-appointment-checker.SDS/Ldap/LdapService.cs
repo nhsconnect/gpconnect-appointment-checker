@@ -43,53 +43,29 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public async Task<Organisation> OrganisationHasAppointmentsProviderSystemByOdsCode(string odsCode)
-        {
-            try
-            {
-                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.OrganisationHasAppointmentsProviderSystemByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
-                return results;
-            }
-            catch (Exception exc)
-            {
-                _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
-                throw;
-            }
-        }
-
-        public async Task<Organisation> OrganisationHasAppointmentsConsumerSystemByOdsCode(string odsCode)
-        {
-            try
-            {
-                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.OrganisationHasAppointmentsConsumerSystemByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
-                return results;
-            }
-            catch (Exception exc)
-            {
-                _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
-                throw;
-            }
-        }
-
-        public async Task<Spine> GetGpProviderEndpointAndAsIdByOdsCode(string odsCode)
+        public async Task<Spine> GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode)
         {
             try
             {
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
                 var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                return result;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
+                throw;
+            }
+        }
 
-                if (result != null)
-                {
-                    sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
-                    filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode).Replace("{partyKey}", result.PartyKey);
-                    var result2 = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
-                    result.AsId = result2.AsId;
-                }
+        public async Task<Spine> GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)
+        {
+            try
+            {
+                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode).Replace("{partyKey}", partyKey);
+                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
             catch (Exception exc)

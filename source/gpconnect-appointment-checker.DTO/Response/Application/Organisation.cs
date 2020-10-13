@@ -64,10 +64,6 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         [JsonProperty("facsimileTelephoneNumber")]
         public string FacsimileTelephoneNumber { get; set; }
 
-        public bool IsGPConnectConsumer { get; set; }
-
-        public bool IsGPConnectProvider { get; set; }
-
         public DateTime LastSyncDate { get; set; }
     }
 }

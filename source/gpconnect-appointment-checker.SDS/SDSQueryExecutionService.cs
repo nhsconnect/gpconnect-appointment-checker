@@ -87,11 +87,21 @@ namespace gpconnect_appointment_checker.SDS
                     string userName = string.Empty;
                     string password = string.Empty;
 
-                    ldapConn = new LdapConnection { SecureSocketLayer = spineConnectionSettings.SDSUseLdaps };
-                    ldapConn.Connect(spineConnectionSettings.SDSHostname, spineConnectionSettings.SDSPort);
+                    ldapConn = new LdapConnection
+                    {
+                        SecureSocketLayer = spineConnectionSettings.sds_use_ldaps,
+                        ConnectionTimeout = spineConnectionSettings.timeout_seconds * 1000
+                    };
+                    ldapConn.Connect(spineConnectionSettings.sds_hostname, spineConnectionSettings.sds_port);
                     ldapConn.Bind(userName, password);
                 }
+
                 return ldapConn;
+            }
+            catch (TimeoutException timeoutException)
+            {
+                _logger.LogError("A timeout error has occurred", timeoutException);
+                throw;
             }
             catch (Exception exc)
             {

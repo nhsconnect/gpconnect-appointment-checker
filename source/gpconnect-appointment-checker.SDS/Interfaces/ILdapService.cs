@@ -7,8 +7,7 @@ namespace gpconnect_appointment_checker.SDS.Interfaces
     public interface ILdapService
     {
         Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode);
-        Task<Organisation> OrganisationHasAppointmentsProviderSystemByOdsCode(string odsCode);
-        Task<Organisation> OrganisationHasAppointmentsConsumerSystemByOdsCode(string odsCode);
-        Task<Spine> GetGpProviderEndpointAndAsIdByOdsCode(string odsCode);
+        Task<Spine> GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode);
+        Task<Spine> GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey);
     }
 }

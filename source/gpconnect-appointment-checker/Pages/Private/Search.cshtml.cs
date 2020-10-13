@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using System.Linq;
+using gpconnect_appointment_checker.DAL.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -24,7 +25,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
 
-        public List<SlotSimple> SearchResults { get; set; } = null;
+        public List<SlotEntrySimple> SearchResults { get; set; } = null;
 
         [Required]
         [BindProperty]
@@ -45,24 +46,31 @@ namespace gpconnect_appointment_checker.Pages
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;
 
-        public bool ConsumerEnabledForGpConnect { get; set; } = true;
+        public bool ProviderASIDPresent { get; set; } = true;
         public bool ProviderEnabledForGpConnectAppointmentManagement { get; set; } = true;
+
+        public bool SlotSearchOk { get; set; } = true;
+        public bool CapabilityStatementOk { get; set; } = true;
+        public string ProviderErrorDisplay { get; set; }
+        public string ProviderErrorCode { get; set; }
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<SearchModel> _logger;
         protected ILdapService _ldapService;
+        protected IApplicationService _applicationService;
         protected ITokenService _tokenService;
         protected IGPConnectQueryExecutionService _queryExecutionService;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGPConnectQueryExecutionService queryExecutionService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGPConnectQueryExecutionService queryExecutionService, IApplicationService applicationService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _ldapService = ldapService;
             _tokenService = tokenService;
-            _queryExecutionService = queryExecutionService;
+           _queryExecutionService = queryExecutionService;
+           _applicationService = applicationService;
         }
 
         public IActionResult OnGet()
@@ -99,21 +107,27 @@ namespace gpconnect_appointment_checker.Pages
 
             if (ProviderODSCodeFound && ConsumerODSCodeFound)
             {
-                //We have both codes in SDS so we can continue to the next step and validate consumer ods code in Spine Directory
-                //Is the consumer ODS code configured as a GP connect consumer system?
-                //var consumerIsGpConnectSystem = await _ldapService.OrganisationHasAppointmentsConsumerSystemByOdsCode(ConsumerODSCode);
+                _applicationService.SynchroniseOrganisation(providerOrganisationDetails);
+                _applicationService.SynchroniseOrganisation(consumerOrganisationDetails);
 
-                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ProviderODSCode);
-                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndAsIdByOdsCode(ConsumerODSCode);
-
-                //ConsumerEnabledForGpConnect = consumerIsGpConnectSystem != null;
-                ProviderEnabledForGpConnectAppointmentManagement = true;//!organisationHasAppointments.IsGPConnectProvider;
+                //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
+                //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
+                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
+                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+                ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
                 if (ProviderEnabledForGpConnectAppointmentManagement)
                 {
-                    await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                    SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-                    SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                    var providerAsId = await _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
+                    ProviderASIDPresent = providerAsId != null;
+
+                    if (ProviderASIDPresent)
+                    {
+                        providerGpConnectDetails.asid = providerAsId.asid;
+                        await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                        SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
+                        SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                    }
                 }
             }
         }
@@ -127,11 +141,33 @@ namespace gpconnect_appointment_checker.Pages
 
             if (requestParameters != null)
             {
-                var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
-                var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
-                var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate,
-                    endDate, providerGpConnectDetails.SSPHostname);
-                SearchResults = searchResults;
+                //Step 3 - CALL PROVIDER METADATA ENDPOINT
+                //Get capability statement
+                var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.ssp_hostname);
+                CapabilityStatementOk = capabilityStatement.Issue == null;
+
+                if (CapabilityStatementOk)
+                {
+                    var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+                    var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
+                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
+                    SlotSearchOk = searchResults.Issue == null;
+
+                    if (SlotSearchOk)
+                    {
+                        SearchResults = searchResults.SlotEntrySimple;
+                    }
+                    else
+                    {
+                        ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+                        ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                    }
+                }
+                else
+                {
+                    ProviderErrorDisplay = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+                    ProviderErrorCode = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                }
             }
         }
 

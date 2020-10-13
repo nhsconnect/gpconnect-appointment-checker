@@ -47,8 +47,8 @@ namespace gpconnect_appointment_checker.GPConnect
                     SetDefaultTimesOnTokenCreation = false
                 };
 
-                var tokenIssuer = spineConfiguration.SDSHostname;
-                var tokenAudience = providerSpineMessage.SSPHostname;
+                var tokenIssuer = spineConfiguration.sds_hostname;
+                var tokenAudience = providerSpineMessage.ssp_hostname;
                 var tokenIssuedAt = DateTimeOffset.Now;
                 var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -63,10 +63,10 @@ namespace gpconnect_appointment_checker.GPConnect
                 var requestParameters = new RequestParameters
                 {
                     BearerToken = tokenString,
-                    SspFrom = spineConfiguration.AsId,
-                    SspTo = providerSpineMessage.AsId,
-                    UseSSP = spineConfiguration.UseSSP,
-                    SspHostname = spineConfiguration.SSPHostname,
+                    SspFrom = spineConfiguration.asid,
+                    SspTo = providerSpineMessage.asid,
+                    UseSSP = spineConfiguration.use_ssp,
+                    SspHostname = spineConfiguration.ssp_hostname,
                     ConsumerODSCode = consumerOrganisationDetails.ODSCode,
                     ProviderODSCode = providerOrganisationDetails.ODSCode,
                     InteractionId = spineMessageType?.InteractionId,

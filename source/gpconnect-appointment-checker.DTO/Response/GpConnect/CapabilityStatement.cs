@@ -39,9 +39,11 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public List<Profile> Profile { get; set; }
         [JsonProperty("rest")]
         public List<Rest> Rest { get; set; }
+
+        [JsonProperty("issue")]
+        public List<Issue> Issue { get; set; }
     }
 
-    
     public class Contact
     {
         [JsonProperty("name")]
