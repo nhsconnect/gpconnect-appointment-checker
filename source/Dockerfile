@@ -9,7 +9,6 @@ COPY gpconnect-appointment-checker.sln ./
 COPY gpconnect-appointment-checker.UnitTest/*.csproj ./gpconnect-appointment-checker.UnitTest/
 COPY gpconnect-appointment-checker.DTO/*.csproj ./gpconnect-appointment-checker.DTO/
 COPY gpconnect-appointment-checker.DAL/*.csproj ./gpconnect-appointment-checker.DAL/
-COPY gpconnect-appointment-checker.Account/*.csproj ./gpconnect-appointment-checker.Account/
 COPY gpconnect-appointment-checker.GPConnect/*.csproj ./gpconnect-appointment-checker.GPConnect/
 COPY gpconnect-appointment-checker.SDS/*.csproj ./gpconnect-appointment-checker.SDS/
 COPY gpconnect-appointment-checker/*.csproj ./gpconnect-appointment-checker/
@@ -24,9 +23,6 @@ WORKDIR /src/gpconnect-appointment-checker.DTO
 RUN dotnet build -c Debug -o /app
 
 WORKDIR /src/gpconnect-appointment-checker.DAL
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker.Account
 RUN dotnet build -c Debug -o /app
 
 WORKDIR /src/gpconnect-appointment-checker.GPConnect
