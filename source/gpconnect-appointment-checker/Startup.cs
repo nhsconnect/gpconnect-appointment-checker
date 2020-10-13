@@ -22,6 +22,7 @@ using NLog.Targets;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System;
 using gpconnect_appointment_checker.DAL.Application;
 
 namespace gpconnect_appointment_checker
@@ -30,6 +31,12 @@ namespace gpconnect_appointment_checker
     {
         public Startup(IConfiguration configuration)
         {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionStrings.DefaultConnection)))
+                throw new ArgumentException(string.Format("Environment variable ConnectionStrings:{0} is not present", ConnectionStrings.DefaultConnection));
+            
             Configuration = configuration;
         }
 
