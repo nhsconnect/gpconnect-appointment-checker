@@ -14,3 +14,15 @@ alter table configuration.spine add column timeout_seconds integer null;
 alter table configuration.spine add constraint configuration_spine_timeoutseconds_ck check (timeout_seconds > 0);
 update configuration.spine set timeout_seconds = 30;
 alter table configuration.spine alter column timeout_seconds set not null;
+
+-- add new sso metadata endpoint column
+alter table configuration.sso add column metadata_endpoint varchar null;
+alter table configuration.sso add constraint configuration_sso_metadataendpoint_ck check (char_length(trim(metadata_endpoint)) > 0);
+update configuration.sso set metadata_endpoint = 'https://metadata_endpoint';
+alter table configuration.sso alter column metadata_endpoint set not null;
+
+-- add new sso end session endpoint column
+alter table configuration.sso add column endsession_endpoint varchar null;
+alter table configuration.sso add constraint configuration_sso_endsessionendpoint_ck check (char_length(trim(endsession_endpoint)) > 0);
+update configuration.sso set endsession_endpoint = 'https://endsession_endpoint';
+alter table configuration.sso alter column endsession_endpoint set not null;

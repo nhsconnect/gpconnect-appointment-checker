@@ -16,22 +16,7 @@ COPY gpconnect-appointment-checker/*.csproj ./gpconnect-appointment-checker/
 RUN dotnet restore
 COPY . .
 
-WORKDIR /src/gpconnect-appointment-checker.UnitTest
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker.DTO
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker.DAL
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker.GPConnect
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker.SDS
-RUN dotnet build -c Debug -o /app
-
-WORKDIR /src/gpconnect-appointment-checker
+WORKDIR /src
 RUN dotnet build -c Debug -o /app
 
 FROM build AS publish
