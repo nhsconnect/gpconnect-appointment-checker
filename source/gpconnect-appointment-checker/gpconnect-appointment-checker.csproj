@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>gpconnect_appointment_checker</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>false</Deterministic>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <UserSecretsId>5316f1b6-444c-4985-abe0-a2418debc55b</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>

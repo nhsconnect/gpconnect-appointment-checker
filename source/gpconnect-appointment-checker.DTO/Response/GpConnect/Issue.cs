@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
@@ -13,6 +10,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string Code { get; set; }
         [JsonProperty("details")]
         public Detail Details { get; set; }
+        [JsonProperty("diagnostics")]
+        public string Diagnostics { get; set; }
     }
-
 }

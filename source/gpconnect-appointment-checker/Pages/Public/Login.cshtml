@@ -1,12 +1,16 @@
 ﻿@page
+@using gpconnect_appointment_checker.Helpers
 @model LoginModel
 
 @if (!User.Identity.IsAuthenticated)
 {
-    <a asp-action="ExternalLogin" asp-controller="Auth" class="nhsuk-button">Sign in</a>
+    <a asp-action="Login" asp-controller="Auth" class="nhsuk-button">Sign in</a>
 }
 else
 {
-    <div>Hello @Model.UserName (@Model.OrganisationName)</div>
-    <div><button type="submit" asp-page-handler="SignOut" class="nhsuk-button nhsuk-button--secondary">Sign out</button></div>
+<div style="color: #ffffff; font-style: italic">
+    @User.GetClaimValue("Email")<br />
+    @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
+</div>
+    <a style="color:#ffffff" asp-action="Signout" asp-controller="Auth">Logout</a>
 }

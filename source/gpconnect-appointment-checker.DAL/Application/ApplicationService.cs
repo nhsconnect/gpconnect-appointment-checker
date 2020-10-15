@@ -45,23 +45,25 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_postcode", organisation.PostalCode);
             await _dataService.ExecuteFunction(functionName, parameters);
         }
-        public async void LogonUser(DTO.Request.Application.User user)
+        public async Task<DTO.Response.Application.User> LogonUser(DTO.Request.Application.User user)
         {
             var functionName = "application.logon_user";
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_display_name", user.DisplayName);
             parameters.Add("_organisation_id", user.OrganisationId);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            var result = await _dataService.ExecuteFunction<DTO.Response.Application.User>(functionName, parameters);
+            return result.FirstOrDefault();
         }
 
-        public async void LogoffUser(DTO.Request.Application.User user)
+        public async Task<DTO.Response.Application.User> LogoffUser(DTO.Request.Application.User user)
         {
             var functionName = "application.logoff_user";
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_user_session_id", user.UserSessionId);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            var result = await _dataService.ExecuteFunction<DTO.Response.Application.User>(functionName, parameters);
+            return result.FirstOrDefault();
         }
 
         public async void SetUserAuthorised(DTO.Request.Application.User user)

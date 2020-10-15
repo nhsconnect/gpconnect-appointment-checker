@@ -1,28 +1,21 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Controllers
 {
     [Route("[controller]/[action]")]
     public class AuthController : Controller
     {
-        [HttpGet("/Auth/ExternalLogin")]
-        public IActionResult ExternalLogin(string returnUrl = "/")
+        [HttpGet("/Auth/Login")]
+        public async Task Login(string returnUrl = "/")
         {
-            var properties = new AuthenticationProperties()
-            {
-                RedirectUri = returnUrl,
-                Items =
-                {
-                    { "scheme", "nhs-sso" }
-                }
-            };
-            return Challenge(properties, "nhs-sso");
+            await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties() { RedirectUri = returnUrl });
         }
 
-        public IActionResult Index()
+        public IActionResult Signout()
         {
-            return View("Public/Auth");
+            return SignOut(new AuthenticationProperties {RedirectUri = "/" }, "Cookies", "OpenIdConnect");
         }
     }
 }

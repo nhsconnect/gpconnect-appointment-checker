@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace gpconnect_appointment_checker.GPConnect
@@ -22,20 +23,20 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly ILogger<TokenService> _logger;
         private readonly ILogService _logService;
         private readonly IConfigurationService _configurationService;
+        private readonly IConfiguration _configuration;
 
-        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService)
+        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService, IConfiguration configuration)
         {
             _logger = logger;
             _configurationService = configurationService;
             _logService = logService;
+            _configuration = configuration;
         }
 
         public async Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
         {
             try
             {
-                var spineConfiguration = await _configurationService.GetSpineConfiguration();
-                var generalConfiguration = await _configurationService.GetGeneralConfiguration();
                 var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
 
                 var userGuid = Guid.NewGuid().ToString();
@@ -47,13 +48,13 @@ namespace gpconnect_appointment_checker.GPConnect
                     SetDefaultTimesOnTokenCreation = false
                 };
 
-                var tokenIssuer = spineConfiguration.sds_hostname;
+                var tokenIssuer = _configuration.GetSection("Spine:sds_hostname").Value;// spineConfiguration.sds_hostname;
                 var tokenAudience = providerSpineMessage.ssp_hostname;
                 var tokenIssuedAt = DateTimeOffset.Now;
                 var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
                 var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
-                AddRequestingDeviceClaim(requestUri, tokenDescriptor, generalConfiguration);
+                AddRequestingDeviceClaim(requestUri, tokenDescriptor);
                 AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
                 AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid, userFamilyName, userGivenName);
 
@@ -63,10 +64,10 @@ namespace gpconnect_appointment_checker.GPConnect
                 var requestParameters = new RequestParameters
                 {
                     BearerToken = tokenString,
-                    SspFrom = spineConfiguration.asid,
+                    SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
                     SspTo = providerSpineMessage.asid,
-                    UseSSP = spineConfiguration.use_ssp,
-                    SspHostname = spineConfiguration.ssp_hostname,
+                    UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
+                    SspHostname = _configuration.GetSection("Spine:ssp_hostname").Value,
                     ConsumerODSCode = consumerOrganisationDetails.ODSCode,
                     ProviderODSCode = providerOrganisationDetails.ODSCode,
                     InteractionId = spineMessageType?.InteractionId,
@@ -136,14 +137,13 @@ namespace gpconnect_appointment_checker.GPConnect
             });
         }
 
-        private static void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
-            General generalConfiguration)
+        private void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor)
         {
             tokenDescriptor.Claims.Add("requesting_device", new RequestingDevice
             {
                 resourceType = "Device",
-                model = generalConfiguration.ProductName,
-                version = generalConfiguration.ProductVersion,
+                model = _configuration.GetSection("General:product_name").Value,
+                version = _configuration.GetSection("General:product_version").Value,
                 identifier = new List<Identifier>
                 {
                     new Identifier

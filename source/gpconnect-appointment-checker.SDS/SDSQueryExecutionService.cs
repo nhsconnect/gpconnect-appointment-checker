@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -15,13 +16,13 @@ namespace gpconnect_appointment_checker.SDS
     {
         private readonly ILogger<SDSQueryExecutionService> _logger;
         private readonly ILogService _logService;
-        private readonly IConfigurationService _configurationService;
+        private readonly IConfiguration _configuration;
         private readonly LdapConnection _connection;
 
-        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService)
+        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration)
         {
             _logger = logger;
-            _configurationService = configurationService;
+            _configuration = configuration;
             _logService = logService;
         }
 
@@ -79,7 +80,6 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var spineConnectionSettings = await _configurationService.GetSpineConfiguration();
                 var ldapConn = _connection;
 
                 if (ldapConn == null)
@@ -89,10 +89,10 @@ namespace gpconnect_appointment_checker.SDS
 
                     ldapConn = new LdapConnection
                     {
-                        SecureSocketLayer = spineConnectionSettings.sds_use_ldaps,
-                        ConnectionTimeout = spineConnectionSettings.timeout_seconds * 1000
+                        SecureSocketLayer = bool.TryParse(_configuration.GetSection("Spine:sds_use_ldaps").Value, out _),
+                        ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
                     };
-                    ldapConn.Connect(spineConnectionSettings.sds_hostname, spineConnectionSettings.sds_port);
+                    ldapConn.Connect(_configuration.GetSection("Spine:sds_hostname").Value, int.Parse(_configuration.GetSection("Spine:sds_port").Value));
                     ldapConn.Bind(userName, password);
                 }
 

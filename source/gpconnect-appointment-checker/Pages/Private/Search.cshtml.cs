@@ -53,6 +53,7 @@ namespace gpconnect_appointment_checker.Pages
         public bool CapabilityStatementOk { get; set; } = true;
         public string ProviderErrorDisplay { get; set; }
         public string ProviderErrorCode { get; set; }
+        public string ProviderErrorDiagnostics { get; set; }
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -161,19 +162,21 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                         ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                        ProviderErrorDiagnostics = searchResults.Issue.FirstOrDefault()?.Diagnostics;
                     }
                 }
                 else
                 {
                     ProviderErrorDisplay = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                     ProviderErrorCode = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                    ProviderErrorDiagnostics = capabilityStatement.Issue.FirstOrDefault()?.Diagnostics;
                 }
             }
         }
 
         private List<SelectListItem> GetDateRanges()
         {
-            var weeksToGet = _configuration["MaxNumberOfWeeks"].StringToInteger(12);
+            var weeksToGet = _configuration["General:max_num_weeks_search"].StringToInteger(12);
             var dateRange = new List<SelectListItem>();
             var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
 

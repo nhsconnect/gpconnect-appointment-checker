@@ -8,12 +8,10 @@ namespace gpconnect_appointment_checker.DAL.Logging
 {
     public class LogService : ILogService
     {
-        private readonly ILogger<LogService> _logger;
         private readonly IDataService _dataService;
 
-        public LogService(IConfiguration configuration, ILogger<LogService> logger, IDataService dataService)
+        public LogService(IConfiguration configuration, IDataService dataService)
         {
-            _logger = logger;
             _dataService = dataService;
         }
 

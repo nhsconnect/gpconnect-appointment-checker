@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.Helpers;
+using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.GPConnect
 {

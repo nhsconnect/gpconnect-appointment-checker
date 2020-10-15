@@ -5,10 +5,10 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
 {
     public interface IConfigurationService
     {
-        Task<DTO.Response.Configuration.General> GetGeneralConfiguration();
-        Task<DTO.Response.Configuration.Spine> GetSpineConfiguration();
+        //Task<DTO.Response.Configuration.General> GetGeneralConfiguration();
+        //Task<DTO.Response.Configuration.Spine> GetSpineConfiguration();
         Task<List<DTO.Response.Configuration.SpineMessageType>> GetSpineMessageTypes();
         Task<List<DTO.Response.Configuration.SdsQuery>> GetSdsQueryConfiguration();
-        Task<DTO.Response.Configuration.Sso> GetSsoConfiguration();
+        //Task<DTO.Response.Configuration.Sso> GetSsoConfiguration();
     }
 }

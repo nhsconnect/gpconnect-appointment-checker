@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
-using gpconnect_appointment_checker.DAL;
-using gpconnect_appointment_checker.DAL.Configuration;
-using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using Dapper;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Npgsql;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace gpconnect_appointment_checker.Configuration
 {
     public static class CustomConfigurationExtensions
     {
-        public static IConfigurationBuilder AddMyConfiguration(this IConfigurationBuilder configuration, Action<ConfigurationOptions> options)
+        public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder configuration, Action<ConfigurationOptions> options)
         {
             _ = options ?? throw new ArgumentNullException(nameof(options));
             var myConfigurationOptions = new ConfigurationOptions();
@@ -24,17 +20,21 @@ namespace gpconnect_appointment_checker.Configuration
             configuration.Add(new ConfigurationSource(myConfigurationOptions));
             return configuration;
         }
+
+        public static string GetConfigurationString(this IConfigurationSection configurationSetting, string defaultValue = "")
+        {
+            var keyValueExists = configurationSetting.Exists() && !string.IsNullOrEmpty(configurationSetting.Value);
+            return keyValueExists ? configurationSetting.Value : defaultValue;
+        }
     }
 
     public class ConfigurationSource : IConfigurationSource
     {
         public string ConnectionString { get; set; }
-        public string Query { get; set; }
 
         public ConfigurationSource(ConfigurationOptions options)
         {
             ConnectionString = options.ConnectionString;
-            Query = options.Query;
             
         }
 
@@ -47,7 +47,6 @@ namespace gpconnect_appointment_checker.Configuration
     public class ConfigurationOptions
     {
         public string ConnectionString { get; set; }
-        public string Query { get; set; }
     }
 
     public class CustomConfigurationProvider : ConfigurationProvider
@@ -61,14 +60,21 @@ namespace gpconnect_appointment_checker.Configuration
 
         public override void Load()
         {
-            using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
-            var results = connection.Query<Spine>(Source.Query);
-            var json = JsonConvert.SerializeObject(results);
-            var spineConfiguration = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(json);
+            LoadConfiguration<Spine>("SELECT * FROM configuration.spine", "Spine");
+            LoadConfiguration<General>("SELECT * FROM configuration.general", "General");
+            LoadConfiguration<Sso>("SELECT * FROM configuration.sso", "SingleSignOn");
+        }
 
-            foreach (var spineConfig in spineConfiguration)
+        private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
+            var result = connection.Query<T>(query).FirstOrDefault();
+            var json = JsonConvert.SerializeObject(result);
+            var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+
+            foreach (var configEntry in configuration)
             {
-                //Set(spineConfig.Key, spineConfig.Value);
+                Set($"{configurationPrefix}:{configEntry.Key}", configEntry.Value ?? string.Empty);
             }
         }
     }

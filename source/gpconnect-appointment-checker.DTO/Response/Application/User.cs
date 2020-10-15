@@ -8,6 +8,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public string EmailAddress { get; set; }
         public string DisplayName { get; set; }
         public int OrganisationId { get; set; }
+        public int UserSessionId { get; set; }
         public bool IsAuthorised { get; set; }
         public DateTime AddedDate { get; set; }
         public DateTime AuthorisedDate { get; set; }
