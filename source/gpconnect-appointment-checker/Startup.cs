@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DAL.Mapping;
+using gpconnect_appointment_checker.DTO.Request.Application;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -20,8 +21,6 @@ using System;
 using System.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.DTO.Request.Application;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace gpconnect_appointment_checker
 {
@@ -186,6 +185,7 @@ namespace gpconnect_appointment_checker
                 config.AddMap(new SdsQueryMap());
                 config.AddMap(new SpineMessageTypeMap());
                 config.AddMap(new UserMap());
+                config.AddMap(new OrganisationMap());
             });
         }
 
@@ -206,17 +206,19 @@ namespace gpconnect_appointment_checker
                 options.Scope.Add("email");
                 options.Scope.Add("profile");
                 options.Scope.Add("openid");
-                options.SignedOutCallbackPath = "/Index";
+                options.SignedOutCallbackPath = "/Test";
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new OpenIdConnectEvents
                 {
                     OnTokenValidated = async context =>
                     {
+                        var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(context.Principal.GetClaimValue("ODS"));
+                        var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
                         var loggedOnUser = await _applicationService.LogonUser(new User
                         {
                             EmailAddress = context.Principal.GetClaimValue("Email"),
                             DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                            OrganisationId = 1
+                            OrganisationId = organisation.OrganisationId
                         });
 
                         if (!loggedOnUser.IsAuthorised)
@@ -228,7 +230,6 @@ namespace gpconnect_appointment_checker
                         {
                             if (context.Principal.Identity is ClaimsIdentity identity)
                             {
-                                var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(context.Principal.GetClaimValue("ODS"));
                                 identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
                                 identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                             }

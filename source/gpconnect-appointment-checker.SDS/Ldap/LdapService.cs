@@ -17,14 +17,16 @@ namespace gpconnect_appointment_checker.SDS
         private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
         private readonly IConfiguration _configuration;
         private readonly IConfigurationService _configurationService;
+        private readonly IApplicationService _applicationService;
         private readonly List<SdsQuery> _sdsQueries;
 
-        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration, IConfigurationService configurationService)
+        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration, IConfigurationService configurationService, IApplicationService applicationService)
         {
             _logger = logger;
             _sdsQueryExecutionService = sdsQueryExecutionService;
             _configuration = configuration;
             _configurationService = configurationService;
+            _applicationService = applicationService;
         }
 
         public async Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode)
@@ -34,6 +36,7 @@ namespace gpconnect_appointment_checker.SDS
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
                 var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
+                _applicationService.SynchroniseOrganisation(results);
                 return results;
             }
             catch (Exception exc)
