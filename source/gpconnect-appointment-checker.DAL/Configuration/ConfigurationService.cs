@@ -1,7 +1,6 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL.Configuration
@@ -23,20 +22,6 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             _dataService = new DataService(_configuration, null);
         }
 
-        //public async Task<DTO.Response.Configuration.General> GetGeneralConfiguration()
-        //{
-        //    var functionName = "configuration.get_general_configuration";
-        //    var results = await _dataService.ExecuteFunction<DTO.Response.Configuration.General>(functionName);
-        //    return results.FirstOrDefault();
-        //}
-
-        //public async Task<DTO.Response.Configuration.Spine> GetSpineConfiguration()
-        //{
-        //    var functionName = "configuration.get_spine_configuration";
-        //    var result = await _dataService.ExecuteFunction<DTO.Response.Configuration.Spine>(functionName);
-        //    return result.FirstOrDefault();
-        //}
-
         public async Task<List<DTO.Response.Configuration.SpineMessageType>> GetSpineMessageTypes()
         {
             var functionName = "configuration.get_spine_message_type";
@@ -50,12 +35,5 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             var result = await _dataService.ExecuteFunction<DTO.Response.Configuration.SdsQuery>(functionName);
             return result;
         }
-
-        //public async Task<DTO.Response.Configuration.Sso> GetSsoConfiguration()
-        //{
-        //    var functionName = "configuration.get_sso_configuration";
-        //    var result = await _dataService.ExecuteFunction<DTO.Response.Configuration.Sso>(functionName);
-        //    return result.FirstOrDefault();
-        //}
     }
 }

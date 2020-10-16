@@ -21,6 +21,7 @@ using System.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.DTO.Request.Application;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace gpconnect_appointment_checker
 {
@@ -198,7 +199,7 @@ namespace gpconnect_appointment_checker
             }).AddCookie().AddOpenIdConnect(Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(), displayName: Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(), options =>
             {
                 options.Authority = Configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString();
-                options.MetadataAddress = "https://fs.nhs.net/adfs/.well-known/openid-configuration";
+                options.MetadataAddress = Configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString();
                 options.ClientId = Configuration.GetSection("SingleSignOn:client_id").GetConfigurationString();
                 options.ClientSecret = Configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString();
                 options.CallbackPath = Configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString();
@@ -206,17 +207,9 @@ namespace gpconnect_appointment_checker
                 options.Scope.Add("profile");
                 options.Scope.Add("openid");
                 options.SignedOutCallbackPath = "/Index";
+                options.GetClaimsFromUserInfoEndpoint = true;
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnTicketReceived = async context =>
-                    {
-                        if (context.Principal.Identity is ClaimsIdentity identity)
-                        {
-                            var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(context.Principal.GetClaimValue("ODS"));
-                            identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                        }
-                        await Task.Yield();
-                    },
                     OnTokenValidated = async context =>
                     {
                         var loggedOnUser = await _applicationService.LogonUser(new User
@@ -231,6 +224,23 @@ namespace gpconnect_appointment_checker
                             context.Response.Redirect("/AccessDenied");
                             context.HandleResponse();
                         }
+                        else
+                        {
+                            if (context.Principal.Identity is ClaimsIdentity identity)
+                            {
+                                var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(context.Principal.GetClaimValue("ODS"));
+                                identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                                identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                            }
+                        }
+                    },
+                    OnRedirectToIdentityProviderForSignOut = async context =>
+                    {
+                        await _applicationService.LogoffUser(new User
+                        {
+                            EmailAddress = context.HttpContext.User.GetClaimValue("Email"),
+                            UserSessionId = context.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)
+                        });
                     },
                     OnAuthenticationFailed = context =>
                     {
