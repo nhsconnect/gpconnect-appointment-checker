@@ -2,7 +2,7 @@
 
 # GP Connect Appointment Checker
 
-The GP Connect Appointment Checker is a web application for GP practice and operational support staff to view free appointment slots in a GP practice's appointment book that are available to book via the GP Connect API.
+The GP Connect Appointment Checker is a web application for GP Connect operational support staff to remotely support GP practices in configuring their appointment book to receive bookings via GP Connect API.
 
 <img src="documentation/images/gpc-appointment-checker-wireframe.png">
 
