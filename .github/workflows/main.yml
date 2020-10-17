@@ -1,4 +1,4 @@
-name: CI
+name: Build application and database on checkin
 
 on:
   push:
