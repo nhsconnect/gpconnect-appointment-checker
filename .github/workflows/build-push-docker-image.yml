@@ -17,7 +17,6 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          dockerfile: ./source/Dockerfile
           registry: docker.pkg.github.com
           repository: nhsconnect/gpconnect/gpconnect-appointment-checker
           tag_with_ref: true
