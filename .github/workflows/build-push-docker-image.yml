@@ -7,11 +7,12 @@ jobs:
   push_to_registry:
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: source
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: Change working directory
-        run: cd source
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         with:
