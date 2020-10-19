@@ -33,29 +33,31 @@ jobs:
       - name: Check out main branch
         uses: actions/checkout@main
         
-      - name: Set up dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
+#      - name: Set up dotnet
+#        uses: actions/setup-dotnet@v1
+#        with:
+#          dotnet-version: '3.1.x'
       
-      - name: Build dotnet solution
-        run: dotnet build source/gpconnect-appointment-checker.sln
+#      - name: Build dotnet solution
+#        run: dotnet build source/gpconnect-appointment-checker.sln
 
-      - name: Check Postgres running
-        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
+#      - name: Check Postgres running
+#        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
 
-      - name: Install flyway
-        run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
+#      - name: Install flyway
+#        run: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.6/flyway-commandline-6.5.6-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-6.5.6/flyway /usr/local/bin 
 
-      - name: Flyway migrate database
-        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+#      - name: Flyway migrate database
+#        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:$GITHUB_WORKSPACE/database migrate
 
-      - name: Flyway test database
-        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -repeatableSqlMigrationPrefix=T -locations=filesystem:$GITHUB_WORKSPACE/database migrate
+#      - name: Flyway test database
+#        run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -repeatableSqlMigrationPrefix=T -locations=filesystem:$GITHUB_WORKSPACE/database migrate
 
-      - name: Build docker application image
-        run: docker build -t gpconnect-appointment-checker source/.
+#      - name: Build docker application image
+#        run: docker build -t gpconnect-appointment-checker source/.
 
       - name: Build docker database image
         run: docker build -t gpconnect-appointment-checker-database database/.
-        
+
+      - name: Run docker database image
+        run: docker run --rm gpconnect-appointment-checker-database -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres migrate
