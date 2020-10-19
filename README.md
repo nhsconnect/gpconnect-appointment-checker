@@ -11,10 +11,9 @@ The GP Connect Appointment Checker is a web application for GP Connect operation
   - .NET Core 3.1
     - ASP.NET
   - Docker
-  - Postgresql 11
-    - stored functions
-    - npgsql & dapper
-    - patched with Flyway
+  - Postgresql 12
+    - Stored functions, npgsql & dapper
+    - Flyway
   - NHS UK frontend
   - NHS Mail authentication
   - Built according to progressive enhancement
@@ -33,24 +32,20 @@ The GP Connect Appointment Checker is a web application for GP Connect operation
 
 ## Build and run
 
-Create a blank database in postgres, then patch the database as follows, replacing the `PG_` variables with your postgres database connection details:
+Create a blank database in postgres, then build and run the docker database image to patch the database, replacing the `PG_` variables with your postgres database connection details:
 
 ```
 cd database
-flyway -url=jdbc:postgresql://PG_HOST/PG_DBNAME -user=PG_USER -password=PG_PASS -locations=filesystem:. migrate
+docker build -t gpconnect-appointment-checker-database .
+docker run --rm gpconnect-appointment-checker-database -url=jdbc:postgresql://PG_HOST/PG_DBNAME -user=PG_USER -password=PG_PASS migrate
 ```
 
-Build the Docker image:
+Then build and run the docker application image as follows, replacing the `PG_` variables with your postgres database connection details:
 
 ```
 cd source
-docker build -t gpconnect-appointment-checker:dev .
-```
-
-Run the Docker image, replacing the `PG_` variables with your postgres database connection details:
-
-```
-docker run -d -p 8000:80 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" --name gpconnect-appointment-checker gpconnect-appointment-checker:dev
+docker build -t gpconnect-appointment-checker .
+docker run -d -p 8000:80 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" --name gpconnect-appointment-checker gpconnect-appointment-checker
 ```
 
 ## Test
