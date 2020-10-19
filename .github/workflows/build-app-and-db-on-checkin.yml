@@ -58,7 +58,4 @@ jobs:
 
       - name: Build docker database image
         run: docker build -t gpconnect-appointment-checker-database database/.
-
-      - name: Run docker database image
-        run: docker run --rm gpconnect-appointment-checker-database -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres migrate
         
