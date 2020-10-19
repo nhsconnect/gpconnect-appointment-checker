@@ -26,11 +26,18 @@ from application.logon_user
     1
 );
 
-update application.user 
+update application.user
 set
-    is_authorised = true,
-    authorised_date = now()
+    is_authorised = false,
+    authorised_date = null
 where email_address = 'test@test.com';
+
+select * 
+from application.set_user_isauthorised
+(
+    'test@test.com',
+    true
+);
 
 select *
 from application.logon_user
@@ -51,7 +58,7 @@ select *
 from application.set_user_isauthorised
 (
     'test@test.com',
-    true
+    false
 );
 
 select *
@@ -78,6 +85,9 @@ from configuration.get_sso_configuration();
 
 select *
 from configuration.get_sds_queries();
+
+select *
+from configuration.get_spine_message_type();
 
 select * 
 from logging.log_error
@@ -121,3 +131,6 @@ from logging.log_web_request
     'Test',
     'Test'
 );
+
+select *
+from logging.purge_logs();
