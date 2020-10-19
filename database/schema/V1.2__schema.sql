@@ -26,3 +26,15 @@ alter table configuration.sso add column endsession_endpoint varchar null;
 alter table configuration.sso add constraint configuration_sso_endsessionendpoint_ck check (char_length(trim(endsession_endpoint)) > 0);
 update configuration.sso set endsession_endpoint = 'https://endsession_endpoint';
 alter table configuration.sso alter column endsession_endpoint set not null;
+
+-- add new audit retention period column
+alter table configuration.general add column audit_retention_days integer null;
+update configuration.general set audit_retention_days = 365;
+alter table configuration.general add constraint configuration_general_auditretentiondays_ck check (audit_retention_days > 0);
+alter table configuration.general alter column audit_retention_days set not null;
+
+-- add new log retention period column
+alter table configuration.general add column log_retention_days integer null;
+update configuration.general set log_retention_days = 365;
+alter table configuration.general add constraint configuration_general_logretentiondays_ck check (log_retention_days > 0);
+alter table configuration.general alter column log_retention_days set not null;
