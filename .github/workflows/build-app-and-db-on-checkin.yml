@@ -53,5 +53,8 @@ jobs:
       - name: Flyway test database
         run: flyway -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -repeatableSqlMigrationPrefix=T -locations=filesystem:$GITHUB_WORKSPACE/database migrate
 
-      - name: Build docker image
-        run: docker build -t gpconnect-appointment-checker:dev source/.
+      - name: Build docker application image
+        run: docker build -t gpconnect-appointment-checker source/.
+
+      - name: Build docker database image
+        run: docker build -t gpconnect-appointment-checker-database database/.
