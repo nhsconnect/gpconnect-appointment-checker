@@ -25,16 +25,16 @@ begin
 		return;
 	end if;
 
---	with deleted as
---	(
---		delete
---		from logging.error_log
---		where logged < (now() - (interval '1' day * _log_retention_days))
---		returning id
---	)
---	select
---		count(*) into _error_log_deleted_count
---	from deleted;
+	with deleted as
+	(
+		delete
+		from logging.error_log
+		where logged < (now() - (interval '1' day * _log_retention_days))
+		returning id
+	)
+	select
+		count(*) into _error_log_deleted_count
+	from deleted;
 
 	with deleted as
 	( 

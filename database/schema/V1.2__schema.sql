@@ -32,3 +32,7 @@ alter table configuration.general add column log_retention_days integer null;
 update configuration.general set log_retention_days = 365;
 alter table configuration.general add constraint configuration_general_logretentiondays_ck check (log_retention_days > 0);
 alter table configuration.general alter column log_retention_days set not null;
+
+-- change data type of error log logged column
+alter table logging.error_log alter column logged type timestamp using logged::timestamp without time zone;
+alter table logging.error_log alter column logged set not null;
