@@ -32,7 +32,7 @@ The GP Connect Appointment Checker is a web application for GP Connect operation
 
 ## Build and run
 
-Create a blank database in postgres, then build and run the docker database image to patch the database, replacing the `PG_` variables with your postgres database connection details:
+Create a blank database in postgres, then build and run the docker database image to patch your blank database, replacing the `PG_` variables with your postgres database connection details:
 
 ```
 cd database
