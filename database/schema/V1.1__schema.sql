@@ -123,9 +123,9 @@ values
     true,
     'client_id',
     'client_secret',
-    'https://callback_path',
-    'auth_scheme',
-    'GpConnectAppointmentChecker',
+    '/auth/externallogin',
+    'Cookies',
+    'OpenIdConnect',
     'https://auth_endpoint',
     'https://token_endpoint'
 );
