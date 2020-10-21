@@ -147,7 +147,7 @@ namespace gpconnect_appointment_checker
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
                 Name = "@Exception",
-                Layout = "${exception:format=shortType,message,stacktrace}",
+                Layout = "${exception:format=type,message,method,stacktrace:maxInnerExceptionLevel=10:innerFormat=shortType,message,method,stacktrace}",
                 DbType = DbType.String.ToString()
             });
 
