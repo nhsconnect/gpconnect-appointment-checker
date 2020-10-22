@@ -24,6 +24,7 @@ using System.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using NLog.Layouts;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace gpconnect_appointment_checker
 {
@@ -311,6 +312,11 @@ namespace gpconnect_appointment_checker
 
             app.UseForwardedHeaders();
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
             //app.UseMiddleware<RequestLoggingMiddleware>();
@@ -323,11 +329,6 @@ namespace gpconnect_appointment_checker
                 endpoints.MapControllers();
             });
 
-            app.Use((context, next) =>
-            {
-                context.Request.Scheme = "https";
-                return next();
-            });
         }
     }
 }
