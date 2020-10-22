@@ -59,6 +59,13 @@ namespace gpconnect_appointment_checker
                 options.Conventions.AddPageRoute("/Public/Index", "");
             });
             services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
+
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = "https";
+                return next();
+            });
+
             AddAuthenticationServices(services);
             services.AddAuthorization();
             AddDapperMappings();
