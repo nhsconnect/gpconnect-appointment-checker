@@ -60,12 +60,6 @@ namespace gpconnect_appointment_checker
             });
             services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
 
-            app.Use((context, next) =>
-            {
-                context.Request.Scheme = "https";
-                return next();
-            });
-
             AddAuthenticationServices(services);
             services.AddAuthorization();
             AddDapperMappings();
@@ -314,16 +308,25 @@ namespace gpconnect_appointment_checker
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.UseForwardedHeaders();
+
             app.UseAuthentication();
             app.UseAuthorization();
             //app.UseMiddleware<RequestLoggingMiddleware>();
 
-            app.UseForwardedHeaders();
+            
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+            });
+
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = "https";
+                return next();
             });
         }
     }
