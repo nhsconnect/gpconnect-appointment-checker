@@ -8,9 +8,9 @@
 }
 else
 {
-<div style="color: #ffffff; font-style: italic">
-    @User.GetClaimValue("Email")<br />
-    @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
-</div>
+    <div style="color: #ffffff; font-style: italic">
+        @User.GetClaimValue("Email")<br />
+        @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
+    </div>
     <a style="color:#ffffff" asp-action="Signout" asp-controller="Auth">Logout</a>
 }

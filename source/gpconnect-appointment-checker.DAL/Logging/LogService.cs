@@ -1,8 +1,8 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL.Logging
 {
@@ -10,7 +10,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
     {
         private readonly IDataService _dataService;
 
-        public LogService(IConfiguration configuration, IDataService dataService)
+        public LogService(IDataService dataService)
         {
             _dataService = dataService;
         }
@@ -64,6 +64,13 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_session_id", webRequest.SessionId);
             parameters.Add("_user_agent", webRequest.UserAgent);
             await _dataService.ExecuteFunction(functionName, parameters);
+        }
+
+        public async Task<List<DTO.Response.Logging.PurgeErrorLog>> PurgeLogEntries()
+        {
+            var functionName = "logging.purge_logs";
+            var result = await _dataService.ExecuteFunction<DTO.Response.Logging.PurgeErrorLog>(functionName);
+            return result;
         }
     }
 }

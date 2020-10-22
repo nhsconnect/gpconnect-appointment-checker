@@ -1,3 +1,4 @@
+using System;
 using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Application;
@@ -27,6 +28,7 @@ namespace gpconnect_appointment_checker
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureWebHost(o => o.CaptureStartupErrors(true).UseSetting("detailedErrors", ""))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureServices(services =>
@@ -36,10 +38,10 @@ namespace gpconnect_appointment_checker
                         services.AddScoped<IDataService, DataService>();
                         services.AddScoped<IConfigurationService, ConfigurationService>();
                         services.AddScoped<IAuditService, AuditService>();
-                        services.AddScoped<ILogService, LogService>();
                         services.AddScoped<ITokenService, TokenService>();
                         services.AddScoped<IApplicationService, ApplicationService>();
                         services.AddScoped<ILdapService, LdapService>();
+                        services.AddScoped<ILogService, LogService>();
                         services.AddHttpClient();
                     });
                     webBuilder.UseStartup<Startup>();
@@ -54,11 +56,13 @@ namespace gpconnect_appointment_checker
 
         private static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
         {
+            Console.WriteLine("START - Attempting to Add Custom Configuration");
             var configuration = builder.Build();
             builder.AddConfiguration(options =>
             {
                 options.ConnectionString = configuration.GetConnectionString("DefaultConnection");
             });
+            Console.WriteLine("FINISH - Attempting to Add Custom Configuration");
         }
     }
 }

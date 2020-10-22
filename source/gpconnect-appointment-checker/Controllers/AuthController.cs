@@ -10,7 +10,10 @@ namespace gpconnect_appointment_checker.Controllers
         [HttpGet("/Auth/Login")]
         public async Task Login(string returnUrl = "/")
         {
-            await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties() { RedirectUri = returnUrl });
+            await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties
+            {
+                RedirectUri = returnUrl
+            });
         }
 
         public IActionResult Signout()

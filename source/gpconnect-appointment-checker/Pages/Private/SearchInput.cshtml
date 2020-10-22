@@ -1,4 +1,5 @@
-﻿@model SearchModel
+﻿@using gpconnect_appointment_checker.Helpers
+@model SearchModel
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-two-thirds">
@@ -7,7 +8,7 @@
                 <p><label class="nhsuk-label" for="input-with-hint-text">Provider ODS code<span class="nhsuk-hint">(search at):</span></label></p>
             </div>
             <div class="nhsuk-grid-column-one-half">
-                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode"></p>
+                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" value='@User.GetClaimValue("ProviderODSCode")' required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode"></p>
             </div>
         </div>
         <div class="nhsuk-grid-row">

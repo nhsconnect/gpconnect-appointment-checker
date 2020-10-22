@@ -15,12 +15,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NLog;
 using NLog.Targets;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NLog.Layouts;
 
 namespace gpconnect_appointment_checker
 {
@@ -40,6 +43,7 @@ namespace gpconnect_appointment_checker
         public IConfiguration Configuration { get; }
         public ILdapService _ldapService { get; set; }
         public IApplicationService _applicationService { get; set; }
+        //public ILogService _logService { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -58,6 +62,12 @@ namespace gpconnect_appointment_checker
             AddAuthenticationServices(services);
             services.AddAuthorization();
             AddDapperMappings();
+            //services.Configure<ForwardedHeadersOptions>(options =>
+            //{
+            //    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            //    options.KnownNetworks.Clear();
+            //    options.KnownProxies.Clear();
+            //});
         }
 
         private void AddLoggingAndConfigure(IServiceCollection services)
@@ -143,11 +153,23 @@ namespace gpconnect_appointment_checker
                 Layout = "${callsite:filename=true}",
                 DbType = DbType.String.ToString()
             });
+            
+            //var exceptionLayout = new JsonLayout();
+            //exceptionLayout.Attributes.Add(new JsonAttribute("exception", "${exception:format=shortType,message,stacktrace:innerFormat=shortType,message}"));
+            //exceptionLayout.Attributes.Add(new JsonAttribute("innerException", new JsonLayout
+            //{
+            //    Attributes =
+            //    {
+            //        new JsonAttribute("type", "${exception:format=:innerFormat=Type:InnerExceptionSeparator=|}"),
+            //        new JsonAttribute("message", "${exception:format=:innerFormat=Message:InnerExceptionSeparator=|}")
+            //    }
+            //}));
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
                 Name = "@Exception",
-                Layout = "${exception:format=stackTrace}",
+                //Layout = "${exception:format=shortType,message,stacktrace:innerFormat=shortType,message}",
+                Layout = "${exception:format=shortType,message,stacktrace}",
                 DbType = DbType.String.ToString()
             });
 
@@ -186,6 +208,7 @@ namespace gpconnect_appointment_checker
                 config.AddMap(new SpineMessageTypeMap());
                 config.AddMap(new UserMap());
                 config.AddMap(new OrganisationMap());
+                config.AddMap(new LoggingMap());
             });
         }
 
@@ -198,11 +221,14 @@ namespace gpconnect_appointment_checker
                 options.DefaultSignOutScheme = Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString();
             }).AddCookie().AddOpenIdConnect(Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(), displayName: Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(), options =>
             {
+                options.RequireHttpsMetadata = true;
+                options.ResponseMode = OpenIdConnectResponseMode.FormPost;
                 options.Authority = Configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString();
                 options.MetadataAddress = Configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString();
                 options.ClientId = Configuration.GetSection("SingleSignOn:client_id").GetConfigurationString();
                 options.ClientSecret = Configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString();
                 options.CallbackPath = Configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString();
+                options.ResponseType = OpenIdConnectResponseType.IdToken;
                 options.Scope.Add("email");
                 options.Scope.Add("profile");
                 options.Scope.Add("openid");
@@ -212,26 +238,36 @@ namespace gpconnect_appointment_checker
                 {
                     OnTokenValidated = async context =>
                     {
-                        var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(context.Principal.GetClaimValue("ODS"));
-                        var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
-                        var loggedOnUser = await _applicationService.LogonUser(new User
+                        var odsCode = context.Principal.GetClaimValue("ODS");
+                        var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
+                        if (organisationDetails != null)
                         {
-                            EmailAddress = context.Principal.GetClaimValue("Email"),
-                            DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                            OrganisationId = organisation.OrganisationId
-                        });
-
-                        if (!loggedOnUser.IsAuthorised)
-                        {
-                            context.Response.Redirect("/AccessDenied");
-                            context.HandleResponse();
-                        }
-                        else
-                        {
-                            if (context.Principal.Identity is ClaimsIdentity identity)
+                            var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
+                            var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                            var loggedOnUser = await _applicationService.LogonUser(new User
                             {
-                                identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                                identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                                EmailAddress = context.Principal.GetClaimValue("Email"),
+                                DisplayName = context.Principal.GetClaimValue("DisplayName"),
+                                OrganisationId = organisation.OrganisationId
+                            });
+
+                            if (!loggedOnUser.IsAuthorised)
+                            {
+                                context.Response.Redirect("/AccessDenied");
+                                context.HandleResponse();
+                            }
+                            else
+                            {
+                                if (context.Principal.Identity is ClaimsIdentity identity)
+                                {
+                                    identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                                    identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                                    identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                                    if (providerGpConnectDetails != null)
+                                    {
+                                        identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                                    }
+                                }
                             }
                         }
                     },
@@ -253,7 +289,7 @@ namespace gpconnect_appointment_checker
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor, ILdapService ldapService, IAuditService auditService, IApplicationService applicationService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor, ILdapService ldapService, IAuditService auditService, IApplicationService applicationService/*, ILogService logService*/)
         {
             if (env.IsDevelopment())
             {
@@ -267,12 +303,16 @@ namespace gpconnect_appointment_checker
 
             _ldapService = ldapService;
             _applicationService = applicationService;
+            //_logService = logService;
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            //app.UseMiddleware<RequestLoggingMiddleware>();
+
+            app.UseForwardedHeaders();
 
             app.UseEndpoints(endpoints =>
             {
