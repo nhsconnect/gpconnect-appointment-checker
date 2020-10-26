@@ -36,7 +36,10 @@ namespace gpconnect_appointment_checker.SDS
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
                 var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
-                _applicationService.SynchroniseOrganisation(results);
+                if (results != null)
+                {
+                    _applicationService.SynchroniseOrganisation(results);
+                }
                 return results;
             }
             catch (Exception exc)

@@ -1,4 +1,3 @@
-using System;
 using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Application;
@@ -56,13 +55,11 @@ namespace gpconnect_appointment_checker
 
         private static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
         {
-            Console.WriteLine("START - Attempting to Add Custom Configuration");
             var configuration = builder.Build();
             builder.AddConfiguration(options =>
             {
                 options.ConnectionString = configuration.GetConnectionString("DefaultConnection");
             });
-            Console.WriteLine("FINISH - Attempting to Add Custom Configuration");
         }
     }
 }

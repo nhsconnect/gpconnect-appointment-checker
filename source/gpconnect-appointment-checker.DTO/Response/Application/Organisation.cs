@@ -18,7 +18,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         
         [JsonProperty("postalAddress")] 
         public string PostalAddress { get; set; }
-        
+
         [JsonProperty("postalCode")] 
         public string PostalCode { get; set; }
 

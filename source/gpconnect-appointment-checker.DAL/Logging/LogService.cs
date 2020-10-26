@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using System.Collections.Generic;
 using System.Data;
@@ -51,13 +52,17 @@ namespace gpconnect_appointment_checker.DAL.Logging
         {
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_id", webRequest.UserId);
-            parameters.Add("_user_session_id", webRequest.UserSessionId);
+            if (webRequest.UserId > 0) 
+                parameters.Add("_user_id", webRequest.UserId);
+            parameters.Add("_user_id", null);
+            if (webRequest.UserSessionId > 0) 
+                parameters.Add("_user_session_id", webRequest.UserId);
+            parameters.Add("_user_session_id", null);
             parameters.Add("_url", webRequest.Url);
             parameters.Add("_referrer_url", webRequest.ReferrerUrl);
             parameters.Add("_description", webRequest.Description);
             parameters.Add("_ip", webRequest.Ip);
-            parameters.Add("_created_date", webRequest.CreatedDate);
+            parameters.Add("_created_date", DateTime.UtcNow);
             parameters.Add("_created_by", webRequest.CreatedBy);
             parameters.Add("_server", webRequest.Server);
             parameters.Add("_response_code", webRequest.ResponseCode);

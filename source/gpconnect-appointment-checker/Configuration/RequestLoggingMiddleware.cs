@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Request.Logging;
+using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Configuration.Infrastructure;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace gpconnect_appointment_checker.Configuration
 {
@@ -8,16 +14,14 @@ namespace gpconnect_appointment_checker.Configuration
     {
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
-        //private readonly ILogService _logService;
 
-        public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory/*, ILogService logService*/)
+        public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
         {
             _next = next;
             _logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
-            //_logService = logService;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, ILogService logService)
         {
             try
             {
@@ -25,21 +29,20 @@ namespace gpconnect_appointment_checker.Configuration
             }
             finally
             {
-                //_logService.AddWebRequestLog(new WebRequest
-                //{
-                //    CreatedBy = context.User.GetClaimValue("DisplayName"),
-                //    CreatedDate = DateTime.UtcNow,
-                //    Description = "",
-                //    Ip = context.Connection.LocalIpAddress.ToString(),
-                //    ReferrerUrl = context.Request.Headers["Referer"].ToString(),
-                //    ResponseCode = context.Response.StatusCode,
-                //    Server = context.Request.Host.Host,
-                //    SessionId = context.Session.Id,
-                //    Url = context.Request?.Path.Value,
-                //    UserSessionId = context.User.GetClaimValue("UserSessionId").StringToInteger(0),
-                //    UserId = context.User.GetClaimValue("UserId").StringToInteger(0),
-                //    UserAgent = context.Request.Headers["User-Agent"].ToString()
-                //});
+                logService.AddWebRequestLog(new WebRequest
+                {
+                    CreatedBy = context.User?.GetClaimValue("DisplayName"),
+                    Url = context.Request?.Path.Value,
+                    Description = "",
+                    Ip = context.Connection?.LocalIpAddress.ToString(),
+                    Server = context.Request?.Host.Host,
+                    SessionId = context.GetSessionId(),
+                    ReferrerUrl = context.Request?.Headers["Referer"].ToString(),
+                    ResponseCode = context.Response.StatusCode,
+                    UserSessionId = Convert.ToInt32(context.User.GetClaimValue("UserSessionId", nullIfEmpty: true)),
+                    UserId = Convert.ToInt32(context.User.GetClaimValue("UserId", nullIfEmpty: true)),
+                    UserAgent = context.Request?.Headers["User-Agent"].ToString()
+                });
             }
         }
     }
