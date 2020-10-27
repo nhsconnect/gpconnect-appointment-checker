@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.SDS
@@ -18,12 +19,14 @@ namespace gpconnect_appointment_checker.SDS
         private readonly ILogService _logService;
         private readonly IConfiguration _configuration;
         private readonly LdapConnection _connection;
+        private readonly IHttpContextAccessor _context;
 
-        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration)
+        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
             _logger = logger;
             _configuration = configuration;
             _logService = logService;
+            _context = context;
         }
 
         public async Task<T> ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
@@ -42,6 +45,9 @@ namespace gpconnect_appointment_checker.SDS
                     RequestPayload = $"{searchBase} {filter} {attributes}",
                     SpineMessageTypeId = (int)GPConnect.Constants.SpineMessageTypes.SpineLdapQuery
                 };
+                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
+                if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
+
                 var ldapConnection = await GetConnection();
                 var results = new Dictionary<string, object>();
                 var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.GPConnect
@@ -25,13 +26,15 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly ILogService _logService;
         private readonly IConfigurationService _configurationService;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IHttpContextAccessor _context;
 
-        public GPConnectQueryExecutionService(ILogger<GPConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory clientFactory)
+        public GPConnectQueryExecutionService(ILogger<GPConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory clientFactory, IHttpContextAccessor context)
         {
             _logger = logger;
             _configurationService = configurationService;
             _logService = logService;
             _clientFactory = clientFactory;
+            _context = context;
         }
 
         public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
@@ -41,6 +44,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
                 var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
+                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
+                if (userSessionId != null) loggingSpineMessage.UserSessionId = Convert.ToInt32(userSessionId);
                 var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
 
                 requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
@@ -86,6 +91,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
                 var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
+                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
+                if (userSessionId != null) loggingSpineMessage.UserSessionId = Convert.ToInt32(userSessionId);
 
                 var client = _clientFactory.CreateClient();
                 client.Timeout = new TimeSpan(0,0,30);

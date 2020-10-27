@@ -9,9 +9,9 @@ namespace gpconnect_appointment_checker.Helpers
             var claim = claims.FindFirst(claimKey);
             if (claim != null)
             {
-                if (string.IsNullOrEmpty(claim.Value))
+                if (!string.IsNullOrEmpty(claim.Value))
                 {
-                    return !nullIfEmpty ? defaultValue : claim.Value;
+                    return claim.Value;
                 }
             }
             return nullIfEmpty != true ? defaultValue : null;

@@ -20,9 +20,10 @@ namespace gpconnect_appointment_checker.Configuration
             return configuration;
         }
 
-        public static string GetConfigurationString(this IConfigurationSection configurationSetting, string defaultValue = "")
+        public static string GetConfigurationString(this IConfigurationSection configurationSetting, string defaultValue = "", bool throwExceptionIfEmpty = false)
         {
             var keyValueExists = configurationSetting.Exists() && !string.IsNullOrEmpty(configurationSetting.Value);
+            if (!keyValueExists && throwExceptionIfEmpty) throw new ArgumentNullException(configurationSetting.Key);
             return keyValueExists ? configurationSetting.Value : defaultValue;
         }
     }

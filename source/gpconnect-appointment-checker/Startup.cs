@@ -57,25 +57,20 @@ namespace gpconnect_appointment_checker
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme =
-                    Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString();
-                options.DefaultSignOutScheme =
-                    Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString();
+                options.DefaultChallengeScheme = Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
+                options.DefaultSignOutScheme = Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
             }).AddCookie().AddOpenIdConnect(
-                Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(),
-                displayName: Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(),
+                Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
+                displayName: Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
                 options =>
                 {
                     options.RequireHttpsMetadata = true;
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost;
-                    options.Authority = Configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString();
-                    options.MetadataAddress = Configuration.GetSection("SingleSignOn:metadata_endpoint")
-                        .GetConfigurationString();
-                    options.ClientId = Configuration.GetSection("SingleSignOn:client_id").GetConfigurationString();
-                    options.ClientSecret =
-                        Configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString();
-                    options.CallbackPath =
-                        Configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString();
+                    options.Authority = Configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.MetadataAddress = Configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.ClientId = Configuration.GetSection("SingleSignOn:client_id").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.ClientSecret = Configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.CallbackPath = Configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.ResponseType = OpenIdConnectResponseType.IdToken;
                     options.Scope.Add("email");
                     options.Scope.Add("profile");
@@ -89,10 +84,8 @@ namespace gpconnect_appointment_checker
                             var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
                             if (organisationDetails != null)
                             {
-                                var providerGpConnectDetails =
-                                    await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
-                                var organisation =
-                                    await _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
+                                var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
                                 var loggedOnUser = await _applicationService.LogonUser(new User
                                 {
                                     EmailAddress = context.Principal.GetClaimValue("Email"),
@@ -109,10 +102,8 @@ namespace gpconnect_appointment_checker
                                 {
                                     if (context.Principal.Identity is ClaimsIdentity identity)
                                     {
-                                        identity.AddClaim(new Claim("OrganisationName",
-                                            organisationDetails.OrganisationName));
-                                        identity.AddClaim(new Claim("UserSessionId",
-                                            loggedOnUser.UserSessionId.ToString()));
+                                        identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                                        identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                                         identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
                                         if (providerGpConnectDetails != null)
                                         {

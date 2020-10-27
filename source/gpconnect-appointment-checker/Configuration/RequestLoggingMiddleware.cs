@@ -1,12 +1,11 @@
-﻿using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using gpconnect_appointment_checker.Configuration.Infrastructure;
+using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.Configuration.Infrastructure;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace gpconnect_appointment_checker.Configuration
 {
