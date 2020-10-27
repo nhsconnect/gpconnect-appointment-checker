@@ -35,7 +35,6 @@ namespace gpconnect_appointment_checker
         public IConfiguration Configuration { get; }
         public ILdapService _ldapService { get; set; }
         public IApplicationService _applicationService { get; set; }
-        //public ILogService _logService { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -112,15 +111,6 @@ namespace gpconnect_appointment_checker
                                     }
                                 }
                             }
-                        },
-                        OnRedirectToIdentityProviderForSignOut = async context =>
-                        {
-                            //await _applicationService.LogoffUser(new User
-                            //{
-                            //    EmailAddress = context.HttpContext.User.GetClaimValue("Email"),
-                            //    UserSessionId = context.HttpContext.User.GetClaimValue("UserSessionId")
-                            //        .StringToInteger(0)
-                            //});
                         },
                         OnAuthenticationFailed = context =>
                         {

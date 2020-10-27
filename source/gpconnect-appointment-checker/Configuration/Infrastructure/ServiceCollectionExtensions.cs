@@ -15,6 +15,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AllowAnonymousToFolder("/Public");
                 options.Conventions.AddPageRoute("/Private/Search", "/Search");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
+                options.Conventions.AddPageRoute("/Public/Cookies", "/Cookies");
+                options.Conventions.AddPageRoute("/Public/Privacy", "/Privacy");
                 options.Conventions.AddPageRoute("/Public/Index", "");
             });
             services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
