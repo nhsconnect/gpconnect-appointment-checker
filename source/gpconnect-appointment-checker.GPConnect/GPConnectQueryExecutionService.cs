@@ -1,8 +1,11 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.GpConnect;
+using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -13,10 +16,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
-using gpconnect_appointment_checker.DTO.Request.Logging;
-using gpconnect_appointment_checker.Helpers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -41,15 +40,15 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
+                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
+                requestParameters.InteractionId = spineMessageType?.InteractionId;
+
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
                 var loggingSpineMessage = new SpineMessage { SpineMessageTypeId = requestParameters.SpineMessageTypeId };
                 var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
                 if (userSessionId != null) loggingSpineMessage.UserSessionId = Convert.ToInt32(userSessionId);
-                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
-
-                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
-                requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var client = _clientFactory.CreateClient();
                 AddRequiredRequestHeaders(requestParameters, client);

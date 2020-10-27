@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace gpconnect_appointment_checker.DTO.Response.Application
 {
@@ -18,6 +18,12 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         
         [JsonProperty("postalAddress")] 
         public string PostalAddress { get; set; }
+
+        public string AddressLine1 => PostalAddress.Split(",")[0];
+        public string AddressLine2 => PostalAddress.Split(",").Length == 2 ? PostalAddress.Split(",")[1] : string.Empty;
+        public string Locality => PostalAddress.Split(",").Length == 3 ? PostalAddress.Split(",")[2] : string.Empty;
+        public string City => PostalAddress.Split(",").Length == 4 ? PostalAddress.Split(",")[3] : string.Empty;
+        public string County => PostalAddress.Split(",").Length == 5 ? PostalAddress.Split(",")[4] : string.Empty;
 
         [JsonProperty("postalCode")] 
         public string PostalCode { get; set; }

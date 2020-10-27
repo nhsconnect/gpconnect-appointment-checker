@@ -1,6 +1,8 @@
-﻿using gpconnect_appointment_checker.DTO.Response.Application;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
@@ -14,11 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using gpconnect_appointment_checker.GPConnect.Constants;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using gpconnect_appointment_checker.DAL.Interfaces;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -77,6 +76,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnGet()
         {
+            var userCode = User.GetClaimValue("ProviderODSCode");
+            if (!string.IsNullOrEmpty(userCode)) ProviderODSCode = userCode;
             return Page();
         }
 
