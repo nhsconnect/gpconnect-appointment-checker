@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Targets;
 using System.Data;
+using NLog.Layouts;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -97,21 +98,25 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 DbType = DbType.String.ToString()
             });
 
-            //var exceptionLayout = new JsonLayout();
-            //exceptionLayout.Attributes.Add(new JsonAttribute("exception", "${exception:format=shortType,message,stacktrace:innerFormat=shortType,message}"));
-            //exceptionLayout.Attributes.Add(new JsonAttribute("innerException", new JsonLayout
-            //{
-            //    Attributes =
-            //    {
-            //        new JsonAttribute("type", "${exception:format=:innerFormat=Type:InnerExceptionSeparator=|}"),
-            //        new JsonAttribute("message", "${exception:format=:innerFormat=Message:InnerExceptionSeparator=|}")
-            //    }
-            //}));
+            var exceptionLayout = new JsonLayout();
+            exceptionLayout.Attributes.Add(new JsonAttribute("type", "${exception:format=Type}"));
+            exceptionLayout.Attributes.Add(new JsonAttribute("message", "${exception:format=Message}"));
+            exceptionLayout.Attributes.Add(new JsonAttribute("stacktrace", "${exception:format=Stackrace}"));
+            exceptionLayout.Attributes.Add(new JsonAttribute("innerException", new JsonLayout
+            {
+                Attributes =
+                {
+                    new JsonAttribute("type", "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
+                    new JsonAttribute("message", "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
+                    new JsonAttribute("stacktrace", "${exception:format=:innerFormat=StackTrace:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}")
+                },
+                RenderEmptyObject = false
+            }, false));
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
                 Name = "@Exception",
-                Layout = "${exception:format=shortType,message,stacktrace:innerFormat=shortType,message}",
+                Layout = exceptionLayout,
                 DbType = DbType.String.ToString()
             });
 

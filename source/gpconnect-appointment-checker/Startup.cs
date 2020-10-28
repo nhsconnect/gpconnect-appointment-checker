@@ -78,40 +78,40 @@ namespace gpconnect_appointment_checker
                     options.Events = new OpenIdConnectEvents
                     {
                         OnTokenValidated = async context =>
-                        {
-                            var odsCode = context.Principal.GetClaimValue("ODS");
-                            var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
-                            if (organisationDetails != null)
-                            {
-                                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
-                                var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
-                                var loggedOnUser = await _applicationService.LogonUser(new User
-                                {
-                                    EmailAddress = context.Principal.GetClaimValue("Email"),
-                                    DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                                    OrganisationId = organisation.OrganisationId
-                                });
+                         {
+                             var odsCode = context.Principal.GetClaimValue("ODS");
+                             var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
+                             if (organisationDetails != null)
+                             {
+                                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
+                                 var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                                 var loggedOnUser = await _applicationService.LogonUser(new User
+                                 {
+                                     EmailAddress = context.Principal.GetClaimValue("Email"),
+                                     DisplayName = context.Principal.GetClaimValue("DisplayName"),
+                                     OrganisationId = organisation.OrganisationId
+                                 });
 
-                                if (!loggedOnUser.IsAuthorised)
-                                {
-                                    context.Response.Redirect("/AccessDenied");
-                                    context.HandleResponse();
-                                }
-                                else
-                                {
-                                    if (context.Principal.Identity is ClaimsIdentity identity)
-                                    {
-                                        identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                                        identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                                        identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                                        if (providerGpConnectDetails != null)
-                                        {
-                                            identity.AddClaim(new Claim("ProviderODSCode", odsCode));
-                                        }
-                                    }
-                                }
-                            }
-                        },
+                                 if (!loggedOnUser.IsAuthorised)
+                                 {
+                                     context.Response.Redirect("/AccessDenied");
+                                     context.HandleResponse();
+                                 }
+                                 else
+                                 {
+                                     if (context.Principal.Identity is ClaimsIdentity identity)
+                                     {
+                                         identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                                         identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                                         identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                                         if (providerGpConnectDetails != null)
+                                         {
+                                             identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                                         }
+                                     }
+                                 }
+                             }
+                         },
                         OnAuthenticationFailed = context =>
                         {
                             context.Response.Redirect("/AccessDenied");
