@@ -9,7 +9,9 @@ insert into configuration.spine
     organisation_id,
     party_key,
     asid,
-    timeout_seconds
+    timeout_seconds,
+    client_cert,
+    client_private_key
 )
 values
 (
@@ -22,5 +24,7 @@ values
 	1,
 	'ABC-123456',
 	'100000000001',
-	30
+	30,
+	null,
+	null
 );
