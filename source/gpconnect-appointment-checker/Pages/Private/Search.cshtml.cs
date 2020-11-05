@@ -39,7 +39,7 @@ namespace gpconnect_appointment_checker.Pages
         public string SearchAtResultsText { get; set; }
         [BindProperty]
         public string SearchOnBehalfOfResultsText { get; set; }
-        [BindProperty] 
+        [BindProperty]
         public string SelectedDateRange { get; set; }
 
         public double SearchDuration { get; set; }
@@ -61,17 +61,17 @@ namespace gpconnect_appointment_checker.Pages
         protected ILdapService _ldapService;
         protected IApplicationService _applicationService;
         protected ITokenService _tokenService;
-        protected IGPConnectQueryExecutionService _queryExecutionService;
+        protected IGpConnectQueryExecutionService _queryExecutionService;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGPConnectQueryExecutionService queryExecutionService, IApplicationService applicationService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _ldapService = ldapService;
             _tokenService = tokenService;
-           _queryExecutionService = queryExecutionService;
-           _applicationService = applicationService;
+            _queryExecutionService = queryExecutionService;
+            _applicationService = applicationService;
         }
 
         public IActionResult OnGet()
@@ -99,7 +99,6 @@ namespace gpconnect_appointment_checker.Pages
             return RedirectToPage("Search");
         }
 
-
         private async Task GetSearchResults()
         {
             var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
@@ -110,16 +109,13 @@ namespace gpconnect_appointment_checker.Pages
 
             if (ProviderODSCodeFound && ConsumerODSCodeFound)
             {
-                _applicationService.SynchroniseOrganisation(providerOrganisationDetails);
-                _applicationService.SynchroniseOrganisation(consumerOrganisationDetails);
-
                 //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
                 //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
                 var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
                 ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
-                if (ProviderEnabledForGpConnectAppointmentManagement)
+                if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                 {
                     var providerAsId = await _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
                     ProviderASIDPresent = providerAsId != null;
@@ -128,8 +124,8 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         providerGpConnectDetails.asid = providerAsId.asid;
                         await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                        SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {providerOrganisationDetails.PostalAddress} {providerOrganisationDetails.PostalCode}";
-                        SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {consumerOrganisationDetails.PostalAddress} {consumerOrganisationDetails.PostalCode}";
+                        SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {string.Join(", ", providerOrganisationDetails.PostalAddressFields)} {providerOrganisationDetails.PostalCode}";
+                        SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {string.Join(", ", consumerOrganisationDetails.PostalAddressFields)} {consumerOrganisationDetails.PostalCode}";
                     }
                 }
             }
@@ -147,7 +143,7 @@ namespace gpconnect_appointment_checker.Pages
                 //Step 3 - CALL PROVIDER METADATA ENDPOINT
                 //Get capability statement
                 var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.ssp_hostname);
-                CapabilityStatementOk = capabilityStatement.Issue == null;
+                CapabilityStatementOk = (capabilityStatement != null && capabilityStatement.Issue == null) || capabilityStatement != null;
 
                 if (CapabilityStatementOk)
                 {
@@ -169,9 +165,12 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 else
                 {
-                    ProviderErrorDisplay = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-                    ProviderErrorCode = capabilityStatement.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                    ProviderErrorDiagnostics = capabilityStatement.Issue.FirstOrDefault()?.Diagnostics;
+                    if (capabilityStatement?.Issue != null)
+                    {
+                        ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+                        ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                        ProviderErrorDiagnostics = capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics;
+                    }
                 }
             }
         }
@@ -186,7 +185,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 var week = new SelectListItem
                 {
-                    Text = $"{firstDayOfCurrentWeek:ddd d-MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d-MMM}",
+                    Text = $"{firstDayOfCurrentWeek:ddd d MMM} - {firstDayOfCurrentWeek.AddDays(6):ddd d MMM}",
                     Value = $"{firstDayOfCurrentWeek:d-MMM-yyyy}:{firstDayOfCurrentWeek.AddDays(6):d-MMM-yyyy}"
                 };
                 dateRange.Add(week);

@@ -33,7 +33,7 @@ namespace gpconnect_appointment_checker
                     webBuilder.ConfigureServices(services =>
                     {
                         services.AddScoped<ISDSQueryExecutionService, SDSQueryExecutionService>();
-                        services.AddScoped<IGPConnectQueryExecutionService, GPConnectQueryExecutionService>();
+                        services.AddScoped<IGpConnectQueryExecutionService, GpConnectQueryExecutionService>();
                         services.AddScoped<IDataService, DataService>();
                         services.AddScoped<IConfigurationService, ConfigurationService>();
                         services.AddScoped<IAuditService, AuditService>();

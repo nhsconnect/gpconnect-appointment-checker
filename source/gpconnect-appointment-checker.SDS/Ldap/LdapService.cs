@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.SDS
@@ -34,8 +35,8 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
-                var results = await _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
+                var results = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 if (results != null)
                 {
                     _applicationService.SynchroniseOrganisation(results);
@@ -54,8 +55,8 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode);
-                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
             catch (Exception exc)
@@ -70,8 +71,8 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", odsCode).Replace("{partyKey}", partyKey);
-                var result = await _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
             catch (Exception exc)

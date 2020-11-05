@@ -1,15 +1,14 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.SDS.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -29,12 +28,12 @@ namespace gpconnect_appointment_checker.SDS
             _context = context;
         }
 
-        public async Task<T> ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
+        public T ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
         {
-            return await ExecuteLdapQuery<T>(searchBase, filter, null);
+            return ExecuteLdapQuery<T>(searchBase, filter, null);
         }
 
-        public async Task<T> ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class
+        public T ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class
         {
             try
             {
@@ -48,7 +47,7 @@ namespace gpconnect_appointment_checker.SDS
                 var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
                 if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
 
-                var ldapConnection = await GetConnection();
+                var ldapConnection = GetConnection();
                 var results = new Dictionary<string, object>();
                 var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
 
@@ -59,7 +58,7 @@ namespace gpconnect_appointment_checker.SDS
 
                     foreach (var attribute in attributeSet)
                     {
-                        results.Add(attribute.Name, attribute.StringValue);
+                        results.TryAdd(attribute.Name, attribute.StringValue);
                     }
                 }
 
@@ -82,36 +81,28 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        private async Task<ILdapConnection> GetConnection()
+        private ILdapConnection GetConnection()
         {
             try
             {
                 var ldapConn = _connection;
-
-                if (ldapConn == null)
+                var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
+                var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
+                if (ldapConn == null && !string.IsNullOrEmpty(hostName) && hostPort > 0)
                 {
-                    string userName = string.Empty;
-                    string password = string.Empty;
-
                     ldapConn = new LdapConnection
                     {
-                        SecureSocketLayer = bool.TryParse(_configuration.GetSection("Spine:sds_use_ldaps").Value, out _),
+                        SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
                         ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
                     };
-                    ldapConn.Connect(_configuration.GetSection("Spine:sds_hostname").Value, int.Parse(_configuration.GetSection("Spine:sds_port").Value));
-                    ldapConn.Bind(userName, password);
+                    ldapConn.Connect(hostName, hostPort);
                 }
 
                 return ldapConn;
             }
-            catch (TimeoutException timeoutException)
+            catch (LdapException ldapException)
             {
-                _logger.LogError("A timeout error has occurred", timeoutException);
-                throw;
-            }
-            catch (Exception exc)
-            {
-                _logger.LogError("An error has occurred while attempting to establish a connection to the LDAP server", exc);
+                _logger.LogError("An error has occurred while attempting to establish a connection to the LDAP server", ldapException);
                 throw;
             }
         }

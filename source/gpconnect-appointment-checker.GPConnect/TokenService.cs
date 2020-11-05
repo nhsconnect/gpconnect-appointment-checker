@@ -67,7 +67,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
                     SspTo = providerSpineMessage.asid,
                     UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
-                    SspHostname = _configuration.GetSection("Spine:ssp_hostname").Value,
+                    SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
                     ConsumerODSCode = consumerOrganisationDetails.ODSCode,
                     ProviderODSCode = providerOrganisationDetails.ODSCode,
                     InteractionId = spineMessageType?.InteractionId,

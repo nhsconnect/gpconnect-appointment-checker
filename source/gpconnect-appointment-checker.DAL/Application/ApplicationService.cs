@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,11 +38,11 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_ods_code", organisation.ODSCode);
             parameters.Add("_organisation_type_name", organisation.OrganisationTypeCode);
             parameters.Add("_organisation_name", organisation.OrganisationName);
-            parameters.Add("_address_line_1", organisation.AddressLine1);
-            parameters.Add("_address_line_2", organisation.AddressLine2);
-            parameters.Add("_locality", organisation.Locality);
-            parameters.Add("_city", organisation.City);
-            parameters.Add("_county", organisation.County);
+            parameters.Add("_address_line_1", organisation.PostalAddressFields[0]);
+            parameters.Add("_address_line_2", organisation.PostalAddressFields[1]);
+            parameters.Add("_locality", organisation.PostalAddressFields[2]);
+            parameters.Add("_city", organisation.PostalAddressFields[3]);
+            parameters.Add("_county", organisation.PostalAddressFields.Length > 4 ? organisation.PostalAddressFields[4] : string.Empty);
             parameters.Add("_postcode", organisation.PostalCode);
             await _dataService.ExecuteFunction(functionName, parameters);
         }

@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services)
+        public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
             services.AddSession();
             services.AddControllersWithViews();
@@ -20,7 +22,10 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Public/Index", "");
             });
             services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
+            HttpClientExtensions.AddHttpClientServices(services, configuration, env);
             return services;
         }
+
+        
     }
 }

@@ -21,7 +21,7 @@ namespace gpconnect_appointment_checker
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
@@ -30,15 +30,17 @@ namespace gpconnect_appointment_checker
                 throw new ArgumentException($"Environment variable ConnectionStrings:{ConnectionStrings.DefaultConnection} is not present");
 
             Configuration = configuration;
+            WebHostEnvironment = env;
         }
 
+        public IWebHostEnvironment WebHostEnvironment { get; }
         public IConfiguration Configuration { get; }
         public ILdapService _ldapService { get; set; }
         public IApplicationService _applicationService { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureApplicationServices();
+            services.ConfigureApplicationServices(Configuration, WebHostEnvironment);
             services.ConfigureLoggingServices(Configuration);
             AddAuthenticationServices(services);
             MappingExtensions.ConfigureMappingServices();

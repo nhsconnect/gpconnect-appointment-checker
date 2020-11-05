@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-
-namespace gpconnect_appointment_checker.SDS.Interfaces
+﻿namespace gpconnect_appointment_checker.SDS.Interfaces
 {
     public interface ISDSQueryExecutionService
     {
-        Task<T> ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class;
-        Task<T> ExecuteLdapQuery<T>(string searchBase, string filter) where T : class;
+        T ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class;
+        T ExecuteLdapQuery<T>(string searchBase, string filter) where T : class;
     }
 }
