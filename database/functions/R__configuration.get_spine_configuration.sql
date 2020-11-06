@@ -13,7 +13,8 @@ returns table
     asid varchar(20),
     timeout_seconds integer,
     client_cert varchar(8000),
-    client_private_key varchar(8000)
+    client_private_key varchar(8000),
+    server_ca_certchain varchar(8000)
 )
 as $$
 begin
@@ -30,7 +31,8 @@ begin
 	    s.asid,
 	    s.timeout_seconds,
 	    s.client_cert,
-	    s.client_private_key
+	    s.client_private_key,
+	    s.server_ca_certchain
 	from configuration.spine s;
 	
 end;
