@@ -1,7 +1,7 @@
 ﻿@page
 @model SearchModel
 
-<form method="post">
+<form method="post" id="search-input-form">
     <partial name="SearchInput" />
     @if (Model.SearchResults != null)
     {

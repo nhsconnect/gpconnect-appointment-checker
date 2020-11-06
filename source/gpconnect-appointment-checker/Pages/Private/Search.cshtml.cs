@@ -81,7 +81,7 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSearchAsync()
         {
             if (ModelState.IsValid)
             {
@@ -96,7 +96,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
-            return RedirectToPage("Search");
+            return RedirectToPage();
         }
 
         private async Task GetSearchResults()
