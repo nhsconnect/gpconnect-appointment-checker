@@ -36,7 +36,7 @@ namespace gpconnect_appointment_checker.Configuration
                     CreatedBy = context.User?.GetClaimValue("DisplayName"),
                     Url = context.Request?.Path.Value,
                     Description = "",
-                    Ip = "127.0.0.1",//context.Connection?.LocalIpAddress.ToString(),
+                    Ip = context.Connection?.LocalIpAddress.ToString(),
                     Server = context.Request?.Host.Host,
                     SessionId = context.GetSessionId(),
                     ReferrerUrl = context.Request?.Headers["Referer"].ToString(),

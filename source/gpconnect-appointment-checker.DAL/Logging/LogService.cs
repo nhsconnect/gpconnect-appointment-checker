@@ -52,12 +52,8 @@ namespace gpconnect_appointment_checker.DAL.Logging
         {
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();
-            if (webRequest.UserId > 0) 
-                parameters.Add("_user_id", webRequest.UserId);
-            parameters.Add("_user_id", null);
-            if (webRequest.UserSessionId > 0) 
-                parameters.Add("_user_session_id", webRequest.UserId);
-            parameters.Add("_user_session_id", null);
+            parameters.Add("_user_id", webRequest.UserId > 0 ? webRequest.UserId : null);
+            parameters.Add("_user_session_id", webRequest.UserSessionId > 0 ? webRequest.UserSessionId : null);
             parameters.Add("_url", webRequest.Url);
             parameters.Add("_referrer_url", webRequest.ReferrerUrl);
             parameters.Add("_description", webRequest.Description);
