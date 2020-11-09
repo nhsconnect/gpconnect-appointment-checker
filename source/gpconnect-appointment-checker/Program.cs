@@ -1,4 +1,5 @@
 using gpconnect_appointment_checker.Configuration;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Application;
 using gpconnect_appointment_checker.DAL.Audit;
@@ -41,7 +42,7 @@ namespace gpconnect_appointment_checker
                         services.AddScoped<IApplicationService, ApplicationService>();
                         services.AddScoped<ILdapService, LdapService>();
                         services.AddScoped<ILogService, LogService>();
-                        services.AddHttpClient();
+                        services.AddSingleton<ILoggerManager, LoggerManager>();
                     });
                     webBuilder.UseStartup<Startup>();
                 }).ConfigureAppConfiguration((builderContext, config) =>

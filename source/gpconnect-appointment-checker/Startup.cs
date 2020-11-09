@@ -40,9 +40,10 @@ namespace gpconnect_appointment_checker
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+            AddAuthenticationServices(services); 
             services.ConfigureApplicationServices(Configuration, WebHostEnvironment);
             services.ConfigureLoggingServices(Configuration);
-            AddAuthenticationServices(services);
             MappingExtensions.ConfigureMappingServices();
         }
 
@@ -50,7 +51,7 @@ namespace gpconnect_appointment_checker
         {
             _ldapService = ldapService;
             _applicationService = applicationService;
-            app.ConfigureApplicationBuilderServices(env, contextAccessor);
+            app.ConfigureApplicationBuilderServices(env);
         }
 
         public void AddAuthenticationServices(IServiceCollection services)

@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
+using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
@@ -62,8 +63,9 @@ namespace gpconnect_appointment_checker.Pages
         protected IApplicationService _applicationService;
         protected ITokenService _tokenService;
         protected IGpConnectQueryExecutionService _queryExecutionService;
+        protected readonly ILoggerManager _loggerManager;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, ILoggerManager loggerManager = null)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -72,6 +74,10 @@ namespace gpconnect_appointment_checker.Pages
             _tokenService = tokenService;
             _queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
+            if (null != loggerManager)
+            {
+                _loggerManager = loggerManager;
+            }
         }
 
         public IActionResult OnGet()

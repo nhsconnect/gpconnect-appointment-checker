@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
+using NLog.Layouts;
 using NLog.Targets;
 using System.Data;
-using NLog.Layouts;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -101,7 +102,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             var exceptionLayout = new JsonLayout();
             exceptionLayout.Attributes.Add(new JsonAttribute("type", "${exception:format=Type}"));
             exceptionLayout.Attributes.Add(new JsonAttribute("message", "${exception:format=Message}"));
-            exceptionLayout.Attributes.Add(new JsonAttribute("stacktrace", "${exception:format=Stackrace}"));
+            exceptionLayout.Attributes.Add(new JsonAttribute("stacktrace", "${exception:format=StackTrace}"));
             exceptionLayout.Attributes.Add(new JsonAttribute("innerException", new JsonLayout
             {
                 Attributes =
