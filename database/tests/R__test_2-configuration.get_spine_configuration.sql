@@ -9,7 +9,8 @@ select
 	asid,
 	timeout_seconds,
 	client_cert,
-	client_private_key
+	client_private_key,
+	server_ca_certchain
 from configuration.get_spine_configuration
 (
 );
