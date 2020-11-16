@@ -10,6 +10,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Configuration
         public string sds_hostname { get; set; }
         public string client_cert { get; set; }
         public string client_private_key { get; set; }
+        public string server_ca_certchain { get; set; }
         public int sds_port { get; set; }
         public bool sds_use_ldaps { get; set; }
         public int organisation_id { get; set; }

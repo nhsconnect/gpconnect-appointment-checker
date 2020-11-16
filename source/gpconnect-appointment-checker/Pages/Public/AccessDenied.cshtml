@@ -1,4 +1,5 @@
 ﻿@page
+@model AccessDeniedModel
 @addTagHelper *, gpconnect-appointment-checker
 @{
     ViewData["Title"] = "GP Connect Appointment Checker";
@@ -8,7 +9,7 @@
     <div class="nhsuk-grid-column-two-thirds">
         <div class="nhsuk-warning-callout">
             <h3 class="nhsuk-warning-callout__label">Access to GP Connect Appointment Checker</h3>
-            <p>You must be authorised to use this application. Please contact <a href="mailto:gpconnect@nhs.net">gpconnect@nhs.net</a> to request access.</p>
+            <p>You must be authorised to use this application. Please contact <a href="mailto:@Html.Raw(Model.GetAccessEmailAddress)">@Model.GetAccessEmailAddress</a> to request access.</p>
         </div>
     </div>
 </div>
