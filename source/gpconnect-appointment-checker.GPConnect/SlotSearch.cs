@@ -1,5 +1,4 @@
 ﻿using gpconnect_appointment_checker.DTO.Request.GpConnect;
-using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.Helpers;

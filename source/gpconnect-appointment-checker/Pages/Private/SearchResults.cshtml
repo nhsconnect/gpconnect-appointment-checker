@@ -9,9 +9,9 @@
         </div>
         @if (Model.SearchResults.Count > 0)
         {
-            <div class="nhsuk-table">
+            <div class="nhsuk-table__panel-with-heading-tab">
                 <table class="nhsuk-table">
-                    <caption class="nhsuk-table__caption">Available Appointment Slots</caption>
+                    <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">Available Appointment Slots</caption>
                     <thead role="rowgroup" class="nhsuk-table__head">
                         <tr role="row">
                             <th role="columnheader" class="" scope="col">Appointment date</th>
@@ -54,7 +54,11 @@
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].Duration.UnitsFormatter("mins")</td>
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)<div>@Model.SearchResults[i].PractitionerRole</div><div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div></td>
+                                <td class="nhsuk-table__cell">
+                                    @Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)
+                                    <div>@Model.SearchResults[i].PractitionerRole</div>
+                                    <div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div>
+                                </td>
                             </tr>
                         }
                     </tbody>
