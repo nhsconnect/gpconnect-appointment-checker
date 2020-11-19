@@ -1,4 +1,4 @@
-FROM flyway/flyway:7.0 AS base
+FROM flyway/flyway:7 AS base
 
 COPY schema/* sql/schema/
 COPY functions/* sql/functions/
