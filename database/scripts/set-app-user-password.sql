@@ -1,0 +1,1 @@
+alter user app_user with password 'XXXXXXXXXXXX';
