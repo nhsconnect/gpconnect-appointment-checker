@@ -2,11 +2,7 @@
 @using gpconnect_appointment_checker.Helpers
 @model LoginModel
 
-@if (!User.Identity.IsAuthenticated)
-{
-    <a asp-action="Login" asp-controller="Auth" class="nhsuk-button">Sign in</a>
-}
-else
+@if (User.Identity.IsAuthenticated)
 {
     <div style="color: #ffffff; font-style: italic">
         @User.GetClaimValue("Email")<br />

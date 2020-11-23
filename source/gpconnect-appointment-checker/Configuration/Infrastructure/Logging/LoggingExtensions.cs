@@ -1,13 +1,11 @@
-﻿using gpconnect_appointment_checker.Helpers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Layouts;
 using NLog.Targets;
 using System.Data;
+using static gpconnect_appointment_checker.Helpers.ApplicationHelper;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -145,12 +143,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 Layout = "${var:applicationVersion}|${date}|${level:uppercase=true}|${message}|${logger}|${callsite:filename=true}|${exception:format=stackTrace}|${var:userId}|${var:userSessionId}"
             };
             return consoleTarget;
-        }
-
-        public static string GetSessionId(this HttpContext context)
-        {
-            var hasSession = context.Features.Get<ISessionFeature>()?.Session != null;
-            return hasSession ? context.Session != null ? context.Session.Id : string.Empty : string.Empty;
         }
     }
 }

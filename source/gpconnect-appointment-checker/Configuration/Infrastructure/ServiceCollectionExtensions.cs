@@ -8,7 +8,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
-            services.AddSession();
+            services.AddSession(s =>
+            {
+                s.IdleTimeout = new System.TimeSpan(0, 30, 0);
+            });
+
+            
             services.AddControllersWithViews();
             services.AddHttpContextAccessor();
             services.AddRazorPages(options =>

@@ -61,7 +61,11 @@ namespace gpconnect_appointment_checker
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
                 options.DefaultSignOutScheme = Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
-            }).AddCookie().AddOpenIdConnect(
+            }).AddCookie(s => {
+                s.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                s.SlidingExpiration = true;
+                })
+            .AddOpenIdConnect(
                 Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
                 displayName: Configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
                 options =>

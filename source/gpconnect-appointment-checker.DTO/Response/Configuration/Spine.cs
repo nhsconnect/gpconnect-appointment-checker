@@ -13,6 +13,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Configuration
         public string server_ca_certchain { get; set; }
         public int sds_port { get; set; }
         public bool sds_use_ldaps { get; set; }
+        public bool sds_use_mutualauth { get; set; }
         public int organisation_id { get; set; }
         [JsonProperty("nhsMHSPartyKey")]
         public string party_key { get; set; }

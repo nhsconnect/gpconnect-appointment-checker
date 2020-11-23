@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -41,15 +38,15 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 
-                var clientCertData = ExtractCertInstances(clientCert);
-                var clientPrivateKeyData = ExtractKeyInstance(clientPrivateKey);
+                var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
+                var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
                 var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
                 var privateKey = RSA.Create();
                 privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                 var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                 var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
-                var serverCertData = ExtractCertInstances(serverCert);
+                var serverCertData = Helpers.CertificateHelper.ExtractCertInstances(serverCert);
                 var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
                 var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
 
@@ -75,28 +72,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             if (chain.ChainStatus.Where(chainStatus => chainStatus.Status != X509ChainStatusFlags.NoError).All(chainStatus => chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)) return false;
             var providedRoot = chain.ChainElements[^1];
             return x509ServerCertificateRootCa.Thumbprint == providedRoot.Certificate.Thumbprint;
-        }
-
-        private static List<byte[]> ExtractCertInstances(string certData)
-        {
-            const string BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
-            const string END_CERTIFICATE = "-----END CERTIFICATE-----";
-
-            var matchesFound = Regex.Matches(certData, BEGIN_CERTIFICATE + "(.+?)" + END_CERTIFICATE, RegexOptions.Singleline)
-                .Select(m => Convert.FromBase64String(m.Groups[1].Value))
-                .ToList();
-            return matchesFound;
-        }
-
-        private static byte[] ExtractKeyInstance(string keyData)
-        {
-            const string BEGIN_KEY = "-----BEGIN RSA PRIVATE KEY-----";
-            const string END_KEY = "-----END RSA PRIVATE KEY-----";
-
-            var matchesFound = Regex.Matches(keyData, BEGIN_KEY + "(.+?)" + END_KEY, RegexOptions.Singleline)
-                .SelectMany(m => Convert.FromBase64String(m.Groups[1].Value))
-                .ToArray();
-            return matchesFound;
-        }
+        }        
     }
 }

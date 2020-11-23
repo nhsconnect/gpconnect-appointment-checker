@@ -17,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1CF9EC71
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.AWSLambda", "gpconnect-appointment-checker.AWSLambda\gpconnect-appointment-checker.AWSLambda.csproj", "{CE1B3B35-BD8A-4E1B-B40D-A9A9CA2F314C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.IntegrationTest", "gpconnect-appointment-checker.IntegrationTest\gpconnect-appointment-checker.IntegrationTest.csproj", "{23961DE7-773E-4976-974C-90EC22F8235F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.IntegrationTest", "gpconnect-appointment-checker.IntegrationTest\gpconnect-appointment-checker.IntegrationTest.csproj", "{23961DE7-773E-4976-974C-90EC22F8235F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.Helpers", "gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{23961DE7-773E-4976-974C-90EC22F8235F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23961DE7-773E-4976-974C-90EC22F8235F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23961DE7-773E-4976-974C-90EC22F8235F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
