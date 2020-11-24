@@ -53,9 +53,9 @@ namespace gpconnect_appointment_checker.Configuration
 
         public override void Load()
         {
-            LoadConfiguration<Spine>("configuration.get_spine_configuration", "Spine");
-            LoadConfiguration<General>("configuration.get_general_configuration", "General");
-            LoadConfiguration<Sso>("configuration.get_sso_configuration", "SingleSignOn");
+            LoadConfiguration<Spine>("SELECT * FROM configuration.spine", "Spine");
+            LoadConfiguration<General>("SELECT * FROM configuration.general", "General");
+            LoadConfiguration<Sso>("SELECT * FROM configuration.sso", "SingleSignOn");
         }
 
         private void LoadConfiguration<T>(string functionName, string configurationPrefix) where T : class
