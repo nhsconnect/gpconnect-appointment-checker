@@ -132,7 +132,7 @@ namespace gpconnect_appointment_checker.SDS
                         _logger.LogInformation($"Imported Client Private Key byte data into RSA key");
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                         _logger.LogInformation($"Generated x509ClientCertificate with Private Key");
-                        var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
+                        var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
                         _logger.LogInformation($"Generated PFX formatted Certificate of x509ClientCertificate with Private Key");
 
                         _logger.LogInformation($"Initiating Server Cert Validation Delegate with PFX formatted certificate");
@@ -147,7 +147,7 @@ namespace gpconnect_appointment_checker.SDS
                 }
 
                 return ldapConn;
-            }
+            }            
             catch (LdapException ldapException)
             {
                 _logger.LogError("An error has occurred while attempting to establish a connection to the LDAP server", ldapException);
@@ -193,26 +193,30 @@ namespace gpconnect_appointment_checker.SDS
     string[] acceptableIssuers)
         {
             _logger.LogInformation("Client is selecting a local certificate.");
-            if (acceptableIssuers != null &&
-                acceptableIssuers.Length > 0 &&
-                localCertificates != null &&
-                localCertificates.Count > 0)
-            {
-                // Use the first certificate that is from an acceptable issuer.
-                foreach (X509Certificate certificate in localCertificates)
-                {
-                    string issuer = certificate.Issuer;
-                    if (Array.IndexOf(acceptableIssuers, issuer) != -1)
-                        return certificate;
-                }
-            }
-            if (localCertificates != null &&
-                localCertificates.Count > 0)
-                return localCertificates[0];
+            return remoteCertificate;
+            
+            //if (acceptableIssuers != null &&
+            //    acceptableIssuers.Length > 0 &&
+            //    localCertificates != null &&
+            //    localCertificates.Count > 0)
+            //{
+            //    // Use the first certificate that is from an acceptable issuer.
+            //    foreach (X509Certificate certificate in localCertificates)
+            //    {
+            //        _logger.LogInformation($"Certificate in collection - subject is {certificate.Subject}");
+            //        _logger.LogInformation($"Certificate in collection - issuer is {certificate.Issuer}");
 
-            return null;
+            //        string issuer = certificate.Issuer;
+            //        if (Array.IndexOf(acceptableIssuers, issuer) != -1)
+            //            return certificate;
+            //    }
+            //}
+            //if (localCertificates != null &&
+            //    localCertificates.Count > 0)
+            //    return localCertificates[0];
+
+            //return null;
         }
-
 
         public bool ValidateServerCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
         {            
