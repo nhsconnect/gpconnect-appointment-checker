@@ -55,7 +55,13 @@ namespace gpconnect_appointment_checker.SDS
 
                 var ldapConnection = GetConnection();
                 var results = new Dictionary<string, object>();
+                _logger.LogInformation("Logging immediately before the search takes place");
+                _logger.LogInformation($"searchBase: {searchBase}");
+                _logger.LogInformation($"filter: {filter}");
                 var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
+
+                _logger.LogInformation("Logging immediately after the search takes place");
+                _logger.LogInformation($"Number of searchresults found: {searchResults.Count}");                
 
                 while (searchResults.HasMore())
                 {
@@ -79,6 +85,11 @@ namespace gpconnect_appointment_checker.SDS
                     return result;
                 }
                 return null;
+            }
+            catch(InterThreadException interThreadException)
+            {
+                _logger.LogError("An interThreadException has occurred while attempting to execute an LDAP query", interThreadException);
+                throw;
             }
             catch (Exception exc)
             {
@@ -138,20 +149,16 @@ namespace gpconnect_appointment_checker.SDS
 
                         _clientCertificate = pfxFormattedCertificate;
 
-                        _logger.LogInformation($"Initiating Server Cert Validation Delegate with PFX formatted certificate");
+                        _logger.LogInformation($"Initiating Server Cert Validation Delegate");
                         ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateServerCertificate(sender, certificate, chain, errors));
                         _logger.LogInformation($"Initiating Client Cert Selection Delegate");
                         ldapConn.UserDefinedClientCertSelectionDelegate += new Novell.Directory.Ldap.LocalCertificateSelectionCallback((sender, targetHost, certificateCollection, certificate, acceptableIssuers) => SelectLocalCertificate(sender, targetHost, certificateCollection, certificate, acceptableIssuers));
-
-
-
                     }
                     _logger.LogInformation($"Connecting to LDAP with the following parameters");
                     _logger.LogInformation($"Host: {hostName}");
                     _logger.LogInformation($"Port: {hostPort}");
                     ldapConn.Connect(hostName, hostPort);
                 }
-
                 return ldapConn;
             }            
             catch (LdapException ldapException)
