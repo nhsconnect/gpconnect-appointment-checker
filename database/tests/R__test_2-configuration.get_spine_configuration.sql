@@ -10,7 +10,8 @@ select
 	timeout_seconds,
 	client_cert,
 	client_private_key,
-	server_ca_certchain
+	server_ca_certchain,
+	sds_use_mutualauth
 from configuration.get_spine_configuration
 (
 );
