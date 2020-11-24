@@ -128,7 +128,7 @@ namespace gpconnect_appointment_checker.SDS
 
                         var privateKey = RSA.Create();
                         _logger.LogInformation($"Created empty default empty implementation of the RSA key");
-                        privateKey.ImportSubjectPublicKeyInfo(clientPrivateKeyData, out _);
+                        privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                         _logger.LogInformation($"Imported Client Private Key byte data into RSA key");
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                         _logger.LogInformation($"Generated x509ClientCertificate with Private Key");
