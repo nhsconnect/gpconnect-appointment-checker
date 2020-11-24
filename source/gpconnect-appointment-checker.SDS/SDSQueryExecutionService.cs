@@ -74,7 +74,7 @@ namespace gpconnect_appointment_checker.SDS
                 }
 
                 _logger.LogInformation($"Number of searchresults found: {results.Count}");
-
+                
                 if (results.Count > 0)
                 {
                     string jsonDictionary = JsonConvert.SerializeObject(results);
@@ -83,8 +83,13 @@ namespace gpconnect_appointment_checker.SDS
                     _logService.AddSpineMessageLog(logMessage);
 
                     var result = JsonConvert.DeserializeObject<T>(jsonDictionary);
+
+                    ldapConnection.Disconnect();
+
                     return result;
                 }
+
+                ldapConnection.Disconnect();
                 return null;
             }
             catch (Exception exc)
