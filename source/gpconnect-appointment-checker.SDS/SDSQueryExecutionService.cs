@@ -44,6 +44,7 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var sw = new Stopwatch();
+                T result = null;
                 sw.Start();
                 var logMessage = new SpineMessage
                 {
@@ -82,15 +83,14 @@ namespace gpconnect_appointment_checker.SDS
                     logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
                     _logService.AddSpineMessageLog(logMessage);
 
-                    var result = JsonConvert.DeserializeObject<T>(jsonDictionary);
-
-                    ldapConnection.Disconnect();
-
-                    return result;
+                    result = JsonConvert.DeserializeObject<T>(jsonDictionary);
                 }
 
-                ldapConnection.Disconnect();
-                return null;
+                if (ldapConnection.Connected)
+                {
+                    ldapConnection.Disconnect();
+                }
+                return result;
             }
             catch(InterThreadException interThreadException)
             {
