@@ -24,6 +24,7 @@ namespace gpconnect_appointment_checker.SDS
         private readonly IConfiguration _configuration;
         private readonly LdapConnection _connection;
         private readonly IHttpContextAccessor _context;
+        private X509Certificate _clientCertificate;
 
         public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
@@ -135,10 +136,15 @@ namespace gpconnect_appointment_checker.SDS
                         var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
                         _logger.LogInformation($"Generated PFX formatted Certificate of x509ClientCertificate with Private Key");
 
+                        _clientCertificate = pfxFormattedCertificate;
+
                         _logger.LogInformation($"Initiating Server Cert Validation Delegate with PFX formatted certificate");
-                        ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateServerCertificate(sender, pfxFormattedCertificate, chain, errors));
+                        ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateServerCertificate(sender, certificate, chain, errors));
                         _logger.LogInformation($"Initiating Client Cert Selection Delegate");
-                        ldapConn.UserDefinedClientCertSelectionDelegate += new Novell.Directory.Ldap.LocalCertificateSelectionCallback((sender, targetHost, certificateCollection, certificate, acceptableIssuers) => SelectLocalCertificate(sender, targetHost, certificateCollection, pfxFormattedCertificate, acceptableIssuers));
+                        ldapConn.UserDefinedClientCertSelectionDelegate += new Novell.Directory.Ldap.LocalCertificateSelectionCallback((sender, targetHost, certificateCollection, certificate, acceptableIssuers) => SelectLocalCertificate(sender, targetHost, certificateCollection, certificate, acceptableIssuers));
+
+
+
                     }
                     _logger.LogInformation($"Connecting to LDAP with the following parameters");
                     _logger.LogInformation($"Host: {hostName}");
@@ -170,30 +176,21 @@ namespace gpconnect_appointment_checker.SDS
             return remoteCertificate;
         }
 
-        public bool ValidateServerCertificate(
-      object sender,
-      X509Certificate certificate,
-      X509Chain chain,
-      SslPolicyErrors sslPolicyErrors)
+        public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
                 return true;
-
             _logger.LogInformation("Certificate error: {0}", sslPolicyErrors);
-
             return true;
         }
 
 
-        public X509Certificate SelectLocalCertificate(
-    object sender,
-    string targetHost,
-    X509CertificateCollection localCertificates,
-    X509Certificate remoteCertificate,
-    string[] acceptableIssuers)
+        public X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             _logger.LogInformation("Client is selecting a local certificate.");
-            return remoteCertificate;
+            _logger.LogInformation($"Client Cert subject is {_clientCertificate.Subject}");
+            _logger.LogInformation($"Client Cert issuer is {_clientCertificate.Issuer}");
+            return _clientCertificate;
             
             //if (acceptableIssuers != null &&
             //    acceptableIssuers.Length > 0 &&
