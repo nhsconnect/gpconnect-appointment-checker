@@ -31,10 +31,10 @@ namespace gpconnect_appointment_checker.SDS
 
         public Organisation GetOrganisationDetailsByOdsCode(string odsCode)
         {
+            var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
+            var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
             try
             {
-                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
                 var results = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 if (results != null)
                 {
@@ -44,7 +44,7 @@ namespace gpconnect_appointment_checker.SDS
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
+                _logger.LogError($"An error has occurred while attempting to execute an LDAP query - filter is {filter} - searchBase is {sdsQuery.SearchBase}", exc);
                 throw;
             }
         }

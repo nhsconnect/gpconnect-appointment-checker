@@ -40,7 +40,8 @@ namespace gpconnect_appointment_checker
                         services.AddScoped<IAuditService, AuditService>();
                         services.AddScoped<ITokenService, TokenService>();
                         services.AddScoped<IApplicationService, ApplicationService>();
-                        services.AddScoped<ILdapService, LdapService>();
+                        services.AddTransient<ILdapService, LdapService>();
+                        services.AddTransient<ILdapTokenService, LdapTokenService>();
                         services.AddScoped<ILogService, LogService>();
                         services.AddSingleton<ILoggerManager, LoggerManager>();
                     });

@@ -1,9 +1,8 @@
 using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.DTO.Request.Application;
 using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.SDS.Interfaces;
+using gpconnect_appointment_checker.SDS;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker
@@ -34,7 +32,6 @@ namespace gpconnect_appointment_checker
 
         public IWebHostEnvironment WebHostEnvironment { get; }
         public IConfiguration Configuration { get; }
-        public ILdapService _ldapService { get; set; }
         public IApplicationService _applicationService { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
@@ -46,9 +43,8 @@ namespace gpconnect_appointment_checker
             MappingExtensions.ConfigureMappingServices();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor, ILdapService ldapService, IAuditService auditService, IApplicationService applicationService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor, IAuditService auditService, IApplicationService applicationService)
         {
-            _ldapService = ldapService;
             _applicationService = applicationService;
             app.ConfigureApplicationBuilderServices(env);
         }
@@ -84,41 +80,11 @@ namespace gpconnect_appointment_checker
                     options.Events = new OpenIdConnectEvents
                     {
                         OnTokenValidated = context =>
-                         {
-                             var odsCode = context.Principal.GetClaimValue("ODS");
-                             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
-                             if (organisationDetails != null)
-                             {
-                                 var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
-                                 var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
-                                 var loggedOnUser = _applicationService.LogonUser(new User
-                                 {
-                                     EmailAddress = context.Principal.GetClaimValue("Email"),
-                                     DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                                     OrganisationId = organisation.OrganisationId
-                                 });
-
-                                 if (!loggedOnUser.IsAuthorised)
-                                 {
-                                     context.Response.Redirect("/AccessDenied");
-                                     context.HandleResponse();
-                                 }
-                                 else
-                                 {
-                                     if (context.Principal.Identity is ClaimsIdentity identity)
-                                     {
-                                         identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                                         identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                                         identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                                         if (providerGpConnectDetails != null)
-                                         {
-                                             identity.AddClaim(new Claim("ProviderODSCode", odsCode));
-                                         }
-                                     }
-                                 }
-                             }
-                             return Task.CompletedTask;
-                         },
+                        {
+                            var ldapTokenService = new LdapTokenService(services.BuildServiceProvider());
+                            var tokenValidation = ldapTokenService.ExecutionTokenValidation(context);
+                            return tokenValidation;
+                        },
                         OnAuthenticationFailed = context =>
                         {
                             context.Response.Redirect("/AccessDenied");
@@ -128,5 +94,7 @@ namespace gpconnect_appointment_checker
                     };
                 });
         }
+
+        
     }
 }
