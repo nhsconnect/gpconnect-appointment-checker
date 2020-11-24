@@ -53,15 +53,15 @@ namespace gpconnect_appointment_checker.Configuration
 
         public override void Load()
         {
-            LoadConfiguration<Spine>("SELECT * FROM configuration.spine", "Spine");
-            LoadConfiguration<General>("SELECT * FROM configuration.general", "General");
-            LoadConfiguration<Sso>("SELECT * FROM configuration.sso", "SingleSignOn");
+            LoadConfiguration<Spine>("configuration.get_spine_configuration", "Spine");
+            LoadConfiguration<General>("configuration.get_general_configuration", "General");
+            LoadConfiguration<Sso>("configuration.get_sso_configuration", "SingleSignOn");
         }
 
-        private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class
+        private void LoadConfiguration<T>(string functionName, string configurationPrefix) where T : class
         {
             using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
-            var result = connection.Query<T>(query).FirstOrDefault();
+            var result = connection.Query<T>(functionName).FirstOrDefault();
             var json = JsonConvert.SerializeObject(result);
             var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 

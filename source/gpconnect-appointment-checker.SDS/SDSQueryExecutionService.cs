@@ -119,16 +119,16 @@ namespace gpconnect_appointment_checker.SDS
                         var clientPrivateKey = _configuration.GetSection("spine:client_private_key").GetConfigurationString();
                         _logger.LogInformation($"Retrieved Client Private Key from Database as {clientPrivateKey}");
 
-                        var clientCertData = Helpers.CertificateHelper.ExtractCertInstances(clientCert);
+                        var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
                         _logger.LogInformation($"Extracted Client Certificate as Byte Array");
-                        var clientPrivateKeyData = Helpers.CertificateHelper.ExtractKeyInstance(clientPrivateKey);
+                        var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
                         _logger.LogInformation($"Extracted Client Private Key as Byte Array");
                         var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
                         _logger.LogInformation($"Generated x509ClientCertificate using Client Certificate Byte Array");
 
                         var privateKey = RSA.Create();
                         _logger.LogInformation($"Created empty default empty implementation of the RSA key");
-                        privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
+                        privateKey.ImportSubjectPublicKeyInfo(clientPrivateKeyData, out _);
                         _logger.LogInformation($"Imported Client Private Key byte data into RSA key");
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                         _logger.LogInformation($"Generated x509ClientCertificate with Private Key");
@@ -136,7 +136,9 @@ namespace gpconnect_appointment_checker.SDS
                         _logger.LogInformation($"Generated PFX formatted Certificate of x509ClientCertificate with Private Key");
 
                         _logger.LogInformation($"Initiating Server Cert Validation Delegate with PFX formatted certificate");
-                        ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateClientCertificateChain(pfxFormattedCertificate, chain, errors));
+                        ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateServerCertificate(sender, pfxFormattedCertificate, chain, errors));
+                        _logger.LogInformation($"Initiating Client Cert Selection Delegate");
+                        ldapConn.UserDefinedClientCertSelectionDelegate += new Novell.Directory.Ldap.LocalCertificateSelectionCallback((sender, targetHost, certificateCollection, certificate, acceptableIssuers) => SelectLocalCertificate(sender, targetHost, certificateCollection, pfxFormattedCertificate, acceptableIssuers));
                     }
                     _logger.LogInformation($"Connecting to LDAP with the following parameters");
                     _logger.LogInformation($"Host: {hostName}");
@@ -153,8 +155,67 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public bool ValidateClientCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
+        public X509Certificate ValidateClientCertificateSelection(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
+            _logger.LogInformation($"Certificate in collection count is {localCertificates.Count}");
+            foreach (var certificate in localCertificates)
+            {
+                _logger.LogInformation($"Certificate in collection - subject is {certificate.Subject}");
+                _logger.LogInformation($"Certificate in collection - issuer is {certificate.Issuer}");
+            }
+
+            _logger.LogInformation($"Remove Certificate - subject is {remoteCertificate.Subject}");
+            _logger.LogInformation($"Remove Certificate - subject is {remoteCertificate.Issuer}");
+
+            return remoteCertificate;
+        }
+
+        public bool ValidateServerCertificate(
+      object sender,
+      X509Certificate certificate,
+      X509Chain chain,
+      SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+                return true;
+
+            _logger.LogInformation("Certificate error: {0}", sslPolicyErrors);
+
+            return false;
+        }
+
+
+        public X509Certificate SelectLocalCertificate(
+    object sender,
+    string targetHost,
+    X509CertificateCollection localCertificates,
+    X509Certificate remoteCertificate,
+    string[] acceptableIssuers)
+        {
+            _logger.LogInformation("Client is selecting a local certificate.");
+            if (acceptableIssuers != null &&
+                acceptableIssuers.Length > 0 &&
+                localCertificates != null &&
+                localCertificates.Count > 0)
+            {
+                // Use the first certificate that is from an acceptable issuer.
+                foreach (X509Certificate certificate in localCertificates)
+                {
+                    string issuer = certificate.Issuer;
+                    if (Array.IndexOf(acceptableIssuers, issuer) != -1)
+                        return certificate;
+                }
+            }
+            if (localCertificates != null &&
+                localCertificates.Count > 0)
+                return localCertificates[0];
+
+            return null;
+        }
+
+
+        public bool ValidateServerCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
+        {            
             if(errors == SslPolicyErrors.None)
             {
                 _logger.LogInformation("No SSL Policy Errors were found");
@@ -162,18 +223,7 @@ namespace gpconnect_appointment_checker.SDS
             }
             _logger.LogInformation("SSL Policy Errors were found");
             _logger.LogInformation(errors.ToString());
-            return false;
-            //chain.Reset();
-            //chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreRootRevocationUnknown;
-            //chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-            ////chain.ChainPolicy.ExtraStore.Add(x509ServerCertificateSubCa);
-            ////chain.ChainPolicy.ExtraStore.Add(x509ServerCertificateRootCa);
-
-            //if (chain.Build(pfxFormattedCertificate)) return true;
-            //return false;
-            //if (chain.ChainStatus.Where(chainStatus => chainStatus.Status != X509ChainStatusFlags.NoError).All(chainStatus => chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)) return false;
-            //var providedRoot = chain.ChainElements[^1];
-            //return x509ServerCertificateRootCa.Thumbprint == providedRoot.Certificate.Thumbprint;
+            return true;
         }
     }
 }
