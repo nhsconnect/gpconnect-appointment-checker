@@ -87,14 +87,21 @@ namespace gpconnect_appointment_checker.SDS
                 }
                 return null;
             }
-            catch(InterThreadException interThreadException)
-            {
-                _logger.LogError("An interThreadException has occurred while attempting to execute an LDAP query", interThreadException);
-                throw;
-            }
             catch (Exception exc)
             {
                 _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
+
+
+                if (exc is LdapException)
+                {
+                    LdapException ldapException = exc as LdapException;
+                    _logger.LogError("LDAP error message: " + ldapException.LdapErrorMessage ?? string.Empty);
+                    _logger.LogError("LDAP result code: " + ldapException.ResultCodeToString());
+
+                    if (ldapException.InnerException != null)
+                        _logger.LogError("Inner exception: " + ldapException.InnerException.GetType().Name + " - " + ldapException.InnerException.Message);
+                }
+
                 throw;
             }
         }
