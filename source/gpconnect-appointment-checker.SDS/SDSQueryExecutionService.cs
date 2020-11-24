@@ -181,7 +181,7 @@ namespace gpconnect_appointment_checker.SDS
 
             _logger.LogInformation("Certificate error: {0}", sslPolicyErrors);
 
-            return false;
+            return true;
         }
 
 
