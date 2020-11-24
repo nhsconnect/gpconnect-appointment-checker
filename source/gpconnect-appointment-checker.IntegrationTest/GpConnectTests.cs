@@ -55,10 +55,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("ABC123", "82734", "28374", "hostname", false, "A32874", "B28373", "DKJCH8943NJFSADV", 2, "https://test.hscic.gov.uk:19192/v1/fhir")]
-        public async void ExecuteRequestForFreeSlots(string bearerToken, string sspFrom, string sspTo, string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId, int spineMessageTypeId, string baseAddress)
+        public void ExecuteRequestForFreeSlots(string bearerToken, string sspFrom, string sspTo, string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId, int spineMessageTypeId, string baseAddress)
         {
             var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId);
-            var result = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Now, DateTime.Now.AddDays(7), baseAddress);
+            var result = _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Now, DateTime.Now.AddDays(7), baseAddress);
             Assert.IsType<SlotSimple>(result);
         }
 
@@ -142,7 +142,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
                 }
             };
 
-            mockConfigurationService.Setup(a => a.GetSdsQueryConfiguration()).ReturnsAsync(sdsQueries);
+            mockConfigurationService.Setup(a => a.GetSdsQueryConfiguration()).Returns(sdsQueries);
         }
 
         private static void SetupSpineMessageTypes(Mock<IConfigurationService> mockConfigurationService)
@@ -168,7 +168,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
                     InteractionId = "urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1"
                 }
             };
-            mockConfigurationService.Setup(a => a.GetSpineMessageTypes()).ReturnsAsync(spineMessageTypes);
+            mockConfigurationService.Setup(a => a.GetSpineMessageTypes()).Returns(spineMessageTypes);
         }
     }
 }

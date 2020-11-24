@@ -61,7 +61,6 @@ namespace gpconnect_appointment_checker.SDS
                 var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
 
                 _logger.LogInformation("Logging immediately after the search takes place");
-                _logger.LogInformation($"Number of searchresults found: {searchResults.Count}");                
 
                 while (searchResults.HasMore())
                 {
@@ -73,6 +72,8 @@ namespace gpconnect_appointment_checker.SDS
                         results.TryAdd(attribute.Name, attribute.StringValue);
                     }
                 }
+
+                _logger.LogInformation($"Number of searchresults found: {results.Count}");
 
                 if (results.Count > 0)
                 {

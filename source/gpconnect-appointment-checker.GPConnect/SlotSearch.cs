@@ -20,7 +20,7 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
-                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
                     x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
                 requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                 requestParameters.InteractionId = spineMessageType?.InteractionId;

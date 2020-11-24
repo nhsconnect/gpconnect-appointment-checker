@@ -1,9 +1,8 @@
-﻿using System;
-using Dapper;
+﻿using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL.Logging
 {
@@ -16,7 +15,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             _dataService = dataService;
         }
 
-        public async void AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
+        public void AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
         {
             var functionName = "logging.log_error";
             var parameters = new DynamicParameters();
@@ -29,10 +28,10 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_logger", errorLog.Logger);
             parameters.Add("_callsite", errorLog.Callsite);
             parameters.Add("_exception", errorLog.Exception);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            _dataService.ExecuteFunction(functionName, parameters);
         }
 
-        public async void AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
+        public void AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
         {
             var functionName = "logging.log_spine_message";
             var parameters = new DynamicParameters();
@@ -45,10 +44,10 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_headers", spineMessage.ResponseHeaders);
             parameters.Add("_response_payload", spineMessage.ResponsePayload ?? string.Empty);
             parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs, DbType.Int32);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            _dataService.ExecuteFunction(functionName, parameters);
         }
 
-        public async void AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
+        public void AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
         {
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();
@@ -64,13 +63,13 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_code", webRequest.ResponseCode);
             parameters.Add("_session_id", webRequest.SessionId);
             parameters.Add("_user_agent", webRequest.UserAgent);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            _dataService.ExecuteFunction(functionName, parameters);
         }
 
-        public async Task<List<DTO.Response.Logging.PurgeErrorLog>> PurgeLogEntries()
+        public List<DTO.Response.Logging.PurgeErrorLog> PurgeLogEntries()
         {
             var functionName = "logging.purge_logs";
-            var result = await _dataService.ExecuteFunction<DTO.Response.Logging.PurgeErrorLog>(functionName);
+            var result = _dataService.ExecuteFunction<DTO.Response.Logging.PurgeErrorLog>(functionName);
             return result;
         }
     }

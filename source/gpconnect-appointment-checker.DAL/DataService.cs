@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL
 {
@@ -20,12 +19,12 @@ namespace gpconnect_appointment_checker.DAL
             _configuration = configuration;
         }
 
-        public async Task<List<T>> ExecuteFunction<T>(string functionName) where T : class
+        public List<T> ExecuteFunction<T>(string functionName) where T : class
         {
             try
             {
-                await using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var results = (await connection.QueryAsync<T>(functionName, null, commandType: System.Data.CommandType.StoredProcedure)).AsList();
+                using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+                var results = (connection.Query<T>(functionName, null, commandType: System.Data.CommandType.StoredProcedure)).AsList();
                 return results;
             }
             catch (Exception exc)
@@ -35,12 +34,12 @@ namespace gpconnect_appointment_checker.DAL
             }
         }
 
-        public async Task<List<T>> ExecuteFunction<T>(string functionName, DynamicParameters parameters) where T : class
+        public List<T> ExecuteFunction<T>(string functionName, DynamicParameters parameters) where T : class
         {
             try
             {
-                await using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var results = (await connection.QueryAsync<T>(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure)).AsList();
+                using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+                var results = (connection.Query<T>(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure)).AsList();
                 return results;
             }
             catch (Exception exc)
@@ -50,12 +49,12 @@ namespace gpconnect_appointment_checker.DAL
             }
         }
 
-        public async Task<int> ExecuteFunction(string functionName, DynamicParameters parameters)
+        public int ExecuteFunction(string functionName, DynamicParameters parameters)
         {
             try
             {
-                await using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var rowsInserted = await connection.ExecuteAsync(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+                using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+                var rowsInserted = connection.Execute(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure);
                 return rowsInserted;
             }
             catch (Exception exc)

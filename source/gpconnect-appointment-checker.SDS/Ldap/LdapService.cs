@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -30,11 +29,11 @@ namespace gpconnect_appointment_checker.SDS
             _applicationService = applicationService;
         }
 
-        public async Task<Organisation> GetOrganisationDetailsByOdsCode(string odsCode)
+        public Organisation GetOrganisationDetailsByOdsCode(string odsCode)
         {
             try
             {
-                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
                 var results = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 if (results != null)
@@ -50,11 +49,11 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public async Task<Spine> GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode)
+        public Spine GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode)
         {
             try
             {
-                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
                 var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
@@ -66,11 +65,11 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public async Task<Spine> GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)
+        public Spine GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)
         {
             try
             {
-                var sdsQuery = await GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
                 var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
@@ -82,11 +81,11 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        private async Task<SdsQuery> GetSdsQueryByName(string queryName)
+        private SdsQuery GetSdsQueryByName(string queryName)
         {
             try
             {
-                var sdsQueryList = _sdsQueries ?? await _configurationService.GetSdsQueryConfiguration();
+                var sdsQueryList = _sdsQueries ?? _configurationService.GetSdsQueryConfiguration();
                 return sdsQueryList.FirstOrDefault(x => x.QueryName == queryName);
             }
             catch (Exception exc)

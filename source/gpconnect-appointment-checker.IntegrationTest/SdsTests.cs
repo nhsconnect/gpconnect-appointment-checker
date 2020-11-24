@@ -104,10 +104,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
             mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
         }
 
-        private async void SetupConfiguration(Mock<IConfigurationSection> mockConfigurationSectionUseLdaps, Mock<IConfigurationSection> mockConfigurationSectionTimeout,
+        private void SetupConfiguration(Mock<IConfigurationSection> mockConfigurationSectionUseLdaps, Mock<IConfigurationSection> mockConfigurationSectionTimeout,
             Mock<IConfigurationSection> mockConfigurationSectionHost, Mock<IConfigurationSection> mockConfigurationSectionPort, Mock<IConfiguration> mockConfiguration)
         {
-            var configuration = _dataService.ExecuteFunction<Spine>("configuration.get_spine_configuration").Result.FirstOrDefault();
+            var configuration = _dataService.ExecuteFunction<Spine>("configuration.get_spine_configuration").FirstOrDefault();
 
             mockConfigurationSectionUseLdaps.Setup(a => a.Value).Returns(configuration.sds_use_ldaps.ToString());
             mockConfigurationSectionTimeout.Setup(a => a.Value).Returns(configuration.timeout_seconds.ToString());

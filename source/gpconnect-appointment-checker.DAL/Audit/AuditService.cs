@@ -16,7 +16,7 @@ namespace gpconnect_appointment_checker.DAL.Audit
             _dataService = dataService;
         }
 
-        public async void AddEntry(DTO.Request.Audit.Entry auditEntry)
+        public void AddEntry(DTO.Request.Audit.Entry auditEntry)
         {
             var functionName = "audit.add_entry";
             var parameters = new DynamicParameters();
@@ -28,7 +28,7 @@ namespace gpconnect_appointment_checker.DAL.Audit
             parameters.Add("_item3", auditEntry.Item3);
             parameters.Add("_details", auditEntry.Details);
             parameters.Add("_entry_elapsed_ms", auditEntry.EntryElapsedMs);
-            await _dataService.ExecuteFunction(functionName, parameters);
+            _dataService.ExecuteFunction(functionName, parameters);
         }
     }
 }

@@ -3,18 +3,14 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -33,11 +29,11 @@ namespace gpconnect_appointment_checker.GPConnect
             _configuration = configuration;
         }
 
-        public async Task<RequestParameters> ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
+        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
         {
             try
             {
-                var spineMessageType = (await _configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
+                var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
 
                 var userGuid = Guid.NewGuid().ToString();
                 var userFamilyName = "...";

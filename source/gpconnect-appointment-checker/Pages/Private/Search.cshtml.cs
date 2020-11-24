@@ -107,8 +107,8 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
-            var providerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
-            var consumerOrganisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
+            var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+            var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
             ProviderODSCodeFound = providerOrganisationDetails != null;
             ConsumerODSCodeFound = consumerOrganisationDetails != null;
@@ -117,13 +117,13 @@ namespace gpconnect_appointment_checker.Pages
             {
                 //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
                 //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
-                var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
-                var consumerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+                var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
+                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
                 ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
                 if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                 {
-                    var providerAsId = await _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
+                    var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
                     ProviderASIDPresent = providerAsId != null;
 
                     if (ProviderASIDPresent)
@@ -140,7 +140,7 @@ namespace gpconnect_appointment_checker.Pages
         private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
             Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
         {
-            var requestParameters = await _tokenService.ConstructRequestParameters(
+            var requestParameters = _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
 

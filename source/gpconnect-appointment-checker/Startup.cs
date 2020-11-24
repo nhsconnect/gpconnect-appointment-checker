@@ -1,4 +1,3 @@
-using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
@@ -84,15 +83,15 @@ namespace gpconnect_appointment_checker
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.Events = new OpenIdConnectEvents
                     {
-                        OnTokenValidated = async context =>
+                        OnTokenValidated = context =>
                          {
                              var odsCode = context.Principal.GetClaimValue("ODS");
-                             var organisationDetails = await _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
+                             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
                              if (organisationDetails != null)
                              {
-                                 var providerGpConnectDetails = await _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
-                                 var organisation = await _applicationService.GetOrganisation(organisationDetails.ODSCode);
-                                 var loggedOnUser = await _applicationService.LogonUser(new User
+                                 var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
+                                 var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                                 var loggedOnUser = _applicationService.LogonUser(new User
                                  {
                                      EmailAddress = context.Principal.GetClaimValue("Email"),
                                      DisplayName = context.Principal.GetClaimValue("DisplayName"),
@@ -118,6 +117,7 @@ namespace gpconnect_appointment_checker
                                      }
                                  }
                              }
+                             return Task.CompletedTask;
                          },
                         OnAuthenticationFailed = context =>
                         {
