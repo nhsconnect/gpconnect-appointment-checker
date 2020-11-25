@@ -149,7 +149,7 @@ namespace gpconnect_appointment_checker.Pages
                 //Step 3 - CALL PROVIDER METADATA ENDPOINT
                 //Get capability statement
                 var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.ssp_hostname);
-                CapabilityStatementOk = (capabilityStatement != null && capabilityStatement.Issue == null) || capabilityStatement != null;
+                CapabilityStatementOk = (capabilityStatement.Issue?.Count == 0 || capabilityStatement.Issue == null);
 
                 if (CapabilityStatementOk)
                 {

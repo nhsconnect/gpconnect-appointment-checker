@@ -51,12 +51,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var results = JsonConvert.DeserializeObject<CapabilityStatement>(responseStream);
-                    return results;
-                }
-                return null;
+                var results = JsonConvert.DeserializeObject<CapabilityStatement>(responseStream);
+                return results;
             }
             catch (Exception exc)
             {

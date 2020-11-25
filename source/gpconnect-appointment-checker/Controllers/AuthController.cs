@@ -44,14 +44,14 @@ namespace gpconnect_appointment_checker.Controllers
                     UserSessionId = _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)
                 });
             }
-            catch (Exception e)
+            catch (Exception exc)
             {
-                _logger.LogError("An error occurred in trying to logout the user", e);
+                _logger.LogError("An error occurred in trying to logout the user", exc);
                 throw;
             }
             finally
             {
-                signOutResult = SignOut(new AuthenticationProperties { RedirectUri = "/" }, "Cookies", "OpenIdConnect");
+                signOutResult = SignOut(new AuthenticationProperties(), "OpenIdConnect");
             }
             return signOutResult;
         }
