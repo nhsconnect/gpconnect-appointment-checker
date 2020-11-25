@@ -156,7 +156,7 @@ namespace gpconnect_appointment_checker.Pages
                     var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
                     var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
                     var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
-                    SlotSearchOk = searchResults.Issue == null;
+                    SlotSearchOk = searchResults?.Issue == null;
 
                     if (SlotSearchOk)
                     {
