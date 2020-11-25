@@ -19,12 +19,12 @@ namespace gpconnect_appointment_checker.SDS
 {
     public class SDSQueryExecutionService : ISDSQueryExecutionService
     {
-        private readonly ILogger<SDSQueryExecutionService> _logger;
+        private static ILogger<SDSQueryExecutionService> _logger;
         private readonly ILogService _logService;
-        private readonly IConfiguration _configuration;
-        private readonly LdapConnection _connection;
+        private static IConfiguration _configuration;
+        private static ILdapConnection _connection;
         private readonly IHttpContextAccessor _context;
-        private X509Certificate _clientCertificate;
+        private static X509Certificate _clientCertificate;
 
         public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
@@ -54,27 +54,29 @@ namespace gpconnect_appointment_checker.SDS
                 var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
                 if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
 
-                var ldapConnection = GetConnection();
                 var results = new Dictionary<string, object>();
-                _logger.LogInformation("Logging immediately before the search takes place");
-                _logger.LogInformation($"searchBase: {searchBase}");
-                _logger.LogInformation($"filter: {filter}");
-                var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
-
-                _logger.LogInformation("Logging immediately after the search takes place");
-
-                while (searchResults.HasMore())
+                using (ILdapConnection ldapConnection = GetConnection())
                 {
-                    var nextEntry = searchResults.Next();
-                    var attributeSet = nextEntry.GetAttributeSet();
+                    _logger.LogInformation("Establishing connection with the LDAP server");
+                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
 
-                    foreach (var attribute in attributeSet)
+                    while (searchResults.HasMore())
                     {
-                        results.TryAdd(attribute.Name, attribute.StringValue);
+                        var nextEntry = searchResults.Next();
+                        var attributeSet = nextEntry.GetAttributeSet();
+
+                        foreach (var attribute in attributeSet)
+                        {
+                            results.TryAdd(attribute.Name, attribute.StringValue);
+                        }
+                    }
+                    if (ldapConnection.Connected)
+                    {
+                        _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
+                        ldapConnection.Disconnect();
+                        _logger.LogInformation("Disconnected from the LDAP server.");
                     }
                 }
-
-                _logger.LogInformation($"Number of searchresults found: {results.Count}");
                 
                 if (results.Count > 0)
                 {
@@ -82,41 +84,32 @@ namespace gpconnect_appointment_checker.SDS
                     logMessage.ResponsePayload = jsonDictionary;
                     logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
                     _logService.AddSpineMessageLog(logMessage);
-
                     result = JsonConvert.DeserializeObject<T>(jsonDictionary);
-                }
-
-                if (ldapConnection.Connected)
-                {
-                    ldapConnection.Disconnect();
                 }
                 return result;
             }
             catch(InterThreadException interThreadException)
             {
-                _logger.LogError("An interThreadException has occurred while attempting to execute an LDAP query", interThreadException);
+                _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
                 throw;
             }
             catch (LdapException ldapException)
             {
-                _logger.LogError($"LdapErrorMessage is {ldapException.LdapErrorMessage}", ldapException);
-                _logger.LogError($"ResultCodeToString is {ldapException.ResultCodeToString()}", ldapException);
-                _logger.LogError($"Message is {ldapException.Message}", ldapException);
-                _logger.LogError($"MatchedDn is {ldapException.MatchedDn}", ldapException);
+                _logger.LogError($"An LdapException has occurred while attempting to execute an LDAP query", ldapException);
                 throw;
             }
             catch (Exception exc)            
             {
-                _logger.LogError($"An error has occurred while attempting to execute an LDAP query - filter is {filter} - searchBase is {searchBase}", exc);
+                _logger.LogError($"An Exception has occurred while attempting to execute an LDAP query", exc);
                 throw;
             }
         }
 
-        private ILdapConnection GetConnection()
+        private static ILdapConnection GetConnection()
         {
             try
             {
-                var ldapConn = _connection;
+                var ldapConn = _connection as LdapConnection;
                 var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
                 var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);                
@@ -126,8 +119,7 @@ namespace gpconnect_appointment_checker.SDS
                     ldapConn = new LdapConnection
                     {
                         SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
-                        ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000,
-                        
+                        ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
                     };
 
                     _logger.LogInformation("Initiated Ldap Connection with the following parameters");
@@ -173,6 +165,7 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"Port: {hostPort}");
                     ldapConn.Connect(hostName, hostPort);
                 }
+
                 return ldapConn;
             }            
             catch (LdapException ldapException)
@@ -182,7 +175,7 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public X509Certificate ValidateClientCertificateSelection(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        private static X509Certificate ValidateClientCertificateSelection(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             _logger.LogInformation($"Certificate in collection count is {localCertificates.Count}");
             foreach (var certificate in localCertificates)
@@ -197,7 +190,7 @@ namespace gpconnect_appointment_checker.SDS
             return remoteCertificate;
         }
 
-        public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
                 return true;
@@ -206,7 +199,7 @@ namespace gpconnect_appointment_checker.SDS
         }
 
 
-        public X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        private static X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             _logger.LogInformation("Client is selecting a local certificate.");
             _logger.LogInformation($"Client Cert subject is {_clientCertificate.Subject}");
@@ -236,7 +229,7 @@ namespace gpconnect_appointment_checker.SDS
             //return null;
         }
 
-        public bool ValidateServerCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
+        private static bool ValidateServerCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
         {            
             if(errors == SslPolicyErrors.None)
             {
