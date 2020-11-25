@@ -57,33 +57,32 @@ namespace gpconnect_appointment_checker.SDS
                 var results = new Dictionary<string, object>();
                 using (ILdapConnection ldapConnection = GetConnection())
                 {
+                    var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
+                    var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
+
                     _logger.LogInformation("Establishing connection with the LDAP server");
+                    _logger.LogInformation($"Host: {hostName}");
+                    _logger.LogInformation($"Port: {hostPort}");
 
-                    if (ldapConnection.Connected)
+                    ldapConnection.Connect(hostName, hostPort);
+
+                    _logger.LogInformation("Commencing search");
+                    _logger.LogInformation($"searchBase is: {searchBase}");
+                    _logger.LogInformation($"filter is: {filter}");
+
+                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
+
+                    _logger.LogInformation("Search has been executed.");
+
+                    while (searchResults.HasMore())
                     {
-                        _logger.LogInformation("We have a connection to the LDAP server");
+                        var nextEntry = searchResults.Next();
+                        var attributeSet = nextEntry.GetAttributeSet();
 
-                        _logger.LogInformation($"searchBase is: {searchBase}");
-                        _logger.LogInformation($"filter is: {filter}");
-
-                        var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
-
-                        _logger.LogInformation($"Search has been executed.");
-
-                        while (searchResults.HasMore())
+                        foreach (var attribute in attributeSet)
                         {
-                            var nextEntry = searchResults.Next();
-                            var attributeSet = nextEntry.GetAttributeSet();
-
-                            foreach (var attribute in attributeSet)
-                            {
-                                results.TryAdd(attribute.Name, attribute.StringValue);
-                            }
+                            results.TryAdd(attribute.Name, attribute.StringValue);
                         }
-                    }
-                    else
-                    {
-                        _logger.LogInformation("Connection to the LDAP server has been lost.");
                     }
 
                     if (ldapConnection.Connected)
@@ -94,7 +93,7 @@ namespace gpconnect_appointment_checker.SDS
                         ldapConnection.Dispose();
                     }
                 }
-                
+
                 if (results.Count > 0)
                 {
                     string jsonDictionary = JsonConvert.SerializeObject(results);
@@ -105,7 +104,7 @@ namespace gpconnect_appointment_checker.SDS
                 }
                 return result;
             }
-            catch(InterThreadException interThreadException)
+            catch (InterThreadException interThreadException)
             {
                 _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
                 throw;
@@ -115,7 +114,7 @@ namespace gpconnect_appointment_checker.SDS
                 _logger.LogError($"An LdapException has occurred while attempting to execute an LDAP query", ldapException);
                 throw;
             }
-            catch (Exception exc)            
+            catch (Exception exc)
             {
                 _logger.LogError($"An Exception has occurred while attempting to execute an LDAP query", exc);
                 throw;
@@ -127,12 +126,12 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var ldapConn = _connection as LdapConnection;
-                var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
-                var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
-                var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);                
-                
-                if (ldapConn == null && !string.IsNullOrEmpty(hostName) && hostPort > 0)
+                var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
+
+                if (ldapConn == null)
                 {
+                    _logger.LogInformation("Initiating Ldap Connection");
+
                     ldapConn = new LdapConnection
                     {
                         SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
@@ -178,13 +177,10 @@ namespace gpconnect_appointment_checker.SDS
                         ldapConn.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
                     _logger.LogInformation("Connecting to LDAP with the following parameters");
-                    _logger.LogInformation($"Host: {hostName}");
-                    _logger.LogInformation($"Port: {hostPort}");
-                    ldapConn.Connect(hostName, hostPort);
                 }
 
                 return ldapConn;
-            }            
+            }
             catch (LdapException ldapException)
             {
                 _logger.LogError("An error has occurred while attempting to establish a connection to the LDAP server", ldapException);
@@ -222,7 +218,7 @@ namespace gpconnect_appointment_checker.SDS
             _logger.LogInformation($"Client Cert subject is {_clientCertificate.Subject}");
             _logger.LogInformation($"Client Cert issuer is {_clientCertificate.Issuer}");
             return _clientCertificate;
-            
+
             //if (acceptableIssuers != null &&
             //    acceptableIssuers.Length > 0 &&
             //    localCertificates != null &&
@@ -247,8 +243,8 @@ namespace gpconnect_appointment_checker.SDS
         }
 
         private static bool ValidateServerCertificateChain(X509Certificate2 pfxFormattedCertificate, X509Chain chain, SslPolicyErrors errors)
-        {            
-            if(errors == SslPolicyErrors.None)
+        {
+            if (errors == SslPolicyErrors.None)
             {
                 _logger.LogInformation("No SSL Policy Errors were found");
                 return true;
