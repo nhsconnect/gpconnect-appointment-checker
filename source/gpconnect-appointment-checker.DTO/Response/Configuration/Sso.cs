@@ -9,5 +9,6 @@
         public string auth_endpoint { get; set; }
         public string token_endpoint { get; set; }
         public string challenge_scheme { get; set; }
+        public string metadata_endpoint { get; set; }
     }
 }

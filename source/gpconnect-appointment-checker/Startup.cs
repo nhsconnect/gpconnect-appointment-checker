@@ -68,6 +68,7 @@ namespace gpconnect_appointment_checker
                     options.RequireHttpsMetadata = true;
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost;
                     options.Authority = Configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.MetadataAddress = Configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.ClientId = Configuration.GetSection("SingleSignOn:client_id").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.ClientSecret = Configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.CallbackPath = Configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString(throwExceptionIfEmpty: true);
