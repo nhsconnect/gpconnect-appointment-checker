@@ -22,7 +22,6 @@ namespace gpconnect_appointment_checker.SDS
         private static ILogger<SDSQueryExecutionService> _logger;
         private readonly ILogService _logService;
         private static IConfiguration _configuration;
-        private static ILdapConnection _connection;
         private readonly IHttpContextAccessor _context;
         private static X509Certificate _clientCertificate;
 
@@ -126,7 +125,7 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var ldapConn = _connection as LdapConnection;
+                LdapConnection ldapConn = null;
                 var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
                 var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);                
