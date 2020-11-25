@@ -63,7 +63,12 @@ namespace gpconnect_appointment_checker.SDS
                     {
                         _logger.LogInformation("We have a connection to the LDAP server");
 
+                        _logger.LogInformation($"searchBase is: {searchBase}");
+                        _logger.LogInformation($"filter is: {filter}");
+
                         var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
+
+                        _logger.LogInformation($"Search has been executed.");
 
                         while (searchResults.HasMore())
                         {
