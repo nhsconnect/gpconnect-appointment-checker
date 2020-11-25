@@ -89,17 +89,17 @@ values
 (
     'OrganisationHasAppointmentsConsumerSystemByOdsCode',
     'ou=services, o=nhs',
-    '(&(nhsIDCode={odsCode})(objectClass=nhsAs)(nhsAsSvcIA=urn:nhs:names:services:gpconnect:structured:fhir:rest:read:metadata-1))'
+    '(&(nhsIDCode={odsCode})(objectClass=nhsAs)(nhsAsSvcIA=urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1))'
 ),
 (
     'OrganisationHasAppointmentsProviderSystemByOdsCode',
     'ou=services, o=nhs',
-    '(&(nhsIDCode={odsCode})(objectClass=nhsMhs)(nhsMhsSvcIA=urn:nhs:names:services:gpconnect:structured:fhir:rest:read:metadata-1))'
+    '(&(nhsIDCode={odsCode})(objectClass=nhsMhs)(nhsMhsSvcIA=urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1))'
 ),
 (
     'GetGpProviderEndpointAndPartyKeyByOdsCode',
     'ou=services, o=nhs',
-    '(&(nhsIDCode={odsCode})(objectClass=nhsMhs)(nhsMhsSvcIA=urn:nhs:names:services:gpconnect:structured:fhir:rest:read:metadata-1))'
+    '(&(nhsIDCode={odsCode})(objectClass=nhsMhs)(nhsMhsSvcIA=urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1))'
 ),
 (
     'GetGpProviderAsIdByOdsCodeAndPartyKey',
