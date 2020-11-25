@@ -90,7 +90,7 @@ namespace gpconnect_appointment_checker.SDS
                         _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
                         ldapConnection.Disconnect();
                         _logger.LogInformation("Disconnected from the LDAP server.");
-                        ldapConnection.Dispose();
+                        //ldapConnection.Dispose();
                     }
                 }
                 
