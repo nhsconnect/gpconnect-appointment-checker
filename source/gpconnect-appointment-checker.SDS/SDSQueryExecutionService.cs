@@ -22,6 +22,7 @@ namespace gpconnect_appointment_checker.SDS
         private static ILogger<SDSQueryExecutionService> _logger;
         private readonly ILogService _logService;
         private static IConfiguration _configuration;
+        private static ILdapConnection _connection;
         private readonly IHttpContextAccessor _context;
         private static X509Certificate _clientCertificate;
 
