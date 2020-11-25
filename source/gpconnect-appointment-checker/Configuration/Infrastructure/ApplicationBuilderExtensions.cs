@@ -8,7 +8,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void ConfigureApplicationBuilderServices(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseExceptionHandler("/Public/Error");
+            app.UseExceptionHandler("/Error");
             app.UseHsts();
 
             app.UseHttpsRedirection();

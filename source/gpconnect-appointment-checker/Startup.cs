@@ -87,7 +87,7 @@ namespace gpconnect_appointment_checker
                         },
                         OnAuthenticationFailed = context =>
                         {
-                            context.Response.Redirect("/AccessDenied");
+                            context.Response.Redirect(context.Exception != null ? "/Error" : "/AccessDenied");
                             context.HandleResponse();
                             return Task.CompletedTask;
                         }
