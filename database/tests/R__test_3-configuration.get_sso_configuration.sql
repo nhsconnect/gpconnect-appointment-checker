@@ -6,8 +6,7 @@ select
 	challenge_scheme,
 	auth_endpoint,
 	token_endpoint,
-	metadata_endpoint,
-	endsession_endpoint
+	metadata_endpoint
 from configuration.get_sso_configuration
 (
 );
