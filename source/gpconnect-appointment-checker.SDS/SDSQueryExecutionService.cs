@@ -58,23 +58,35 @@ namespace gpconnect_appointment_checker.SDS
                 using (ILdapConnection ldapConnection = GetConnection())
                 {
                     _logger.LogInformation("Establishing connection with the LDAP server");
-                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
 
-                    while (searchResults.HasMore())
+                    if (ldapConnection.Connected)
                     {
-                        var nextEntry = searchResults.Next();
-                        var attributeSet = nextEntry.GetAttributeSet();
+                        _logger.LogInformation("We have a connection to the LDAP server");
 
-                        foreach (var attribute in attributeSet)
+                        var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
+
+                        while (searchResults.HasMore())
                         {
-                            results.TryAdd(attribute.Name, attribute.StringValue);
+                            var nextEntry = searchResults.Next();
+                            var attributeSet = nextEntry.GetAttributeSet();
+
+                            foreach (var attribute in attributeSet)
+                            {
+                                results.TryAdd(attribute.Name, attribute.StringValue);
+                            }
                         }
                     }
+                    else
+                    {
+                        _logger.LogInformation("Connection to the LDAP server has been lost.");
+                    }
+
                     if (ldapConnection.Connected)
                     {
                         _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
                         ldapConnection.Disconnect();
                         _logger.LogInformation("Disconnected from the LDAP server.");
+                        ldapConnection.Dispose();
                     }
                 }
                 
@@ -156,11 +168,11 @@ namespace gpconnect_appointment_checker.SDS
                         _clientCertificate = pfxFormattedCertificate;
 
                         _logger.LogInformation($"Initiating Server Cert Validation Delegate");
-                        ldapConn.UserDefinedServerCertValidationDelegate += new Novell.Directory.Ldap.RemoteCertificateValidationCallback((sender, certificate, chain, errors) => ValidateServerCertificate(sender, certificate, chain, errors));
+                        ldapConn.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
                         _logger.LogInformation($"Initiating Client Cert Selection Delegate");
-                        ldapConn.UserDefinedClientCertSelectionDelegate += new Novell.Directory.Ldap.LocalCertificateSelectionCallback((sender, targetHost, certificateCollection, certificate, acceptableIssuers) => SelectLocalCertificate(sender, targetHost, certificateCollection, certificate, acceptableIssuers));
+                        ldapConn.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
-                    _logger.LogInformation($"Connecting to LDAP with the following parameters");
+                    _logger.LogInformation("Connecting to LDAP with the following parameters");
                     _logger.LogInformation($"Host: {hostName}");
                     _logger.LogInformation($"Port: {hostPort}");
                     ldapConn.Connect(hostName, hostPort);
