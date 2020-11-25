@@ -44,7 +44,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
             SetupConfiguration(mockConfigurationSectionUseLdaps, mockConfigurationSectionTimeout, mockConfigurationSectionHost, mockConfigurationSectionPort, mockConfiguration);
             SetupContext(mockHttpContextAccessor);
 
-            _sdsQueryExecutionService = new SDSQueryExecutionService(mockLogger.Object, mockLogService.Object, mockConfiguration.Object, mockHttpContextAccessor.Object);
+            //_sdsQueryExecutionService = new SDSQueryExecutionService(mockLogger.Object, mockLogService.Object, mockConfiguration.Object);
         }
 
         [Theory]

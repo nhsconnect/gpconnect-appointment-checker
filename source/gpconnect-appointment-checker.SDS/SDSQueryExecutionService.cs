@@ -19,19 +19,19 @@ namespace gpconnect_appointment_checker.SDS
 {
     public class SDSQueryExecutionService : ISDSQueryExecutionService
     {
-        private static ILogger<SDSQueryExecutionService> _logger;
+        private static ILogger<LdapService> _logger;
         private readonly ILogService _logService;
         private static IConfiguration _configuration;
         private static ILdapConnection _connection;
         private readonly IHttpContextAccessor _context;
         private static X509Certificate _clientCertificate;
 
-        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
+        public SDSQueryExecutionService(ILogger<LdapService> logger, ILogService logService, IConfiguration configuration)//, IHttpContextAccessor context)
         {
             _logger = logger;
             _configuration = configuration;
             _logService = logService;
-            _context = context;
+            //_context = context;
         }
 
         public T ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
@@ -51,10 +51,13 @@ namespace gpconnect_appointment_checker.SDS
                     RequestPayload = $"{searchBase} {filter} {attributes}",
                     SpineMessageTypeId = (int)GPConnect.Constants.SpineMessageTypes.SpineLdapQuery
                 };
-                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
-                if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
+
+                //var userSessionId;// _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
+                //if (userSessionId != null)
+                //    logMessage.UserSessionId = Convert.ToInt32(userSessionId);
 
                 var results = new Dictionary<string, object>();
+
                 using (ILdapConnection ldapConnection = GetConnection())
                 {
                     _logger.LogInformation("Establishing connection with the LDAP server");
