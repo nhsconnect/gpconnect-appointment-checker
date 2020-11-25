@@ -14,18 +14,16 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapService : ILdapService
     {
         private readonly ILogger<LdapService> _logger;
-        private readonly ILogService _logService;
-        //private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
+        private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
         private readonly IConfiguration _configuration;
         private readonly IConfigurationService _configurationService;
         private readonly IApplicationService _applicationService;
         private readonly List<SdsQuery> _sdsQueries;
 
-        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, ILogService logService, IConfiguration configuration, IConfigurationService configurationService, IApplicationService applicationService)
+        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration, IConfigurationService configurationService, IApplicationService applicationService)
         {
             _logger = logger;
-            _logService = logService;
-            //_sdsQueryExecutionService = sdsQueryExecutionService;
+            _sdsQueryExecutionService = sdsQueryExecutionService;
             _configuration = configuration;
             _configurationService = configurationService;
             _applicationService = applicationService;
@@ -37,8 +35,7 @@ namespace gpconnect_appointment_checker.SDS
             var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
             try
             {
-                SDSQueryExecutionService sdsQueryExecutionService = new SDSQueryExecutionService(_logger, _logService, _configuration);
-                var results = sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
+                var results = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter);
                 if (results != null)
                 {
                     _applicationService.SynchroniseOrganisation(results);
@@ -58,8 +55,7 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
-                SDSQueryExecutionService sdsQueryExecutionService = new SDSQueryExecutionService(_logger, _logService, _configuration);
-                var result = sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
             catch (Exception exc)
@@ -75,8 +71,7 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
-                SDSQueryExecutionService sdsQueryExecutionService = new SDSQueryExecutionService(_logger, _logService, _configuration);
-                var result = sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
             catch (Exception exc)
