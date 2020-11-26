@@ -36,7 +36,12 @@ namespace gpconnect_appointment_checker.SDS
             string emailAddress = context.Principal.GetClaimValue("Email");
 
             if (string.IsNullOrWhiteSpace(emailAddress))
+            {
                 emailAddress = context.Principal.GetClaimValue("Email Address");
+
+                if (context.Principal.Identity is ClaimsIdentity identity)
+                    identity.AddClaim(new Claim("Email", emailAddress));
+            }
             ///////////////////////////
             // end temporary token fix
             ///////////////////////////
