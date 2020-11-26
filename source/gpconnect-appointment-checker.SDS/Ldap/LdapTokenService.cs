@@ -27,6 +27,9 @@ namespace gpconnect_appointment_checker.SDS
 
         public Task ExecutionTokenValidation(TokenValidatedContext context)
         {
+            _logger.LogInformation(context.SecurityToken.RawData);
+            _logger.LogInformation(context.SecurityToken.ToString());
+
             var odsCode = context.Principal.GetClaimValue("ODS");
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)
