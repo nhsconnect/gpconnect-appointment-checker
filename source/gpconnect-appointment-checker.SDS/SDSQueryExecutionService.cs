@@ -147,36 +147,23 @@ namespace gpconnect_appointment_checker.SDS
                         _logger.LogInformation($"UseSdsMutualAuth: On");
 
                         var clientCert = _configuration.GetSection("spine:client_cert").GetConfigurationString();
-                        _logger.LogInformation($"Retrieved Client Certificate from Database as {clientCert}");
                         var serverCert = _configuration.GetSection("spine:server_ca_certchain").GetConfigurationString();
-                        _logger.LogInformation($"Retrieved Server Certificate from Database as {serverCert}");
                         var clientPrivateKey = _configuration.GetSection("spine:client_private_key").GetConfigurationString();
-                        _logger.LogInformation($"Retrieved Client Private Key from Database as {clientPrivateKey}");
 
                         var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
-                        _logger.LogInformation($"Extracted Client Certificate as Byte Array");
                         var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
-                        _logger.LogInformation($"Extracted Client Private Key as Byte Array");
                         var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
-                        _logger.LogInformation($"Generated x509ClientCertificate using Client Certificate Byte Array");
 
                         var privateKey = RSA.Create();
-                        _logger.LogInformation($"Created empty default empty implementation of the RSA key");
                         privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
-                        _logger.LogInformation($"Imported Client Private Key byte data into RSA key");
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
-                        _logger.LogInformation($"Generated x509ClientCertificate with Private Key");
                         var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
-                        _logger.LogInformation($"Generated PFX formatted Certificate of x509ClientCertificate with Private Key");
 
                         _clientCertificate = pfxFormattedCertificate;
 
-                        _logger.LogInformation($"Initiating Server Cert Validation Delegate");
                         ldapConn.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
-                        _logger.LogInformation($"Initiating Client Cert Selection Delegate");
                         ldapConn.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
-                    _logger.LogInformation("Connecting to LDAP with the following parameters");
                 }
 
                 return ldapConn;
