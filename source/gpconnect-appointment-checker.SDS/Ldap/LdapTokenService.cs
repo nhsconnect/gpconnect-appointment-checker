@@ -27,6 +27,25 @@ namespace gpconnect_appointment_checker.SDS
 
         public Task ExecutionTokenValidation(TokenValidatedContext context)
         {
+            ///////////////////////////
+            // temporary token fix
+            ///////////////////////////
+            _logger.LogInformation(context.SecurityToken.RawData);
+            _logger.LogInformation(context.SecurityToken.ToString());
+
+            string emailAddress = context.Principal.GetClaimValue("Email");
+
+            if (string.IsNullOrWhiteSpace(emailAddress))
+            {
+                emailAddress = context.Principal.GetClaimValue("Email Address");
+
+                if (context.Principal.Identity is ClaimsIdentity identity)
+                    identity.AddClaim(new Claim("Email", emailAddress));
+            }
+            ///////////////////////////
+            // end temporary token fix
+            ///////////////////////////
+
             var odsCode = context.Principal.GetClaimValue("ODS");
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)
@@ -35,7 +54,7 @@ namespace gpconnect_appointment_checker.SDS
                 var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
                 var loggedOnUser = _applicationService.LogonUser(new User
                 {
-                    EmailAddress = context.Principal.GetClaimValue("Email"),
+                    EmailAddress = emailAddress,
                     DisplayName = context.Principal.GetClaimValue("DisplayName"),
                     OrganisationId = organisation.OrganisationId
                 });
