@@ -71,29 +71,29 @@ namespace gpconnect_appointment_checker.GPConnect
                 var locationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
                 var scheduleResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
 
-                var slotList = (from slot in slotResources
+                var slotList = (from slot in slotResources.Where(s => s.resource != null)
                                 let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
                                 let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
                                 let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
                                 select new SlotEntrySimple
                                 {
                                     AppointmentDate = slot.resource.start,
-                                    SessionName = schedule.resource.serviceCategory.text,
+                                    SessionName = schedule.resource.serviceCategory?.text,
                                     StartTime = slot.resource.start,
                                     Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
                                     SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
                                     DeliveryChannel = slot.resource.extension.FirstOrDefault()?.valueCode,
-                                    PractitionerGivenName = practitioner.name.FirstOrDefault()?.given.FirstOrDefault(),
-                                    PractitionerFamilyName = practitioner.name.FirstOrDefault()?.family,
-                                    PractitionerPrefix = practitioner.name.FirstOrDefault()?.prefix.FirstOrDefault(),
+                                    PractitionerGivenName = practitioner?.name.FirstOrDefault()?.given.FirstOrDefault(),
+                                    PractitionerFamilyName = practitioner?.name.FirstOrDefault()?.family,
+                                    PractitionerPrefix = practitioner?.name.FirstOrDefault()?.prefix.FirstOrDefault(),
                                     PractitionerRole = schedule.resource.extension.FirstOrDefault()?.valueCodeableConcept.coding.FirstOrDefault()?.display,
-                                    PractitionerGender = practitioner.gender,
-                                    LocationName = location.name,
-                                    LocationAddressLines = location.address.line,
-                                    LocationCity = location.address.city,
-                                    LocationCountry = location.address.country,
-                                    LocationDistrict = location.address.district,
-                                    LocationPostalCode = location.address.postalCode
+                                    PractitionerGender = practitioner?.gender,
+                                    LocationName = location?.name,
+                                    LocationAddressLines = location?.address.line,
+                                    LocationCity = location?.address.city,
+                                    LocationCountry = location?.address.country,
+                                    LocationDistrict = location?.address.district,
+                                    LocationPostalCode = location?.address.postalCode
                                 }).OrderBy(z => z.LocationName)
                     .ThenBy(s => s.AppointmentDate)
                     .ThenBy(s => s.StartTime);

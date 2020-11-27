@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.IntegrationTest", "gpconnect-appointment-checker.IntegrationTest\gpconnect-appointment-checker.IntegrationTest.csproj", "{23961DE7-773E-4976-974C-90EC22F8235F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.Helpers", "gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Helpers", "gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Novell.Directory.Ldap.NETStandard", "..\..\..\Novell.Directory.Ldap.NETStandard-master\Novell.Directory.Ldap.NETStandard-master\src\Novell.Directory.Ldap.NETStandard\Novell.Directory.Ldap.NETStandard.csproj", "{E3A7080D-EC7F-4E62-801D-69C759BFDE34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3A7080D-EC7F-4E62-801D-69C759BFDE34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3A7080D-EC7F-4E62-801D-69C759BFDE34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3A7080D-EC7F-4E62-801D-69C759BFDE34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3A7080D-EC7F-4E62-801D-69C759BFDE34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
