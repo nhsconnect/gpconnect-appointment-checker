@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.GPConnect
@@ -36,9 +38,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
 
                 var userGuid = Guid.NewGuid().ToString();
-                var userFamilyName = "...";
-                var userGivenName = "...";
-
                 var tokenHandler = new JwtSecurityTokenHandler
                 {
                     SetDefaultTimesOnTokenCreation = false
@@ -52,7 +51,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
                 AddRequestingDeviceClaim(requestUri, tokenDescriptor);
                 AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
-                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid, userFamilyName, userGivenName);
+                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid);
 
                 var token = AddTokenHeader(tokenHandler, tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
@@ -80,7 +79,7 @@ namespace gpconnect_appointment_checker.GPConnect
         }
 
         private static void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
-            string userGuid, string userFamilyName, string userGivenName)
+            string userGuid)
         {
             tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
             {
@@ -90,8 +89,9 @@ namespace gpconnect_appointment_checker.GPConnect
                 {
                     new Name
                     {
-                        family = userFamilyName,
-                        given = new List<string> {userGivenName}
+                        family = string.Empty,
+                        given = new List<string> {string.Empty},
+                        prefix = new List<string> {string.Empty}
                     }
                 },
                 identifier = new List<Identifier>
