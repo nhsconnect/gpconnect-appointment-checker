@@ -43,10 +43,10 @@ namespace gpconnect_appointment_checker.GPConnect
                 var userGuid = Guid.NewGuid().ToString();
                 var tokenHandler = new JwtSecurityTokenHandler
                 {
-                    SetDefaultTimesOnTokenCreation = false
+                    SetDefaultTimesOnTokenCreation = true
                 };
 
-                var tokenIssuer = _configuration.GetSection("Spine:sds_hostname").Value;
+                var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
                 var tokenAudience = providerSpineMessage.ssp_hostname;
                 var tokenIssuedAt = DateTimeOffset.Now;
                 var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);

@@ -15,7 +15,8 @@ returns table
     client_cert varchar(8000),
     client_private_key varchar(8000),
     server_ca_certchain varchar(8000),
-    sds_use_mutualauth boolean
+    sds_use_mutualauth boolean,
+    spine_fqdn varchar(100)
 )
 as $$
 begin
@@ -34,7 +35,8 @@ begin
 	    s.client_cert,
 	    s.client_private_key,
 	    s.server_ca_certchain,
-	    s.sds_use_mutualauth
+	    s.sds_use_mutualauth,
+	    s.spine_fqdn
 	from configuration.spine s;
 	
 end;
