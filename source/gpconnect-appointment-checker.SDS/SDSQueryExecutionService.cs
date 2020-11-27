@@ -94,14 +94,14 @@ namespace gpconnect_appointment_checker.SDS
                     }
                 }
 
+                var jsonDictionary = JsonConvert.SerializeObject(results);
                 if (results.Count > 0)
                 {
-                    string jsonDictionary = JsonConvert.SerializeObject(results);
-                    logMessage.ResponsePayload = jsonDictionary;
-                    logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
-                    _logService.AddSpineMessageLog(logMessage);
                     result = JsonConvert.DeserializeObject<T>(jsonDictionary);
                 }
+                logMessage.ResponsePayload = jsonDictionary;
+                logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
+                _logService.AddSpineMessageLog(logMessage);
                 return result;
             }
             catch (InterThreadException interThreadException)

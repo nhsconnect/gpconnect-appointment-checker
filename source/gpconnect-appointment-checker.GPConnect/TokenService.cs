@@ -9,9 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -36,7 +38,7 @@ namespace gpconnect_appointment_checker.GPConnect
         {
             try
             {
-                var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
+                var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x => x.SpineMessageTypeId == spineMessageTypeId);
 
                 var userGuid = Guid.NewGuid().ToString();
                 var tokenHandler = new JwtSecurityTokenHandler
@@ -44,7 +46,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     SetDefaultTimesOnTokenCreation = false
                 };
 
-                var tokenIssuer = _configuration.GetSection("Spine:sds_hostname").Value;// spineConfiguration.sds_hostname;
+                var tokenIssuer = _configuration.GetSection("Spine:sds_hostname").Value;
                 var tokenAudience = providerSpineMessage.ssp_hostname;
                 var tokenIssuedAt = DateTimeOffset.Now;
                 var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
@@ -69,7 +71,6 @@ namespace gpconnect_appointment_checker.GPConnect
                     InteractionId = spineMessageType?.InteractionId,
                     SpineMessageTypeId = spineMessageTypeId
                 };
-
                 return requestParameters;
             }
             catch (Exception exc)
@@ -86,7 +87,6 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 resourceType = "Practitioner",
                 id = userGuid,
-                //name = userName,
                 name = new List<Name>
                 {
                     new Name
