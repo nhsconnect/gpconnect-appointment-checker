@@ -3,6 +3,8 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -10,9 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -22,13 +21,15 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly ILogService _logService;
         private readonly IConfigurationService _configurationService;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _context;
 
-        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService, IConfiguration configuration)
+        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
             _logger = logger;
             _configurationService = configurationService;
             _logService = logService;
             _configuration = configuration;
+            _context = context;
         }
 
         public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
@@ -51,7 +52,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
                 AddRequestingDeviceClaim(requestUri, tokenDescriptor);
                 AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
-                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid);
+                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid, _context.HttpContext.User.GetClaimValue("DisplayName"));
 
                 var token = AddTokenHeader(tokenHandler, tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
@@ -78,20 +79,20 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private static void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
-            string userGuid)
+        private void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
+            string userGuid, string userName)
         {
             tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
             {
                 resourceType = "Practitioner",
                 id = userGuid,
+                //name = userName,
                 name = new List<Name>
                 {
                     new Name
                     {
-                        family = string.Empty,
-                        given = new List<string> {string.Empty},
-                        prefix = new List<string> {string.Empty}
+                        family = userName,
+                        given = new List<string> { userName }
                     }
                 },
                 identifier = new List<Identifier>

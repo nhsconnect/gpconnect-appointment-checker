@@ -19,7 +19,5 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
         public string family { get; set; }
         [JsonProperty("given")]
         public List<string> given { get; set; }
-        [JsonProperty("prefix")]
-        public List<string> prefix { get; set; }
     }
 }
