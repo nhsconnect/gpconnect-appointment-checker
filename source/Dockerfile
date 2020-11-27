@@ -6,6 +6,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 COPY gpconnect-appointment-checker.sln ./
+COPY gpconnect-appointment-checker.Console/*.csproj ./gpconnect-appointment-checker.Console/
 COPY gpconnect-appointment-checker.IntegrationTest/*.csproj ./gpconnect-appointment-checker.IntegrationTest/
 COPY gpconnect-appointment-checker.Helpers/*.csproj ./gpconnect-appointment-checker.Helpers/
 COPY gpconnect-appointment-checker.DTO/*.csproj ./gpconnect-appointment-checker.DTO/
