@@ -6,20 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <None Remove="Helpers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Novell.Directory.Ldap.NETStandard-master\Novell.Directory.Ldap.NETStandard-master\src\Novell.Directory.Ldap.NETStandard\Novell.Directory.Ldap.NETStandard.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>
