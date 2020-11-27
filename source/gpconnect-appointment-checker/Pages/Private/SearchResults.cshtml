@@ -27,6 +27,7 @@
                         @for (int i = 0; i < Model.SearchResults.Count; i++)
                         {
                             var location = $"{string.Join(", ", Model.SearchResults[i].LocationAddressLines)}, {Model.SearchResults[i].LocationDistrict} {Model.SearchResults[i].LocationCity} {Model.SearchResults[i].LocationPostalCode} {Model.SearchResults[i].LocationCountry}";
+                            var practitionerPrefix = !string.IsNullOrEmpty(Model.SearchResults[i].PractitionerPrefix) ? $"({Model.SearchResults[i].PractitionerPrefix})" : string.Empty;
 
                             @if (i > 0)
                             {
@@ -55,7 +56,7 @@
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
                                 <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
                                 <td class="nhsuk-table__cell">
-                                    @Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;(@Model.SearchResults[i].PractitionerPrefix)
+                                    @Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;@practitionerPrefix
                                     <div>@Model.SearchResults[i].PractitionerRole</div>
                                     <div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div>
                                 </td>
