@@ -1,37 +1,21 @@
 ﻿@model SearchModel
-
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-one-third">
-                <p><label class="nhsuk-label" for="input-with-hint-text">Provider ODS Code<span class="nhsuk-hint">(search at):</span></label></p>
-            </div>
-            <div class="nhsuk-grid-column-two-thirds">
-                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode"></p>
-            </div>
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="input-providerodscode">Provider ODS Code</label>
+            <div class="nhsuk-hint" id="input-providerodscode-hint-text">(search at):</div>
+            <input class="nhsuk-input nhsuk-input--width-10" id="input-providerodscode" required no-validate asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode-hint-text">
         </div>
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-one-third">
-                <p><label class="nhsuk-label" for="input-with-hint-text">Consumer ODS Code<span class="nhsuk-hint">(search on behalf of):</span></label></p>
-            </div>
-            <div class="nhsuk-grid-column-two-thirds">
-                <p><input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" required asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode"></p>
-            </div>
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS Code</label>
+            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">(search on behalf of):</div>
+            <input class="nhsuk-input nhsuk-input--width-10" id="input-consumerodscode" required no-validate asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-one-third">
-                <p><label class="nhsuk-label" for="input-with-hint-text">Date range:</label></p>
-            </div>
-            <div class="nhsuk-grid-column-two-thirds">
-                <p><select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select></p>
-            </div>
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="@Model.SelectedDateRange">Date range</label>
+            <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-one-third">&nbsp;</div>
-            <div class="nhsuk-grid-column-two-thirds">
-                <button type="submit" asp-page-handler="Search" class="nhsuk-button">Search for free slots</button>
-                <button type="submit" asp-page-handler="Clear" class="nhsuk-button nhsuk-button--secondary">Clear</button>
-            </div>
-        </div>
+        <button class="nhsuk-button" asp-page-handler="Search" type="submit">Search for free slots</button>
+        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">Clear</button>
     </div>
 </div>

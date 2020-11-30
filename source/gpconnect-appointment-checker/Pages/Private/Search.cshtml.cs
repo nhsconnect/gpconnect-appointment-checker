@@ -26,7 +26,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
 
-        public List<SlotEntrySimple> SearchResults { get; set; } = null;
+        public List<List<SlotEntrySimple>> SearchResults { get; set; } = null;
 
         [Required]
         [BindProperty]
@@ -160,7 +160,13 @@ namespace gpconnect_appointment_checker.Pages
 
                     if (SlotSearchOk)
                     {
-                        SearchResults = searchResults.SlotEntrySimple;
+                        SearchResults = new List<List<SlotEntrySimple>>();
+                        var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
+                            .Select(grp => grp.ToList()).ToList();
+                        if (locationGrouping != null)
+                        {
+                            SearchResults.AddRange(locationGrouping);
+                        }
                     }
                     else
                     {

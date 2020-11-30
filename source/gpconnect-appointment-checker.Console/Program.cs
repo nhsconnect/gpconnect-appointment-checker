@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using gpconnect_appointment_checker.Console.Helpers;
 using Novell.Directory.Ldap;
 using Npgsql;
 
@@ -12,6 +16,7 @@ namespace gpconnect_appointment_checker.Console
         static readonly string _connectionstring = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
         static readonly List<LdapQuery> _ldapQueries = GetLdapQueries();
         static readonly SpineConfiguration _spineConfiguration = GetSpineConfiguration();
+        static X509Certificate _clientCertificate;
 
         static void Main(string[] args)
         {
@@ -40,18 +45,39 @@ namespace gpconnect_appointment_checker.Console
         {
             string[] odsCodes = {"A20047", "X26", "J82132", "B82619", "B82617", "B82614", "J82132", "RR8"};
             var query = _ldapQueries.FirstOrDefault(x => x.query_name == "GetOrganisationDetailsByOdsCode");
-            for (var i = 0; i <= 100; i++)
+
+            for (var i = 0; i < 100; i++)
             {
                 for (var j = 0; j < odsCodes.Length; j++)
                 {
                     var filter = query.query_text.Replace("{odsCode}", odsCodes[j]);
                     var results = new Dictionary<string, object>();
-                    using (ILdapConnection ldapConnection = new LdapConnection
+
+                    using (LdapConnection ldapConnection = new LdapConnection
                     {
                         SecureSocketLayer = _spineConfiguration.sds_use_ldaps,
                         ConnectionTimeout = _spineConfiguration.timeout_seconds * 1000
                     })
                     {
+                        if (_spineConfiguration.sds_use_mutualauth)
+                        {
+                            System.Console.WriteLine("Using Mutual Auth");
+
+                            var clientCertData = CertificateHelper.ExtractCertInstances(_spineConfiguration.client_cert);
+                            var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_spineConfiguration.client_private_key);
+                            var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
+
+                            var privateKey = RSA.Create();
+                            privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
+                            var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
+                            var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
+
+                            _clientCertificate = pfxFormattedCertificate;
+
+                            ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
+                            ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
+                        }
+
                         ldapConnection.Connect(_spineConfiguration.sds_hostname, _spineConfiguration.sds_port);
                         var searchResults = ldapConnection.Search(query.search_base, LdapConnection.ScopeSub, filter, null, false);
 
@@ -66,9 +92,22 @@ namespace gpconnect_appointment_checker.Console
                             }
                         }
                     }
-                    System.Console.WriteLine($"For query {filter} - iteration {i}, result count is {results.Count}");
+                    System.Console.WriteLine($"For query {filter} - iteration {i+1}, result count is {results.Count}");
                 }
             }
+        }
+
+        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+                return true;
+            System.Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+            return true;
+        }
+
+        private static X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        {
+            return _clientCertificate;
         }
 
         private static List<LdapQuery> GetLdapQueries()
@@ -156,5 +195,6 @@ namespace gpconnect_appointment_checker.Console
         public string client_cert { get; set; }
         public string client_private_key { get; set; }
         public string server_ca_certchain { get; set; }
+        public bool sds_use_mutualauth { get; set; }
     }
 }

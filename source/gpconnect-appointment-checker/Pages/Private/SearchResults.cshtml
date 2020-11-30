@@ -3,68 +3,69 @@
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
-        <div class="nhsuk-warning-callout">
-            <h3 class="nhsuk-warning-callout__label">Searching at / on behalf of:</h3>
-            <p>@Model.SearchAtResultsText<br />@Model.SearchOnBehalfOfResultsText</p>
+        <div class="nhsuk-care-card">
+            <div class="nhsuk-care-card__heading-container">
+                <h3 class="nhsuk-care-card__heading"><span role="text">Searching at:</span></h3>
+                <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
+            </div>
+            <div class="nhsuk-care-card__content"><p>@Model.SearchAtResultsText</p></div>
         </div>
+        <div class="nhsuk-care-card">
+            <div class="nhsuk-care-card__heading-container">
+                <h3 class="nhsuk-care-card__heading"><span role="text">Searching on behalf of:</span></h3>
+                <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
+            </div>
+            <div class="nhsuk-care-card__content"><p>@Model.SearchOnBehalfOfResultsText</p></div>
+        </div>
+
         @if (Model.SearchResults.Count > 0)
         {
-            <div class="nhsuk-table__panel-with-heading-tab">
-                <table class="nhsuk-table">
-                    <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">Available Appointment Slots</caption>
-                    <thead role="rowgroup" class="nhsuk-table__head">
-                        <tr role="row">
-                            <th role="columnheader" class="" scope="col">Appointment date</th>
-                            <th role="columnheader" class="" scope="col">Session name</th>
-                            <th role="columnheader" class="" scope="col">Start time</th>
-                            <th role="columnheader" class="" scope="col">Duration</th>
-                            <th role="columnheader" class="" scope="col">Slot type</th>
-                            <th role="columnheader" class="" scope="col">Mode of appointment</th>
-                            <th role="columnheader" class="" scope="col">Practitioner</th>
-                        </tr>
-                    </thead>
-                    <tbody class="nhsuk-table__body">
-                        @for (int i = 0; i < Model.SearchResults.Count; i++)
-                        {
-                            var location = $"{string.Join(", ", Model.SearchResults[i].LocationAddressLines)}, {Model.SearchResults[i].LocationDistrict} {Model.SearchResults[i].LocationCity} {Model.SearchResults[i].LocationPostalCode} {Model.SearchResults[i].LocationCountry}";
-                            var practitionerPrefix = !string.IsNullOrEmpty(Model.SearchResults[i].PractitionerPrefix) ? $"({Model.SearchResults[i].PractitionerPrefix})" : string.Empty;
+            foreach (var locationGrouping in Model.SearchResults)
+            {
+                var firstLocation = locationGrouping.FirstOrDefault();
+                if (firstLocation != null)
+                {
+                    <h4>
+                        @firstLocation.LocationName<br />@Html.Raw($"{string.Join(", ", firstLocation.LocationAddressLines)}, {firstLocation.LocationDistrict} {firstLocation.LocationCity} {firstLocation.LocationPostalCode} {firstLocation.LocationCountry}")
+                    </h4>
+                }
 
-                            @if (i > 0)
+                <div class="nhsuk-table__panel-with-heading-tab">
+                    <table role="table" class="nhsuk-table-responsive">
+                        <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">Available Appointment Slots</caption>
+                        <thead role="rowgroup" class="nhsuk-table__head">
+                            <tr role="row">
+                                <th role="columnheader" class="" scope="col">Appointment date</th>
+                                <th role="columnheader" class="" scope="col">Session name</th>
+                                <th role="columnheader" class="" scope="col">Start time</th>
+                                <th role="columnheader" class="" scope="col">Duration</th>
+                                <th role="columnheader" class="" scope="col">Slot type</th>
+                                <th role="columnheader" class="" scope="col">Mode of appointment</th>
+                                <th role="columnheader" class="" scope="col">Practitioner</th>
+                            </tr>
+                        </thead>
+                        <tbody class="nhsuk-table__body">
+                            @foreach (var t in locationGrouping)
                             {
-                                @if (Model.SearchResults[i].LocationName != Model.SearchResults[i - 1].LocationName)
-                                {
-                                    <tr role="row" class="nhsuk-table__row">
-                                        <td colspan="9" class="nhsuk-table__cell">
-                                            <h4>@Model.SearchResults[i].LocationName<br />@location</h4>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
+                                var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
                                 <tr role="row" class="nhsuk-table__row">
-                                    <td colspan="9" class="nhsuk-table__cell">
-                                        <h4>@Model.SearchResults[i].LocationName<br />@location</h4>
+                                    <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
+                                    <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
+                                    <td role="cell" class="nhsuk-table__cell">@t.StartTime.DateFormatter("t")</td>
+                                    <td role="cell" class="nhsuk-table__cell">@t.Duration.UnitsFormatter("mins")</td>
+                                    <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
+                                    <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
+                                    <td role="cell" class="nhsuk-table__cell">
+                                        @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
+                                        <div>@t.PractitionerRole</div>
+                                        <div>@t.PractitionerGender.FirstCharToUpper()</div>
                                     </td>
                                 </tr>
                             }
-                            <tr role="row" class="nhsuk-table__row">
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].SessionName</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].StartTime.DateFormatter("t")</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].Duration.UnitsFormatter("mins")</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].SlotType</td>
-                                <td class="nhsuk-table__cell">@Model.SearchResults[i].DeliveryChannel</td>
-                                <td class="nhsuk-table__cell">
-                                    @Model.SearchResults[i].PractitionerFamilyName.ToUpper(),&nbsp;@Model.SearchResults[i].PractitionerGivenName&nbsp;@practitionerPrefix
-                                    <div>@Model.SearchResults[i].PractitionerRole</div>
-                                    <div>@Model.SearchResults[i].PractitionerGender.FirstCharToUpper()</div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         }
         else
         {
