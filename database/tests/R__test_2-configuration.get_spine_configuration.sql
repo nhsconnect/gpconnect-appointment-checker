@@ -11,7 +11,8 @@ select
 	client_cert,
 	client_private_key,
 	server_ca_certchain,
-	sds_use_mutualauth
+	sds_use_mutualauth,
+	spine_fqdn
 from configuration.get_spine_configuration
 (
 );
