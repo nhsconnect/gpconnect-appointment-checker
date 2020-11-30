@@ -28,11 +28,11 @@ namespace gpconnect_appointment_checker.Pages
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
 
-        [Required(ErrorMessage = "You must enter a Provider ODS Code")]
+        [Required(ErrorMessage = "You must enter a Provider ODS code")]
         [BindProperty]
         public string ProviderODSCode { get; set; }
 
-        [Required(ErrorMessage = "You must enter a Consumer ODS Code")]
+        [Required(ErrorMessage = "You must enter a Consumer ODS code")]
         [BindProperty]
         public string ConsumerODSCode { get; set; }
 
