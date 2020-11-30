@@ -26,13 +26,13 @@ namespace gpconnect_appointment_checker.Pages
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
 
-        public List<List<SlotEntrySimple>> SearchResults { get; set; } = null;
+        public List<List<SlotEntrySimple>> SearchResults { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "You must enter a Provider ODS Code")]
         [BindProperty]
         public string ProviderODSCode { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "You must enter a Consumer ODS Code")]
         [BindProperty]
         public string ConsumerODSCode { get; set; }
 
