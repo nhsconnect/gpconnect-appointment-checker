@@ -22,7 +22,16 @@ namespace gpconnect_appointment_checker.Console
         {
             try
             {
-                RunLdapQueries();
+                var numberOfGoes = 1;
+                if (args.Length == 0)
+                {
+                    System.Console.WriteLine("Number of iterations not supplied. Defaulting to 1.");
+                }
+                else
+                {
+                    numberOfGoes = int.Parse(args[0]);
+                }
+                RunLdapQueries(numberOfGoes);
             }
             catch (InterThreadException e)
             {
@@ -41,12 +50,12 @@ namespace gpconnect_appointment_checker.Console
             }
         }
 
-        private static void RunLdapQueries()
+        private static void RunLdapQueries(int numberOfGoes)
         {
             string[] odsCodes = {"A20047", "X26", "J82132", "B82619", "B82617", "B82614", "J82132", "RR8"};
             var query = _ldapQueries.FirstOrDefault(x => x.query_name == "GetOrganisationDetailsByOdsCode");
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < numberOfGoes; i++)
             {
                 for (var j = 0; j < odsCodes.Length; j++)
                 {

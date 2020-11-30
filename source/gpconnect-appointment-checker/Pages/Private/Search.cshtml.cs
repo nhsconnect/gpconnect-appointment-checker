@@ -55,6 +55,7 @@ namespace gpconnect_appointment_checker.Pages
         public string ProviderErrorDisplay { get; set; }
         public string ProviderErrorCode { get; set; }
         public string ProviderErrorDiagnostics { get; set; }
+        public int? SearchResultsCount { get; set; }
 
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -163,6 +164,8 @@ namespace gpconnect_appointment_checker.Pages
                         SearchResults = new List<List<SlotEntrySimple>>();
                         var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
                             .Select(grp => grp.ToList()).ToList();
+                        SearchResultsCount = searchResults?.SlotEntrySimple.Count;
+
                         if (locationGrouping != null)
                         {
                             SearchResults.AddRange(locationGrouping);
