@@ -25,6 +25,7 @@ namespace gpconnect_appointment_checker.SDS
         private static ILdapConnection _connection;
         private readonly IHttpContextAccessor _context;
         private static X509Certificate _clientCertificate;
+        private object _key = new object();
 
         public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
@@ -55,42 +56,46 @@ namespace gpconnect_appointment_checker.SDS
                 if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
 
                 var results = new Dictionary<string, object>();
-                using (ILdapConnection ldapConnection = GetConnection())
+
+                lock (_key)
                 {
-                    var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
-                    var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
-
-                    _logger.LogInformation("Establishing connection with the LDAP server");
-                    _logger.LogInformation($"Host: {hostName}");
-                    _logger.LogInformation($"Port: {hostPort}");
-
-                    ldapConnection.Connect(hostName, hostPort);
-
-                    _logger.LogInformation("Commencing search");
-                    _logger.LogInformation($"searchBase is: {searchBase}");
-                    _logger.LogInformation($"filter is: {filter}");
-
-                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
-
-                    _logger.LogInformation("Search has been executed.");
-
-                    while (searchResults.HasMore())
+                    using (ILdapConnection ldapConnection = GetConnection())
                     {
-                        var nextEntry = searchResults.Next();
-                        var attributeSet = nextEntry.GetAttributeSet();
+                        var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
+                        var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
 
-                        foreach (var attribute in attributeSet)
+                        _logger.LogInformation("Establishing connection with the LDAP server");
+                        _logger.LogInformation($"Host: {hostName}");
+                        _logger.LogInformation($"Port: {hostPort}");
+
+                        ldapConnection.Connect(hostName, hostPort);
+
+                        _logger.LogInformation("Commencing search");
+                        _logger.LogInformation($"searchBase is: {searchBase}");
+                        _logger.LogInformation($"filter is: {filter}");
+
+                        var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
+
+                        _logger.LogInformation("Search has been executed.");
+
+                        while (searchResults.HasMore())
                         {
-                            results.TryAdd(attribute.Name, attribute.StringValue);
-                        }
-                    }
+                            var nextEntry = searchResults.Next();
+                            var attributeSet = nextEntry.GetAttributeSet();
 
-                    if (ldapConnection.Connected)
-                    {
-                        _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
-                        ldapConnection.Disconnect();
-                        _logger.LogInformation("Disconnected from the LDAP server.");
-                        ldapConnection.Dispose();
+                            foreach (var attribute in attributeSet)
+                            {
+                                results.TryAdd(attribute.Name, attribute.StringValue);
+                            }
+                        }
+
+                        if (ldapConnection.Connected)
+                        {
+                            _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
+                            ldapConnection.Disconnect();
+                            _logger.LogInformation("Disconnected from the LDAP server.");
+                            ldapConnection.Dispose();
+                        }
                     }
                 }
 
