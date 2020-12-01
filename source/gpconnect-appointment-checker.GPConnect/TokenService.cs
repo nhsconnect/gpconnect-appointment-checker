@@ -43,7 +43,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 var userGuid = Guid.NewGuid().ToString();
                 var tokenHandler = new JwtSecurityTokenHandler
                 {
-                    SetDefaultTimesOnTokenCreation = true
+                    SetDefaultTimesOnTokenCreation = false
                 };
 
                 var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
@@ -54,7 +54,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
                 AddRequestingDeviceClaim(requestUri, tokenDescriptor);
                 AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
-                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid, _context.HttpContext.User.GetClaimValue("DisplayName"));
+                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid);
 
                 var token = AddTokenHeader(tokenHandler, tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
@@ -81,8 +81,13 @@ namespace gpconnect_appointment_checker.GPConnect
         }
 
         private void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor,
-            string userGuid, string userName)
+            string userGuid)
         {
+            var familyName = _context.HttpContext.User.GetClaimValue("FamilyName");
+            var givenName = _context.HttpContext.User.GetClaimValue("GivenName");
+            var displayName = _context.HttpContext.User.GetClaimValue("DisplayName");
+            var nameParts = Regex.Split(displayName, @"[^a-zA-Z0-9]").Where(x => x != string.Empty).ToArray();
+
             tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
             {
                 resourceType = "Practitioner",
@@ -91,8 +96,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 {
                     new Name
                     {
-                        family = userName,
-                        given = new List<string> { userName }
+                        family = !string.IsNullOrEmpty(familyName) ? familyName : nameParts[0].FirstCharToUpper(true),
+                        given = new List<string> { !string.IsNullOrEmpty(givenName) ? givenName : nameParts[1].FirstCharToUpper(true) }
                     }
                 },
                 identifier = new List<Identifier>
@@ -109,8 +114,13 @@ namespace gpconnect_appointment_checker.GPConnect
                     },
                     new Identifier
                     {
-                        system = $"{requestUri.AbsoluteUri}/user-id",
-                        value = userGuid
+                        system = "https://appointmentchecker.gpconnect.nhs.uk/Id/email-address",
+                        value = _context.HttpContext.User.GetClaimValue("Email")
+                    },
+                    new Identifier
+                    {
+                        system = "https://appointmentchecker.gpconnect.nhs.uk/Id/nhsmail-sid",
+                        value = _context.HttpContext.User.GetClaimValue("sid")
                     }
                 }
             });
@@ -145,7 +155,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 {
                     new Identifier
                     {
-                        system = requestUri.AbsoluteUri,
+                        system = "https://appointmentchecker.gpconnect.nhs.uk/Id/device-identifier",
                         value = requestUri.Host
                     }
                 }
