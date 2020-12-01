@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="3.3.1" />
+    <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="3.4.0" />
     <PackageReference Include="Npgsql" Version="4.1.4" />
   </ItemGroup>
 

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using gpconnect_appointment_checker.Console.Helpers;
+using Novell.Directory.Ldap;
+using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using gpconnect_appointment_checker.Console.Helpers;
-using Novell.Directory.Ldap;
-using Npgsql;
 
 namespace gpconnect_appointment_checker.Console
 {
@@ -23,14 +23,15 @@ namespace gpconnect_appointment_checker.Console
             try
             {
                 var numberOfGoes = 1;
-                if (args.Length == 0)
+                if (args.Length == 0 || !int.TryParse(args[0], out _))
                 {
-                    System.Console.WriteLine("Number of iterations not supplied. Defaulting to 1.");
+                    System.Console.WriteLine("Number of iterations not supplied or invalid. Defaulting to 1.");
                 }
                 else
                 {
                     numberOfGoes = int.Parse(args[0]);
                 }
+                System.Console.WriteLine($"Running {numberOfGoes} iteration(s).");
                 RunLdapQueries(numberOfGoes);
             }
             catch (InterThreadException e)
