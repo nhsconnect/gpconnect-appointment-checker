@@ -14,6 +14,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseResponseCompression();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {

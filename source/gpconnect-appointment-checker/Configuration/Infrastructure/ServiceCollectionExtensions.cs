@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +14,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 s.IdleTimeout = new System.TimeSpan(0, 30, 0);
             });
 
-            
+            services.AddResponseCompression();
             services.AddControllersWithViews();
             services.AddHttpContextAccessor();
             services.AddRazorPages(options =>

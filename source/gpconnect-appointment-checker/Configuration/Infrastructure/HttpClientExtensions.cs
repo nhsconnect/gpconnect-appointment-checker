@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
@@ -20,6 +21,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 options.Timeout = new TimeSpan(0, 0, 0, int.Parse(configuration.GetSection("spine:timeout_seconds").GetConfigurationString("30")));
                 options.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
+                options.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
                 options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(configuration, env));
         }
@@ -31,6 +33,11 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             var clientPrivateKey = configuration.GetSection("spine:client_private_key").GetConfigurationString();
 
             var httpClientHandler = new HttpClientHandler();
+
+            if (httpClientHandler.SupportsAutomaticDecompression)
+            {
+                httpClientHandler.AutomaticDecompression = DecompressionMethods.GZip;
+            }
 
             if (bool.Parse(configuration.GetSection("spine:use_ssp").GetConfigurationString("false")) &&
                 !string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientPrivateKey) &&
@@ -72,6 +79,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             if (chain.ChainStatus.Where(chainStatus => chainStatus.Status != X509ChainStatusFlags.NoError).All(chainStatus => chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)) return false;
             var providedRoot = chain.ChainElements[^1];
             return x509ServerCertificateRootCa.Thumbprint == providedRoot.Certificate.Thumbprint;
-        }        
+        }
     }
 }
