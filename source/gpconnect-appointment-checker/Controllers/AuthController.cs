@@ -51,7 +51,7 @@ namespace gpconnect_appointment_checker.Controllers
             }
             finally
             {
-                signOutResult = SignOut(new AuthenticationProperties(), "OpenIdConnect");
+                signOutResult = SignOut(new AuthenticationProperties { RedirectUri = "/" }, "Cookies", "OpenIdConnect");
             }
             return signOutResult;
         }
