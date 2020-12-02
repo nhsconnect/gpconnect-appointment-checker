@@ -102,6 +102,7 @@ namespace gpconnect_appointment_checker.SDS
                 logMessage.ResponsePayload = jsonDictionary;
                 logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(logMessage);
+
                 return result;
             }
             catch (InterThreadException interThreadException)
