@@ -13,24 +13,33 @@ namespace gpconnect_appointment_checker.Console
 {
     class Program
     {
-        static readonly string _connectionstring = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
-        static readonly List<LdapQuery> _ldapQueries = GetLdapQueries();
-        static readonly SpineConfiguration _spineConfiguration = GetSpineConfiguration();
+        static string _connectionstring;
+        static List<LdapQuery> _ldapQueries; 
+        static SpineConfiguration _spineConfiguration; 
         static X509Certificate _clientCertificate;
 
         static void Main(string[] args)
         {
             try
             {
-                var numberOfGoes = 1;
-                if (args.Length == 0 || !int.TryParse(args[0], out _))
+                if ((args == null) || (args.Length == 0))
                 {
-                    System.Console.WriteLine("Number of iterations not supplied or invalid. Defaulting to 1.");
+                    System.Console.WriteLine("Please pass the first argument as DB connection string in the format Server=PG_HOST;Port=PG_PORT;Database=PG_DB;User Id=PG_USER;Password=PG_PASS");
+                    Environment.Exit(-1);
                 }
-                else
-                {
-                    numberOfGoes = int.Parse(args[0]);
-                }
+
+                _connectionstring = args.First();
+
+                System.Console.WriteLine($"Using DB connection string: {_connectionstring}");
+
+                int numberOfGoes = 1;
+
+                if (args.Length > 1)
+                    int.TryParse(args.Skip(1).First(), out numberOfGoes);
+
+                _ldapQueries = GetLdapQueries();
+                _spineConfiguration = GetSpineConfiguration();
+
                 System.Console.WriteLine($"Running {numberOfGoes} iteration(s).");
                 RunLdapQueries(numberOfGoes);
             }
@@ -164,7 +173,7 @@ namespace gpconnect_appointment_checker.Console
                     result = new SpineConfiguration
                     {
                         use_ssp = reader.GetBoolean("use_ssp"),
-                        ssp_hostname = reader.GetString("ssp_hostname"),
+                        ssp_hostname = reader.GetNullableString("ssp_hostname"),
                         sds_hostname = reader.GetString("sds_hostname"),
                         sds_port = reader.GetInt32("sds_port"),
                         sds_use_ldaps = reader.GetBoolean("sds_use_ldaps"),
@@ -172,15 +181,26 @@ namespace gpconnect_appointment_checker.Console
                         asid = reader.GetString("asid"),
                         organisation_id = reader.GetInt32("organisation_id"),
                         timeout_seconds = reader.GetInt32("timeout_seconds"),
-                        client_cert = reader.GetString("client_cert"),
-                        client_private_key = reader.GetString("client_private_key"),
-                        server_ca_certchain = reader.GetString("server_ca_certchain"),
+                        client_cert = reader.GetNullableString("client_cert"),
+                        client_private_key = reader.GetNullableString("client_private_key"),
+                        server_ca_certchain = reader.GetNullableString("server_ca_certchain"),
                     };
                 }
 
                 connection.Close();
             }
             return result;
+        }
+    }
+
+    internal static class NgpsqlDataReaderExtensionMethods
+    {
+        public static string GetNullableString(this NpgsqlDataReader reader, string columnName)
+        {
+            if (reader.IsDBNull(columnName))
+                return null;
+
+            return reader.GetString(columnName);
         }
     }
 
