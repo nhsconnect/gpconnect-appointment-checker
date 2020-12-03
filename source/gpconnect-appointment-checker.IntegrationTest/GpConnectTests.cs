@@ -26,6 +26,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         {
             var mockLogger = new Mock<ILogger<GpConnectQueryExecutionService>>();
             var mockLogService = new Mock<ILogService>();
+            var mockAuditService = new Mock<IAuditService>();
             var mockConfigurationService = new Mock<IConfigurationService>();
             var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
@@ -37,7 +38,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
             SetupHttpClient(mockHttpClientFactory);
             SetupConfiguration(mockConfiguration);
 
-            _gpConnectQueryExecutionService = new GpConnectQueryExecutionService(mockLogger.Object, mockConfigurationService.Object, mockLogService.Object, mockHttpClientFactory.Object, mockHttpContextAccessor.Object);
+            _gpConnectQueryExecutionService = new GpConnectQueryExecutionService(mockLogger.Object, mockConfigurationService.Object, mockLogService.Object, mockHttpClientFactory.Object, mockAuditService.Object);
         }
 
         [Theory]

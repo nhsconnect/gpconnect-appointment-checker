@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker
@@ -89,9 +90,13 @@ namespace gpconnect_appointment_checker
                         },
                         OnAuthenticationFailed = context =>
                         {
-                            context.Response.Redirect(context.Exception != null ? "/Error" : "/AccessDenied");
-                            context.HandleResponse();
-                            return Task.CompletedTask;
+                            if (context.Exception == null)
+                            {
+                                context.Response.Redirect("/AccessDenied");
+                                context.HandleResponse();
+                                return Task.CompletedTask;
+                            }
+                            throw context.Exception;
                         }
                     };
                 });

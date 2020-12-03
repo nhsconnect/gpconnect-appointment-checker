@@ -41,7 +41,6 @@ namespace gpconnect_appointment_checker.SDS
                 {
                     _applicationService.SynchroniseOrganisation(results);
                 }
-
                 return results;
             }
             catch (LdapException ldapException)

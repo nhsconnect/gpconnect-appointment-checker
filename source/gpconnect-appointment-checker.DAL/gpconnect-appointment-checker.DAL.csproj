@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.8" />
@@ -16,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gpconnect-appointment-checker.DTO\gpconnect-appointment-checker.DTO.csproj" />
+    <ProjectReference Include="..\gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,7 @@
 ﻿using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,10 +11,18 @@ namespace gpconnect_appointment_checker.DAL.Logging
     public class LogService : ILogService
     {
         private readonly IDataService _dataService;
+        private readonly IHttpContextAccessor _context;
+        private readonly int? _userId;
+        private readonly int? _userSessionId;
 
-        public LogService(IDataService dataService)
+        public LogService(IDataService dataService, IHttpContextAccessor context)
         {
             _dataService = dataService;
+            _context = context;
+            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null) 
+                _userId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserId"));
+            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+                _userSessionId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserSessionId"));
         }
 
         public void AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
@@ -22,8 +32,8 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_application", errorLog.Application);
             parameters.Add("_logged", errorLog.Logged);
             parameters.Add("_level", errorLog.Level);
-            parameters.Add("_user_id", errorLog.UserId);
-            parameters.Add("_user_session_id", errorLog.UserSessionId);
+            parameters.Add("_user_id", _userId);
+            parameters.Add("_user_session_id", _userSessionId);
             parameters.Add("_message", errorLog.Message);
             parameters.Add("_logger", errorLog.Logger);
             parameters.Add("_callsite", errorLog.Callsite);
@@ -35,7 +45,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
         {
             var functionName = "logging.log_spine_message";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_session_id", spineMessage.UserSessionId);
+            parameters.Add("_user_session_id", _userSessionId);
             parameters.Add("_spine_message_type_id", spineMessage.SpineMessageTypeId);
             parameters.Add("_command", spineMessage.Command);
             parameters.Add("_request_headers", spineMessage.RequestHeaders);
@@ -51,8 +61,8 @@ namespace gpconnect_appointment_checker.DAL.Logging
         {
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_id", webRequest.UserId > 0 ? webRequest.UserId : null);
-            parameters.Add("_user_session_id", webRequest.UserSessionId > 0 ? webRequest.UserSessionId : null);
+            parameters.Add("_user_id", _userId);
+            parameters.Add("_user_session_id", _userSessionId);
             parameters.Add("_url", webRequest.Url);
             parameters.Add("_referrer_url", webRequest.ReferrerUrl);
             parameters.Add("_description", webRequest.Description);

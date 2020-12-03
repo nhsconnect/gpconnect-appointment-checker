@@ -27,9 +27,6 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId;
 
-                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
-                if (userSessionId != null) _spineMessage.UserSessionId = Convert.ToInt32(userSessionId);
-
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
                 AddRequiredRequestHeaders(requestParameters, client);
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();

@@ -3,12 +3,12 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.DTO.Request.Audit;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -16,18 +16,18 @@ namespace gpconnect_appointment_checker.GPConnect
     {
         private readonly ILogger<GpConnectQueryExecutionService> _logger;
         private readonly ILogService _logService;
+        private readonly IAuditService _auditService;
         private readonly IConfigurationService _configurationService;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _context;
         private SpineMessage _spineMessage;
 
-        public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IHttpContextAccessor context)
+        public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService)
         {
             _logger = logger;
             _configurationService = configurationService;
             _logService = logService;
             _httpClientFactory = httpClientFactory;
-            _context = context;
+            _auditService = auditService;
         }
 
         public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)

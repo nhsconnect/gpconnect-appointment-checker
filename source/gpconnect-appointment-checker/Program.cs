@@ -1,3 +1,4 @@
+using System.Security.Permissions;
 using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL;

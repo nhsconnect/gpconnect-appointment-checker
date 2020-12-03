@@ -51,97 +51,15 @@ namespace gpconnect_appointment_checker.SDS
                     RequestPayload = $"{searchBase} {filter} {attributes}",
                     SpineMessageTypeId = (int)GPConnect.Constants.SpineMessageTypes.SpineLdapQuery
                 };
-                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
-                if (userSessionId != null) logMessage.UserSessionId = Convert.ToInt32(userSessionId);
-
+                
                 var results = new Dictionary<string, object>();
-                using (ILdapConnection ldapConnection = GetConnection())
+                using (var ldapConnection = new LdapConnection
                 {
-                    var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
-                    var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
-
-                    _logger.LogInformation("Establishing connection with the LDAP server");
-                    _logger.LogInformation($"Host: {hostName}");
-                    _logger.LogInformation($"Port: {hostPort}");
-
-                    ldapConnection.Connect(hostName, hostPort);
-
-                    _logger.LogInformation("Commencing search");
-                    _logger.LogInformation($"searchBase is: {searchBase}");
-                    _logger.LogInformation($"filter is: {filter}");
-
-                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
-
-                    _logger.LogInformation("Search has been executed.");
-
-                    while (searchResults.HasMore())
-                    {
-                        var nextEntry = searchResults.Next();
-                        var attributeSet = nextEntry.GetAttributeSet();
-
-                        foreach (var attribute in attributeSet)
-                        {
-                            results.TryAdd(attribute.Name, attribute.StringValue);
-                        }
-                    }
-
-                    if (ldapConnection.Connected)
-                    {
-                        _logger.LogInformation("Still connected to the LDAP server. Attempting to disconnect.");
-                        ldapConnection.Disconnect();
-                        _logger.LogInformation("Disconnected from the LDAP server.");
-                        ldapConnection.Dispose();
-                    }
-                }
-
-                var jsonDictionary = JsonConvert.SerializeObject(results);
-                if (results.Count > 0)
+                    SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
+                    ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
+                })
                 {
-                    result = JsonConvert.DeserializeObject<T>(jsonDictionary);
-                }
-                logMessage.ResponsePayload = jsonDictionary;
-                logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
-                _logService.AddSpineMessageLog(logMessage);
-
-                return result;
-            }
-            catch (InterThreadException interThreadException)
-            {
-                _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
-                throw;
-            }
-            catch (LdapException ldapException)
-            {
-                _logger.LogError($"An LdapException has occurred while attempting to execute an LDAP query", ldapException);
-                throw;
-            }
-            catch (Exception exc)
-            {
-                _logger.LogError($"An Exception has occurred while attempting to execute an LDAP query", exc);
-                throw;
-            }
-        }
-
-        private static ILdapConnection GetConnection()
-        {
-            try
-            {
-                var ldapConn = _connection as LdapConnection;
-                var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
-
-                if (ldapConn == null)
-                {
-                    _logger.LogInformation("Initiating Ldap Connection");
-
-                    ldapConn = new LdapConnection
-                    {
-                        SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
-                        ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
-                    };
-
-                    _logger.LogInformation("Initiated Ldap Connection with the following parameters");
-                    _logger.LogInformation($"SecureSocketLayer: {ldapConn.SecureSocketLayer}");
-                    _logger.LogInformation($"ConnectionTimeout: {ldapConn.ConnectionTimeout}");
+                    var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
                     if (useSdsMutualAuth)
                     {
@@ -162,16 +80,72 @@ namespace gpconnect_appointment_checker.SDS
 
                         _clientCertificate = pfxFormattedCertificate;
 
-                        ldapConn.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
-                        ldapConn.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
+                        ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
+                        ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
+
+
+                    var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
+                    var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
+
+                    _logger.LogInformation("Establishing connection with the LDAP server");
+                    _logger.LogInformation($"Host: {hostName}");
+                    _logger.LogInformation($"Port: {hostPort}");
+
+                    ldapConnection.Connect(hostName, hostPort);
+
+                    _logger.LogInformation("Commencing search");
+                    _logger.LogInformation($"searchBase is: {searchBase}");
+                    _logger.LogInformation($"filter is: {filter}");
+
+                    var ldapSearchConstraints = new LdapSearchConstraints
+                    {
+                        BatchSize = 6
+                    };
+                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false, ldapSearchConstraints);
+
+                    //throw new ArgumentNullException("Manual LdapException has been thrown");
+
+                    _logger.LogInformation("Search has been executed.");
+
+                    while (searchResults.HasMore())
+                    {
+                        var nextEntry = searchResults.Next();
+                        var attributeSet = nextEntry.GetAttributeSet();
+
+                        foreach (var attribute in attributeSet)
+                        {
+                            results.TryAdd(attribute.Name, attribute.StringValue);
+                        }
+                    }
+                    ldapConnection.Disconnect();
+                    ldapConnection.Dispose();
                 }
 
-                return ldapConn;
+                var jsonDictionary = JsonConvert.SerializeObject(results);
+                if (results.Count > 0)
+                {
+                    result = JsonConvert.DeserializeObject<T>(jsonDictionary);
+                }
+                logMessage.ResponsePayload = jsonDictionary;
+                logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
+                _logService.AddSpineMessageLog(logMessage);
+
+                return result;
+            }
+            catch (InterThreadException interThreadException)
+            {
+                _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
+                throw;
             }
             catch (LdapException ldapException)
             {
-                _logger.LogError("An error has occurred while attempting to establish a connection to the LDAP server", ldapException);
+                _logger.LogError("An LdapException has occurred while attempting to execute an LDAP query", ldapException);
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An Exception has occurred while attempting to execute an LDAP query", exc);
                 throw;
             }
         }

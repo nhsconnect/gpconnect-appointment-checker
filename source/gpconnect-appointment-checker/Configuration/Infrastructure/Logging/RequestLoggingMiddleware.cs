@@ -1,10 +1,7 @@
-﻿using gpconnect_appointment_checker.Configuration.Infrastructure;
-using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Configuration
@@ -26,9 +23,6 @@ namespace gpconnect_appointment_checker.Configuration
             }
             finally
             {
-                var userSessionId = Convert.ToInt32(context.User.GetClaimValue("UserSessionId", nullIfEmpty: true));
-                var userId = Convert.ToInt32(context.User.GetClaimValue("UserId", nullIfEmpty: true));
-
                 logService.AddWebRequestLog(new WebRequest
                 {
                     CreatedBy = context.User?.GetClaimValue("DisplayName"),
@@ -39,8 +33,6 @@ namespace gpconnect_appointment_checker.Configuration
                     SessionId = context.GetSessionId(),
                     ReferrerUrl = context.Request?.Headers["Referer"].ToString(),
                     ResponseCode = context.Response.StatusCode,
-                    UserSessionId = userSessionId,
-                    UserId = userId,
                     UserAgent = context.Request?.Headers["User-Agent"].ToString()
                 });
             }

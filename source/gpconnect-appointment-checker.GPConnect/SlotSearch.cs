@@ -7,10 +7,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using gpconnect_appointment_checker.DTO.Request.Audit;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -21,17 +23,16 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
-                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
+                    x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
+                requestParameters.SpineMessageTypeId = (int) SpineMessageTypes.GpConnectSearchFreeSlots;
                 requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
-                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId;
-                var userSessionId = _context.HttpContext.User.FindFirst("UserSessionId")?.Value;
-                if (userSessionId != null) _spineMessage.UserSessionId = Convert.ToInt32(userSessionId);
+                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId; 
 
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
+
                 client.Timeout = new TimeSpan(0, 0, 30);
                 AddRequiredRequestHeaders(requestParameters, client);
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
@@ -57,20 +58,21 @@ namespace gpconnect_appointment_checker.GPConnect
                 if (results.Issue?.Count > 0)
                 {
                     slotSimple.Issue = results.Issue;
+                    SendToAudit(requestParameters, startDate, endDate, results.Issue.FirstOrDefault()?.Diagnostics, stopWatch, null);
                     return slotSimple;
                 }
 
                 slotSimple.SlotEntrySimple = new List<SlotEntrySimple>();
 
-                if (results.entry == null || results.entry.Count == 0) return slotSimple;
-                var slotResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
-                if (slotResources.Count == 0) return slotSimple;
+                var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
+                SendToAudit(requestParameters, startDate, endDate, null, stopWatch, slotResources?.Count);
+                if (slotResources == null || slotResources?.Count == 0) return slotSimple;
 
-                var practitionerResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
-                var locationResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
-                var scheduleResources = results.entry.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
+                var practitionerResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
+                var locationResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Location).ToList();
+                var scheduleResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Schedule).ToList();
 
-                var slotList = (from slot in slotResources.Where(s => s.resource != null)
+                var slotList = (from slot in slotResources?.Where(s => s.resource != null)
                                 let practitioner = GetPractitionerDetails(slot.resource.schedule.reference, scheduleResources, practitionerResources)
                                 let location = GetLocation(slot.resource.schedule.reference, scheduleResources, locationResources)
                                 let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
@@ -109,6 +111,19 @@ namespace gpconnect_appointment_checker.GPConnect
                 _logger.LogError("An error occurred in trying to execute a GET request", exc);
                 throw;
             }
+        }
+
+        private void SendToAudit(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string issues, Stopwatch stopWatch, int? resultCount)
+        {
+            _auditService.AddEntry(new Entry
+            {
+                Item1 = requestParameters.ConsumerODSCode,
+                Item2 = requestParameters.ProviderODSCode,
+                Item3 = $"{startDate:d-MMM-yyyy}-{endDate:d-MMM-yyyy}",
+                Details = string.IsNullOrEmpty(issues) ? resultCount.ToString() : issues,
+                EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
+                EntryTypeId = (int) AuditEntryTypes.SlotSearch
+            });
         }
 
         private Practitioner GetPractitionerDetails(string reference, List<RootEntry> scheduleResources, List<RootEntry> practitionerResources)

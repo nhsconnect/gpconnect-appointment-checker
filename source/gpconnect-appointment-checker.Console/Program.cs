@@ -175,6 +175,7 @@ namespace gpconnect_appointment_checker.Console
                         client_cert = reader.GetString("client_cert"),
                         client_private_key = reader.GetString("client_private_key"),
                         server_ca_certchain = reader.GetString("server_ca_certchain"),
+                        sds_use_mutualauth = reader.GetBoolean("sds_use_mutualauth")
                     };
                 }
 

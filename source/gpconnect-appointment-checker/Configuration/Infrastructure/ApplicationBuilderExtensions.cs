@@ -8,6 +8,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void ConfigureApplicationBuilderServices(this IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //app.UseExceptionHandler(err => err.ErrorHandlingMiddleware(env));
             app.UseExceptionHandler("/Error");
             app.UseHsts();
 

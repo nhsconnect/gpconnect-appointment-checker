@@ -8,20 +8,24 @@
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-providerodscode">Provider ODS code</label>
-            <div class="nhsuk-hint" id="input-providerodscode-hint-text">(search at):</div>
-            @Html.ValidationMessageFor(m => m.ProviderODSCode, "", new { @class = "nhsuk-error-message" })
+            <label class="nhsuk-label" for="input-providerodscode">Enter a provider ODS code (search at)</label>
+            @if (providerOdsCodeInvalid)
+            {
+                @Html.ValidationMessageFor(m => m.ProviderODSCode, "", new { @class = "nhsuk-error-message" })
+            }
             <input class="nhsuk-input nhsuk-input--width-10 @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderODSCode" name="providerodscode" type="text" aria-describedby="input-providerodscode-hint-text">
 
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-consumerodscode">Consumer ODS code</label>
-            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">(search on behalf of):</div>
-            @Html.ValidationMessageFor(m => m.ConsumerODSCode, "", new { @class = "nhsuk-error-message" })
+            <label class="nhsuk-label" for="input-consumerodscode">Enter a consumer ODS code (search on behalf of)</label>
+            @if (consumerOdsCodeInvalid)
+            {
+                @Html.ValidationMessageFor(m => m.ConsumerODSCode, "", new { @class = "nhsuk-error-message" })
+            }
             <input class="nhsuk-input nhsuk-input--width-10 @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
         <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="@Model.SelectedDateRange">Date range</label>
+            <label class="nhsuk-label" for="@Model.SelectedDateRange">Select a date range</label>
             <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
         <button class="nhsuk-button" asp-page-handler="Search" type="submit">Search for free slots</button>
