@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Novell.Directory.Ldap;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -43,7 +44,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.ErrorHandli
             var exceptionType = ex?.GetType();
             var innerExceptionType = ex?.InnerException?.GetType();
 
-            httpContext.Response.Redirect("/Error");
+            if (exceptionType == typeof(LdapException) || innerExceptionType == typeof(LdapException))
+            {
+            }
+            else
+            {
+                httpContext.Response.Redirect("/Error");
+            }
 
             // Should always exist, but best to be safe!
             if (ex != null)
