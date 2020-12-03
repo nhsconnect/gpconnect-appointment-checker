@@ -101,7 +101,7 @@ namespace gpconnect_appointment_checker.SDS
 
                     var ldapSearchConstraints = new LdapSearchConstraints
                     {
-                        BatchSize = 6
+                        BatchSize = 0
                     };
                     var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false, ldapSearchConstraints);
 
@@ -119,8 +119,13 @@ namespace gpconnect_appointment_checker.SDS
                             results.TryAdd(attribute.Name, attribute.StringValue);
                         }
                     }
-                    ldapConnection.Disconnect();
-                    ldapConnection.Dispose();
+
+                    if (ldapConnection.Connected)
+                    {
+                        _logger.LogInformation("Still connected, disconnecting");
+                        ldapConnection.Disconnect();
+                        _logger.LogInformation("Disconnected");
+                    }
                 }
 
                 var jsonDictionary = JsonConvert.SerializeObject(results);
