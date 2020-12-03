@@ -72,12 +72,11 @@ namespace gpconnect_appointment_checker.Console
                     var filter = query.query_text.Replace("{odsCode}", odsCodes[j]);
                     var results = new Dictionary<string, object>();
 
-                    using (LdapConnection ldapConnection = new LdapConnection
+                    using (LdapConnection ldapConnection = new LdapConnection())
                     {
-                        SecureSocketLayer = _spineConfiguration.sds_use_ldaps,
-                        ConnectionTimeout = _spineConfiguration.timeout_seconds * 1000
-                    })
-                    {
+                        ldapConnection.SecureSocketLayer = _spineConfiguration.sds_use_ldaps;
+                        ldapConnection.ConnectionTimeout = _spineConfiguration.timeout_seconds * 1000;
+
                         if (_spineConfiguration.sds_use_mutualauth)
                         {
                             System.Console.WriteLine("Using Mutual Auth");
@@ -177,6 +176,7 @@ namespace gpconnect_appointment_checker.Console
                         sds_hostname = reader.GetString("sds_hostname"),
                         sds_port = reader.GetInt32("sds_port"),
                         sds_use_ldaps = reader.GetBoolean("sds_use_ldaps"),
+                        sds_use_mutualauth = reader.GetBoolean("sds_use_mutualauth"),
                         party_key = reader.GetString("party_key"),
                         asid = reader.GetString("asid"),
                         organisation_id = reader.GetInt32("organisation_id"),
