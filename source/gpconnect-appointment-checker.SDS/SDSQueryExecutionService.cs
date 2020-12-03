@@ -99,7 +99,7 @@ namespace gpconnect_appointment_checker.SDS
 
                     var ldapSearchConstraints = new LdapSearchConstraints
                     {
-                        BatchSize = 6
+                        BatchSize = 0
                     };
                     var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false, ldapSearchConstraints);
 
