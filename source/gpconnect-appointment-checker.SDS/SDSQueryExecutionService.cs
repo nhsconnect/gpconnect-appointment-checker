@@ -24,7 +24,7 @@ namespace gpconnect_appointment_checker.SDS
         private readonly ILogService _logService;
         private static IConfiguration _configuration;
         private readonly IHttpContextAccessor _context;
-        private static X509Certificate2 _clientCertificate;
+        private static X509Certificate _clientCertificate;
 
         public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
@@ -73,9 +73,11 @@ namespace gpconnect_appointment_checker.SDS
                         var privateKey = RSA.Create();
                         privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
-                        var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
+                        var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
                         _clientCertificate = pfxFormattedCertificate;
+
+                        ldapConnection.SetClientCertificate(x509CertificateWithPrivateKey);
                     }
 
                     var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
@@ -98,9 +100,6 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation("Commencing search");
                     _logger.LogInformation($"searchBase is: {searchBase}");
                     _logger.LogInformation($"filter is: {filter}");
-
-                    if (_clientCertificate != null)
-                        ldapConnection.SetClientCertificate(_clientCertificate);
 
                     ldapConnection.Bind(LdapForNet.Native.Native.LdapAuthType.Anonymous, new LdapCredential());
                     var searchResults = ldapConnection.Search(searchBase, filter, attributes, LdapForNet.Native.Native.LdapSearchScope.LDAP_SCOPE_SUBTREE);
