@@ -19,7 +19,7 @@ namespace gpconnect_appointment_checker.SDS
         private readonly IConfiguration _configuration;
         private readonly IConfigurationService _configurationService;
         private readonly IApplicationService _applicationService;
-        private readonly List<SdsQuery> _sdsQueries;
+        //private readonly List<SdsQuery> _sdsQueries;
 
         public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfiguration configuration, IConfigurationService configurationService, IApplicationService applicationService)
         {
@@ -101,7 +101,7 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var sdsQueryList = _sdsQueries ?? _configurationService.GetSdsQueryConfiguration();
+                var sdsQueryList = _configurationService.GetSdsQueryConfiguration();
                 return sdsQueryList.FirstOrDefault(x => x.QueryName == queryName);
             }
             catch (LdapException ldapException)

@@ -176,7 +176,6 @@ namespace gpconnect_appointment_checker.Console
                         sds_hostname = reader.GetString("sds_hostname"),
                         sds_port = reader.GetInt32("sds_port"),
                         sds_use_ldaps = reader.GetBoolean("sds_use_ldaps"),
-                        sds_use_mutualauth = reader.GetBoolean("sds_use_mutualauth"),
                         party_key = reader.GetString("party_key"),
                         asid = reader.GetString("asid"),
                         organisation_id = reader.GetInt32("organisation_id"),
