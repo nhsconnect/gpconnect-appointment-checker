@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Novell.Directory.Ldap;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -43,11 +42,6 @@ namespace gpconnect_appointment_checker.SDS
                 }
                 return results;
             }
-            catch (LdapException ldapException)
-            {
-                _logger.LogError("An LdapException error has occurred while attempting to execute an LDAP query", ldapException);
-                throw;
-            }
             catch (Exception exc)
             {
                 _logger.LogError($"An error has occurred while attempting to execute an LDAP query - filter is {filter} - searchBase is {sdsQuery.SearchBase}", exc);
@@ -63,11 +57,6 @@ namespace gpconnect_appointment_checker.SDS
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
                 var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
-            }
-            catch (LdapException ldapException)
-            {
-                _logger.LogError("An LdapException error has occurred while attempting to execute an LDAP query", ldapException);
-                throw;
             }
             catch (Exception exc)
             {
@@ -85,11 +74,6 @@ namespace gpconnect_appointment_checker.SDS
                 var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter);
                 return result;
             }
-            catch (LdapException ldapException)
-            {
-                _logger.LogError("An LdapException error has occurred while attempting to execute an LDAP query", ldapException);
-                throw;
-            }
             catch (Exception exc)
             {
                 _logger.LogError("An error has occurred while attempting to execute an LDAP query", exc);
@@ -103,11 +87,6 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQueryList = _configurationService.GetSdsQueryConfiguration();
                 return sdsQueryList.FirstOrDefault(x => x.QueryName == queryName);
-            }
-            catch (LdapException ldapException)
-            {
-                _logger.LogError("An LdapException error has occurred while attempting to execute an LDAP query", ldapException);
-                throw;
             }
             catch (Exception exc)
             {

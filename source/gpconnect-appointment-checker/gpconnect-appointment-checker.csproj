@@ -10,6 +10,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'gpconnect_apptconfig_checker' " />
   <ItemGroup>
     <Content Remove="compilerconfig.json" />
     <Content Remove="NLog.config" />
