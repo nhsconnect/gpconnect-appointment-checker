@@ -108,16 +108,19 @@ namespace gpconnect_appointment_checker.SDS
             catch (InterThreadException interThreadException)
             {
                 _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
+                _logger.LogError($"EXCEPTION: {interThreadException}");
                 throw;
             }
             catch (LdapException ldapException)
             {
                 _logger.LogError($"An LdapException has occurred while attempting to execute an LDAP query", ldapException);
+                _logger.LogError($"EXCEPTION: {ldapException}");
                 throw;
             }
             catch (Exception exc)
             {
                 _logger.LogError($"An Exception has occurred while attempting to execute an LDAP query", exc);
+                _logger.LogError($"EXCEPTION: {exc}");
                 throw;
             }
         }
