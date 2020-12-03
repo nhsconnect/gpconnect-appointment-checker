@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -52,6 +53,7 @@ namespace gpconnect_appointment_checker.SDS
                 };
                 
                 var results = new Dictionary<string, object>();
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
                 using (var ldapConnection = new LdapConnection
                 {
                     SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
@@ -83,7 +85,6 @@ namespace gpconnect_appointment_checker.SDS
                         ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
 
-
                     var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
                     var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
 
@@ -92,6 +93,7 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"Port: {hostPort}");
 
                     ldapConnection.Connect(hostName, hostPort);
+                    ldapConnection.Bind(string.Empty, string.Empty);
 
                     _logger.LogInformation("Commencing search");
                     _logger.LogInformation($"searchBase is: {searchBase}");
