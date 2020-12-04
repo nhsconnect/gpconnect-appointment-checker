@@ -2,11 +2,11 @@
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
+using LdapForNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +15,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using static LdapForNet.Native.Native;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -24,7 +25,7 @@ namespace gpconnect_appointment_checker.SDS
         private readonly ILogService _logService;
         private static IConfiguration _configuration;
         private readonly IHttpContextAccessor _context;
-        private static X509Certificate _clientCertificate;
+        private static X509Certificate2 _clientCertificate;
 
         public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
         {
@@ -32,11 +33,6 @@ namespace gpconnect_appointment_checker.SDS
             _configuration = configuration;
             _logService = logService;
             _context = context;
-        }
-
-        public T ExecuteLdapQuery<T>(string searchBase, string filter) where T : class
-        {
-            return ExecuteLdapQuery<T>(searchBase, filter, null);
         }
 
         public T ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class
@@ -56,10 +52,10 @@ namespace gpconnect_appointment_checker.SDS
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
                 using (var ldapConnection = new LdapConnection
                 {
-                    SecureSocketLayer = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value),
-                    ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
+                    Timeout = new TimeSpan(0, 0, int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value))
                 })
                 {
+                    var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                     var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
                     if (useSdsMutualAuth)
@@ -77,12 +73,13 @@ namespace gpconnect_appointment_checker.SDS
                         var privateKey = RSA.Create();
                         privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
-                        var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
+                        var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
                         _clientCertificate = pfxFormattedCertificate;
+                        ldapConnection.SetClientCertificate(_clientCertificate);
 
-                        ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
-                        ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
+                        //ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
+                        //ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
 
                     var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
@@ -92,40 +89,30 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"Host: {hostName}");
                     _logger.LogInformation($"Port: {hostPort}");
 
-                    ldapConnection.Connect(hostName, hostPort);
-                    ldapConnection.Bind(string.Empty, string.Empty);
+                    ldapConnection.Connect(hostName, hostPort, useLdaps ? LdapSchema.LDAPS : LdapSchema.LDAP);
+                    ldapConnection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
+                    if (useLdaps)
+                    {
+                        ldapConnection.TrustAllCertificates();
+                    }
+
+                    ldapConnection.Bind(LdapAuthMechanism.SIMPLE, string.Empty, string.Empty);
 
                     _logger.LogInformation("Commencing search");
                     _logger.LogInformation($"searchBase is: {searchBase}");
                     _logger.LogInformation($"filter is: {filter}");
 
-                    var ldapSearchConstraints = new LdapSearchConstraints
+                    var searchResults = ldapConnection.Search(searchBase, filter, attributes);
+
+                    foreach (var ldapEntry in searchResults)
                     {
-                        BatchSize = 0
-                    };
-                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false, ldapSearchConstraints);
-
-                    //throw new ArgumentNullException("Manual LdapException has been thrown");
-
-                    _logger.LogInformation("Search has been executed.");
-
-                    while (searchResults.HasMore())
-                    {
-                        var nextEntry = searchResults.Next();
-                        var attributeSet = nextEntry.GetAttributeSet();
-
-                        foreach (var attribute in attributeSet)
+                        foreach (var attribute in ldapEntry.ToDirectoryEntry().Attributes)
                         {
-                            results.TryAdd(attribute.Name, attribute.StringValue);
+                            results.TryAdd(attribute.Name, attribute.GetValue<string>());
                         }
                     }
 
-                    if (ldapConnection.Connected)
-                    {
-                        _logger.LogInformation("Still connected, disconnecting");
-                        ldapConnection.Disconnect();
-                        _logger.LogInformation("Disconnected");
-                    }
+                    _logger.LogInformation("Search has been executed.");
                 }
 
                 var jsonDictionary = JsonConvert.SerializeObject(results);
@@ -138,12 +125,6 @@ namespace gpconnect_appointment_checker.SDS
                 _logService.AddSpineMessageLog(logMessage);
 
                 return result;
-            }
-            catch (InterThreadException interThreadException)
-            {
-                _logger.LogError("An InterThreadException has occurred while attempting to execute an LDAP query", interThreadException);
-                _logger.LogError($"EXCEPTION: {interThreadException}");
-                throw;
             }
             catch (LdapException ldapException)
             {

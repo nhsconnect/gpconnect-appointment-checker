@@ -126,19 +126,19 @@ namespace gpconnect_appointment_checker.GPConnect
             });
         }
 
-        private static void AddRequestingOrganisationClaim(Organisation organisationDetails,
+        private void AddRequestingOrganisationClaim(Organisation organisationDetails,
             SecurityTokenDescriptor tokenDescriptor)
         {
             tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
             {
                 resourceType = "Organization",
-                name = organisationDetails.OrganisationName,
+                name = _context.HttpContext.User.GetClaimValue("OrganisationName"),
                 identifier = new List<Identifier>
                 {
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
-                        value = organisationDetails.ODSCode
+                        value = _context.HttpContext.User.GetClaimValue("ProviderODSCode")
                     }
                 }
             });

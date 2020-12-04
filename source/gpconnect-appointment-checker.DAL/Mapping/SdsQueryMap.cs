@@ -10,6 +10,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.QueryName).ToColumn("query_name");
             Map(p => p.SearchBase).ToColumn("search_base");
             Map(p => p.QueryText).ToColumn("query_text");
+            Map(p => p.QueryAttributes).ToColumn("query_attributes");
         }
     }
 }
