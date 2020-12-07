@@ -6252,3 +6252,13 @@ b {
       background: none;
       color: #212b32;
       top: 0; } }
+
+
+#nhsuk-cookie-banner .nhsuk-cookie-banner {
+    background: white;
+    position: relative;
+    box-shadow: 0 0 4px 0 #212b32;
+    padding: 24px 0 19px;
+    width: 100%;
+    z-index: 1;
+}
