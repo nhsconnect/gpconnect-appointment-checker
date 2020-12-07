@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Novell.Directory.Ldap;
 using System;
 using System.Diagnostics;
-using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.Pages;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure.ErrorHandling
 {
@@ -37,12 +34,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.ErrorHandli
 
         private static async Task WriteResponse(HttpContext httpContext, bool includeDetails)
         {
-            // Try and retrieve the error from the ExceptionHandler middleware
-            var exceptionDetails = httpContext.Features.Get<IExceptionHandlerFeature>();
+            var exceptionDetails = httpContext.Features.Get<IExceptionHandlerPathFeature>();
             var ex = exceptionDetails?.Error;
 
             var exceptionType = ex?.GetType();
             var innerExceptionType = ex?.InnerException?.GetType();
+
+            //_logger.LogError($"Error thrown at {exceptionDetails?.Path} - ", exceptionDetails?.Error.InnerException);
 
             if (exceptionType == typeof(LdapException) || innerExceptionType == typeof(LdapException))
             {
