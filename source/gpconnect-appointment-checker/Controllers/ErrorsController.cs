@@ -15,7 +15,7 @@ namespace gpconnect_appointment_checker.Controllers
         //    _logger = logger;
         //}
 
-        [Route("error")]
+        //[Route("error")]
         public CustomErrorResponse Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
