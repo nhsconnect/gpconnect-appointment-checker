@@ -50,7 +50,7 @@ namespace gpconnect_appointment_checker.SDS
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)
             {
-                var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
+                //var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
                 var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
                 var loggedOnUser = _applicationService.LogonUser(new User
                 {
@@ -71,10 +71,7 @@ namespace gpconnect_appointment_checker.SDS
                         identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
                         identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                         identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                        if (providerGpConnectDetails != null)
-                        {
-                            identity.AddClaim(new Claim("ProviderODSCode", odsCode));
-                        }
+                        identity.AddClaim(new Claim("ProviderODSCode", odsCode));
                     }
                 }
             }

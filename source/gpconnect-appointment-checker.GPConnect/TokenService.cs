@@ -137,7 +137,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
-                        value = _context.HttpContext.User.GetClaimValue("ProviderODSCode")
+                        value = _context.HttpContext.User.GetClaimValue("ODS")
                     }
                 }
             });

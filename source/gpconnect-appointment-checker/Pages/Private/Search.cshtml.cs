@@ -49,7 +49,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnGet()
         {
-            var userCode = User.GetClaimValue("ProviderODSCode");
+            var userCode = User.GetClaimValue("ODS");
             if (!string.IsNullOrEmpty(userCode)) ProviderODSCode = userCode;
             return Page();
         }
