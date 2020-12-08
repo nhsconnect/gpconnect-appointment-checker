@@ -18,6 +18,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using LdapForNet;
+using Novell.Directory.Ldap;
+using LdapException = LdapForNet.LdapException;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -74,6 +77,8 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
+            //throw new LdapException("Manual LDAP exception thrown");
+
             var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
             var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 

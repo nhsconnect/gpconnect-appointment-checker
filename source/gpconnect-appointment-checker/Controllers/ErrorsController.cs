@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace gpconnect_appointment_checker.Controllers
 {
-    public class ErrorsController : ControllerBase
+    public class ErrorsController : Controller
     {
         //private readonly ILogger<ErrorsController> _logger;
 
