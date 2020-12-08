@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker

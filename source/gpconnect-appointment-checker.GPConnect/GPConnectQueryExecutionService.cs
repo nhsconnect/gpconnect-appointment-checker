@@ -8,7 +8,6 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.DTO.Request.Audit;
 
 namespace gpconnect_appointment_checker.GPConnect
 {

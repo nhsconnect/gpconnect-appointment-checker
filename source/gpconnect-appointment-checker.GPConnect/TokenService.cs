@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -184,8 +183,6 @@ namespace gpconnect_appointment_checker.GPConnect
         private static JwtSecurityToken AddTokenHeader(JwtSecurityTokenHandler tokenHandler, SecurityTokenDescriptor tokenDescriptor)
         {
             var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
-            token.Header.Add(Constants.TokenRequestValues.TokenHeaderAlgorithmKey, Constants.TokenRequestValues.TokenHeaderAlgorithmValue);
-            token.Header.Add(Constants.TokenRequestValues.TokenHeaderTypeKey, Constants.TokenRequestValues.TokenHeaderTypeValue);
             return token;
         }
     }

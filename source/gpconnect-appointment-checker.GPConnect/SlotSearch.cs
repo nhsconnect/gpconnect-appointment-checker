@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.DTO.Request.GpConnect;
+﻿using gpconnect_appointment_checker.DTO.Request.Audit;
+using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.Helpers;
@@ -7,12 +8,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
-using gpconnect_appointment_checker.DTO.Request.Audit;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
