@@ -67,3 +67,14 @@ else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk)
         </div>
     </div>
 }
+else if (Model.LdapErrorRaised)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">An LDAP error has occurred</h3>
+                <p>The SDS server is currently unavailable. Please try your search again.</p>
+            </div>
+        </div>
+    </div>
+}

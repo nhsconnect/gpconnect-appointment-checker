@@ -77,35 +77,40 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
-            //throw new LdapException("Manual LDAP exception thrown");
-
-            var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
-            var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
-
-            ProviderODSCodeFound = providerOrganisationDetails != null;
-            ConsumerODSCodeFound = consumerOrganisationDetails != null;
-
-            if (ProviderODSCodeFound && ConsumerODSCodeFound)
+            try
             {
-                //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
-                //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
-                var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
-                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
-                ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
+                var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+                var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
-                if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
+                ProviderODSCodeFound = providerOrganisationDetails != null;
+                ConsumerODSCodeFound = consumerOrganisationDetails != null;
+
+                if (ProviderODSCodeFound && ConsumerODSCodeFound)
                 {
-                    var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
-                    ProviderASIDPresent = providerAsId != null;
+                    //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
+                    //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
+                    var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
+                    var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+                    ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
-                    if (ProviderASIDPresent)
+                    if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                     {
-                        providerGpConnectDetails.asid = providerAsId.asid;
-                        await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                        SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {string.Join(", ", providerOrganisationDetails.PostalAddressFields)} {providerOrganisationDetails.PostalCode}";
-                        SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {string.Join(", ", consumerOrganisationDetails.PostalAddressFields)} {consumerOrganisationDetails.PostalCode}";
+                        var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
+                        ProviderASIDPresent = providerAsId != null;
+
+                        if (ProviderASIDPresent)
+                        {
+                            providerGpConnectDetails.asid = providerAsId.asid;
+                            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {string.Join(", ", providerOrganisationDetails.PostalAddressFields)} {providerOrganisationDetails.PostalCode}";
+                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {string.Join(", ", consumerOrganisationDetails.PostalAddressFields)} {consumerOrganisationDetails.PostalCode}";
+                        }
                     }
                 }
+            }
+            catch (LdapException ldapException)
+            {
+                LdapErrorRaised = true;
             }
         }
 

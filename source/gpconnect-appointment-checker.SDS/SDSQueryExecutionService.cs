@@ -89,8 +89,6 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"Host: {hostName}");
                     _logger.LogInformation($"Port: {hostPort}");
 
-                    //throw new Novell.Directory.Ldap.LdapException("LDAPException has occurred");
-
                     ldapConnection.Connect(hostName, hostPort, useLdaps ? LdapSchema.LDAPS : LdapSchema.LDAP);
                     ldapConnection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
                     if (useLdaps)

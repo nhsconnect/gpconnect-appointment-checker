@@ -8,7 +8,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void ConfigureApplicationBuilderServices(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseExceptionHandler(err => err.ErrorHandlingMiddleware(env));
             app.UseExceptionHandler("/Error");
             app.UseHsts();
 
@@ -27,12 +26,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<RequestLoggingMiddleware>();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
             });
+
         }
     }
 }

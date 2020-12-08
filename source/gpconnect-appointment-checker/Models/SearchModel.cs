@@ -40,5 +40,6 @@ namespace gpconnect_appointment_checker.Pages
         public string ProviderErrorCode { get; set; }
         public string ProviderErrorDiagnostics { get; set; }
         public int? SearchResultsCount { get; set; }
+        public bool LdapErrorRaised { get; set; }
     }
 }
