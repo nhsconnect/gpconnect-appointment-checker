@@ -14,8 +14,8 @@ begin
 	return query
 	select
 		q.query_name,
-	    	q.search_base,
-	    	q.query_text,
+		q.search_base,
+		q.query_text,
 		q.query_attributes
 	from configuration.sds_query q;
 	
