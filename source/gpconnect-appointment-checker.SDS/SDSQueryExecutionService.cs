@@ -52,7 +52,7 @@ namespace gpconnect_appointment_checker.SDS
                 };
                 
                 var results = new Dictionary<string, object>();
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
+                //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
 
                 var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
