@@ -33,19 +33,23 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             var serverCert = configuration.GetSection("spine:server_ca_certchain").GetConfigurationString();
             var clientPrivateKey = configuration.GetSection("spine:client_private_key").GetConfigurationString();
 
-            var socketsHandler = new SocketsHttpHandler();
+            //var socketsHandler = new SocketsHttpHandler();
+            var httpClientHandler = new HttpClientHandler();
+
 
             if (bool.Parse(configuration.GetSection("spine:use_ssp").GetConfigurationString("false")) &&
                 !string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientPrivateKey) &&
                 !string.IsNullOrEmpty(configuration.GetSection("spine:nhsMHSEndPoint").GetConfigurationString()))
             {
-                var sslOptions = new SslClientAuthenticationOptions
-                {
-                    EnabledSslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls,
-                    ClientCertificates = new X509Certificate2Collection()
-                };
+                //var sslOptions = new SslClientAuthenticationOptions
+                //{
+                //    EnabledSslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls,
+                //    ClientCertificates = new X509Certificate2Collection()
+                //};
 
-                socketsHandler.SslOptions = sslOptions;
+                httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
+
+                //socketsHandler.SslOptions = sslOptions;
                 //socketsHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
                 var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
@@ -60,10 +64,16 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
                 var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
 
-                socketsHandler.SslOptions.RemoteCertificateValidationCallback = (message, cert, chain, errors) => ValidateServerCertificateChain(chain, x509ServerCertificateSubCa, x509ServerCertificateRootCa, pfxFormattedCertificate);
-                socketsHandler.SslOptions.ClientCertificates.Add(pfxFormattedCertificate);
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => ValidateServerCertificateChain(chain, x509ServerCertificateSubCa, x509ServerCertificateRootCa, pfxFormattedCertificate);
+
+                httpClientHandler.ClientCertificates.Add(pfxFormattedCertificate);
+                httpClientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                return httpClientHandler;
+
+                //socketsHandler.SslOptions.RemoteCertificateValidationCallback = (message, cert, chain, errors) => ValidateServerCertificateChain(chain, x509ServerCertificateSubCa, x509ServerCertificateRootCa, pfxFormattedCertificate);
+                //socketsHandler.SslOptions.ClientCertificates.Add(pfxFormattedCertificate);
             }
-            return socketsHandler;
+            return httpClientHandler;
         }
 
         private static bool ValidateServerCertificateChain(X509Chain chain, X509Certificate2 x509ServerCertificateSubCa,
