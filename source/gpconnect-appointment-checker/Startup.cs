@@ -92,10 +92,10 @@ namespace gpconnect_appointment_checker
                             if (context.Exception == null)
                             {
                                 context.Response.Redirect("/AccessDenied");
-                                context.HandleResponse();
-                                return Task.CompletedTask;
                             }
-                            throw context.Exception;
+                            context.Response.Redirect("/Error");
+                            context.HandleResponse();
+                            return Task.CompletedTask;
                         }
                     };
                 });
