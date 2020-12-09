@@ -46,7 +46,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 };
 
                 socketsHandler.SslOptions = sslOptions;
-                socketsHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                //socketsHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
                 var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
                 var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
