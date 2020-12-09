@@ -93,6 +93,7 @@ namespace gpconnect_appointment_checker.SDS
                     if (_clientCertificate != null)
                     {
                         ldapConnection.SetClientCertificate(_clientCertificate);
+                        ldapConnection.Bind(LdapAuthType.External, new LdapCredential());
                     }
 
                     ldapConnection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
@@ -101,9 +102,10 @@ namespace gpconnect_appointment_checker.SDS
                         ldapConnection.TrustAllCertificates();
                     }
 
-                    //ldapConnection.Bind(LdapAuthType.Anonymous, new LdapCredential());
+                    
+                    //ldapConnection.Bind(LdapAuthType.Anonymous, new LdapCredential()); DIDN'T WORK
 
-                    //ldapConnection.Bind(LdapAuthMechanism.SIMPLE, string.Empty, string.Empty);
+                    //ldapConnection.Bind(LdapAuthMechanism.SIMPLE, string.Empty, string.Empty); DIDN'T WORK
 
                     _logger.LogInformation("Commencing search");
                     _logger.LogInformation($"searchBase is: {searchBase}");
