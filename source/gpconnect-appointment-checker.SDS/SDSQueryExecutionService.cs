@@ -93,7 +93,11 @@ namespace gpconnect_appointment_checker.SDS
                     if (_clientCertificate != null)
                     {
                         ldapConnection.SetClientCertificate(_clientCertificate);
-                        ldapConnection.Bind(LdapAuthType.External, new LdapCredential());
+                        ldapConnection.Bind(LdapAuthType.External, new LdapCredential
+                        {
+                            UserName = string.Empty,
+                            Password = string.Empty
+                        });
                     }
 
                     ldapConnection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
