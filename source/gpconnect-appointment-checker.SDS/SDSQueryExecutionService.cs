@@ -44,7 +44,7 @@ namespace gpconnect_appointment_checker.SDS
                 sw.Start();
                 var logMessage = new SpineMessage
                 {
-                    RequestPayload = $"{searchBase} {filter} {attributes}",
+                    RequestPayload = $"{searchBase} {filter} [{string.Join(",", attributes)}]",
                     SpineMessageTypeId = (int)GPConnect.Constants.SpineMessageTypes.SpineLdapQuery
                 };
                 
@@ -76,7 +76,6 @@ namespace gpconnect_appointment_checker.SDS
                         var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
                         _clientCertificate = pfxFormattedCertificate;
-                        ldapConnection.SetClientCertificate(_clientCertificate);
 
                         //ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
                         //ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
@@ -90,6 +89,12 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"Port: {hostPort}");
 
                     ldapConnection.Connect(hostName, hostPort, useLdaps ? LdapSchema.LDAPS : LdapSchema.LDAP);
+
+                    if (_clientCertificate != null)
+                    {
+                        ldapConnection.SetClientCertificate(_clientCertificate);
+                    }
+
                     ldapConnection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
                     if (useLdaps)
                     {
