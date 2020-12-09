@@ -101,7 +101,9 @@ namespace gpconnect_appointment_checker.SDS
                         ldapConnection.TrustAllCertificates();
                     }
 
-                    ldapConnection.Bind(LdapAuthMechanism.SIMPLE, string.Empty, string.Empty);
+                    ldapConnection.Bind(LdapAuthType.Anonymous, new LdapCredential());
+
+                    //ldapConnection.Bind(LdapAuthMechanism.SIMPLE, string.Empty, string.Empty);
 
                     _logger.LogInformation("Commencing search");
                     _logger.LogInformation($"searchBase is: {searchBase}");
