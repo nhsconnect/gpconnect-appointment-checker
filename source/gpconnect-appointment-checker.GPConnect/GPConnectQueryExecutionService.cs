@@ -59,7 +59,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private string AddScheme(string sspHostname)
         {
-            return sspHostname?.Substring(0) != "https://" ? "https://" + sspHostname : sspHostname;
+            return !sspHostname.StartsWith("https://") ? "https://" + sspHostname : sspHostname;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 if (results.Issue?.Count > 0)
                 {
                     slotSimple.Issue = results.Issue;
-                    SendToAudit(requestParameters, startDate, endDate, results.Issue.FirstOrDefault()?.Diagnostics, stopWatch, null);
+                    SendToAudit(requestParameters, startDate, endDate, StringExtensions.Coalesce(results.Issue.FirstOrDefault()?.Diagnostics, results.Issue.FirstOrDefault()?.Details.Text), stopWatch, null);
                     return slotSimple;
                 }
 

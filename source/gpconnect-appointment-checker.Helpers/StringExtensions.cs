@@ -11,5 +11,10 @@ namespace gpconnect_appointment_checker.Helpers
                 "" => string.Empty,
                 _ => input.First().ToString().ToUpper() + (restToLower ? input.Substring(1).ToLower() : input.Substring(1))
             };
+
+        public static string Coalesce(params string[] strings)
+        {
+            return strings.FirstOrDefault(s => !string.IsNullOrEmpty(s));
+        }
     }
 }

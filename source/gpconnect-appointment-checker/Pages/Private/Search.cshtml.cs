@@ -151,7 +151,7 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                         ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = searchResults.Issue.FirstOrDefault()?.Diagnostics;
+                        ProviderErrorDiagnostics = StringExtensions.Coalesce(searchResults.Issue.FirstOrDefault()?.Diagnostics, searchResults.Issue.FirstOrDefault()?.Details.Text);
                     }
                 }
                 else
@@ -160,7 +160,7 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                         ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics;
+                        ProviderErrorDiagnostics = StringExtensions.Coalesce(capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics, capabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
                     }
                 }
             }
