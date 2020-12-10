@@ -108,7 +108,7 @@ namespace gpconnect_appointment_checker.Pages
                     }
                 }
             }
-            catch (LdapException ldapException)
+            catch (LdapException)
             {
                 LdapErrorRaised = true;
             }
