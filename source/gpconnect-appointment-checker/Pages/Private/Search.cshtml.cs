@@ -72,7 +72,11 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
-            return RedirectToPage();
+            ProviderODSCode = null;
+            ConsumerODSCode = null;
+            SelectedDateRange = DateRanges.First().Value;
+            ModelState.Clear();
+            return Page();
         }
 
         private async Task GetSearchResults()
