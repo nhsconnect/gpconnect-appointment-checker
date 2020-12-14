@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -40,7 +41,9 @@ namespace gpconnect_appointment_checker.GPConnect
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                 var response = await client.SendAsync(request);
+
                 var responseStream = await response.Content.ReadAsStringAsync();
+
                 _spineMessage.ResponsePayload = responseStream;
 
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
@@ -51,6 +54,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
+                
                 var slotSimple = new SlotSimple();
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
@@ -128,8 +132,8 @@ namespace gpconnect_appointment_checker.GPConnect
         private Practitioner GetPractitionerDetails(string reference, List<RootEntry> scheduleResources, List<RootEntry> practitionerResources)
         {
             var schedule = GetSchedule(reference, scheduleResources);
-            var schedulePractitioner = schedule?.resource.actor.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
-            var practitionerRootEntry = practitionerResources.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
+            var schedulePractitioner = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
+            var practitionerRootEntry = practitionerResources?.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
             var practitioner = new Practitioner
             {
                 gender = practitionerRootEntry?.gender,
@@ -141,12 +145,12 @@ namespace gpconnect_appointment_checker.GPConnect
         private Location GetLocation(string reference, List<RootEntry> scheduleResources, List<RootEntry> locationResources)
         {
             var schedule = GetSchedule(reference, scheduleResources);
-            var scheduleLocation = schedule?.resource.actor.FirstOrDefault(x => x.reference.Contains("Location/"));
-            var locationRootEntry = locationResources.FirstOrDefault(x => scheduleLocation?.reference == $"Location/{x.resource.id}")?.resource;
+            var scheduleLocation = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Location/"));
+            var locationRootEntry = locationResources?.FirstOrDefault(x => scheduleLocation?.reference == $"Location/{x.resource.id}")?.resource;
             var location = new Location
             {
                 name = locationRootEntry?.name.ToString(),
-                address = JsonConvert.DeserializeObject<LocationAddress>(locationRootEntry?.address.ToString())
+                address = locationRootEntry?.address != null ? JsonConvert.DeserializeObject<LocationAddress>(locationRootEntry.address.ToString()) : null
             };
             return location;
         }

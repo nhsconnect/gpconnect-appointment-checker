@@ -26,7 +26,8 @@
                 if (firstLocation != null)
                 {
                     <h4>
-                        @firstLocation.LocationName<br />@Html.Raw($"{string.Join(", ", firstLocation.LocationAddressLines)}, {firstLocation.LocationDistrict} {firstLocation.LocationCity} {firstLocation.LocationPostalCode} {firstLocation.LocationCountry}")
+                        @firstLocation.LocationName<br />
+                        @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
                     </h4>
                 }
 

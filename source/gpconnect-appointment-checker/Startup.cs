@@ -1,18 +1,12 @@
 using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.SDS;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker
 {

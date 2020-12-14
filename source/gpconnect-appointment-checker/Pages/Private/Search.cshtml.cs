@@ -106,8 +106,8 @@ namespace gpconnect_appointment_checker.Pages
                         {
                             providerGpConnectDetails.asid = providerAsId.asid;
                             await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {string.Join(", ", providerOrganisationDetails.PostalAddressFields)} {providerOrganisationDetails.PostalCode}";
-                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {string.Join(", ", consumerOrganisationDetails.PostalAddressFields)} {consumerOrganisationDetails.PostalCode}";
+                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
+                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
                         }
                     }
                 }
