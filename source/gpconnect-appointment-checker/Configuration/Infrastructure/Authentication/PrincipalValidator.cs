@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System;
 using System.Threading.Tasks;
 
-namespace gpconnect_appointment_checker.Configuration.Infrastructure
+namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
     internal static class PrincipalValidator
     {

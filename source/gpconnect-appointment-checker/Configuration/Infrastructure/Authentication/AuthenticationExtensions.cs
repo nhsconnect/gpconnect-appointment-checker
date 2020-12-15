@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Threading.Tasks;
 
-namespace gpconnect_appointment_checker.Configuration.Infrastructure
+namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
     public static class AuthenticationExtensions
     {

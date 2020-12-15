@@ -1,4 +1,5 @@
 using gpconnect_appointment_checker.Configuration.Infrastructure;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.AspNetCore.Builder;
