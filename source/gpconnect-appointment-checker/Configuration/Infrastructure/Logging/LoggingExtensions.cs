@@ -5,7 +5,7 @@ using NLog;
 using NLog.Layouts;
 using NLog.Targets;
 using System.Data;
-using static gpconnect_appointment_checker.Helpers.ApplicationHelper;
+using gpconnect_appointment_checker.Helpers;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -24,7 +24,9 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             nLogConfiguration.AddTarget(consoleTarget);
             nLogConfiguration.AddTarget(databaseTarget);
 
-            nLogConfiguration.Variables.Add("applicationVersion", ApplicationVersion.GetAssemblyVersion);
+            nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion);
+            nLogConfiguration.Variables.Add("userId", null);
+            nLogConfiguration.Variables.Add("userSessionId", null);
 
             LogManager.Configuration = nLogConfiguration;
 
@@ -43,56 +45,49 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 Name = "Database",
                 ConnectionString = configuration.GetConnectionString("DefaultConnection"),
-                CommandType = CommandType.Text,
-                CommandText = "INSERT INTO logging.error_log (Application, Logged, Level, Message, Logger, CallSite, Exception, User_Id, User_Session_Id) VALUES (@Application, @Logged, @Level, @Message, @Logger, @Callsite, @Exception, @UserId, @UserSessionId)",
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "logging.log_error",
                 DBProvider = "Npgsql.NpgsqlConnection, Npgsql"
             };
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Application",
+                Name = "@_application",
                 Layout = "${var:applicationVersion}",
                 DbType = DbType.String.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Logged",
+                Name = "@_logged",
                 Layout = "${date}",
                 DbType = DbType.DateTime.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Level",
+                Name = "@_level",
                 Layout = "${level:uppercase=true}",
                 DbType = DbType.String.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Level",
-                Layout = "${level:uppercase=true}",
-                DbType = DbType.String.ToString()
-            });
-
-            databaseTarget.Parameters.Add(new DatabaseParameterInfo
-            {
-                Name = "@Message",
+                Name = "@_message",
                 Layout = "${message}",
                 DbType = DbType.String.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Logger",
+                Name = "@_logger",
                 Layout = "${logger}",
                 DbType = DbType.String.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Callsite",
+                Name = "@_callsite",
                 Layout = "${callsite:filename=true}",
                 DbType = DbType.String.ToString()
             });
@@ -114,24 +109,25 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@Exception",
+                Name = "@_exception",
                 Layout = exceptionLayout,
                 DbType = DbType.String.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@UserId",
+                Name = "@_user_id",
                 Layout = "${var:userId}",
                 DbType = DbType.Int32.ToString()
             });
 
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
-                Name = "@UserSessionId",
+                Name = "@_user_session_id",
                 Layout = "${var:userSessionId}",
                 DbType = DbType.Int32.ToString()
             });
+
             return databaseTarget;
         }
 

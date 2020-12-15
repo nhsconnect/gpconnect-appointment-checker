@@ -22,9 +22,6 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
-    <None Include="k83064.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

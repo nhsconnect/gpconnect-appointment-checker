@@ -3,7 +3,6 @@ using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -37,7 +36,7 @@ namespace gpconnect_appointment_checker
             MappingExtensions.ConfigureMappingServices();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor contextAccessor, IAuditService auditService, IApplicationService applicationService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAuditService auditService, IApplicationService applicationService)
         {
             _applicationService = applicationService;
             app.ConfigureApplicationBuilderServices(env);
