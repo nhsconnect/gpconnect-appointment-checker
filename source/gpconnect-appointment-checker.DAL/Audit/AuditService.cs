@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Data;
 
 namespace gpconnect_appointment_checker.DAL.Audit
 {
@@ -10,25 +11,33 @@ namespace gpconnect_appointment_checker.DAL.Audit
     {
         private readonly IDataService _dataService;
         private readonly IHttpContextAccessor _context;
-        private readonly int? _userId;
-        private readonly int? _userSessionId;
 
         public AuditService(IDataService dataService, IHttpContextAccessor context)
         {
             _context = context;
             _dataService = dataService;
-            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
-                _userId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserId"));
-            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
-                _userSessionId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserSessionId"));
         }
 
         public void AddEntry(DTO.Request.Audit.Entry auditEntry)
         {
             var functionName = "audit.add_entry";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_id", _userId);
-            parameters.Add("_user_session_id", _userSessionId);
+            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_id", DBNull.Value, DbType.Int32);
+            }
+            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
+            }
             parameters.Add("_entry_type_id", auditEntry.EntryTypeId);
             parameters.Add("_item1", auditEntry.Item1);
             parameters.Add("_item2", auditEntry.Item2);

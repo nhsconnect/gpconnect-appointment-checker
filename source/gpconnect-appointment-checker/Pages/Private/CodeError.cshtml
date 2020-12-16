@@ -1,12 +1,13 @@
-﻿@model SearchModel
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
 
 @if (!Model.ConsumerODSCodeFound && !Model.ProviderODSCodeFound)
 {
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with ODS codes</h3>
-                <p>Sorry, but the Provider ODS code '@Model.ProviderODSCode' and the Consumer ODS code '@Model.ConsumerODSCode' have not been found</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHODSCODESTEXT, Model.ProviderODSCode, Model.ConsumerODSCode)</p>
             </div>
         </div>
     </div>
@@ -16,8 +17,8 @@ else if (!Model.ConsumerODSCodeFound)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with Consumer ODS code</h3>
-                <p>Sorry, but the Consumer ODS code '@Model.ConsumerODSCode' has not been found</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHCONSUMERODSCODELABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, Model.ConsumerODSCode)</p>
             </div>
         </div>
     </div>
@@ -27,8 +28,8 @@ else if (!Model.ProviderODSCodeFound)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with Provider ODS code</h3>
-                <p>Sorry, but the Provider ODS code '@Model.ProviderODSCode' has not been found</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHPROVIDERODSCODELABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, Model.ProviderODSCode)</p>
             </div>
         </div>
     </div>
@@ -38,8 +39,8 @@ else if (!Model.ProviderASIDPresent)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with GP Connect Provider</h3>
-                <p>Sorry, this organisation is not enabled for GP Connect</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
+                <p>@SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT</p>
             </div>
         </div>
     </div>
@@ -49,8 +50,8 @@ else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">Issue with GP Connect Provider</h3>
-                <p>Sorry, but the Provider ODS code '@Model.ProviderODSCode' is not enabled for GP Connect Appointment Management</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, Model.ProviderODSCode)</p>
             </div>
         </div>
     </div>
@@ -60,8 +61,8 @@ else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">An error occured when sending a message to the provider system</h3>
-                <p>The error returned was "@Model.ProviderErrorDisplay (@Model.ProviderErrorCode)".</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, Model.ProviderErrorDisplay, Model.ProviderErrorCode)</p>
                 <p>@Model.ProviderErrorDiagnostics</p>
             </div>
         </div>
@@ -72,8 +73,8 @@ else if (Model.LdapErrorRaised)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">An LDAP error has occurred</h3>
-                <p>The SDS server is currently unavailable. Please try your search again.</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHLDAPLABEL</h3>
+                <p>@SearchConstants.ISSUEWITHLDAPTEXT</p>
             </div>
         </div>
     </div>

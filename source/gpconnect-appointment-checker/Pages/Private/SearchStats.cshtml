@@ -1,10 +1,11 @@
-﻿@model SearchModel
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-inset-text">
             <span class="nhsuk-u-visually-hidden">Information: </span>
-            <p>Search took @Model.SearchDuration.ToString("#.##s") and completed at @DateTime.Now.ToString("d MMM yyyy HH:mm:ss")<br />@Model.SearchResultsCount free slots found</p>
+            <p>@string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), DateTime.Now.ToString("d MMM yyyy HH:mm:ss"), Model.SearchResultsCount)</p>
         </div>
     </div>
 </div>

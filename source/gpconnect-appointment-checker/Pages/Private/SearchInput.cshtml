@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 @{
     var consumerOdsCodeInvalid = Model.ModelState["ConsumerODSCode"]?.ValidationState == ModelValidationState.Invalid;
@@ -8,7 +9,7 @@
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-providerodscode">Enter a provider ODS code (search at)</label>
+            <label class="nhsuk-label" for="input-providerodscode">@SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL</label>
             @if (providerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ProviderODSCode, "", new { @class = "nhsuk-error-message" })
@@ -17,7 +18,7 @@
 
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-consumerodscode">Enter a consumer ODS code (search on behalf of)</label>
+            <label class="nhsuk-label" for="input-consumerodscode">@SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL</label>
             @if (consumerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ConsumerODSCode, "", new { @class = "nhsuk-error-message" })
@@ -25,10 +26,10 @@
             <input class="nhsuk-input nhsuk-input--width-10 @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerODSCode" name="consumerodscode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
         <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="@Model.SelectedDateRange">Select a date range</label>
+            <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
             <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
-        <button class="nhsuk-button" asp-page-handler="Search" type="submit">Search for free slots</button>
-        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">Clear</button>
+        <button class="nhsuk-button" asp-page-handler="Search" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
+        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
     </div>
 </div>

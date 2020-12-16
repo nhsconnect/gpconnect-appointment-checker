@@ -1,19 +1,15 @@
 ﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
 @model gpconnect_appointment_checker.Pages.ErrorModel
 @addTagHelper *, gpconnect-appointment-checker
-@{
-    ViewData["Title"] = "GP Connect Appointment Checker";
-}
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-two-thirds">
         <div class="nhsuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1">
-            <h2 class="nhsuk-error-summary__title" id="error-summary-title">
-                Issue with timeout
-            </h2>
+            <h2 class="nhsuk-error-summary__title" id="error-summary-title">@SearchConstants.ISSUEWITHTIMEOUTTITLETEXT</h2>
             <div class="nhsuk-error-summary__body">
                 <span class="nhsuk-error-message">
-                    <span class="nhsuk-u-visually-hidden">Error:</span> Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.
+                    <span class="nhsuk-u-visually-hidden">Error:</span> @SearchConstants.ISSUEWITHTIMEOUTTEXT
                 </span>
             </div>
         </div>
@@ -23,7 +19,7 @@
                     <path d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M12 2a10 10 0 0 0-9.95 9h11.64L9.74 7.05a1 1 0 0 1 1.41-1.41l5.66 5.65a1 1 0 0 1 0 1.42l-5.66 5.65a1 1 0 0 1-1.41 0 1 1 0 0 1 0-1.41L13.69 13H2.05A10 10 0 1 0 12 2z"></path>
                 </svg>
-                <span class="nhsuk-action-link__text">Please click here to return to the Search page.</span>
+                <span class="nhsuk-action-link__text">@SearchConstants.RETURNTOSEARCHPAGETEXT</span>
             </a>
         </div>
     </div>

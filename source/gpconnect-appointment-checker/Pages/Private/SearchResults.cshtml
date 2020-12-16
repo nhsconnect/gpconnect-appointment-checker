@@ -1,18 +1,19 @@
 ﻿@using gpconnect_appointment_checker.Helpers
+@using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-care-card">
             <div class="nhsuk-care-card__heading-container">
-                <h3 class="nhsuk-care-card__heading"><span role="text">Searching at:</span></h3>
+                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
             <div class="nhsuk-care-card__content"><p>@Model.SearchAtResultsText</p></div>
         </div>
         <div class="nhsuk-care-card">
             <div class="nhsuk-care-card__heading-container">
-                <h3 class="nhsuk-care-card__heading"><span role="text">Searching on behalf of:</span></h3>
+                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFTEXT</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
             <div class="nhsuk-care-card__content"><p>@Model.SearchOnBehalfOfResultsText</p></div>
@@ -33,16 +34,16 @@
 
                 <div class="nhsuk-table__panel-with-heading-tab">
                     <table role="table" class="nhsuk-table-responsive">
-                        <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">Available Appointment Slots</caption>
+                        <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">@SearchConstants.SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT</caption>
                         <thead role="rowgroup" class="nhsuk-table__head">
                             <tr role="row">
-                                <th role="columnheader" class="" scope="col">Appointment date</th>
-                                <th role="columnheader" class="" scope="col">Session name</th>
-                                <th role="columnheader" class="" scope="col">Start time</th>
-                                <th role="columnheader" class="" scope="col">Duration</th>
-                                <th role="columnheader" class="" scope="col">Slot type</th>
-                                <th role="columnheader" class="" scope="col">Mode of appointment</th>
-                                <th role="columnheader" class="" scope="col">Practitioner</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSAPPOINTMENTDATECOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSESSIONNAMECOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSTARTTIMECOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSDURATIONCOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSLOTTYPECOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSMODEOFAPPOINTMENTCOLUMNHEADERTEXT</th>
+                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSPRACTITIONERCOLUMNHEADERTEXT</th>
                             </tr>
                         </thead>
                         <tbody class="nhsuk-table__body">
@@ -70,7 +71,7 @@
         }
         else
         {
-            <p>No available appointment slots found</p>
+            <p>@SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT</p>
         }
     </div>
 </div>

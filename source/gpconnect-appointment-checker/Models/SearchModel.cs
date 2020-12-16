@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using gpconnect_appointment_checker.Helpers.Constants;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -12,11 +13,11 @@ namespace gpconnect_appointment_checker.Pages
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
 
-        [Required(ErrorMessage = "You must enter a provider ODS code")]
+        [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
         [BindProperty]
         public string ProviderODSCode { get; set; }
 
-        [Required(ErrorMessage = "You must enter a consumer ODS code")]
+        [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
         [BindProperty]
         public string ConsumerODSCode { get; set; }
 

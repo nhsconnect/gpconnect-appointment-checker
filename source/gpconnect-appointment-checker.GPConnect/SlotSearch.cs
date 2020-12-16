@@ -61,14 +61,12 @@ namespace gpconnect_appointment_checker.GPConnect
                 if (results.Issue?.Count > 0)
                 {
                     slotSimple.Issue = results.Issue;
-                    SendToAudit(requestParameters, startDate, endDate, StringExtensions.Coalesce(results.Issue.FirstOrDefault()?.Diagnostics, results.Issue.FirstOrDefault()?.Details.Text), stopWatch, null);
                     return slotSimple;
                 }
 
                 slotSimple.SlotEntrySimple = new List<SlotEntrySimple>();
 
                 var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
-                SendToAudit(requestParameters, startDate, endDate, null, stopWatch, slotResources?.Count);
                 if (slotResources == null || slotResources?.Count == 0) return slotSimple;
 
                 var practitionerResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
@@ -114,19 +112,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 _logger.LogError("An error occurred in trying to execute a GET request", exc);
                 throw;
             }
-        }
-
-        private void SendToAudit(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string issues, Stopwatch stopWatch, int? resultCount)
-        {
-            _auditService.AddEntry(new Entry
-            {
-                Item1 = requestParameters.ConsumerODSCode,
-                Item2 = requestParameters.ProviderODSCode,
-                Item3 = $"{startDate:d-MMM-yyyy}-{endDate:d-MMM-yyyy}",
-                Details = string.IsNullOrEmpty(issues) ? resultCount.ToString() : issues,
-                EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
-                EntryTypeId = (int) AuditEntryTypes.SlotSearch
-            });
         }
 
         private Practitioner GetPractitionerDetails(string reference, List<RootEntry> scheduleResources, List<RootEntry> practitionerResources)
@@ -175,6 +160,20 @@ namespace gpconnect_appointment_checker.GPConnect
             query.Add("searchFilter", $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
             uriBuilder.Query = query.ToString();
             return uriBuilder;
+        }
+
+        public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0)
+        {
+            var auditEntry = new Entry
+            {
+                Item1 = auditSearchParameters[0],
+                Item2 = auditSearchParameters[1],
+                Item3 = auditSearchParameters[2],
+                Details = auditSearchIssues.Count > 0 ? string.Join((char)10, auditSearchIssues) : resultCount.ToString(),
+                EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
+                EntryTypeId = (int)AuditEntryTypes.SlotSearch
+            };
+            _auditService.AddEntry(auditEntry);
         }
     }
 }

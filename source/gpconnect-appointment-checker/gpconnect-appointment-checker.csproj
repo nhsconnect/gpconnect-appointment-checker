@@ -46,4 +46,8 @@
     <ProjectReference Include="..\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Constants\" />
+  </ItemGroup>
+
 </Project>
