@@ -36,13 +36,17 @@ namespace gpconnect_appointment_checker.Controllers
         public IActionResult Signout()
         {
             var signOutResult = new SignOutResult();
+            var userSessionId = _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0);
             try
             {
-                _applicationService.LogoffUser(new User
+                if (userSessionId > 0)
                 {
-                    EmailAddress = _contextAccessor.HttpContext.User.GetClaimValue("Email"),
-                    UserSessionId = _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)
-                });
+                    _applicationService.LogoffUser(new User
+                    {
+                        EmailAddress = _contextAccessor.HttpContext.User.GetClaimValue("Email"),
+                        UserSessionId = userSessionId
+                    });
+                }
             }
             catch (Exception exc)
             {
