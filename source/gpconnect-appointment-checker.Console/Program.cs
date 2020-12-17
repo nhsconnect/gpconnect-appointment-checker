@@ -120,7 +120,7 @@ namespace gpconnect_appointment_checker.Console
             if (sslPolicyErrors == SslPolicyErrors.None)
                 return true;
             System.Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
-            return true;
+            return false;
         }
 
         private static X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
