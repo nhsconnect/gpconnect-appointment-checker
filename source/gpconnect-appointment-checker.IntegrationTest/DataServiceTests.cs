@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Data;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace gpconnect_appointment_checker.IntegrationTest
@@ -55,7 +54,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
             parameters.Add("_display_name", displayName);
             parameters.Add("_organisation_id", organisationId);
             var result = _dataService.ExecuteFunction<object>(functionName, parameters);
-            Assert.NotEmpty(result); 
+            Assert.NotEmpty(result);
         }
     }
 
@@ -192,7 +191,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
             string requestPayload,
             string responseStatus,
             string responseHeaders,
-            string responsePayload, 
+            string responsePayload,
             int roundTripTimeMs)
         {
             var parameters = new DynamicParameters();

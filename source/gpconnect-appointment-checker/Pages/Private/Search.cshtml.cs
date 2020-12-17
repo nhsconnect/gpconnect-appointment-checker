@@ -1,6 +1,5 @@
 ﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.DTO.Request.Audit;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;

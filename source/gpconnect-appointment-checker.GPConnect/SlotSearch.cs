@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,13 +22,13 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                    x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
-                requestParameters.SpineMessageTypeId = (int) SpineMessageTypes.GpConnectSearchFreeSlots;
+                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                 requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
-                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId; 
+                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId;
 
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
 
@@ -54,7 +53,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
-                
+
                 var slotSimple = new SlotSimple();
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 

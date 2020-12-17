@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace gpconnect_appointment_checker.DTO.Request.Audit
+﻿namespace gpconnect_appointment_checker.DTO.Request.Audit
 {
     public class Entry
     {

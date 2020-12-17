@@ -44,7 +44,7 @@
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
-        
+
         public const string SEARCHRESULTSAPPOINTMENTDATECOLUMNHEADERTEXT = "Appointment date";
         public const string SEARCHRESULTSSESSIONNAMECOLUMNHEADERTEXT = "Session name";
         public const string SEARCHRESULTSSTARTTIMECOLUMNHEADERTEXT = "Start time";

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using gpconnect_appointment_checker.Helpers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Layouts;
 using NLog.Targets;
 using System.Data;
-using gpconnect_appointment_checker.Helpers;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {

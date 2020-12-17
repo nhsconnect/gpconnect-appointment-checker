@@ -1,4 +1,3 @@
-using System.Security.Permissions;
 using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL;
@@ -51,7 +50,8 @@ namespace gpconnect_appointment_checker
                 {
                     config.AddEnvironmentVariables(prefix: "GPCONNECTAPPOINTMENTCHECKER_");
                 }).ConfigureAppConfiguration(AddCustomConfiguration)
-                .ConfigureLogging((builderContext, logging) => {
+                .ConfigureLogging((builderContext, logging) =>
+                {
                     logging.ClearProviders();
                     logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
                 }).UseNLog();

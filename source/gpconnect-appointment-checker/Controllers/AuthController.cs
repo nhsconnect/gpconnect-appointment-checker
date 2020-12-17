@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Application;
 using gpconnect_appointment_checker.Helpers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Controllers
 {
@@ -17,7 +17,7 @@ namespace gpconnect_appointment_checker.Controllers
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController (IApplicationService applicationService, IHttpContextAccessor contextAccessor, ILogger<AuthController> logger)
+        public AuthController(IApplicationService applicationService, IHttpContextAccessor contextAccessor, ILogger<AuthController> logger)
         {
             _applicationService = applicationService;
             _contextAccessor = contextAccessor;

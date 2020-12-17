@@ -1,17 +1,15 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
     public class CapabilityStatement
     {
-        [JsonProperty("resourceType")] 
+        [JsonProperty("resourceType")]
         public string ResourceType { get; set; }
-        [JsonProperty("version")] 
+        [JsonProperty("version")]
         public string Version { get; set; }
-        [JsonProperty("name")] 
+        [JsonProperty("name")]
         public string Name { get; set; }
         [JsonProperty("Status")]
         public string status { get; set; }

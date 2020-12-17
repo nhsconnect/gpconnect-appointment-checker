@@ -5,17 +5,17 @@ namespace gpconnect_appointment_checker.DTO.Request.GpConnect
 {
     public class BaseRequest
     {
-        [JsonProperty("resourceType")] 
+        [JsonProperty("resourceType")]
         public string resourceType { get; set; }
-        [JsonProperty("identifier")] 
+        [JsonProperty("identifier")]
         public List<Identifier> identifier { get; set; }
     }
 
     public class Identifier
     {
-        [JsonProperty("system")] 
+        [JsonProperty("system")]
         public string system { get; set; }
-        [JsonProperty("value")] 
+        [JsonProperty("value")]
         public string value { get; set; }
     }
 }

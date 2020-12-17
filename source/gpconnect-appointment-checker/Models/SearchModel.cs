@@ -1,9 +1,9 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using gpconnect_appointment_checker.Helpers.Constants;
 
 namespace gpconnect_appointment_checker.Pages
 {

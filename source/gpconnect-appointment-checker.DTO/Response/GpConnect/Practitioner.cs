@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
-{    public class Practitioner
+{
+    public class Practitioner
     {
         public List<PractitionerName> name { get; set; }
         public string gender { get; set; }

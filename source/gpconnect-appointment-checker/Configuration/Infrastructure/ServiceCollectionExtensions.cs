@@ -40,6 +40,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             return services;
         }
 
-        
+
     }
 }

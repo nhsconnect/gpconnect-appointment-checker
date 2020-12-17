@@ -34,7 +34,7 @@ namespace gpconnect_appointment_checker.SDS
             _logger.LogInformation(context.SecurityToken.ToString());
 
             string emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-            
+
             var odsCode = context.Principal.GetClaimValue("ODS");
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,6 @@ using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using Novell.Directory.Ldap;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -157,7 +157,22 @@ namespace gpconnect_appointment_checker.SDS
             if (sslPolicyErrors == SslPolicyErrors.None)
                 return true;
             _logger.LogInformation("Certificate error: {0}", sslPolicyErrors);
-            return true;
+            return false;
+        }
+
+        private static bool ValidateServerCertificateChain(X509Chain chain, X509Certificate2 x509ServerCertificateSubCa,
+            X509Certificate2 x509ServerCertificateRootCa, X509Certificate2 pfxFormattedCertificate)
+        {
+            chain.Reset();
+            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreRootRevocationUnknown;
+            chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+            chain.ChainPolicy.ExtraStore.Add(x509ServerCertificateSubCa);
+            chain.ChainPolicy.ExtraStore.Add(x509ServerCertificateRootCa);
+
+            if (chain.Build(pfxFormattedCertificate)) return true;
+            if (chain.ChainStatus.Where(chainStatus => chainStatus.Status != X509ChainStatusFlags.NoError).All(chainStatus => chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)) return false;
+            var providedRoot = chain.ChainElements[^1];
+            return x509ServerCertificateRootCa.Thumbprint == providedRoot.Certificate.Thumbprint;
         }
 
         private static X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)

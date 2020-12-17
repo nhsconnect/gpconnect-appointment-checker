@@ -1,6 +1,6 @@
-using System;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace gpconnect_appointment_checker.Pages
 {

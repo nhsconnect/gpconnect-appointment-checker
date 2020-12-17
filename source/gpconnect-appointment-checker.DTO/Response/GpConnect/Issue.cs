@@ -4,13 +4,13 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
     public class Issue
     {
-        [JsonProperty("severity")] 
+        [JsonProperty("severity")]
         public string Severity { get; set; }
-        [JsonProperty("code")] 
+        [JsonProperty("code")]
         public string Code { get; set; }
-        [JsonProperty("details")] 
+        [JsonProperty("details")]
         public Detail Details { get; set; }
-        [JsonProperty("diagnostics")] 
+        [JsonProperty("diagnostics")]
         public string Diagnostics { get; set; }
     }
 }
