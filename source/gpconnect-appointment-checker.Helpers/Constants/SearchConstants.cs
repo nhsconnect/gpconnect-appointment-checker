@@ -40,6 +40,9 @@
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
 
+        public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
+        public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
+
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
