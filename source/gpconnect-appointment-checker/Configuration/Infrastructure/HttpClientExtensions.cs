@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -33,24 +30,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             var serverCert = configuration.GetSection("spine:server_ca_certchain").GetConfigurationString();
             var clientPrivateKey = configuration.GetSection("spine:client_private_key").GetConfigurationString();
 
-            //var socketsHandler = new SocketsHttpHandler();
             var httpClientHandler = new HttpClientHandler();
-
 
             if (bool.Parse(configuration.GetSection("spine:use_ssp").GetConfigurationString("false")) &&
                 !string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientPrivateKey) &&
                 !string.IsNullOrEmpty(configuration.GetSection("spine:nhsMHSEndPoint").GetConfigurationString()))
             {
-                //var sslOptions = new SslClientAuthenticationOptions
-                //{
-                //    EnabledSslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls,
-                //    ClientCertificates = new X509Certificate2Collection()
-                //};
-
                 httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
-
-                //socketsHandler.SslOptions = sslOptions;
-                //socketsHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
                 var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
                 var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
@@ -69,9 +55,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 httpClientHandler.ClientCertificates.Add(pfxFormattedCertificate);
                 httpClientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 return httpClientHandler;
-
-                //socketsHandler.SslOptions.RemoteCertificateValidationCallback = (message, cert, chain, errors) => ValidateServerCertificateChain(chain, x509ServerCertificateSubCa, x509ServerCertificateRootCa, pfxFormattedCertificate);
-                //socketsHandler.SslOptions.ClientCertificates.Add(pfxFormattedCertificate);
             }
             return httpClientHandler;
         }

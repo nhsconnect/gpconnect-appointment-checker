@@ -22,13 +22,13 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                    x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
-                requestParameters.SpineMessageTypeId = (int) SpineMessageTypes.GpConnectSearchFreeSlots;
+                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                 requestParameters.InteractionId = spineMessageType?.InteractionId;
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
-                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId; 
+                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId;
 
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
 
@@ -40,7 +40,9 @@ namespace gpconnect_appointment_checker.GPConnect
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                 var response = await client.SendAsync(request);
+
                 var responseStream = await response.Content.ReadAsStringAsync();
+
                 _spineMessage.ResponsePayload = responseStream;
 
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
@@ -51,20 +53,19 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
+
                 var slotSimple = new SlotSimple();
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
                 if (results.Issue?.Count > 0)
                 {
                     slotSimple.Issue = results.Issue;
-                    SendToAudit(requestParameters, startDate, endDate, results.Issue.FirstOrDefault()?.Diagnostics, stopWatch, null);
                     return slotSimple;
                 }
 
                 slotSimple.SlotEntrySimple = new List<SlotEntrySimple>();
 
                 var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
-                SendToAudit(requestParameters, startDate, endDate, null, stopWatch, slotResources?.Count);
                 if (slotResources == null || slotResources?.Count == 0) return slotSimple;
 
                 var practitionerResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Practitioner).ToList();
@@ -112,24 +113,11 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private void SendToAudit(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string issues, Stopwatch stopWatch, int? resultCount)
-        {
-            _auditService.AddEntry(new Entry
-            {
-                Item1 = requestParameters.ConsumerODSCode,
-                Item2 = requestParameters.ProviderODSCode,
-                Item3 = $"{startDate:d-MMM-yyyy}-{endDate:d-MMM-yyyy}",
-                Details = string.IsNullOrEmpty(issues) ? resultCount.ToString() : issues,
-                EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
-                EntryTypeId = (int) AuditEntryTypes.SlotSearch
-            });
-        }
-
         private Practitioner GetPractitionerDetails(string reference, List<RootEntry> scheduleResources, List<RootEntry> practitionerResources)
         {
             var schedule = GetSchedule(reference, scheduleResources);
-            var schedulePractitioner = schedule?.resource.actor.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
-            var practitionerRootEntry = practitionerResources.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
+            var schedulePractitioner = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
+            var practitionerRootEntry = practitionerResources?.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
             var practitioner = new Practitioner
             {
                 gender = practitionerRootEntry?.gender,
@@ -141,12 +129,12 @@ namespace gpconnect_appointment_checker.GPConnect
         private Location GetLocation(string reference, List<RootEntry> scheduleResources, List<RootEntry> locationResources)
         {
             var schedule = GetSchedule(reference, scheduleResources);
-            var scheduleLocation = schedule?.resource.actor.FirstOrDefault(x => x.reference.Contains("Location/"));
-            var locationRootEntry = locationResources.FirstOrDefault(x => scheduleLocation?.reference == $"Location/{x.resource.id}")?.resource;
+            var scheduleLocation = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Location/"));
+            var locationRootEntry = locationResources?.FirstOrDefault(x => scheduleLocation?.reference == $"Location/{x.resource.id}")?.resource;
             var location = new Location
             {
                 name = locationRootEntry?.name.ToString(),
-                address = JsonConvert.DeserializeObject<LocationAddress>(locationRootEntry?.address.ToString())
+                address = locationRootEntry?.address != null ? JsonConvert.DeserializeObject<LocationAddress>(locationRootEntry.address.ToString()) : null
             };
             return location;
         }
@@ -171,6 +159,20 @@ namespace gpconnect_appointment_checker.GPConnect
             query.Add("searchFilter", $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
             uriBuilder.Query = query.ToString();
             return uriBuilder;
+        }
+
+        public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0)
+        {
+            var auditEntry = new Entry
+            {
+                Item1 = auditSearchParameters[0],
+                Item2 = auditSearchParameters[1],
+                Item3 = auditSearchParameters[2],
+                Details = auditSearchIssues.Count > 0 ? string.Join((char)10, auditSearchIssues) : resultCount.ToString(),
+                EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
+                EntryTypeId = (int)AuditEntryTypes.SlotSearch
+            };
+            _auditService.AddEntry(auditEntry);
         }
     }
 }

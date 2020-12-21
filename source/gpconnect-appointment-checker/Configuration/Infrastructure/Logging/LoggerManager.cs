@@ -1,6 +1,4 @@
 ﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.Helpers;
-using Microsoft.AspNetCore.Http;
 using NLog;
 
 namespace gpconnect_appointment_checker.Configuration
@@ -8,12 +6,6 @@ namespace gpconnect_appointment_checker.Configuration
     public class LoggerManager : ILoggerManager
     {
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
-
-        public LoggerManager(IHttpContextAccessor context)
-        {
-            LogManager.Configuration.Variables.Add("userSessionId", context.HttpContext.User.GetClaimValue("UserSessionId", nullIfEmpty: true));
-            LogManager.Configuration.Variables.Add("userId", context.HttpContext.User.GetClaimValue("UserId", nullIfEmpty: true));
-        }
 
         public void LogDebug(string message)
         {

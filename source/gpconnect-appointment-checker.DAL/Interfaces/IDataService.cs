@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.DAL.Interfaces
 {

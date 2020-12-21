@@ -13,6 +13,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
             app.UseCookiePolicy();
 
             app.UseRouting();

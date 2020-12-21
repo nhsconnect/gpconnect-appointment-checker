@@ -7,5 +7,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
     {
         [JsonProperty("coding")]
         public List<Coding> Coding { get; set; }
+        [JsonProperty("text")]
+        public string Text { get; set; }
     }
 }

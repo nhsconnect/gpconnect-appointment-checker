@@ -14,8 +14,8 @@ namespace gpconnect_appointment_checker.Console
     class Program
     {
         static string _connectionstring;
-        static List<LdapQuery> _ldapQueries; 
-        static SpineConfiguration _spineConfiguration; 
+        static List<LdapQuery> _ldapQueries;
+        static SpineConfiguration _spineConfiguration;
         static X509Certificate _clientCertificate;
 
         static void Main(string[] args)
@@ -62,7 +62,7 @@ namespace gpconnect_appointment_checker.Console
 
         private static void RunLdapQueries(int numberOfGoes)
         {
-            string[] odsCodes = {"A20047", "X26", "J82132", "B82619", "B82617", "B82614", "J82132", "RR8"};
+            string[] odsCodes = { "A20047", "X26", "J82132", "B82619", "B82617", "B82614", "J82132", "RR8" };
             var query = _ldapQueries.FirstOrDefault(x => x.query_name == "GetOrganisationDetailsByOdsCode");
 
             for (var i = 0; i < numberOfGoes; i++)
@@ -110,7 +110,7 @@ namespace gpconnect_appointment_checker.Console
                             }
                         }
                     }
-                    System.Console.WriteLine($"For query {filter} - iteration {i+1}, result count is {results.Count}");
+                    System.Console.WriteLine($"For query {filter} - iteration {i + 1}, result count is {results.Count}");
                 }
             }
         }

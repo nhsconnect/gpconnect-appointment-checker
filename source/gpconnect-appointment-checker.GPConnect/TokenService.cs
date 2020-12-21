@@ -95,8 +95,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 {
                     new Name
                     {
-                        family = !string.IsNullOrEmpty(familyName) ? familyName : nameParts[0].FirstCharToUpper(true),
-                        given = new List<string> { !string.IsNullOrEmpty(givenName) ? givenName : nameParts[1].FirstCharToUpper(true) }
+                        family = StringExtensions.Coalesce(familyName, nameParts[0].FirstCharToUpper(true)),
+                        given = new List<string> { StringExtensions.Coalesce(givenName, nameParts[1].FirstCharToUpper(true)) }
                     }
                 },
                 identifier = new List<Identifier>

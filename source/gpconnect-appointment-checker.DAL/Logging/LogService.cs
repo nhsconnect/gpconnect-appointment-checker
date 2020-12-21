@@ -12,17 +12,11 @@ namespace gpconnect_appointment_checker.DAL.Logging
     {
         private readonly IDataService _dataService;
         private readonly IHttpContextAccessor _context;
-        private readonly int? _userId;
-        private readonly int? _userSessionId;
 
         public LogService(IDataService dataService, IHttpContextAccessor context)
         {
             _dataService = dataService;
             _context = context;
-            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null) 
-                _userId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserId"));
-            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
-                _userSessionId = Convert.ToInt32(_context.HttpContext.User.GetClaimValue("UserSessionId"));
         }
 
         public void AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
@@ -32,8 +26,22 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_application", errorLog.Application);
             parameters.Add("_logged", errorLog.Logged);
             parameters.Add("_level", errorLog.Level);
-            parameters.Add("_user_id", _userId);
-            parameters.Add("_user_session_id", _userSessionId);
+            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_id", DBNull.Value, DbType.Int32);
+            }
+            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
+            }
             parameters.Add("_message", errorLog.Message);
             parameters.Add("_logger", errorLog.Logger);
             parameters.Add("_callsite", errorLog.Callsite);
@@ -45,7 +53,14 @@ namespace gpconnect_appointment_checker.DAL.Logging
         {
             var functionName = "logging.log_spine_message";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_session_id", _userSessionId);
+            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
+            }
             parameters.Add("_spine_message_type_id", spineMessage.SpineMessageTypeId);
             parameters.Add("_command", spineMessage.Command);
             parameters.Add("_request_headers", spineMessage.RequestHeaders);
@@ -59,10 +74,25 @@ namespace gpconnect_appointment_checker.DAL.Logging
 
         public void AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
         {
+
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();
-            parameters.Add("_user_id", _userId);
-            parameters.Add("_user_session_id", _userSessionId);
+            if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_id", DBNull.Value, DbType.Int32);
+            }
+            if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+            {
+                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            }
+            else
+            {
+                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
+            }
             parameters.Add("_url", webRequest.Url);
             parameters.Add("_referrer_url", webRequest.ReferrerUrl);
             parameters.Add("_description", webRequest.Description);

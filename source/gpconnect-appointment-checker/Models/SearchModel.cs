@@ -1,4 +1,5 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
@@ -12,11 +13,13 @@ namespace gpconnect_appointment_checker.Pages
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
 
-        [Required(ErrorMessage = "You must enter a provider ODS code")]
+        [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
+        [RegularExpression(@"^[a-zA-Z0-9]*$", ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
         public string ProviderODSCode { get; set; }
 
-        [Required(ErrorMessage = "You must enter a consumer ODS code")]
+        [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
+        [RegularExpression(@"^[a-zA-Z0-9]*$", ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
         public string ConsumerODSCode { get; set; }
 

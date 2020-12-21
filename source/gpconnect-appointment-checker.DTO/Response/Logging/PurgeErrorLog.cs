@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace gpconnect_appointment_checker.DTO.Response.Logging
+﻿namespace gpconnect_appointment_checker.DTO.Response.Logging
 {
     public class PurgeErrorLog
     {

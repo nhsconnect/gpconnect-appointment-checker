@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace gpconnect_appointment_checker.DTO.Request.GpConnect
+﻿namespace gpconnect_appointment_checker.DTO.Request.GpConnect
 {
     public class RequestParameters
     {

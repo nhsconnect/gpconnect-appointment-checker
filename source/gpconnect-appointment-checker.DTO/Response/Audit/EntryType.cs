@@ -2,7 +2,7 @@
 {
     public class EntryType
     {
-        public int EntryTypeId  { get; set; }
+        public int EntryTypeId { get; set; }
         public string EntryTypeDescription { get; set; }
         public string Item1Description { get; set; }
         public string Item2Description { get; set; }

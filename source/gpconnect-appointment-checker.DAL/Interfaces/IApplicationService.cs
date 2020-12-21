@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace gpconnect_appointment_checker.DAL.Interfaces
+﻿namespace gpconnect_appointment_checker.DAL.Interfaces
 {
     public interface IApplicationService
     {

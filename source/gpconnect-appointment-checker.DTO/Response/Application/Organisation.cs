@@ -1,32 +1,31 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 namespace gpconnect_appointment_checker.DTO.Response.Application
 {
     public class Organisation
     {
         public int OrganisationId { get; set; }
-        
+
         [JsonProperty("nhsIDCode")]
         public string ODSCode { get; set; }
-        
+
         //[JsonProperty("nhsOrgType")]
         //public string OrganisationTypeId { get; set; }
-        
+
         [JsonProperty("o")]
         public string OrganisationName { get; set; }
-        
-        [JsonProperty("postalAddress")] 
+
+        [JsonProperty("postalAddress")]
         public string PostalAddress { get; set; }
 
-        public string[] PostalAddressFields => PostalAddress.Split(new char[] {',', '$'});
+        public string[] PostalAddressFields => PostalAddress.Split(new char[] { ',', '$' });
 
-        [JsonProperty("postalCode")] 
+        [JsonProperty("postalCode")]
         public string PostalCode { get; set; }
 
         //[JsonProperty("nhsOrgOpenDate")]
         //public string OpenDate { get; set; }
-        
+
         //[JsonProperty("uniqueIdentifier")]
         //public string UniqueIdentifier { get; set; }
 
@@ -53,7 +52,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
 
         //[JsonProperty("telephoneNumber")]
         //public string TelephoneNumber { get; set; }
-        
+
         //[JsonProperty("nhsSHAcode")]
         //public string SHACode { get; set; }
 

@@ -28,7 +28,7 @@ namespace gpconnect_appointment_checker.Configuration
         public ConfigurationSource(ConfigurationOptions options)
         {
             ConnectionString = options.ConnectionString;
-            
+
         }
 
         public IConfigurationProvider Build(IConfigurationBuilder builder)

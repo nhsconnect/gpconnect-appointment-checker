@@ -1,14 +1,14 @@
-﻿using System;
-using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using User = gpconnect_appointment_checker.DTO.Request.Application.User;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -27,30 +27,18 @@ namespace gpconnect_appointment_checker.SDS
 
         public Task ExecutionTokenValidation(TokenValidatedContext context)
         {
-            ///////////////////////////
-            // temporary token fix
-            ///////////////////////////
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
+
             _logger.LogInformation(context.SecurityToken.RawData);
             _logger.LogInformation(context.SecurityToken.ToString());
 
-            string emailAddress = context.Principal.GetClaimValue("Email");
-
-            if (string.IsNullOrWhiteSpace(emailAddress))
-            {
-                emailAddress = context.Principal.GetClaimValue("Email Address");
-
-                if (context.Principal.Identity is ClaimsIdentity identity)
-                    identity.AddClaim(new Claim("Email", emailAddress));
-            }
-            ///////////////////////////
-            // end temporary token fix
-            ///////////////////////////
+            string emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
 
             var odsCode = context.Principal.GetClaimValue("ODS");
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)
             {
-                //var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(odsCode);
                 var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
                 var loggedOnUser = _applicationService.LogonUser(new User
                 {

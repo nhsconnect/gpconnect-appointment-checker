@@ -6,6 +6,7 @@ using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +14,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-//using LdapForNet;
-using Novell.Directory.Ldap;
-//using LdapException = LdapForNet.LdapException;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -33,9 +32,13 @@ namespace gpconnect_appointment_checker.Pages
         protected IApplicationService _applicationService;
         protected ITokenService _tokenService;
         protected IGpConnectQueryExecutionService _queryExecutionService;
+        protected IAuditService _auditService;
         protected readonly ILoggerManager _loggerManager;
+        protected Stopwatch _stopwatch = new Stopwatch();
+        protected List<string> _auditSearchParameters = new List<string>();
+        protected List<string> _auditSearchIssues = new List<string>();
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, ILoggerManager loggerManager = null)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -44,6 +47,7 @@ namespace gpconnect_appointment_checker.Pages
             _tokenService = tokenService;
             _queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
+            _auditService = auditService;
             if (null != loggerManager)
             {
                 _loggerManager = loggerManager;
@@ -59,20 +63,26 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<IActionResult> OnPostSearchAsync()
         {
+            ProviderODSCode = ProviderODSCode.ToUpper();
+            ConsumerODSCode = ConsumerODSCode.ToUpper();
             if (ModelState.IsValid)
             {
-                var searchTimer = new Stopwatch();
-                searchTimer.Start();
+                _stopwatch.Start();
                 await GetSearchResults();
-                searchTimer.Stop();
-                SearchDuration = searchTimer.Elapsed.TotalSeconds;
+                _stopwatch.Stop();
+                SearchDuration = _stopwatch.Elapsed.TotalSeconds;
+                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, SearchResultsCount);
             }
             return Page();
         }
 
         public IActionResult OnPostClear()
         {
-            return RedirectToPage();
+            ProviderODSCode = null;
+            ConsumerODSCode = null;
+            SelectedDateRange = DateRanges.First().Value;
+            ModelState.Clear();
+            return Page();
         }
 
         private async Task GetSearchResults()
@@ -81,6 +91,10 @@ namespace gpconnect_appointment_checker.Pages
             {
                 var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
                 var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
+
+                _auditSearchParameters.Add(ConsumerODSCode);
+                _auditSearchParameters.Add(ProviderODSCode);
+                _auditSearchParameters.Add(SelectedDateRange);
 
                 ProviderODSCodeFound = providerOrganisationDetails != null;
                 ConsumerODSCodeFound = consumerOrganisationDetails != null;
@@ -102,15 +116,29 @@ namespace gpconnect_appointment_checker.Pages
                         {
                             providerGpConnectDetails.asid = providerAsId.asid;
                             await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {string.Join(", ", providerOrganisationDetails.PostalAddressFields)} {providerOrganisationDetails.PostalCode}";
-                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {string.Join(", ", consumerOrganisationDetails.PostalAddressFields)} {consumerOrganisationDetails.PostalCode}";
+                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
+                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
+                        }
+                        else
+                        {
+                            _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
                         }
                     }
+                    else
+                    {
+                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderODSCode));
+                    }
+                }
+                else
+                {
+                    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderODSCode));
+                    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerODSCode));
                 }
             }
-            catch (LdapException ldapException)
+            catch (LdapException)
             {
                 LdapErrorRaised = true;
+                _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
             }
         }
 
@@ -120,6 +148,8 @@ namespace gpconnect_appointment_checker.Pages
             var requestParameters = _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+            var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+            var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
             if (requestParameters != null)
             {
@@ -130,8 +160,6 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (CapabilityStatementOk)
                 {
-                    var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
-                    var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
                     var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
                     SlotSearchOk = searchResults?.Issue == null;
 
@@ -151,7 +179,8 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                         ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = searchResults.Issue.FirstOrDefault()?.Diagnostics;
+                        ProviderErrorDiagnostics = StringExtensions.Coalesce(searchResults.Issue.FirstOrDefault()?.Diagnostics, searchResults.Issue.FirstOrDefault()?.Details.Text);
+                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
                     }
                 }
                 else
@@ -160,7 +189,8 @@ namespace gpconnect_appointment_checker.Pages
                     {
                         ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
                         ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics;
+                        ProviderErrorDiagnostics = StringExtensions.Coalesce(capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics, capabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
+                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
                     }
                 }
             }
