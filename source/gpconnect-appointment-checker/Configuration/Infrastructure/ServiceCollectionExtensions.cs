@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddHsts(options =>
+            {
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(730);
+            });
+
+            services.AddResponseCaching();
             services.AddResponseCompression();
             services.AddControllersWithViews();
             services.AddHttpContextAccessor();
@@ -35,11 +43,15 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Public/Help", "/Help");
                 options.Conventions.AddPageRoute("/Public/Index", "");
             });
-            services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
+            services.AddAntiforgery(options => 
+            { 
+                options.SuppressXFrameOptionsHeader = true;
+                options.Cookie.HttpOnly = false;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.None;
+            });
             HttpClientExtensions.AddHttpClientServices(services, configuration, env);
             return services;
         }
-
-
     }
 }

@@ -28,7 +28,10 @@ namespace gpconnect_appointment_checker
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHost(o => o.CaptureStartupErrors(true).UseSetting("detailedErrors", ""))
+                .ConfigureWebHost(o =>
+                {
+                    o.CaptureStartupErrors(true).UseSetting("detailedErrors", "");
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureServices(services =>
@@ -46,6 +49,10 @@ namespace gpconnect_appointment_checker
                         services.AddSingleton<ILoggerManager, LoggerManager>();
                     });
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.AddServerHeader = false;
+                    });
                 }).ConfigureAppConfiguration((builderContext, config) =>
                 {
                     config.AddEnvironmentVariables(prefix: "GPCONNECTAPPOINTMENTCHECKER_");
