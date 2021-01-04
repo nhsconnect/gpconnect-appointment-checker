@@ -13,8 +13,9 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
 
             var userId = context.Principal.GetClaimValue("UserId");
             var userSessionId = context.Principal.GetClaimValue("UserSessionId");
+            var isAuthorised = bool.Parse(context.Principal.GetClaimValue("IsAuthorised"));
 
-            if (userId == null)
+            if (userId == null || !isAuthorised)
             {
                 context.RejectPrincipal();
             }

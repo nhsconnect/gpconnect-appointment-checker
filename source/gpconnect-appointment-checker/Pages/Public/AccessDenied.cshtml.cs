@@ -1,3 +1,4 @@
+using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 
@@ -17,6 +18,7 @@ namespace gpconnect_appointment_checker.Pages
         public void OnGet()
         {
             GetAccessEmailAddress = _configuration["General:get_access_email_address"];
+            var userId = HttpContext.User.GetClaimValue("UserId");
         }
     }
 }

@@ -47,21 +47,24 @@ namespace gpconnect_appointment_checker.SDS
                     OrganisationId = organisation.OrganisationId
                 });
 
-                if (!loggedOnUser.IsAuthorised)
+                if (context.Principal.Identity is ClaimsIdentity identity)
                 {
-                    context.Response.Redirect("/AccessDenied");
-                    context.HandleResponse();
+                    identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                    identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                    identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                    identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                    identity.AddClaim(new Claim("IsAuthorised", loggedOnUser.IsAuthorised.ToString()));
                 }
-                else
-                {
-                    if (context.Principal.Identity is ClaimsIdentity identity)
-                    {
-                        identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                        identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                        identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                        identity.AddClaim(new Claim("ProviderODSCode", odsCode));
-                    }
-                }
+
+                //if (!loggedOnUser.IsAuthorised)
+                //{
+                //    context.Response.Redirect("/AccessDenied");
+                //    context.HandleResponse();
+                //}
+                //else
+                //{
+                    
+                //}
             }
             return Task.CompletedTask;
         }
