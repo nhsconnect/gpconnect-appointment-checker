@@ -56,15 +56,14 @@ namespace gpconnect_appointment_checker.SDS
                     identity.AddClaim(new Claim("IsAuthorised", loggedOnUser.IsAuthorised.ToString()));
                 }
 
-                //if (!loggedOnUser.IsAuthorised)
-                //{
-                //    context.Response.Redirect("/AccessDenied");
-                //    context.HandleResponse();
-                //}
-                //else
-                //{
-                    
-                //}
+                if (!loggedOnUser.IsAuthorised)
+                {
+                    context.Response.Redirect("/AccessDenied");
+                    context.HandleResponse();
+                }
+                else
+                {
+                }
             }
             return Task.CompletedTask;
         }

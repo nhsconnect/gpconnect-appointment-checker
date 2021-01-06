@@ -13,6 +13,9 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.EmailAddress).ToColumn("email_address");
             Map(p => p.DisplayName).ToColumn("display_name");
             Map(p => p.IsAuthorised).ToColumn("is_authorised");
+            Map(p => p.LastLogonDate).ToColumn("last_logon_date");
+            Map(p => p.AddedDate).ToColumn("added_date");
+            Map(p => p.AuthorisedDate).ToColumn("authorised_date");
         }
     }
 }

@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -135,7 +134,7 @@ namespace gpconnect_appointment_checker.Pages
                     if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerODSCode));
                 }
             }
-            catch (LdapException)
+            catch (Novell.Directory.Ldap.LdapException)
             {
                 LdapErrorRaised = true;
                 _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
@@ -160,6 +159,8 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (CapabilityStatementOk)
                 {
+                    PublisherFromCapabilityStatement = capabilityStatement.Publisher;
+
                     var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
                     SlotSearchOk = searchResults?.Issue == null;
 
