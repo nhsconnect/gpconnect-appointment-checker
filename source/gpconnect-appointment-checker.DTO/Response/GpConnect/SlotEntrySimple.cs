@@ -17,11 +17,23 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string PractitionerRole { get; set; }
         public string PractitionerGender { get; set; }
 
+        public bool PastSlot => IsInPast(AppointmentDate, StartTime);
+
         public string LocationName { get; set; }
         public List<string> LocationAddressLines { get; set; }
         public string LocationCity { get; set; }
         public string LocationDistrict { get; set; }
         public string LocationPostalCode { get; set; }
         public string LocationCountry { get; set; }
+
+        private bool IsInPast(DateTime? appointmentDate, DateTime? startTime)
+        {
+            if (appointmentDate != null && startTime != null)
+            {
+                return DateTime.Now > new DateTime(appointmentDate.Value.Year, appointmentDate.Value.Month,
+                    appointmentDate.Value.Day, startTime.Value.Hour, startTime.Value.Minute, startTime.Value.Second);
+            }
+            return false;
+        }
     }
 }
