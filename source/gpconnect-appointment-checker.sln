@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Helpers", "gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.Console", "gpconnect-appointment-checker.Console\gpconnect-appointment-checker.Console.csproj", "{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Console", "gpconnect-appointment-checker.Console\gpconnect-appointment-checker.Console.csproj", "{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Caching", "gpconnect-appointment-checker.Session\gpconnect-appointment-checker.Caching.csproj", "{74FF4FF2-76AB-4E46-B89D-348C87A1C33A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74FF4FF2-76AB-4E46-B89D-348C87A1C33A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74FF4FF2-76AB-4E46-B89D-348C87A1C33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74FF4FF2-76AB-4E46-B89D-348C87A1C33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74FF4FF2-76AB-4E46-B89D-348C87A1C33A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

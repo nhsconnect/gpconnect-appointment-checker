@@ -1,11 +1,11 @@
 ﻿using Dapper;
+using gpconnect_appointment_checker.DAL.Constants;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace gpconnect_appointment_checker.Configuration
 {
@@ -28,7 +28,6 @@ namespace gpconnect_appointment_checker.Configuration
         public ConfigurationSource(ConfigurationOptions options)
         {
             ConnectionString = options.ConnectionString;
-
         }
 
         public IConfigurationProvider Build(IConfigurationBuilder builder)
@@ -53,15 +52,15 @@ namespace gpconnect_appointment_checker.Configuration
 
         public override void Load()
         {
-            LoadConfiguration<Spine>("SELECT * FROM configuration.get_spine_configuration()", "Spine");
-            LoadConfiguration<General>("SELECT * FROM configuration.get_general_configuration()", "General");
-            LoadConfiguration<Sso>("SELECT * FROM configuration.get_sso_configuration()", "SingleSignOn");
+            LoadConfiguration<Spine>("Spine", Functions.GetSpineConfiguration);
+            LoadConfiguration<General>("General", Functions.GetGeneralConfiguration);
+            LoadConfiguration<Sso>("SingleSignOn", Functions.GetSingleSignOnConfiguration);
         }
 
-        private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class
+        private void LoadConfiguration<T>(string configurationPrefix, string functionName) where T : class
         {
             using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
-            var result = connection.Query<T>(query).FirstOrDefault();
+            var result = connection.QueryFirstOrDefault<T>($"SELECT * FROM {Schemas.Configuration}.{functionName}()");
             var json = JsonConvert.SerializeObject(result);
             var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 

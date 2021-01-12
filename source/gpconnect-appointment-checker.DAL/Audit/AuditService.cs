@@ -20,31 +20,30 @@ namespace gpconnect_appointment_checker.DAL.Audit
 
         public void AddEntry(DTO.Request.Audit.Entry auditEntry)
         {
-            var functionName = "audit.add_entry";
             var parameters = new DynamicParameters();
             if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
             {
-                parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+                parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32, ParameterDirection.Input);
             }
             else
             {
-                parameters.Add("_user_id", DBNull.Value, DbType.Int32);
+                parameters.Add("_user_id", DBNull.Value, DbType.Int32, ParameterDirection.Input);
             }
             if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
             {
-                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32, ParameterDirection.Input);
             }
             else
             {
-                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
+                parameters.Add("_user_session_id", DBNull.Value, DbType.Int32, ParameterDirection.Input);
             }
-            parameters.Add("_entry_type_id", auditEntry.EntryTypeId);
-            parameters.Add("_item1", auditEntry.Item1);
-            parameters.Add("_item2", auditEntry.Item2);
-            parameters.Add("_item3", auditEntry.Item3);
-            parameters.Add("_details", auditEntry.Details);
-            parameters.Add("_entry_elapsed_ms", auditEntry.EntryElapsedMs);
-            _dataService.ExecuteFunction(functionName, parameters);
+            parameters.Add("_entry_type_id", auditEntry.EntryTypeId, DbType.Int32, ParameterDirection.Input);
+            parameters.Add("_item1", auditEntry.Item1, DbType.String, ParameterDirection.Input);
+            parameters.Add("_item2", auditEntry.Item2, DbType.String, ParameterDirection.Input);
+            parameters.Add("_item3", auditEntry.Item3, DbType.String, ParameterDirection.Input);
+            parameters.Add("_details", auditEntry.Details, DbType.String, ParameterDirection.Input);
+            parameters.Add("_entry_elapsed_ms", auditEntry.EntryElapsedMs, DbType.Int32, ParameterDirection.Input);
+            _dataService.ExecuteFunction(Constants.Schemas.Audit, Constants.Functions.AddEntry, parameters);
         }
     }
 }

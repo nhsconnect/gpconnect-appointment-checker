@@ -25,6 +25,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                         .GetConfigurationString(throwExceptionIfEmpty: true);
                 }).AddCookie(s =>
                 {
+                    s.Cookie.Name = "GpConnectAppointmentChecker.AuthenticationCookie";
                     s.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                     s.SlidingExpiration = true;
                     s.Cookie.SameSite = SameSiteMode.None;

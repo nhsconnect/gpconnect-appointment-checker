@@ -1,9 +1,10 @@
-﻿using System;
+﻿using gpconnect_appointment_checker.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -11,9 +12,18 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
+            services.AddDistributedPgSqlCache(o =>
+            {
+                o.DefaultSlidingExpiration = TimeSpan.FromMinutes(30);
+                o.ExpiredItemsDeletionInterval = TimeSpan.FromMinutes(60);
+            });
+
             services.AddSession(s =>
             {
-                s.IdleTimeout = new System.TimeSpan(0, 30, 0);
+                s.Cookie.Name = ".GpConnectAppointmentChecker.Session"; 
+                s.IdleTimeout = new TimeSpan(0, 30, 0);
+                s.Cookie.HttpOnly = false;
+                s.Cookie.IsEssential = true;
             });
 
             services.Configure<CookiePolicyOptions>(options =>

@@ -1,8 +1,11 @@
+using gpconnect_appointment_checker.Caching;
+using gpconnect_appointment_checker.Caching.Interfaces;
 using gpconnect_appointment_checker.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Application;
 using gpconnect_appointment_checker.DAL.Audit;
+using gpconnect_appointment_checker.DAL.Caching;
 using gpconnect_appointment_checker.DAL.Configuration;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DAL.Logging;
@@ -11,6 +14,7 @@ using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.SDS;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,9 +40,12 @@ namespace gpconnect_appointment_checker
                 {
                     webBuilder.ConfigureServices(services =>
                     {
+                        services.AddSingleton<IDataService, DataService>();
+                        services.AddSingleton<ICachingService, CachingService>();
+                        services.AddSingleton<IDatabaseExpiredItemsRemoverLoop, DatabaseExpiredItemsRemoverLoop>();
+                        services.AddSingleton<IDistributedCache, PgSqlCache>();
                         services.AddScoped<ISDSQueryExecutionService, SDSQueryExecutionService>();
                         services.AddScoped<IGpConnectQueryExecutionService, GpConnectQueryExecutionService>();
-                        services.AddScoped<IDataService, DataService>();
                         services.AddScoped<IConfigurationService, ConfigurationService>();
                         services.AddScoped<IAuditService, AuditService>();
                         services.AddScoped<ITokenService, TokenService>();
