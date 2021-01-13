@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -151,7 +150,7 @@ namespace gpconnect_appointment_checker.Pages
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
 
-            var startDate = CalculateStartDate(IncludePastAppointments, SelectedDateRange.Split(":")[0]);
+            var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
             var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
             if (requestParameters != null)
@@ -165,7 +164,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     PublisherFromCapabilityStatement = capabilityStatement.Publisher;
 
-                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
+                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname, IncludePastAppointments);
                     SlotSearchOk = searchResults?.Issue == null;
 
                     if (SlotSearchOk)
@@ -199,19 +198,6 @@ namespace gpconnect_appointment_checker.Pages
                     }
                 }
             }
-        }
-
-        private DateTime CalculateStartDate(in bool includePastAppointments, string startDateText)
-        {
-            var startDate = Convert.ToDateTime(startDateText);
-            if (DateTime.Now > startDate)
-            {
-                if (!includePastAppointments)
-                {
-                    return DateTime.Now;
-                }
-            }
-            return startDate;
         }
 
         private List<SelectListItem> GetDateRanges()
