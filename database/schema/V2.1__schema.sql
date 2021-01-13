@@ -1,8 +1,8 @@
-create schema caching;
+create schema if not exists caching;
 
-drop table caching.dist_cache;
+drop table if exists caching.dist_cache;
 
-create table caching.dist_cache
+create table if not exists caching.dist_cache
 (
     Id text not null,
     Value bytea,
