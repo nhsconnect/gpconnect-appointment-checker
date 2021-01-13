@@ -29,6 +29,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
             var mockConfiguration = new Mock<IConfiguration>();
             var mockConfigurationSectionUseLdaps = new Mock<IConfigurationSection>();
+            var mockConfigurationSectionMutualAuth = new Mock<IConfigurationSection>();
             var mockConfigurationSectionTimeout = new Mock<IConfigurationSection>();
             var mockConfigurationSectionHost = new Mock<IConfigurationSection>();
             var mockConfigurationSectionPort = new Mock<IConfigurationSection>();
@@ -41,49 +42,49 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
             _dataService = new DataService(mockConfiguration.Object, mockLoggerDataService.Object);
 
-            SetupConfiguration(mockConfigurationSectionUseLdaps, mockConfigurationSectionTimeout, mockConfigurationSectionHost, mockConfigurationSectionPort, mockConfiguration);
+            SetupConfiguration(mockConfigurationSectionMutualAuth, mockConfigurationSectionUseLdaps, mockConfigurationSectionTimeout, mockConfigurationSectionHost, mockConfigurationSectionPort, mockConfiguration);
             SetupContext(mockHttpContextAccessor);
 
             _sdsQueryExecutionService = new SDSQueryExecutionService(mockLogger.Object, mockLogService.Object, mockConfiguration.Object, mockHttpContextAccessor.Object);
         }
 
         [Theory]
-        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=A20047)")]
-        public void ExecuteValidQuery(string searchBase, string filter)
+        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=A20047)", new [] { "o", "postalCode" })]
+        public void ExecuteValidQuery(string searchBase, string filter, string[] attributes)
         {
-            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null);
+            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, attributes);
             Assert.NotEmpty(results);
         }
 
         [Theory]
-        [InlineData("ou=organisations, o=nhs", "(17256)")]
-        [InlineData("ou=organisations, o=nhs", "(A20047)")]
-        [InlineData("ou=organisations, o=nhs", "(*)")]
-        public void ExecuteFilterExceptionQuery(string searchBase, string filter)
+        [InlineData("ou=organisations, o=nhs", "(17256)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=organisations, o=nhs", "(A20047)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=organisations, o=nhs", "(*)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        public void ExecuteFilterExceptionQuery(string searchBase, string filter, string[] attributes)
         {
-            Assert.Throws<LdapLocalException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null));
+            Assert.Throws<LdapLocalException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, attributes));
         }
 
         [Theory]
-        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=XYZ72615)")]
-        [InlineData("ou=organisations, o=nhs", "(nonexistentfilter=ABC123)")]
-        public void ExecuteEmptyQuery(string searchBase, string filter)
+        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=XYZ72615)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=organisations, o=nhs", "(nonexistentfilter=ABC123)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        public void ExecuteEmptyQuery(string searchBase, string filter, string[] attributes)
         {
-            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null);
+            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, attributes);
             Assert.Null(results);
         }
 
         [Theory]
-        [InlineData("ou=organisations", "")]
-        [InlineData("ou=fakeou", "")]
-        [InlineData("ou=organisations, o=fakeobject", "")]
-        [InlineData("", "")]
-        [InlineData("o=nhs", "")]
-        [InlineData("", "(uniqueidentifier=A20047)")]
-        [InlineData("ou=organisations, o=nhs", "")]
-        public void ExecuteExceptionQuery(string searchBase, string filter)
+        [InlineData("ou=organisations", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=fakeou", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=organisations, o=fakeobject", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("o=nhs", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("", "(uniqueidentifier=A20047)", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        [InlineData("ou=organisations, o=nhs", "", new[] { "nhsIDCode", "o", "postalAddress", "postalCode", "nhsOrgTypeCode" })]
+        public void ExecuteExceptionQuery(string searchBase, string filter, string[] attributes)
         {
-            Assert.Throws<LdapException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null));
+            Assert.Throws<LdapException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, attributes));
         }
 
         private static void SetupContext(Mock<IHttpContextAccessor> mockHttpContextAccessor)
@@ -104,17 +105,19 @@ namespace gpconnect_appointment_checker.IntegrationTest
             mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
         }
 
-        private void SetupConfiguration(Mock<IConfigurationSection> mockConfigurationSectionUseLdaps, Mock<IConfigurationSection> mockConfigurationSectionTimeout,
+        private void SetupConfiguration(Mock<IConfigurationSection> mockConfigurationSectionMutualAuth, Mock<IConfigurationSection> mockConfigurationSectionUseLdaps, Mock<IConfigurationSection> mockConfigurationSectionTimeout,
             Mock<IConfigurationSection> mockConfigurationSectionHost, Mock<IConfigurationSection> mockConfigurationSectionPort, Mock<IConfiguration> mockConfiguration)
         {
-            var configuration = _dataService.ExecuteFunction<Spine>("configuration.get_spine_configuration").FirstOrDefault();
+            var configuration = _dataService.ExecuteFunction<Spine>("configuration", "get_spine_configuration").FirstOrDefault();
 
             mockConfigurationSectionUseLdaps.Setup(a => a.Value).Returns(configuration.sds_use_ldaps.ToString());
+            mockConfigurationSectionMutualAuth.Setup(a => a.Value).Returns(configuration.sds_use_mutualauth.ToString());
             mockConfigurationSectionTimeout.Setup(a => a.Value).Returns(configuration.timeout_seconds.ToString());
-            mockConfigurationSectionHost.Setup(a => a.Value).Returns(configuration.sds_hostname.ToString());
+            mockConfigurationSectionHost.Setup(a => a.Value).Returns(configuration.sds_hostname);
             mockConfigurationSectionPort.Setup(a => a.Value).Returns(configuration.sds_port.ToString());
 
             mockConfiguration.Setup(a => a.GetSection("Spine:sds_use_ldaps")).Returns(mockConfigurationSectionUseLdaps.Object);
+            mockConfiguration.Setup(a => a.GetSection("Spine:sds_use_mutualauth")).Returns(mockConfigurationSectionMutualAuth.Object); 
             mockConfiguration.Setup(a => a.GetSection("Spine:timeout_seconds")).Returns(mockConfigurationSectionTimeout.Object);
             mockConfiguration.Setup(a => a.GetSection("Spine:sds_hostname")).Returns(mockConfigurationSectionHost.Object);
             mockConfiguration.Setup(a => a.GetSection("Spine:sds_port")).Returns(mockConfigurationSectionPort.Object);

@@ -60,7 +60,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         {
             var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId);
             var result = _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Now, DateTime.Now.AddDays(7), baseAddress);
-            Assert.IsType<SlotSimple>(result);
+            Assert.IsType<Task<SlotSimple>>(result);
         }
 
         private static RequestParameters CreateRequestParameters(string bearerToken, string sspFrom, string sspTo,

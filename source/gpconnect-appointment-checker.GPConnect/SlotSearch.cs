@@ -159,8 +159,8 @@ namespace gpconnect_appointment_checker.GPConnect
             query.Add("_include:recurse", "Schedule:actor:Practitioner");
             query.Add("_include:recurse", "Schedule:actor:Location");
             query.Add("_include:recurse", "Location:managingOrganization");
-            query.Add("start", $"ge{startDate:yyyy-MM-dd}");
-            query.Add("end", $"le{endDate:yyyy-MM-dd}");
+            query.Add("start", $"ge{startDate:yyyy-MM-ddThh:mm:sszzzz}");
+            query.Add("end", $"le{endDate:yyyy-MM-ddThh:mm:sszzzz}");
             query.Add("searchFilter", $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
             uriBuilder.Query = query.ToString();
             return uriBuilder;

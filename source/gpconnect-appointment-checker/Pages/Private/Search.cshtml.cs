@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -80,6 +81,7 @@ namespace gpconnect_appointment_checker.Pages
             ProviderODSCode = null;
             ConsumerODSCode = null;
             SelectedDateRange = DateRanges.First().Value;
+            IncludePastAppointments = false;
             ModelState.Clear();
             return Page();
         }
@@ -94,6 +96,7 @@ namespace gpconnect_appointment_checker.Pages
                 _auditSearchParameters.Add(ConsumerODSCode);
                 _auditSearchParameters.Add(ProviderODSCode);
                 _auditSearchParameters.Add(SelectedDateRange);
+                _auditSearchParameters.Add(IncludePastAppointments.ToString());
 
                 ProviderODSCodeFound = providerOrganisationDetails != null;
                 ConsumerODSCodeFound = consumerOrganisationDetails != null;
@@ -147,7 +150,8 @@ namespace gpconnect_appointment_checker.Pages
             var requestParameters = _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
-            var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+
+            var startDate = CalculateStartDate(IncludePastAppointments, SelectedDateRange.Split(":")[0]);
             var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
             if (requestParameters != null)
@@ -195,6 +199,19 @@ namespace gpconnect_appointment_checker.Pages
                     }
                 }
             }
+        }
+
+        private DateTime CalculateStartDate(in bool includePastAppointments, string startDateText)
+        {
+            var startDate = Convert.ToDateTime(startDateText);
+            if (DateTime.Now > startDate)
+            {
+                if (!includePastAppointments)
+                {
+                    return DateTime.Now;
+                }
+            }
+            return startDate;
         }
 
         private List<SelectListItem> GetDateRanges()
