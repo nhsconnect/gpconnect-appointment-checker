@@ -42,10 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\gpconnect-appointment-checker.Caching\gpconnect-appointment-checker.Caching.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj" />
-    <ProjectReference Include="..\gpconnect-appointment-checker.Session\gpconnect-appointment-checker.Caching.csproj" />
   </ItemGroup>
 
   <ItemGroup>
