@@ -15,6 +15,7 @@ COPY gpconnect-appointment-checker.DAL/*.csproj ./gpconnect-appointment-checker.
 COPY gpconnect-appointment-checker.GPConnect/*.csproj ./gpconnect-appointment-checker.GPConnect/
 COPY gpconnect-appointment-checker.SDS/*.csproj ./gpconnect-appointment-checker.SDS/
 COPY gpconnect-appointment-checker.AWSLambda/*.csproj ./gpconnect-appointment-checker.AWSLambda/
+COPY gpconnect-appointment-checker.Caching/*.csproj ./gpconnect-appointment-checker.Caching/
 COPY gpconnect-appointment-checker/*.csproj ./gpconnect-appointment-checker/
 
 RUN dotnet restore
