@@ -37,8 +37,8 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData("02443b12-70c2-4166-9b8b-a6b25b1ce8f2", "Test String Number 1 - She Sells Sea Shells on the Sea Shore")]
-        [InlineData("23310df5-c0e3-4f0b-a7ac-bb7a8286d66b", "Test String Number 2 - Peter Piper Picked a Peck of Pickled Peppers")]
+        [InlineData("02443b12-70c2-4166-9b8b-a6b25b1ce8f2", "0PPTPuTagb2R0vP3QnHe")]
+        [InlineData("23310df5-c0e3-4f0b-a7ac-bb7a8286d66b", "PXliG79vPg0B2jX156YW")]
         public void SetAndGetCacheItem(string key, string value)
         {
             var byteValue = Encoding.ASCII.GetBytes(value);
@@ -47,6 +47,18 @@ namespace gpconnect_appointment_checker.IntegrationTest
             var cacheItemAsString = Encoding.ASCII.GetString(cacheItem);
             Assert.NotEmpty(cacheItem);
             Assert.Equal(value, cacheItemAsString);
+        }
+
+        [Theory]
+        [InlineData("e2ab7f0a-1034-4833-8a9d-5e42320bda40", "kRdmZN2zPtJWk54fb6Np")]
+        [InlineData("7745951c-7dd2-42fe-aeca-0848db372c86", "i6EEzp61U0wt5ACfxk2X")]
+        public void SetAndDeleteCacheItem(string key, string value)
+        {
+            var byteValue = Encoding.ASCII.GetBytes(value);
+            _cachingService.SetCacheItem(key, byteValue, _cacheEntryOptions);
+            _cachingService.DeleteCacheItem(key);
+            var cacheItem = _cachingService.GetCacheItem(key);
+            Assert.Null(cacheItem);
         }
     }
 }
