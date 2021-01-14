@@ -112,7 +112,7 @@ namespace gpconnect_appointment_checker.DAL.Caching
             if (includeValue)
             {
                 var result = _dataService.ExecuteFunction<DTO.Response.Caching.Item>(Schemas.Caching, Functions.GetCacheItem, parameters);
-                value = result.FirstOrDefault()?.Value;
+                value = result?.FirstOrDefault()?.Value;
             }
 
             return value;
@@ -130,7 +130,7 @@ namespace gpconnect_appointment_checker.DAL.Caching
             if (includeValue)
             {
                 var result = await _dataService.ExecuteFunctionAsync<DTO.Response.Caching.Item>(Schemas.Caching, Functions.GetCacheItem, parameters, cancellationToken);
-                value = result.FirstOrDefault()?.Value;
+                value = result?.FirstOrDefault()?.Value;
             }
             return value;
         }
