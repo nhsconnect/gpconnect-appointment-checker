@@ -105,6 +105,8 @@ namespace gpconnect_appointment_checker.Pages
                     //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
                     var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
                     var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+
+                    ProviderPublisher = providerGpConnectDetails.product_name;
                     ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
                     if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)

@@ -9,7 +9,10 @@
                 <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
-            <div class="nhsuk-care-card__content"><p>@Model.SearchAtResultsText</p></div>
+            <div class="nhsuk-care-card__content">
+                <p>@Model.SearchAtResultsText</p>
+                <p>@SearchConstants.SEARCHRESULTSPUBLISHERLABEL&nbsp;@Model.ProviderPublisher</p>
+            </div>
         </div>
         <div class="nhsuk-care-card">
             <div class="nhsuk-care-card__heading-container">

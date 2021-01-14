@@ -24,5 +24,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Configuration
         public int timeout_seconds { get; set; }
         public string spine_fqdn { get; set; }
         public string sds_tls_version { get; set; }
+        [JsonProperty("nhsProductName")]
+        public string product_name { get; set; }
     }
 }
