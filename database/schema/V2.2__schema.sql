@@ -1,0 +1,1 @@
+update configuration.sds_query set query_attributes = 'nhsMHSEndPoint,nhsMHSPartyKey,uniqueIdentifier,nhsProductName' where query_name='GetGpProviderEndpointAndPartyKeyByOdsCode'

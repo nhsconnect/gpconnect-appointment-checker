@@ -89,7 +89,9 @@ namespace gpconnect_appointment_checker.Pages
         {
             try
             {
+                //LDAP Query 1 - Get the organisation details for the Provider ODS Code
                 var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
+                //LDAP Query 2 - Get the organisation details for the Consumer ODS Code
                 var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
                 _auditSearchParameters.Add(ConsumerODSCode);
@@ -102,14 +104,17 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (ProviderODSCodeFound && ConsumerODSCodeFound)
                 {
-                    //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
-                    //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
+                    //LDAP Query 3 - Get the endpoint and party key for the Provider ODS Code
                     var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
+                    //LDAP Query 4 - Get the endpoint and party key for the Consumer ODS Code
                     var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+
+                    ProviderPublisher = providerGpConnectDetails.product_name;
                     ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
                     if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                     {
+                        //LDAP Query 5 - Get the AsId for the Provider ODS Code to check they are enabled for GP Connect
                         var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
                         ProviderASIDPresent = providerAsId != null;
 
@@ -162,8 +167,6 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (CapabilityStatementOk)
                 {
-                    PublisherFromCapabilityStatement = capabilityStatement.Publisher;
-
                     var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname, IncludePastAppointments);
                     SlotSearchOk = searchResults?.Issue == null;
 

@@ -94,8 +94,7 @@ namespace gpconnect_appointment_checker.SDS
                     _logger.LogInformation($"searchBase is: {searchBase}");
                     _logger.LogInformation($"filter is: {filter}");
 
-                    //var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
-                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, null, false);
+                    var searchResults = ldapConnection.Search(searchBase, LdapConnection.ScopeSub, filter, attributes, false);
 
                     while (searchResults.HasMore())
                     {

@@ -49,6 +49,6 @@ namespace gpconnect_appointment_checker.Pages
         public int? SearchResultsCount { get; set; }
         public bool LdapErrorRaised { get; set; }
 
-        public string PublisherFromCapabilityStatement { get; set; }
+        public string ProviderPublisher { get; set; }
     }
 }
