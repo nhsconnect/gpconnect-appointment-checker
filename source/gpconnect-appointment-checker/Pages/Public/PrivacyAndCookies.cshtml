@@ -1,0 +1,47 @@
+﻿@page
+@model PrivacyAndCookiesModel
+@addTagHelper *, gpconnect-appointment-checker
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <h1>Privacy and Cookies</h1>
+        <h2>Data Collected</h2>
+        <p>
+            We collect anonymous data from every user of @Model.ApplicationName to monitor traffic and fix bugs. For example, we collect the following for a number of reasons:-
+            <ul>
+                <li>information about web requests including browser information, IP address;</li>
+                <li>data sent in response to such requests.</li>
+            </ul>
+        </p>
+        <p>We ask you to log in so that we may save personal information about you, including your name and email address. In order to enable this login based feature, we use cookies to store session information for your convenience. You can block or delete cookies and still be able to use @Model.ApplicationName, although if you do you will then be asked for your username and password every time you log in to @Model.ApplicationName.</p>
+
+        <h2>Data Usage</h2>
+        <p>
+            We only use your personal information for the following reasons:-
+            <ul>
+                <li>to link activity on @Model.ApplicationName with the information we have stored about you;</li>
+                <li>to communicate with you about your activity on @Model.ApplicationName.</li>
+            </ul>
+        </p>
+        <p>
+            We do not share any personal information you have provided to us without your consent, unless:-
+            <ul>
+                <li>doing so is appropriate to carry out your own use of @Model.ApplicationName;</li>
+                <li>we believe it's needed to detect, prevent or address security or technical issues.</li>
+            </ul>
+        </p>
+        <p>We do not share your personal information with third parties.</p>
+        <p>We may use the anonymous data that has been collected pertaining to your use of @Model.ApplicationName to make any necessary improvements and changes in functionality.</p>
+
+        <h2>Cookies</h2>
+        <p>Cookies are small text files that are placed on your computer by websites that you visit. They are widely used in order to make websites work, or work more efficiently, as well as to provide information to the owners of the site.</p>
+        <p>Most browsers automatically accept cookies but have an option for blocking or deleting cookies, which will prevent your browser from accepting new cookies, as well as (depending on the sophistication of your browser software) allow you to decide on acceptance of each new cookie in a variety of ways. You can usually access these options through the "Settings" or similar menu in your browser.  For more information about cookies, including how to see what cookies have been set and how to manage and delete cookies, visit <a target="_blank" href="https://www.allaboutcookies.org/">www.allaboutcookies.org</a>.</p>
+        <p>Essential cookies are required to give you the ability to log into secure areas of @Model.ApplicationName. Disabling these cookies may make certain features and services unavailable.</p>
+
+        <h2>How to contact us</h2>
+        <p>If you have any questions about the privacy and cookie policy, please email us at <a href="mailto:@Html.Raw(Model.GetAccessEmailAddress)">@Model.GetAccessEmailAddress</a></p>
+        <div class="nhsuk-review-date">
+            <p class="nhsuk-body-s">Updated: @Model.LastUpdated</p>
+        </div>
+    </div>
+</div>
