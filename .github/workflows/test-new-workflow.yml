@@ -1,0 +1,50 @@
+name: Test new workflow
+
+on: push
+
+env:
+  DB_HOST: localhost
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gpconnect
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5         
+
+    steps:
+
+      - name: Check out branch
+        uses: actions/checkout@main
+        
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      
+      - name: Build dotnet solution
+        run: dotnet build source/gpconnect-appointment-checker.sln
+
+      - name: Check Postgres running
+        run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
+
+      - name: Build docker application image
+        run: docker build -t gpconnect-appointment-checker-application source/.
+
+      - name: Build docker database patcher image
+        run: docker build -t gpconnect-appointment-checker-dbpatcher database/.
+
+      - name: Run docker database patcher image
+        run: docker run --rm --network="host" gpconnect-appointment-checker-dbpatcher -url=jdbc:postgresql://localhost/gpconnect -user=postgres -password=postgres -locations=filesystem:sql,filesystem:sql-tests migrate
