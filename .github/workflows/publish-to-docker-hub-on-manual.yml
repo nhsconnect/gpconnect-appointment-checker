@@ -1,4 +1,4 @@
-name: Publish to docker hub (manual)
+name: Publish to github packages (manual)
 
 on:
   workflow_dispatch:
@@ -16,15 +16,17 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           path: source
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-          repository: nhsgpconnect/gpconnect-appointment-checker-application
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: nhsconnect/gpconnect-appointment-checker/gpconnect-appointment-checker-application
           tag_with_ref: true
       - name: Push database image to docker hub
         uses: docker/build-push-action@v1
         with:
           path: database
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-          repository: nhsgpconnect/gpconnect-appointment-checker-dbpatcher
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: nhsconnect/gpconnect-appointment-checker/gpconnect-appointment-checker-database
           tag_with_ref: true
