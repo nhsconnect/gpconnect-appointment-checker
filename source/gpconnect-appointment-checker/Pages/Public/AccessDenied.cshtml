@@ -7,7 +7,7 @@
     <div class="nhsuk-grid-column-two-thirds">
         <div class="nhsuk-warning-callout">
             <h3 class="nhsuk-warning-callout__label">@SearchConstants.ACCESSLABEL</h3>
-            <p>@string.Format(SearchConstants.ACCESSTEXT, Model.GetAccessEmailAddress)</p>
+            <p>@Html.Raw(string.Format(SearchConstants.ACCESSTEXT, Model.GetAccessEmailAddress))</p>
         </div>
     </div>
 </div>
