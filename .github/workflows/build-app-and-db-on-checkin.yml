@@ -26,6 +26,9 @@ jobs:
 
     steps:
 
+      - name: Print the current branch name
+        run: echo "$GITHUB_REF"
+
       - name: Check out branch
         uses: actions/checkout@main
         
