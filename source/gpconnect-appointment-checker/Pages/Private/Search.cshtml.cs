@@ -65,8 +65,8 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
-                ProviderODSCode = ProviderODSCode.ToUpper();
-                ConsumerODSCode = ConsumerODSCode.ToUpper();
+                ProviderODSCode = ProviderODSCode.ToUpper().Trim();
+                ConsumerODSCode = ConsumerODSCode.ToUpper().Trim();
                 _stopwatch.Start();
                 await GetSearchResults();
                 _stopwatch.Stop();
