@@ -23,5 +23,11 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string LocationDistrict { get; set; }
         public string LocationPostalCode { get; set; }
         public string LocationCountry { get; set; }
+
+        public bool NoAddressProvided => LocationAddressLines?.Count == 0 && string.IsNullOrEmpty(LocationCity) &&
+                                         string.IsNullOrEmpty(LocationDistrict) &&
+                                         string.IsNullOrEmpty(LocationPostalCode) &&
+                                         string.IsNullOrEmpty(LocationCountry);
+
     }
 }
