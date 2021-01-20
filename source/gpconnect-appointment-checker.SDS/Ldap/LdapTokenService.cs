@@ -33,8 +33,7 @@ namespace gpconnect_appointment_checker.SDS
             _logger.LogInformation(context.SecurityToken.RawData);
             _logger.LogInformation(context.SecurityToken.ToString());
 
-            string emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-
+            var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
             var odsCode = context.Principal.GetClaimValue("ODS");
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
             if (organisationDetails != null)
@@ -56,6 +55,7 @@ namespace gpconnect_appointment_checker.SDS
                 {
                     if (context.Principal.Identity is ClaimsIdentity identity)
                     {
+                        identity.AddOrReplaceClaimValue("Email", emailAddress);
                         identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
                         identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                         identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));

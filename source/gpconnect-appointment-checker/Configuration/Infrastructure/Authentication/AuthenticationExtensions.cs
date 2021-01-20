@@ -40,8 +40,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                     options.ClientId = configuration.GetSection("SingleSignOn:client_id").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.ClientSecret = configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.CallbackPath = configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString(throwExceptionIfEmpty: true);
-                    //options.RemoteSignOutPath = "/Public/Index";
-                    //options.SignedOutRedirectUri = "/Public/Index";
                     options.ResponseType = OpenIdConnectResponseType.IdToken;
                     options.Scope.Add("email");
                     options.Scope.Add("profile");
