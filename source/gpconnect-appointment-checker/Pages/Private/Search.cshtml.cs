@@ -35,7 +35,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IAuditService _auditService;
         protected readonly ILoggerManager _loggerManager;
         protected Stopwatch _stopwatch = new Stopwatch();
-        protected List<string> _auditSearchParameters = new List<string>();
+        protected List<string> _auditSearchParameters = new List<string>(new [] { "", "", "" });
         protected List<string> _auditSearchIssues = new List<string>();
 
         public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
@@ -92,9 +92,9 @@ namespace gpconnect_appointment_checker.Pages
                 var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
                 var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
 
-                _auditSearchParameters.Add(ConsumerODSCode);
-                _auditSearchParameters.Add(ProviderODSCode);
-                _auditSearchParameters.Add(SelectedDateRange);
+                _auditSearchParameters[0] = ConsumerODSCode;
+                _auditSearchParameters[1] = ProviderODSCode;
+                _auditSearchParameters[2] = SelectedDateRange;
 
                 ProviderODSCodeFound = providerOrganisationDetails != null;
                 ConsumerODSCodeFound = consumerOrganisationDetails != null;
