@@ -23,7 +23,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
             }).AddCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 options.LoginPath = "/Public/Index";
                 options.SlidingExpiration = true;
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
@@ -39,7 +38,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                     options.SignInScheme = configuration.GetSection("SingleSignOn:auth_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.Authority = configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
                     options.MetadataAddress = configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
-
+                    options.MaxAge = TimeSpan.FromMinutes(2);
                     options.SignedOutRedirectUri = "/Auth/Login";
                     options.SaveTokens = true;
                     options.Scope.Clear();

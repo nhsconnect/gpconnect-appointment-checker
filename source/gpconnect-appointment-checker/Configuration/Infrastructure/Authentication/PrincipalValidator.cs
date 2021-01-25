@@ -22,6 +22,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
             NLog.LogManager.Configuration.Variables["userId"] = userId;
             NLog.LogManager.Configuration.Variables["userSessionId"] = userSessionId;
 
+            context.Options.ExpireTimeSpan = TimeSpan.FromMinutes(2);
+            
             return Task.CompletedTask;
         }
     }
