@@ -27,41 +27,46 @@ namespace gpconnect_appointment_checker.SDS
 
         public Task ExecutionTokenValidation(TokenValidatedContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
-
-            _logger.LogInformation(context.SecurityToken.RawData);
-            _logger.LogInformation(context.SecurityToken.ToString());
-
-            var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-            var odsCode = context.Principal.GetClaimValue("ODS");
-            var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
-            if (organisationDetails != null)
+            try
             {
-                var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
-                var loggedOnUser = _applicationService.LogonUser(new User
-                {
-                    EmailAddress = emailAddress,
-                    DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                    OrganisationId = organisation.OrganisationId
-                });
+                if (context == null) throw new ArgumentNullException(nameof(context));
+                if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
 
-                if (!loggedOnUser.IsAuthorised)
+                var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
+                var odsCode = context.Principal.GetClaimValue("ODS");
+                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
+                if (organisationDetails != null)
                 {
-                    context.Response.Redirect("/AccessDenied");
-                    context.HandleResponse();
-                }
-                else
-                {
-                    if (context.Principal.Identity is ClaimsIdentity identity)
+                    var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                    var loggedOnUser = _applicationService.LogonUser(new User
                     {
-                        identity.AddOrReplaceClaimValue("Email", emailAddress);
-                        identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
-                        identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                        identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                        identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                        EmailAddress = emailAddress,
+                        DisplayName = context.Principal.GetClaimValue("DisplayName"),
+                        OrganisationId = organisation.OrganisationId
+                    });
+
+                    if (!loggedOnUser.IsAuthorised)
+                    {
+                        context.Response.Redirect("/AccessDenied");
+                        context.HandleResponse();
+                    }
+                    else
+                    {
+                        if (context.Principal.Identity is ClaimsIdentity identity)
+                        {
+                            identity.AddOrReplaceClaimValue("Email", emailAddress);
+                            identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                            identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                            identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                            identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                        }
                     }
                 }
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError("An error occurred attempting to authorise the user", exc);
+                throw;
             }
             return Task.CompletedTask;
         }

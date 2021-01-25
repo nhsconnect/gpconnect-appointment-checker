@@ -69,6 +69,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                             context.Response.Redirect("/Error");
                             context.HandleResponse();
                             return Task.CompletedTask;
+                        },
+                        OnRemoteFailure = context =>
+                        {
+                            context.Response.Redirect("/Error");
+                            context.HandleResponse();
+                            return Task.CompletedTask;
                         }
                     };
                 });
