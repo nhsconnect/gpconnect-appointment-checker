@@ -46,6 +46,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseMiddleware<RequestLoggingMiddleware>();
             app.UseEndpoints(endpoints =>
             {
