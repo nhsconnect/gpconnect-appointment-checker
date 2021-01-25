@@ -13,7 +13,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
         {
             services.AddSession(s =>
             {
-                s.IdleTimeout = new System.TimeSpan(0, 30, 0);
+                s.IdleTimeout = new System.TimeSpan(0, 1, 0);
             });
 
             services.Configure<CookiePolicyOptions>(options =>
