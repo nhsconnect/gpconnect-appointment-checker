@@ -140,6 +140,11 @@ namespace gpconnect_appointment_checker.Pages
                 LdapErrorRaised = true;
                 _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
             }
+            catch (TimeoutException)
+            {
+                TimeoutErrorRaised = true;
+                _auditSearchIssues.Add(SearchConstants.ISSUEWITHTIMEOUTTEXT);
+            }
         }
 
         private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
