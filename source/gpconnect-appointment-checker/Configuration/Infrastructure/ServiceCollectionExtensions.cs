@@ -43,6 +43,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Public/Error", "/Error");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
                 options.Conventions.AddPageRoute("/Public/Accessibility", "/Accessibility");
+                options.Conventions.AddPageRoute("/Public/PrivacyAndCookies", "/PrivacyAndCookies");
                 options.Conventions.AddPageRoute("/Public/Help", "/Help");
             });
             services.AddAntiforgery(options => 
