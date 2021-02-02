@@ -128,6 +128,10 @@ namespace gpconnect_appointment_checker.SDS
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
                 return true;
+
+            if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)  // skip this for now; logged as ticket to sort
+                return true;
+
             _logger.LogError($"An error has occurred while attempting to validate the LDAP server certificate: {sslPolicyErrors}");
             return true;
         }
