@@ -37,9 +37,9 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
                 {
-                    Public = true,
-                    NoCache = true
+                    NoStore = true
                 };
+
                 await next();
             });
 
