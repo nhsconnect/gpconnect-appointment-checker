@@ -45,8 +45,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             app.UseResponseCompression();
 
-            
-
             app.UseAuthentication();
             app.UseAuthorization();
 

@@ -61,7 +61,7 @@ namespace gpconnect_appointment_checker.Controllers
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error occurred in trying to logout the user", exc);
+                _logger.LogError(exc, "An error occurred in trying to logout the user");
                 throw;
             }
         }

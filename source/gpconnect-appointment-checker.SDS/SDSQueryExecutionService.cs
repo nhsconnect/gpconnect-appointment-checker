@@ -109,19 +109,17 @@ namespace gpconnect_appointment_checker.SDS
                 logMessage.ResponsePayload = jsonDictionary;
                 logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(logMessage);
-
                 return result;
+
             }
             catch (LdapException ldapException)
             {
-                _logger.LogError("An LdapException has occurred while attempting to execute an LDAP query", ldapException);
-				_logger.LogError($"EXCEPTION: {ldapException}");
+                _logger.LogError(ldapException, "An LdapException has occurred while attempting to execute an LDAP query");
                 throw;
             }
             catch (Exception exc)
             {
-                _logger.LogError("An Exception has occurred while attempting to execute an LDAP query", exc);
-                _logger.LogError($"EXCEPTION: {exc}");
+                _logger.LogError(exc, "An Exception has occurred while attempting to execute an LDAP query");
                 throw;
             }
         }

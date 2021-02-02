@@ -65,7 +65,7 @@ namespace gpconnect_appointment_checker.SDS
             }
             catch (Exception exc)
             {
-                _logger.LogError("An error occurred attempting to authorise the user", exc);
+                _logger.LogError(exc, "An error occurred attempting to authorise the user");
                 throw;
             }
             return Task.CompletedTask;
