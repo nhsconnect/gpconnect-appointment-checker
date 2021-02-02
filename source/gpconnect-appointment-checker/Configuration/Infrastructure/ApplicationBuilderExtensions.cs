@@ -40,7 +40,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     NoStore = true,
                     NoCache = true
                 };
-
+                context.Response.Headers.Add("Pragma", "no-cache");
+                
                 await next();
             });
 
