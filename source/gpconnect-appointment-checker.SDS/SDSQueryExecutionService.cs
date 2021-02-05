@@ -50,9 +50,21 @@ namespace gpconnect_appointment_checker.SDS
                 var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
-                using (var ldapConnection = new LdapConnection
+                // temporarily test downgrade to TLS1.2
+                Novell.Directory.Ldap.LdapConnectionOptions ldapConnectionOptions = new LdapConnectionOptions();
+
+                if (useLdaps)
                 {
-                    SecureSocketLayer = useLdaps,
+                    ldapConnectionOptions.ConfigureSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                    ldapConnectionOptions.UseSsl();
+                    ldapConnectionOptions.ConfigureLocalCertificateSelectionCallback(SelectLocalCertificate);
+                    ldapConnectionOptions.ConfigureRemoteCertificateValidationCallback(ValidateServerCertificate);
+                }
+                // end
+
+                using (var ldapConnection = new LdapConnection(ldapConnectionOptions)
+                {
+//                    SecureSocketLayer = useLdaps,
                     ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
                 })
                 {
@@ -74,8 +86,8 @@ namespace gpconnect_appointment_checker.SDS
 
                         _clientCertificate = pfxFormattedCertificate;
 
-                        ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
-                        ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
+//                        ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
+//                        ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
 
                     var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
