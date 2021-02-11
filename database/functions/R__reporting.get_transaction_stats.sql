@@ -34,9 +34,9 @@ begin
     ) msg
     inner join configuration.spine_message_type sm on msg.spine_message_type_id = sm.spine_message_type_id
     order by 
-        msg.year,
-        msg.month,
-        msg.spine_message_type_id;
+        msg.year desc,
+        msg.month desc,
+        msg.spine_message_type_id asc;
 
 end;
 $$ language plpgsql;
