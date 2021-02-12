@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using gpconnect_appointment_checker.Helpers.Constants;
 
 namespace gpconnect_appointment_checker.Helpers
 {
@@ -18,12 +16,6 @@ namespace gpconnect_appointment_checker.Helpers
         public static string Coalesce(params string[] strings)
         {
             return strings.FirstOrDefault(s => !string.IsNullOrEmpty(s));
-        }
-
-        public static string StripNonAlphanumericCharacters(this string input)
-        {
-            var regex = new Regex(ValidationConstants.ALPHANUMERICCHARACTERSONLY);
-            return regex.Replace(input, string.Empty).Trim();
         }
 
         public static string AddressBuilder(List<string> addressLines, string district, string city, string postalCode, string country)

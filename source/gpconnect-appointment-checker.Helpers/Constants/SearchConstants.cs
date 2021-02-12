@@ -19,6 +19,9 @@
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string SIGNOUTBUTTONTEXT = "Sign out";
 
+        public const string ISSUEWITHODSCODESINPUTLABEL = "Issue with ODS codes entered";
+        public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS code and multiple Consumer ODS codes";
+
         public const string ISSUEWITHODSCODESTEXT = "Sorry, but the Provider ODS code '{0}' and the Consumer ODS code '{1}' have not been found";
         public const string ISSUEWITHCONSUMERODSCODETEXT = "Sorry, but the Consumer ODS code '{0}' has not been found";
         public const string ISSUEWITHPROVIDERODSCODETEXT = "Sorry, but the Provider ODS code '{0}' has not been found";
@@ -40,6 +43,9 @@
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
+
+        public const string CONSUMERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of consumer ODS codes which you can enter ({0})";
+        public const string PROVIDERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
 
         public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";

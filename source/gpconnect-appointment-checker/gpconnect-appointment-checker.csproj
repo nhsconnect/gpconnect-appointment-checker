@@ -11,6 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Constants\**" />
+    <Content Remove="Constants\**" />
+    <EmbeddedResource Remove="Constants\**" />
+    <None Remove="Constants\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="compilerconfig.json" />
     <Content Remove="k83064.json" />
     <Content Remove="NLog.config" />
@@ -44,10 +51,6 @@
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Constants\" />
   </ItemGroup>
 
 </Project>

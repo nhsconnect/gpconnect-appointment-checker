@@ -7,10 +7,21 @@
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHODSCODESTEXT, Model.ProviderODSCode, Model.ConsumerODSCode)</p>
+                <p>@string.Format(SearchConstants.ISSUEWITHODSCODESTEXT, Model.ProviderOdsCode, Model.ConsumerOdsCode)</p>
             </div>
         </div>
     </div>
+}
+else if (!string.IsNullOrEmpty(Model.ProviderOdsCode) && !string.IsNullOrEmpty(Model.ConsumerOdsCode) && !Model.ValidSearchCombination)
+{
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-warning-callout">
+            <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESINPUTLABEL</h3>
+            <p>@SearchConstants.ISSUEWITHODSCODESINPUTTEXT</p>
+        </div>
+    </div>
+</div>
 }
 else if (!Model.ConsumerODSCodeFound)
 {
@@ -18,7 +29,7 @@ else if (!Model.ConsumerODSCodeFound)
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHCONSUMERODSCODELABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, Model.ConsumerODSCode)</p>
+                <p>@string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, Model.ConsumerOdsCode)</p>
             </div>
         </div>
     </div>
@@ -29,7 +40,7 @@ else if (!Model.ProviderODSCodeFound)
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHPROVIDERODSCODELABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, Model.ProviderODSCode)</p>
+                <p>@string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, Model.ProviderOdsCode)</p>
             </div>
         </div>
     </div>
@@ -51,7 +62,7 @@ else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, Model.ProviderODSCode)</p>
+                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, Model.ProviderOdsCode)</p>
             </div>
         </div>
     </div>

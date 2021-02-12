@@ -12,18 +12,18 @@
             <label class="nhsuk-label" for="input-providerodscode">@SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL</label>
             @if (providerOdsCodeInvalid)
             {
-                @Html.ValidationMessageFor(m => m.ProviderODSCode, "", new { @class = "nhsuk-error-message" })
+                @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
             }
-            <input class="nhsuk-input nhsuk-input--width-10 @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderODSCode" name="providerodscode" value="@Model.ProviderODSCode" type="text" aria-describedby="input-providerodscode-hint-text">
+            <input class="nhsuk-input nhsuk-input--width-100 @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
 
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL</label>
             @if (consumerOdsCodeInvalid)
             {
-                @Html.ValidationMessageFor(m => m.ConsumerODSCode, "", new { @class = "nhsuk-error-message" })
+                @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
             }
-            <input class="nhsuk-input nhsuk-input--width-10 @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerODSCode" name="consumerodscode" value="@Model.ConsumerODSCode" type="text" aria-describedby="input-consumerodscode-hint-text">
+            <input class="nhsuk-input nhsuk-input--width-100 @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
         <div class="nhsuk-form-group">
             <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>

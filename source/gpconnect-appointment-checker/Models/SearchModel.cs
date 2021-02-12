@@ -1,9 +1,11 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.Helpers.Constants;
+using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -14,14 +16,30 @@ namespace gpconnect_appointment_checker.Pages
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
 
         [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
-        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGANDTRAILINGSPACESONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
+        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
-        public string ProviderODSCode { get; set; }
+        [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, 20)]
+        public string ProviderOdsCode { get; set; }
 
         [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
-        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGANDTRAILINGSPACESONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
+        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
-        public string ConsumerODSCode { get; set; }
+        [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, 20)]
+        public string ConsumerOdsCode { get; set; }
+
+        public string[] ProviderOdsCodeArray => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+        
+        public string[] ConsumerOdsCodeArray => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+        public bool HasMultipleProviderOdsCodes => ProviderOdsCodeArray?.Length > 1;
+        public bool HasMultipleConsumerOdsCodes => ConsumerOdsCodeArray?.Length > 1;
+
+        public string CleansedProviderOdsCodeInput => string.Join(" ", ProviderOdsCodeArray).ToUpper();
+        public string CleansedConsumerOdsCodeInput => string.Join(" ", ConsumerOdsCodeArray).ToUpper();
+
+        public bool ValidSearchCombination => ((!HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes) 
+                                               || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 
+                                               || (HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes));
 
         [BindProperty]
         public string SearchAtResultsText { get; set; }

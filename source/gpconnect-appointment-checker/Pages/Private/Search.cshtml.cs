@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.Pages
         public IActionResult OnGet()
         {
             var userCode = User.GetClaimValue("ODS");
-            if (!string.IsNullOrEmpty(userCode)) ProviderODSCode = userCode;
+            if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
             return Page();
         }
 
@@ -65,8 +65,8 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
-                ProviderODSCode = ProviderODSCode.ToUpper().StripNonAlphanumericCharacters();
-                ConsumerODSCode = ConsumerODSCode.ToUpper().StripNonAlphanumericCharacters();
+                ProviderOdsCode = CleansedProviderOdsCodeInput;
+                ConsumerOdsCode = CleansedConsumerOdsCodeInput;
                 _stopwatch.Start();
                 await GetSearchResults();
                 _stopwatch.Stop();
@@ -78,8 +78,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostClear()
         {
-            ProviderODSCode = null;
-            ConsumerODSCode = null;
+            ProviderOdsCode = null;
+            ConsumerOdsCode = null;
             SelectedDateRange = DateRanges.First().Value;
             ModelState.Clear();
             return Page();
@@ -89,11 +89,11 @@ namespace gpconnect_appointment_checker.Pages
         {
             try
             {
-                var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderODSCode);
-                var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerODSCode);
+                var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderOdsCode);
+                var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerOdsCode);
 
-                _auditSearchParameters[0] = ConsumerODSCode;
-                _auditSearchParameters[1] = ProviderODSCode;
+                _auditSearchParameters[0] = ConsumerOdsCode;
+                _auditSearchParameters[1] = ProviderOdsCode;
                 _auditSearchParameters[2] = SelectedDateRange;
 
                 ProviderODSCodeFound = providerOrganisationDetails != null;
@@ -103,13 +103,13 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
                     //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
-                    var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderODSCode);
-                    var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerODSCode);
+                    var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCode);
+                    var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCode);
                     ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
 
                     if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                     {
-                        var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderODSCode, providerGpConnectDetails.party_key);
+                        var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderOdsCode, providerGpConnectDetails.party_key);
                         ProviderASIDPresent = providerAsId != null;
 
                         if (ProviderASIDPresent)
@@ -126,13 +126,13 @@ namespace gpconnect_appointment_checker.Pages
                     }
                     else
                     {
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderODSCode));
+                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
                     }
                 }
                 else
                 {
-                    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderODSCode));
-                    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerODSCode));
+                    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
+                    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
                 }
             }
             catch (LdapException)
@@ -213,6 +213,11 @@ namespace gpconnect_appointment_checker.Pages
                 firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
             return dateRange;
+        }
+
+        private int GetMaximumNumberOfCodes()
+        {
+            return _configuration["General:max_number_codes_search"].StringToInteger(20);
         }
     }
 }

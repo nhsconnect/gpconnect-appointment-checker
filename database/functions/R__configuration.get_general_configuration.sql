@@ -9,20 +9,21 @@ returns table
  	product_version varchar(100),
  	max_num_weeks_search smallint,
  	log_retention_days integer,
-	get_access_email_address varchar(100)
+	get_access_email_address varchar(100),
+ 	max_number_provider_codes_search smallint,
+	max_number_consumer_codes_search smallint
 )
 as $$
 begin
-
 	return query
 	select
-	    g.product_name,
-	    g.product_version,
-	    g.max_num_weeks_search,
-	    g.log_retention_days,
-	    g.get_access_email_address
-	from configuration.general g;
-	
+		g.product_name,
+		g.product_version,
+		g.max_num_weeks_search,
+		g.log_retention_days,
+		g.get_access_email_address,
+		g.max_number_provider_codes_search,
+		g.max_number_consumer_codes_search
+	from configuration.general g;	
 end;
 $$ language plpgsql;
-
