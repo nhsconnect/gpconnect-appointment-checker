@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -89,51 +90,38 @@ namespace gpconnect_appointment_checker.Pages
         {
             try
             {
-                var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderOdsCode);
-                var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerOdsCode);
+                var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderOdsCodeAsList);
+                var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerOdsCodeAsList);
 
                 _auditSearchParameters[0] = ConsumerOdsCode;
                 _auditSearchParameters[1] = ProviderOdsCode;
                 _auditSearchParameters[2] = SelectedDateRange;
 
-                ProviderODSCodeFound = providerOrganisationDetails != null;
-                ConsumerODSCodeFound = consumerOrganisationDetails != null;
+                var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCodeAsList);
+                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCodeAsList);
 
-                if (ProviderODSCodeFound && ConsumerODSCodeFound)
-                {
-                    //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
-                    //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
-                    var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCode);
-                    var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCode);
-                    ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
+                providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                    if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
-                    {
-                        var providerAsId = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(ProviderOdsCode, providerGpConnectDetails.party_key);
-                        ProviderASIDPresent = providerAsId != null;
+                await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
 
-                        if (ProviderASIDPresent)
-                        {
-                            providerGpConnectDetails.asid = providerAsId.asid;
-                            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                            SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
-                            SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
-                        }
-                        else
-                        {
-                            _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
-                        }
-                    }
-                    else
-                    {
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
-                    }
-                }
-                else
-                {
-                    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
-                    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
-                }
+                        //    SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
+                        //    SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
+                        //}
+                        //else
+                        //{
+                        //    _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
+                        //}
+                    //}
+                    //else
+                    //{
+                    //    _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
+                    //}
+                //}
+                //else
+                //{
+                //    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
+                //    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
+                //}
             }
             catch (LdapException)
             {
@@ -142,8 +130,8 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails,
-            Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
+        private async Task PopulateSearchResults(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
+            List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
         {
             var requestParameters = _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
@@ -153,45 +141,48 @@ namespace gpconnect_appointment_checker.Pages
 
             if (requestParameters != null)
             {
-                //Step 3 - CALL PROVIDER METADATA ENDPOINT
-                //Get capability statement
-                var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.ssp_hostname);
-                CapabilityStatementOk = (capabilityStatement.Issue?.Count == 0 || capabilityStatement.Issue == null);
+                var capabilityStatement = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
 
-                if (CapabilityStatementOk)
+                if(capabilityStatement.Count(x => !x.CapabilityStatementOk) == 0)
                 {
-                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
-                    SlotSearchOk = searchResults?.Issue == null;
+                    var searchResults = _queryExecutionService.ExecuteFreeSlotSearchSummary(requestParameters, startDate, endDate);
 
-                    if (SlotSearchOk)
-                    {
-                        SearchResults = new List<List<SlotEntrySimple>>();
-                        var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
-                            .Select(grp => grp.ToList()).ToList();
-                        SearchResultsCount = searchResults?.SlotEntrySimple.Count;
+                    SearchResultsSummary = new List<SlotSummary>();
+                    SearchResultsSummary.AddRange(searchResults);
 
-                        if (locationGrouping != null)
-                        {
-                            SearchResults.AddRange(locationGrouping);
-                        }
-                    }
-                    else
-                    {
-                        ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-                        ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = StringExtensions.Coalesce(searchResults.Issue.FirstOrDefault()?.Diagnostics, searchResults.Issue.FirstOrDefault()?.Details.Text);
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
-                    }
+
+                    //SlotSearchOk = searchResults?.Issue == null;
+
+                    //if (SlotSearchOk)
+                    //{
+
+                        
+                        //var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
+                        //    .Select(grp => grp.ToList()).ToList();
+                        //SearchResultsCount = searchResults?.SlotEntrySimple.Count;
+
+                    //    if (locationGrouping != null)
+                    //    {
+                    //        SearchResults.AddRange(locationGrouping);
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+                    //    ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                    //    ProviderErrorDiagnostics = StringExtensions.Coalesce(searchResults.Issue.FirstOrDefault()?.Diagnostics, searchResults.Issue.FirstOrDefault()?.Details.Text);
+                    //    _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+                    //}
                 }
                 else
                 {
-                    if (capabilityStatement?.Issue != null)
-                    {
-                        ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-                        ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = StringExtensions.Coalesce(capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics, capabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
-                    }
+                    //if (capabilityStatement?.Issue != null)
+                    //{
+                    //    ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+                    //    ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+                    //    ProviderErrorDiagnostics = StringExtensions.Coalesce(capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics, capabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
+                    //    _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+                    //}
                 }
             }
         }
@@ -213,11 +204,6 @@ namespace gpconnect_appointment_checker.Pages
                 firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
             return dateRange;
-        }
-
-        private int GetMaximumNumberOfCodes()
-        {
-            return _configuration["General:max_number_codes_search"].StringToInteger(20);
         }
     }
 }

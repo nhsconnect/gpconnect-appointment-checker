@@ -3,13 +3,17 @@
 
 <form method="post" id="search-input-form">
     <partial name="SearchInput" />
-    @if (Model.SearchResults != null)
+
+    @if (Model.SearchResults != null || Model.SearchResultsSummary != null)
     {
-        <partial name="SearchResults" />
-        <partial name="SearchStats" />
-    }
-    else
-    {
-        <partial name="CodeError" />
+        @if (Model.HasMultipleConsumerOdsCodes || Model.HasMultipleProviderOdsCodes)
+        {
+            <partial name="SearchResultsSummary"/>
+        }
+        else if (!Model.HasMultipleConsumerOdsCodes && !Model.HasMultipleProviderOdsCodes)
+        {
+            <partial name="SearchResults"/>
+        }
+        <partial name="SearchStats"/>
     }
 </form>

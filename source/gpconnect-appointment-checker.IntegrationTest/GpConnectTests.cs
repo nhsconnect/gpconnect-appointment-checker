@@ -10,6 +10,7 @@ using Moq;
 using Moq.Protected;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -45,38 +46,45 @@ namespace gpconnect_appointment_checker.IntegrationTest
         [InlineData("ABC123", "82734", "28374", "hostname", false, "A32874", "B28373", "DKJCH8943NJFSADV", 2, "https://test.hscic.gov.uk:19192/v1/fhir")]
         public async void ExecuteRequestForCapabilityStatement(string bearerToken, string sspFrom, string sspTo, string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId, int spineMessageTypeId, string baseAddress)
         {
-            var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId);
-            var result = await _gpConnectQueryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, baseAddress);
+            var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId, baseAddress);
+            var result = _gpConnectQueryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
             Assert.IsType<CapabilityStatement>(result);
-            Assert.Equal("CapabilityStatement", result.ResourceType);
-            Assert.Equal("1.2.7", result.Version);
-            Assert.Equal("GP Connect", result.Name);
-            Assert.Equal("active", result.status);
+            Assert.Equal("CapabilityStatement", result.FirstOrDefault()?.CapabilityStatement.ResourceType);
+            Assert.Equal("1.2.7", result.FirstOrDefault()?.CapabilityStatement.Version);
+            Assert.Equal("GP Connect", result.FirstOrDefault()?.CapabilityStatement.Name);
+            Assert.Equal("active", result.FirstOrDefault()?.CapabilityStatement.status);
         }
 
         [Theory]
         [InlineData("ABC123", "82734", "28374", "hostname", false, "A32874", "B28373", "DKJCH8943NJFSADV", 2, "https://test.hscic.gov.uk:19192/v1/fhir")]
         public void ExecuteRequestForFreeSlots(string bearerToken, string sspFrom, string sspTo, string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId, int spineMessageTypeId, string baseAddress)
         {
-            var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId);
-            var result = _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Now, DateTime.Now.AddDays(7), baseAddress);
+            var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId, baseAddress);
+            var result = _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, DateTime.Now, DateTime.Now.AddDays(7));
             Assert.IsType<SlotSimple>(result);
         }
 
-        private static RequestParameters CreateRequestParameters(string bearerToken, string sspFrom, string sspTo,
+        private static List<RequestParametersList> CreateRequestParameters(string bearerToken, string sspFrom, string sspTo,
             string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId,
-            int spineMessageTypeId)
+            int spineMessageTypeId, string baseAddress)
         {
-            var requestParameters = new RequestParameters();
-            requestParameters.ProviderODSCode = providerOdsCode;
-            requestParameters.ConsumerODSCode = consumerOdsCode;
-            requestParameters.SpineMessageTypeId = spineMessageTypeId;
-            requestParameters.InteractionId = interactionId;
-            requestParameters.UseSSP = useSSP;
-            requestParameters.BearerToken = bearerToken;
-            requestParameters.SspFrom = sspFrom;
-            requestParameters.SspTo = sspTo;
-            requestParameters.SspHostname = sspHostname;
+            var requestParameters = new List<RequestParametersList>();
+            requestParameters.Add(new RequestParametersList()
+            {
+                OdsCode = providerOdsCode,
+                BaseAddress = baseAddress,
+                RequestParameters = {
+                    ProviderODSCode = providerOdsCode,
+                    ConsumerODSCode = consumerOdsCode,
+                    SpineMessageTypeId = spineMessageTypeId,
+                    InteractionId = interactionId,
+                    UseSSP = useSSP,
+                    BearerToken = bearerToken,
+                    SspFrom = sspFrom,
+                    SspTo = sspTo,
+                    SspHostname = sspHostname
+                }
+            });
             return requestParameters;
         }
 

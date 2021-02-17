@@ -31,19 +31,24 @@ namespace gpconnect_appointment_checker.DAL.Application
 
         public void SynchroniseOrganisation(DTO.Response.Application.Organisation organisation)
         {
-            var functionName = "application.synchronise_organisation";
-            var parameters = new DynamicParameters();
-            parameters.Add("_ods_code", organisation.ODSCode);
-            parameters.Add("_organisation_type_name", organisation.OrganisationTypeCode);
-            parameters.Add("_organisation_name", organisation.OrganisationName);
-            parameters.Add("_address_line_1", organisation.PostalAddressFields[0]);
-            parameters.Add("_address_line_2", organisation.PostalAddressFields[1]);
-            parameters.Add("_locality", organisation.PostalAddressFields[2]);
-            parameters.Add("_city", organisation.PostalAddressFields[3]);
-            parameters.Add("_county", organisation.PostalAddressFields.Length > 4 ? organisation.PostalAddressFields[4] : string.Empty);
-            parameters.Add("_postcode", organisation.PostalCode);
-            _dataService.ExecuteFunction(functionName, parameters);
+            if (organisation != null)
+            {
+                var functionName = "application.synchronise_organisation";
+                var parameters = new DynamicParameters();
+                parameters.Add("_ods_code", organisation.ODSCode);
+                parameters.Add("_organisation_type_name", organisation.OrganisationTypeCode);
+                parameters.Add("_organisation_name", organisation.OrganisationName);
+                parameters.Add("_address_line_1", organisation.PostalAddressFields[0]);
+                parameters.Add("_address_line_2", organisation.PostalAddressFields[1]);
+                parameters.Add("_locality", organisation.PostalAddressFields[2]);
+                parameters.Add("_city", organisation.PostalAddressFields[3]);
+                parameters.Add("_county",
+                    organisation.PostalAddressFields.Length > 4 ? organisation.PostalAddressFields[4] : string.Empty);
+                parameters.Add("_postcode", organisation.PostalCode);
+                _dataService.ExecuteFunction(functionName, parameters);
+            }
         }
+
         public DTO.Response.Application.User LogonUser(DTO.Request.Application.User user)
         {
             var functionName = "application.logon_user";

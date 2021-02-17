@@ -14,6 +14,7 @@ namespace gpconnect_appointment_checker.Pages
         public List<SelectListItem> DateRanges => GetDateRanges();
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
+        public List<SlotSummary> SearchResultsSummary { get; set; }
 
         [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
@@ -27,15 +28,15 @@ namespace gpconnect_appointment_checker.Pages
         [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, 20)]
         public string ConsumerOdsCode { get; set; }
 
-        public string[] ProviderOdsCodeArray => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+        public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         
-        public string[] ConsumerOdsCodeArray => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+        public List<string> ConsumerOdsCodeAsList => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
-        public bool HasMultipleProviderOdsCodes => ProviderOdsCodeArray?.Length > 1;
-        public bool HasMultipleConsumerOdsCodes => ConsumerOdsCodeArray?.Length > 1;
+        public bool HasMultipleProviderOdsCodes => ProviderOdsCodeAsList?.Count > 1;
+        public bool HasMultipleConsumerOdsCodes => ConsumerOdsCodeAsList?.Count > 1;
 
-        public string CleansedProviderOdsCodeInput => string.Join(" ", ProviderOdsCodeArray).ToUpper();
-        public string CleansedConsumerOdsCodeInput => string.Join(" ", ConsumerOdsCodeArray).ToUpper();
+        public string CleansedProviderOdsCodeInput => string.Join(" ", ProviderOdsCodeAsList).ToUpper();
+        public string CleansedConsumerOdsCodeInput => string.Join(" ", ConsumerOdsCodeAsList).ToUpper();
 
         public bool ValidSearchCombination => ((!HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes) 
                                                || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 

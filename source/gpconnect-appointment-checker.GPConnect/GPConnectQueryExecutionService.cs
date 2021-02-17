@@ -5,8 +5,10 @@ using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.GPConnect
@@ -29,18 +31,31 @@ namespace gpconnect_appointment_checker.GPConnect
             _auditService = auditService;
         }
 
-        public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+        public List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)
         {
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
             _spineMessage = new SpineMessage();
-            var capabilityStatement = await GetCapabilityStatement(requestParameters, baseAddress);
+            var capabilityStatement = GetCapabilityStatement(requestParameterList, token);
             return capabilityStatement;
         }
 
-        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+        public List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
         {
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
             _spineMessage = new SpineMessage();
-            var freeSlots = await GetFreeSlots(requestParameters, startDate, endDate, baseAddress);
+            var freeSlots = GetFreeSlots(requestParameterList, startDate, endDate, token);
             return freeSlots;
+        }
+
+        public List<SlotSummary> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
+        {
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            _spineMessage = new SpineMessage();
+            var freeSlotsSummary = GetFreeSlotsSummary(requestParameterList, startDate, endDate, token);
+            return freeSlotsSummary;
         }
 
         private static void AddRequiredRequestHeaders(RequestParameters requestParameters, HttpClient client)
@@ -52,9 +67,9 @@ namespace gpconnect_appointment_checker.GPConnect
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
         }
 
-        private string AddSecureSpineProxy(string baseAddress, RequestParameters requestParameters)
+        private string AddSecureSpineProxy(RequestParametersList requestParametersList)
         {
-            return requestParameters.UseSSP ? AddScheme(requestParameters.SspHostname) + "/" + baseAddress : baseAddress;
+            return requestParametersList.RequestParameters.UseSSP ? AddScheme(requestParametersList.RequestParameters.SspHostname) + "/" + requestParametersList.BaseAddress : requestParametersList.BaseAddress;
         }
 
         private string AddScheme(string sspHostname)

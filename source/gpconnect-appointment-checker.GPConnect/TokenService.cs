@@ -9,10 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -33,7 +35,7 @@ namespace gpconnect_appointment_checker.GPConnect
             _context = context;
         }
 
-        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerSpineMessage, Organisation consumerOrganisationDetails, int spineMessageTypeId)
+        public List<RequestParametersList> ConstructRequestParameters(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, List<SpineList> consumerSpineMessages, List<OrganisationList> consumerOrganisationDetails, int spineMessageTypeId)
         {
             try
             {
@@ -45,32 +47,42 @@ namespace gpconnect_appointment_checker.GPConnect
                     SetDefaultTimesOnTokenCreation = false
                 };
 
-                var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
-                var tokenAudience = providerSpineMessage.ssp_hostname;
-                var tokenIssuedAt = DateTimeOffset.Now;
-                var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
-
-                var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
-                AddRequestingDeviceClaim(requestUri, tokenDescriptor);
-                AddRequestingOrganisationClaim(providerOrganisationDetails, tokenDescriptor);
-                AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid);
-
-                var token = AddTokenHeader(tokenHandler, tokenDescriptor);
-                var tokenString = tokenHandler.WriteToken(token);
-
-                var requestParameters = new RequestParameters
+                var requestParameterList = new ConcurrentBag<RequestParametersList>();
+                Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), providerSpineMessage =>
                 {
-                    BearerToken = tokenString,
-                    SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
-                    SspTo = providerSpineMessage.asid,
-                    UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
-                    SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
-                    ConsumerODSCode = consumerOrganisationDetails.ODSCode,
-                    ProviderODSCode = providerOrganisationDetails.ODSCode,
-                    InteractionId = spineMessageType?.InteractionId,
-                    SpineMessageTypeId = spineMessageTypeId
-                };
-                return requestParameters;
+                    var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
+                    var tokenAudience = providerSpineMessage.Spine.ssp_hostname;
+                    var tokenIssuedAt = DateTimeOffset.Now;
+                    var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
+
+                    var tokenDescriptor = BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
+                    AddRequestingDeviceClaim(requestUri, tokenDescriptor);
+                    AddRequestingOrganisationClaim(providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation, tokenDescriptor);
+                    AddRequestingPractitionerClaim(requestUri, tokenDescriptor, userGuid);
+
+                    var token = AddTokenHeader(tokenHandler, tokenDescriptor);
+                    var tokenString = tokenHandler.WriteToken(token);
+
+                    var requestParameters = new RequestParameters
+                    {
+                        BearerToken = tokenString,
+                        SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
+                        SspTo = providerSpineMessage.Spine.asid,
+                        UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
+                        SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
+                        ConsumerODSCode = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation.ODSCode,
+                        ProviderODSCode = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation.ODSCode,
+                        InteractionId = spineMessageType?.InteractionId,
+                        SpineMessageTypeId = spineMessageTypeId
+                    };
+                    requestParameterList.Add(new RequestParametersList
+                    {
+                        RequestParameters = requestParameters,
+                        BaseAddress = providerSpineMessage.Spine.ssp_hostname,
+                        OdsCode = providerSpineMessage.OdsCode
+                    });
+                });
+                return requestParameterList.ToList();
             }
             catch (Exception exc)
             {

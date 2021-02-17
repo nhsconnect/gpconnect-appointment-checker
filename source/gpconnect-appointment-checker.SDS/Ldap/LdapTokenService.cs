@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using User = gpconnect_appointment_checker.DTO.Request.Application.User;
@@ -33,11 +35,11 @@ namespace gpconnect_appointment_checker.SDS
                 if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
 
                 var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-                var odsCode = context.Principal.GetClaimValue("ODS");
-                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode);
+                var odsCode = new List<string> {context.Principal.GetClaimValue("ODS")};
+                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode).FirstOrDefault();
                 if (organisationDetails != null)
                 {
-                    var organisation = _applicationService.GetOrganisation(organisationDetails.ODSCode);
+                    var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
                     var loggedOnUser = _applicationService.LogonUser(new User
                     {
                         EmailAddress = emailAddress,
@@ -55,10 +57,10 @@ namespace gpconnect_appointment_checker.SDS
                         if (context.Principal.Identity is ClaimsIdentity identity)
                         {
                             identity.AddOrReplaceClaimValue("Email", emailAddress);
-                            identity.AddClaim(new Claim("OrganisationName", organisationDetails.OrganisationName));
+                            identity.AddClaim(new Claim("OrganisationName", organisationDetails.Organisation.OrganisationName));
                             identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                             identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                            identity.AddClaim(new Claim("ProviderODSCode", odsCode));
+                            identity.AddClaim(new Claim("ProviderODSCode", odsCode[0]));
                         }
                     }
                 }

@@ -1,0 +1,18 @@
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        @if (Model.SearchResultsSummary.Count > 0)
+        {
+            @foreach (var searchResult in Model.SearchResultsSummary)
+            {
+                <div>Number of slots found: @searchResult.SlotEntrySummary.Count</div>
+            }
+        }
+        else
+        {
+            <p>@SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT</p>
+        }
+    </div>
+</div>

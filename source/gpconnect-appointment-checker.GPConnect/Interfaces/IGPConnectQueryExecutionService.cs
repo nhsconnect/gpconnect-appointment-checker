@@ -3,14 +3,14 @@ using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.GPConnect.Interfaces
 {
     public interface IGpConnectQueryExecutionService
     {
-        Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress);
-        Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress);
+        List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
+        List<SlotSummary> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
+        List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameters);
         void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0);
     }
 }

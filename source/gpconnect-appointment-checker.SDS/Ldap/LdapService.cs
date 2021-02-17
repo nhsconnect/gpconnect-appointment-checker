@@ -5,8 +5,11 @@ using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.Extensions.Logging;
 using Novell.Directory.Ldap;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -25,18 +28,22 @@ namespace gpconnect_appointment_checker.SDS
             _applicationService = applicationService;
         }
 
-        public Organisation GetOrganisationDetailsByOdsCode(string odsCode)
+        public List<OrganisationList> GetOrganisationDetailsByOdsCode(List<string> odsCodes)
         {
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
-            var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
             try
             {
-                var results = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                if (results != null)
+                var processedCodes = new ConcurrentBag<OrganisationList>();
+                Parallel.ForEach(odsCodes, (odsCode) =>
                 {
-                    _applicationService.SynchroniseOrganisation(results);
-                }
-                return results;
+                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    processedCodes.Add(new OrganisationList {
+                        OdsCode = odsCode,
+                        Organisation = processedOrganisation
+                    });
+                    _applicationService.SynchroniseOrganisation(processedOrganisation);
+                });
+                return processedCodes.ToList();
             }
             catch (LdapException ldapException)
             {
@@ -45,19 +52,28 @@ namespace gpconnect_appointment_checker.SDS
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, $"An error has occurred while attempting to execute an LDAP query - filter is {filter} - searchBase is {sdsQuery.SearchBase}");
+                _logger.LogError(exc, $"An error has occurred while attempting to execute an LDAP query - sdsQuery is {sdsQuery.QueryText} - searchBase is {sdsQuery.SearchBase}");
                 throw;
             }
         }
 
-        public Spine GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode)
+        public List<SpineList> GetGpProviderEndpointAndPartyKeyByOdsCode(List<string> odsCodes)
         {
+            var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
             try
             {
-                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
-                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                return result;
+                var processedCodes = new ConcurrentBag<SpineList>();
+                Parallel.ForEach(odsCodes, (odsCode) =>
+                {
+                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    processedCodes.Add(new SpineList
+                    {
+                        OdsCode = odsCode,
+                        PartyKey = processedOrganisation?.party_key,
+                        Spine = processedOrganisation
+                    });
+                });
+                return processedCodes.ToList();
             }
             catch (LdapException ldapException)
             {
@@ -66,19 +82,22 @@ namespace gpconnect_appointment_checker.SDS
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                _logger.LogError(exc, $"An error has occurred while attempting to execute an LDAP query - sdsQuery is {sdsQuery.QueryText} - searchBase is {sdsQuery.SearchBase}");
                 throw;
             }
         }
 
-        public Spine GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)
+        public List<SpineList> GetGpProviderAsIdByOdsCodeAndPartyKey(List<SpineList> odsCodesWithPartyKeys)
         {
+            var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
             try
             {
-                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
-                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
-                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                return result;
+                Parallel.ForEach(odsCodesWithPartyKeys.Where(x => !string.IsNullOrEmpty(x.PartyKey)), (odsCodeWithPartyKey) =>
+                {
+                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
+                    odsCodeWithPartyKey.Spine.asid = processedOrganisation.asid;
+                });
+                return odsCodesWithPartyKeys;
             }
             catch (LdapException ldapException)
             {
@@ -87,7 +106,7 @@ namespace gpconnect_appointment_checker.SDS
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                _logger.LogError(exc, $"An error has occurred while attempting to execute an LDAP query - sdsQuery is {sdsQuery.QueryText} - searchBase is {sdsQuery.SearchBase}");
                 throw;
             }
         }

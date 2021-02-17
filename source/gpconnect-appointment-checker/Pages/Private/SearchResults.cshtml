@@ -19,7 +19,7 @@
             <div class="nhsuk-care-card__content"><p>@Model.SearchOnBehalfOfResultsText</p></div>
         </div>
 
-        @if (Model.SearchResults.Count > 0)
+        @if (Model.SearchResults?.Count > 0)
         {
             foreach (var locationGrouping in Model.SearchResults)
             {
