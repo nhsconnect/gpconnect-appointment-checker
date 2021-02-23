@@ -19,6 +19,8 @@ as $$
 declare
 	_user_id integer;
 	_is_authorised boolean;
+	_existing_display_name varchar(200);
+	_existing_organisation_id integer;
 	_user_session_id integer;
 	_logon_date timestamp;
 begin
@@ -46,10 +48,14 @@ begin
 	--
 	select
 		u.user_id, 
-		u.is_authorised 
+		u.is_authorised,
+		u.display_name,
+		u.organisation_id
 	into
 		_user_id,
-		_is_authorised
+		_is_authorised,
+		_existing_display_name,
+		_existing_organisation_id
 	from application.user u
 	where lower(u.email_address) = lower(_email_address);
 
@@ -82,12 +88,45 @@ begin
 			_user_id,
 			_is_authorised;
 
-	else
+	end if;
 
-		-- TODO deal with change in display_name
-		-- TODO deal with change in organisation_id
-		-- TODO write audit based on fields changed
-		
+	--------------------------------------------
+	-- check if user details have changed
+	--
+	if (_display_name != _existing_display_name)
+	then
+		update application.user u
+		set display_name = _display_name
+		where u.user_id = _user_id;
+
+		-- audit display name changed
+		perform
+		from audit.add_entry
+		(
+			_user_id := _user_id,
+			_user_session_id := null,
+			_entry_type_id := 5,
+			_item1 := _existing_display_name,
+			_item2 := _display_name
+		);
+	end if;
+
+	if (_organisation_id != _existing_organisation_id)
+	then
+		update application.user u
+		set organisation_id = _organisation_id
+		where u.user_id = _user_id;
+
+		-- audit organisation id changed
+		perform
+		from audit.add_entry
+		(
+			_user_id := _user_id,
+			_user_session_id := null,
+			_entry_type_id := 6,
+			_item1 := _existing_organisation_id::text,
+			_item2 := _organisation_id::text
+		);
 	end if;
 
 	--------------------------------------------
