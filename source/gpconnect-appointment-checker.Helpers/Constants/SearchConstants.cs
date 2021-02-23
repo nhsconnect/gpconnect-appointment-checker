@@ -16,8 +16,14 @@
 
         public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
         public const string RUNASEARCHTEXT = "Run a search";
+        public const string SEARCHTEXT = "Search";
+        public const string HOMETEXT = "Home";
+        public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string SIGNOUTBUTTONTEXT = "Sign out";
+        
+        public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
+        public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
 
         public const string ISSUEWITHODSCODESINPUTLABEL = "Issue with ODS codes entered";
         public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS code and multiple Consumer ODS codes";
