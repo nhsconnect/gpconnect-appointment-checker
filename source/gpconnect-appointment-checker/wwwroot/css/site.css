@@ -5816,7 +5816,7 @@ b {
         display: -ms-flexbox;
         /* [14] */
         display: flex;
-        justify-content: space-between;
+        /*justify-content: space-between;*/
         padding: 0;
         width: 100%;
     }
