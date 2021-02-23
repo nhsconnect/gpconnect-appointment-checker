@@ -71,5 +71,35 @@ begin
 		_organisation_id := _organisation_id
 	);
 
+	-- existing user, display name changed
+	perform
+		user_id,
+		user_session_id,
+		email_address,
+		display_name,
+		organisation_id,
+		is_authorised
+	from application.logon_user
+	(
+		_email_address := _email_address,
+		_display_name := 'new display name',
+		_organisation_id := _organisation_id
+	);
+
+	-- existing user, organisation id changed
+	perform
+		user_id,
+		user_session_id,
+		email_address,
+		display_name,
+		-1,
+		is_authorised
+	from application.logon_user
+	(
+		_email_address := _email_address,
+		_display_name := _display_name,
+		_organisation_id := -1
+	);
+
 end
 $$;
