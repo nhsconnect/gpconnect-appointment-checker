@@ -21,5 +21,6 @@ namespace gpconnect_appointment_checker.DTO.Response.Configuration
         public string asid { get; set; }
         public int timeout_seconds { get; set; }
         public string spine_fqdn { get; set; }
+        public string ldaps_tls_version { get; set; }
     }
 }

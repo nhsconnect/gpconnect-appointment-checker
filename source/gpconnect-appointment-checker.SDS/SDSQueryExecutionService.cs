@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -51,21 +52,21 @@ namespace gpconnect_appointment_checker.SDS
                 var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
-                // temporarily test downgrade to TLS1.2
+                
                 Novell.Directory.Ldap.LdapConnectionOptions ldapConnectionOptions = new LdapConnectionOptions();
 
                 if (useLdaps)
                 {
-                    ldapConnectionOptions.ConfigureSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                    SslProtocols sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:ldaps_tls_version").Value);
+
+                    ldapConnectionOptions.ConfigureSslProtocols(SslProtocols.Tls12);
                     ldapConnectionOptions.UseSsl();
                     ldapConnectionOptions.ConfigureLocalCertificateSelectionCallback(SelectLocalCertificate);
                     ldapConnectionOptions.ConfigureRemoteCertificateValidationCallback(ValidateServerCertificate);
                 }
-                // end
 
                 using (var ldapConnection = new LdapConnection(ldapConnectionOptions)
                 {
-//                    SecureSocketLayer = useLdaps,
                     ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
                 })
                 {
@@ -86,9 +87,6 @@ namespace gpconnect_appointment_checker.SDS
                         var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
                         _clientCertificate = pfxFormattedCertificate;
-
-//                        ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificate;
-//                        ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                     }
 
                     var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
@@ -194,6 +192,18 @@ namespace gpconnect_appointment_checker.SDS
                 _logger.LogError(e, "Error getting LDAP TLS version");
                 return "Error getting LDAP TLS version";
             }
+        }
+
+        private static SslProtocols ParseTlsVersion(string tlsVersion)
+        {
+            if (tlsVersion == "1.2")
+                return SslProtocols.Tls12;
+
+            if (tlsVersion == "1.3")
+                return SslProtocols.Tls13;
+
+            return SslProtocols.None;
+
         }
     }
 }
