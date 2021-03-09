@@ -19,7 +19,7 @@ returns table
     server_ca_certchain varchar(8000),
     sds_use_mutualauth boolean,
     spine_fqdn varchar(100),
-    ldaps_tls_version varchar(10)
+    sds_tls_version varchar(10)
 )
 as $$
 begin
@@ -40,7 +40,7 @@ begin
 	    s.server_ca_certchain,
 	    s.sds_use_mutualauth,
 	    s.spine_fqdn,
-	    s.ldaps_tls_version
+	    s.sds_tls_version
 	from configuration.spine s;
 	
 end;

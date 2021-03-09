@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.SDS
 
                 if (useLdaps)
                 {
-                    SslProtocols sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:ldaps_tls_version").Value);
+                    SslProtocols sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:sds_tls_version").Value);
 
                     ldapConnectionOptions.ConfigureSslProtocols(SslProtocols.Tls12);
                     ldapConnectionOptions.UseSsl();

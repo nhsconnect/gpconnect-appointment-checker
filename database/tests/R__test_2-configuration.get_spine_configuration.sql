@@ -13,7 +13,7 @@ select
 	server_ca_certchain,
 	sds_use_mutualauth,
 	spine_fqdn,
-	ldaps_tls_version
+	sds_tls_version
 from configuration.get_spine_configuration
 (
 );
