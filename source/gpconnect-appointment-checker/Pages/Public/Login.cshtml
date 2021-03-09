@@ -6,8 +6,7 @@
 @if (User.Identity.IsAuthenticated)
 {
     <div style="color: #ffffff; font-style: italic">
-        @User.GetClaimValue("Email")<br />
-        @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
+        @User.GetClaimValue("Email")
     </div>
     @Html.ActionLink(@SearchConstants.SIGNOUTBUTTONTEXT, "Signout", "Auth", null, new { @style = "color:#ffffff" })
 }
