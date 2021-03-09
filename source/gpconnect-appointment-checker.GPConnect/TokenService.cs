@@ -128,16 +128,19 @@ namespace gpconnect_appointment_checker.GPConnect
         private void AddRequestingOrganisationClaim(Organisation organisationDetails,
             SecurityTokenDescriptor tokenDescriptor)
         {
+            var odsCode = _configuration.GetSection("Spine:ods_code").Value;
+            var organisationName = _configuration.GetSection("Spine:organisation_name").Value;
+
             tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
             {
                 resourceType = "Organization",
-                name = _context.HttpContext.User.GetClaimValue("OrganisationName"),
+                name = organisationName,
                 identifier = new List<Identifier>
                 {
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
-                        value = _context.HttpContext.User.GetClaimValue("ODS")
+                        value = odsCode
                     }
                 }
             });

@@ -5,6 +5,8 @@ select
 	sds_port,
 	sds_use_ldaps,
 	organisation_id,
+	ods_code,
+	organisation_name,
 	party_key,
 	asid,
 	timeout_seconds,

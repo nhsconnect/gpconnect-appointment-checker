@@ -15,6 +15,8 @@ namespace gpconnect_appointment_checker.DTO.Response.Configuration
         public bool sds_use_ldaps { get; set; }
         public bool sds_use_mutualauth { get; set; }
         public int organisation_id { get; set; }
+        public string ods_code { get; set; }
+        public string organisation_name { get; set; }
         [JsonProperty("nhsMHSPartyKey")]
         public string party_key { get; set; }
         [JsonProperty("uniqueIdentifier")]

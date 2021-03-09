@@ -11,6 +11,8 @@ returns table
     sds_port integer,
     sds_use_ldaps boolean,
     organisation_id integer,
+    ods_code varchar(10),
+    organisation_name varchar(100),
     party_key varchar(20),
     asid varchar(20),
     timeout_seconds integer,
@@ -32,6 +34,8 @@ begin
 	    s.sds_port,
 	    s.sds_use_ldaps,
 	    s.organisation_id,
+	    o.ods_code,
+	    o.organisation_name,
 	    s.party_key,
 	    s.asid,
 	    s.timeout_seconds,
@@ -41,7 +45,8 @@ begin
 	    s.sds_use_mutualauth,
 	    s.spine_fqdn,
 	    s.sds_tls_version
-	from configuration.spine s;
+	from configuration.spine s
+	inner join application.organisation o on s.organisation_id = o.organisation_id;
 	
 end;
 $$ language plpgsql;
