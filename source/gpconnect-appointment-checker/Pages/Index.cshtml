@@ -9,6 +9,7 @@
             {
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ACCESSLABEL</h3>
                 <p>@SearchConstants.ACCESSTEXTALT</p>
+                @Html.ActionLink(SearchConstants.SIGNINBUTTONTEXT, "Login", "Auth", null, new { @class = "nhsuk-button" })
             }
             else
             {
