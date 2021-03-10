@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup BUILD_TAG environment variable
-        run: echo "BUILD_TAG=\"${GITHUB_REF#refs/heads/} | ${GITHUB_SHA:0:7} | $(date '+%Y-%m-%dT%H:%M:%S')\"" >> $GITHUB_ENV
+        run: echo "BUILD_TAG=\"${GITHUB_REPOSITORY#*/}, Branch=${GITHUB_REF#refs/heads/}, SHA=${GITHUB_SHA:0:7}, BuildTime=$(date '+%Y-%m-%dT%H:%M:%S')\"" >> $GITHUB_ENV
       - name: Print the BUILD_TAG
         run: echo ${{ env.BUILD_TAG }}
       - name: Check out the repo
