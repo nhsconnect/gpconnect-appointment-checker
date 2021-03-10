@@ -8,10 +8,8 @@ jobs:
     name: Build and push to docker hub
     runs-on: ubuntu-latest
     steps:
-      - name: Setup github environment variables
-        uses: FranzDiebold/github-env-vars-action@v2.1.0
       - name: Print the current branch name
-        run: echo "$CI_ACTION_REF_NAME"
+        run: echo "$GITHUB_REF"
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Push application image to docker hub
@@ -21,7 +19,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: nhsgpconnect/gpconnect-appointment-checker-application
-          build_args: APP_VERSION=$CI_ACTION_REF_NAME
+          build_args: BUILD_TAG=$GITHUB_REF
           tag_with_ref: true
       - name: Push database image to docker hub
         uses: docker/build-push-action@v1
@@ -30,4 +28,5 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: nhsgpconnect/gpconnect-appointment-checker-dbpatcher
+          build_args: BUILD_TAG=$GITHUB_REF
           tag_with_ref: true
