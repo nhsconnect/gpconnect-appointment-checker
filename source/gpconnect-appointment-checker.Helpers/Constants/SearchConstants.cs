@@ -51,7 +51,7 @@
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
-        public const string SEARCHRESULTSPUBLISHERLABEL = "Publisher:";
+        public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
