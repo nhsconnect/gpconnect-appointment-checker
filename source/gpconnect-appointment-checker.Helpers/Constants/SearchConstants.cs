@@ -10,7 +10,7 @@
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
 
         public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
-        public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}\">{0}</a> to request access.";
+        public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it.";
 
