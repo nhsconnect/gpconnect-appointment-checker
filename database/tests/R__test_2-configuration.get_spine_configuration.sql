@@ -5,6 +5,8 @@ select
 	sds_port,
 	sds_use_ldaps,
 	organisation_id,
+	ods_code,
+	organisation_name,
 	party_key,
 	asid,
 	timeout_seconds,
@@ -12,7 +14,8 @@ select
 	client_private_key,
 	server_ca_certchain,
 	sds_use_mutualauth,
-	spine_fqdn
+	spine_fqdn,
+	sds_tls_version
 from configuration.get_spine_configuration
 (
 );

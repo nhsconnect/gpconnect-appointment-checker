@@ -74,6 +74,8 @@ namespace gpconnect_appointment_checker.DAL.Logging
 
         public void AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
         {
+            if ((webRequest.UserAgent == "ELB-HealthChecker/2.0") && (webRequest.Url == "/"))
+                return;
 
             var functionName = "logging.log_web_request";
             var parameters = new DynamicParameters();

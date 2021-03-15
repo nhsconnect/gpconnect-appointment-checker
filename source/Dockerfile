@@ -1,10 +1,12 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+ARG BUILD_TAG
+ENV BUILD_TAG=$BUILD_TAG
 RUN apt-get update && apt-get install -y libldap-2.4-2
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 COPY gpconnect-appointment-checker.sln ./
 COPY gpconnect-appointment-checker.Console/*.csproj ./gpconnect-appointment-checker.Console/

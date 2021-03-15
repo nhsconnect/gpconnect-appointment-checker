@@ -1,11 +1,34 @@
-alter table configuration.general add column max_number_provider_codes_search smallint null;
-alter table configuration.general add column max_number_consumer_codes_search smallint null;
+insert into application.organisation 
+(
+    ods_code,
+    organisation_type_id,
+    organisation_name,
+    address_line_1,
+    address_line_2,
+    locality,
+    city,
+    county,
+    postcode,
+    added_date,
+    last_sync_date
+)
+values
+(
+    'G2Y0B',
+    1,
+    'GP CONNECT APPOINTMENT CHECKER',
+    '1 TREVELYAN SQUARE',
+    '',
+    '',
+    'LEEDS',
+    'WEST YORKSHIRE',
+    'LS1 6AE', 
+    now(), 
+    now()
+);
 
-update configuration.general set max_number_provider_codes_search = 20;
-update configuration.general set max_number_consumer_codes_search = 20;
-
-alter table configuration.general alter column max_number_provider_codes_search set not null;
-alter table configuration.general alter column max_number_consumer_codes_search set not null;
-
-alter table configuration.general add constraint configuration_general_maxnumberprovidercodes_ck check (max_number_provider_codes_search > 0);
-alter table configuration.general add constraint configuration_general_maxnumberconsumercodes_ck check (max_number_consumer_codes_search > 0);
+update configuration.spine s
+set organisation_id = o.organisation_id
+from application.organisation o
+where o.ods_code = 'G2Y0B'
+and s.single_row_lock = true;
