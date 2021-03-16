@@ -1,8 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Net.Http.Headers;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
@@ -55,8 +57,16 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/Healthcheck", new HealthCheckOptions()
+                {
+                    ResultStatusCodes =
+                    {
+                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                    },
+                    AllowCachingResponses = false
+                });
             });
-
         }
     }
 }

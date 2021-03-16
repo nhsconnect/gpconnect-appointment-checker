@@ -64,6 +64,13 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
+        public IActionResult OnGet(int searchGroupId)
+        {
+            var userCode = User.GetClaimValue("ODS");
+            if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
+            return Page();
+        }
+
         public async Task<IActionResult> OnPostSearchAsync()
         {
             if (ModelState.IsValid)
