@@ -81,6 +81,7 @@ namespace gpconnect_appointment_checker.Pages
             ProviderODSCode = null;
             ConsumerODSCode = null;
             SelectedDateRange = DateRanges.First().Value;
+            IncludePastAppointments = false;
             ModelState.Clear();
             return Page();
         }
@@ -162,7 +163,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (CapabilityStatementOk)
                 {
-                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
+                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname, IncludePastAppointments);
                     SlotSearchOk = searchResults?.Issue == null;
 
                     if (SlotSearchOk)

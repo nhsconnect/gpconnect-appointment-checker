@@ -36,10 +36,10 @@ namespace gpconnect_appointment_checker.GPConnect
             return capabilityStatement;
         }
 
-        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, bool includePastSlots)
         {
             _spineMessage = new SpineMessage();
-            var freeSlots = await GetFreeSlots(requestParameters, startDate, endDate, baseAddress);
+            var freeSlots = await GetFreeSlots(requestParameters, startDate, endDate, baseAddress, includePastSlots);
             return freeSlots;
         }
 
