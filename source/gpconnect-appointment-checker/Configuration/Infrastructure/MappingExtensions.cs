@@ -13,6 +13,9 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 config.AddMap(new SpineMessageTypeMap());
                 config.AddMap(new UserMap());
                 config.AddMap(new OrganisationMap());
+                config.AddMap(new SearchResultMap());
+                config.AddMap(new SearchResultByGroupMap());
+                config.AddMap(new SearchGroupMap());
             });
         }
     }

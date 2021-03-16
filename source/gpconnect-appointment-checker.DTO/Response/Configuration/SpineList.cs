@@ -1,4 +1,6 @@
-﻿namespace gpconnect_appointment_checker.DTO.Response.Configuration
+﻿using gpconnect_appointment_checker.Helpers.Enumerations;
+
+namespace gpconnect_appointment_checker.DTO.Response.Configuration
 {
     public class SpineList
     {
@@ -7,5 +9,6 @@
         public Spine Spine { get; set; }
         public bool ProviderEnabledForGpConnectAppointmentManagement => Spine != null;
         public bool ProviderAsIdPresent => Spine != null && !string.IsNullOrEmpty(Spine.asid);
+        public ErrorCode? ErrorCode { get; set; }
     }
 }

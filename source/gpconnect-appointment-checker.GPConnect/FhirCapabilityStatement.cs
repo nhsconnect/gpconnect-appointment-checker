@@ -7,12 +7,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -25,47 +24,108 @@ namespace gpconnect_appointment_checker.GPConnect
                 var processedCapabilityStatements = new ConcurrentBag<CapabilityStatementList>();
                 Parallel.ForEach(requestParameterList, requestParameter =>
                 {
-                    var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                        x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
-                    requestParameter.RequestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
-                    requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
-
-                    var stopWatch = new Stopwatch();
-                    stopWatch.Start();
-
-                    _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
-
-                    var client = _httpClientFactory.CreateClient("GpConnectClient");
-                    AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
-                    _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-
-                    using var request = new HttpRequestMessage
+                    if (requestParameter.RequestParameters != null)
                     {
-                        Method = HttpMethod.Get,
-                        RequestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/metadata")
-                    };
+                        var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                            x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
+                        requestParameter.RequestParameters.SpineMessageTypeId =
+                            (int)SpineMessageTypes.GpConnectReadMetaData;
+                        requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
 
-                    using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                    var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+                        var stopWatch = new Stopwatch();
+                        stopWatch.Start();
 
-                    _spineMessage.ResponsePayload = contents;
-                    _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                    _spineMessage.RequestPayload = request.ToString();
-                    _spineMessage.ResponseHeaders = response.Headers.ToString();
-                    stopWatch.Stop();
-                    _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                    _logService.AddSpineMessageLog(_spineMessage);
+                        _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        processedCapabilityStatements.Add(new CapabilityStatementList
+                        var client = _httpClientFactory.CreateClient("GpConnectClient");
+                        AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
+                        _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
+
+                        using var request = new HttpRequestMessage
                         {
-                            OdsCode = requestParameter.OdsCode,
-                            CapabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents)
-                        });
+                            Method = HttpMethod.Get,
+                            RequestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/metadata")
+                        };
+
+                        using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+
+                        _spineMessage.ResponsePayload = contents;
+                        _spineMessage.ResponseStatus = response.StatusCode.ToString();
+                        _spineMessage.RequestPayload = request.ToString();
+                        _spineMessage.ResponseHeaders = response.Headers.ToString();
+                        stopWatch.Stop();
+                        _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                        _logService.AddSpineMessageLog(_spineMessage);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
+
+                            processedCapabilityStatements.Add(new CapabilityStatementList
+                            {
+                                OdsCode = requestParameter.OdsCode,
+                                CapabilityStatement = capabilityStatement,
+                                ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
+                            });
+                        }
+                        else
+                        {
+                            processedCapabilityStatements.Add(new CapabilityStatementList
+                            {
+                                OdsCode = requestParameter.OdsCode,
+                                ErrorCode = ErrorCode.CapabilityStatementNotFound
+                            });
+                        }
                     }
                 });
+
                 return processedCapabilityStatements.ToList();
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error occurred in trying to execute a GET request");
+                throw;
+            }
+        }
+
+        private async Task<CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+        {
+            try
+            {
+                var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
+                requestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectReadMetaData;
+                requestParameters.InteractionId = spineMessageType?.InteractionId;
+
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+
+                _spineMessage.SpineMessageTypeId = requestParameters.SpineMessageTypeId;
+
+                var client = _httpClientFactory.CreateClient("GpConnectClient");
+                AddRequiredRequestHeaders(requestParameters, client);
+                _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
+
+                using var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata")
+                };
+
+                var response = await client.SendAsync(request);
+                var responseStream = await response.Content.ReadAsStringAsync();
+
+                _spineMessage.ResponsePayload = responseStream;
+                _spineMessage.ResponseStatus = response.StatusCode.ToString();
+                _spineMessage.RequestPayload = request.ToString();
+                _spineMessage.ResponseHeaders = response.Headers.ToString();
+                stopWatch.Stop();
+                _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _logService.AddSpineMessageLog(_spineMessage);
+
+                var results = JsonConvert.DeserializeObject<CapabilityStatement>(responseStream);
+                return results;
             }
             catch (Exception exc)
             {

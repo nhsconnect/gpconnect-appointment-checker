@@ -10,7 +10,8 @@ create function logging.log_spine_message
     _response_status varchar(100),
     _response_headers text,
     _response_payload text,
-    _roundtriptime_ms integer
+    _roundtriptime_ms integer,
+    _search_result_id integer
 )
 returns void
 as $$
@@ -27,7 +28,8 @@ begin
 		response_headers,
 		response_payload,
 		logged_date,
-		roundtriptime_ms
+		roundtriptime_ms,
+		search_result_id
 	)
 	values
 	(
@@ -40,7 +42,8 @@ begin
 		_response_headers,
 		_response_payload,
 		now(),
-		_roundtriptime_ms
+		_roundtriptime_ms,
+		_search_result_id
 	);
 
 end;

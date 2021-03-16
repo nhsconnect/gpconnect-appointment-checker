@@ -28,11 +28,20 @@ namespace gpconnect_appointment_checker.Helpers
             return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s)));
         }
 
+        public static string FlattenStrings(params string[] strings)
+        {
+            return string.Join(", ", strings.Where(s => !string.IsNullOrEmpty(s)));
+        }
+
         public static string AddressBuilder(List<string> addressLines, string postalCode)
         {
-            addressLines ??= new List<string>();
-            addressLines.Add(postalCode);
-            return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s.Trim())));
+            if (addressLines != null && !string.IsNullOrEmpty(postalCode))
+            {
+                addressLines ??= new List<string>();
+                addressLines.Add(postalCode);
+                return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s.Trim())));
+            }
+            return string.Empty;
         }
     }
 }

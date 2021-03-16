@@ -1,9 +1,12 @@
 ﻿using System;
 
-namespace gpconnect_appointment_checker.DTO.Request.Logging
+namespace gpconnect_appointment_checker.DTO.Response.Logging
 {
     public class SpineMessage
     {
+        public int SpineMessageId { get; set; }
+        public int UserId { get; set; }
+        public int UserSessionId { get; set; }
         public int SpineMessageTypeId { get; set; }
         public string Command { get; set; }
         public string RequestHeaders { get; set; }
@@ -11,7 +14,7 @@ namespace gpconnect_appointment_checker.DTO.Request.Logging
         public string ResponseStatus { get; set; }
         public string ResponseHeaders { get; set; }
         public string ResponsePayload { get; set; }
-        public DateTime LoggedDate => DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; }
         public long RoundTripTimeMs { get; set; }
         public int SearchResultId { get; set; }
     }

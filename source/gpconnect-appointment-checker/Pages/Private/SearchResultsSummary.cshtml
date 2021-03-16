@@ -1,18 +1,56 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 
-<div class="nhsuk-grid-row">
-    <div class="nhsuk-grid-column-full">
-        @if (Model.SearchResultsSummary.Count > 0)
-        {
-            @foreach (var searchResult in Model.SearchResultsSummary)
-            {
-                <div>Number of slots found: @searchResult.SlotEntrySummary.Count</div>
-            }
-        }
-        else
-        {
-            <p>@SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT</p>
-        }
+@foreach (var searchResult in Model.SearchResultsSummary)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <dl class="nhsuk-summary-list">
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</dt>
+                    <dd class="nhsuk-summary-list__value">
+                        @if (searchResult.DisplayProvider)
+                        {
+                            <span>@searchResult.ProviderLocationName (@searchResult.ProviderOdsCode)</span>
+                        }
+                    </dd>
+                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
+                </div>
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFTEXT</dt>
+                    <dd class="nhsuk-summary-list__value">
+                        @if (searchResult.DisplayConsumer)
+                        {
+                            <span>@searchResult.ConsumerLocationName (@searchResult.ConsumerOdsCode)</span>
+                        }
+                    </dd>
+                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
+                </div>
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
+                    <dd class="nhsuk-summary-list__value">@searchResult.SearchSummaryDetail</dd>
+                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
+                </div>
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSPROVIDERPUBLISHERLABEL</dt>
+                    <dd class="nhsuk-summary-list__value">
+                        @if (searchResult.DisplayProvider)
+                        {
+                            <span>@searchResult.ProviderPublisher</span>
+                        }
+                    </dd>
+                    <dd class="nhsuk-summary-list__actions">
+                        @if (searchResult.DetailsEnabled)
+                        {
+                            <a class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SEARCHDETAILSBUTTONTEXT</a>
+                        }
+                        else
+                        {
+                            <button class="nhsuk-button nhsuk-button--disabled" type="button" disabled="disabled" aria-disabled="true">@SearchConstants.SEARCHDETAILSBUTTONTEXT</button>
+                        }
+                    </dd>
+                </div>
+            </dl>
+        </div>
     </div>
-</div>
+}

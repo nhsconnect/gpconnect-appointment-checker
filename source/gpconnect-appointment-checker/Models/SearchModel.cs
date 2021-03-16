@@ -14,7 +14,7 @@ namespace gpconnect_appointment_checker.Pages
         public List<SelectListItem> DateRanges => GetDateRanges();
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
-        public List<SlotSummary> SearchResultsSummary { get; set; }
+        public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 
         [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
@@ -41,6 +41,8 @@ namespace gpconnect_appointment_checker.Pages
         public bool ValidSearchCombination => ((!HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes) 
                                                || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 
                                                || (HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes));
+
+        public bool IsMultiSearch => HasMultipleProviderOdsCodes || HasMultipleConsumerOdsCodes;
 
         [BindProperty]
         public string SearchAtResultsText { get; set; }

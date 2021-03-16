@@ -44,8 +44,12 @@
 
         public const string ISSUEWITHTIMEOUTTITLETEXT = "Issue with timeout";
         public const string ISSUEWITHTIMEOUTTEXT = "Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.";
-
+        
         public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}<br />{2} free slots found";
+
+        public const string SEARCHDETAILSBUTTONTEXT = "Details";
+        public const string SEARCHDETAILSLABEL = "Details:";
+        public const string SEARCHDETAILSPROVIDERPUBLISHERLABEL = "Provider Publisher:";
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
@@ -75,5 +79,6 @@
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
         public const string CLEARBUTTONTEXT = "Clear";
+        public const string FREESLOTSFOUNDTEXT = "{0} free slots found";
     }
 }

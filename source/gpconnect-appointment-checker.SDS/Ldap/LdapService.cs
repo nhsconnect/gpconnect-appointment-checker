@@ -1,6 +1,7 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.Extensions.Logging;
 using Novell.Directory.Ldap;
@@ -28,7 +29,7 @@ namespace gpconnect_appointment_checker.SDS
             _applicationService = applicationService;
         }
 
-        public List<OrganisationList> GetOrganisationDetailsByOdsCode(List<string> odsCodes)
+        public List<OrganisationList> GetOrganisationDetailsByOdsCode(List<string> odsCodes, ErrorCode errorCodeToRaise)
         {
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
             try
@@ -37,9 +38,11 @@ namespace gpconnect_appointment_checker.SDS
                 Parallel.ForEach(odsCodes, (odsCode) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
-                    processedCodes.Add(new OrganisationList {
+                    processedCodes.Add(new OrganisationList
+                    {
                         OdsCode = odsCode,
-                        Organisation = processedOrganisation
+                        Organisation = processedOrganisation,
+                        ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None
                     });
                     _applicationService.SynchroniseOrganisation(processedOrganisation);
                 });
@@ -57,7 +60,57 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        public List<SpineList> GetGpProviderEndpointAndPartyKeyByOdsCode(List<string> odsCodes)
+        public Organisation GetOrganisationDetailsByOdsCode(string odsCode)
+        {
+            var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
+            var organisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+            _applicationService.SynchroniseOrganisation(organisation);
+            return organisation;
+        }
+
+        public Spine GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode)
+        {
+            try
+            {
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+                return result;
+            }
+            catch (LdapException ldapException)
+            {
+                _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+        }
+
+        public Spine GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)
+        {
+            try
+            {
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+                return result;
+            }
+            catch (LdapException ldapException)
+            {
+                _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+        }
+
+        public List<SpineList> GetGpProviderEndpointAndPartyKeyByOdsCode(List<string> odsCodes, ErrorCode errorCodeToRaise)
         {
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
             try
@@ -70,7 +123,8 @@ namespace gpconnect_appointment_checker.SDS
                     {
                         OdsCode = odsCode,
                         PartyKey = processedOrganisation?.party_key,
-                        Spine = processedOrganisation
+                        Spine = processedOrganisation,
+                        ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None
                     });
                 });
                 return processedCodes.ToList();
@@ -95,7 +149,10 @@ namespace gpconnect_appointment_checker.SDS
                 Parallel.ForEach(odsCodesWithPartyKeys.Where(x => !string.IsNullOrEmpty(x.PartyKey)), (odsCodeWithPartyKey) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
-                    odsCodeWithPartyKey.Spine.asid = processedOrganisation.asid;
+                    odsCodeWithPartyKey.Spine.asid = processedOrganisation?.asid;
+                    odsCodeWithPartyKey.ErrorCode = processedOrganisation?.asid == null
+                        ? ErrorCode.ProviderASIDCodeNotFound
+                        : ErrorCode.None;
                 });
                 return odsCodesWithPartyKeys;
             }

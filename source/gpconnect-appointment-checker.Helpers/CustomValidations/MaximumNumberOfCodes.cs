@@ -23,7 +23,7 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
             _configuration = (IConfiguration)validationContext.GetService(typeof(IConfiguration));
 
             var maximumNumberOfCodesSetting = _configuration[$"General:{_configurationSetting}"].StringToInteger(_defaultValue);
-            if (!string.IsNullOrEmpty(value.ToString()))
+            if (!string.IsNullOrEmpty(value?.ToString()))
             {
                 var valueElements = value.ToString()?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x))
                     .ToArray().Length;

@@ -1,19 +1,42 @@
 ﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 
 <form method="post" id="search-input-form">
     <partial name="SearchInput" />
 
-    @if (Model.SearchResults != null || Model.SearchResultsSummary != null)
+    @if (Model.IsMultiSearch)
     {
-        @if (Model.HasMultipleConsumerOdsCodes || Model.HasMultipleProviderOdsCodes)
+        @if (!string.IsNullOrEmpty(Model.ProviderOdsCode) && !string.IsNullOrEmpty(Model.ConsumerOdsCode) && !Model.ValidSearchCombination)
         {
-            <partial name="SearchResultsSummary"/>
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <div class="nhsuk-warning-callout">
+                        <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESINPUTLABEL</h3>
+                        <p>@SearchConstants.ISSUEWITHODSCODESINPUTTEXT</p>
+                    </div>
+                </div>
+            </div>
         }
-        else if (!Model.HasMultipleConsumerOdsCodes && !Model.HasMultipleProviderOdsCodes)
+        else
         {
-            <partial name="SearchResults"/>
+            @if (Model.SearchResultsSummary != null && Model.SearchResults == null)
+            {
+                <partial name="SearchResultsSummary" />
+                <partial name="SearchStats" />
+            }
         }
-        <partial name="SearchStats"/>
+    }
+    else
+    {
+        @if (Model.SearchResultsSummary == null && Model.SearchResults != null)
+        {
+            <partial name="SearchResults" />
+            <partial name="SearchStats" />
+        }
+        else
+        {
+            <partial name="CodeErrorSingle" />
+        }
     }
 </form>

@@ -1,5 +1,7 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Response.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Data;
@@ -20,16 +22,16 @@ namespace gpconnect_appointment_checker.DAL.Application
             _auditService = auditService;
         }
 
-        public DTO.Response.Application.Organisation GetOrganisation(string odsCode)
+        public Organisation GetOrganisation(string odsCode)
         {
             var functionName = "application.get_organisation";
             var parameters = new DynamicParameters();
             parameters.Add("_ods_code", odsCode, DbType.String, ParameterDirection.Input);
-            var result = _dataService.ExecuteFunction<DTO.Response.Application.Organisation>(functionName, parameters);
+            var result = _dataService.ExecuteFunction<Organisation>(functionName, parameters);
             return result.FirstOrDefault();
         }
 
-        public void SynchroniseOrganisation(DTO.Response.Application.Organisation organisation)
+        public void SynchroniseOrganisation(Organisation organisation)
         {
             if (organisation != null)
             {
@@ -49,24 +51,81 @@ namespace gpconnect_appointment_checker.DAL.Application
             }
         }
 
-        public DTO.Response.Application.User LogonUser(DTO.Request.Application.User user)
+        public SearchGroup AddSearchGroup(DTO.Request.Application.SearchGroup searchGroup)
+        {
+            var functionName = "application.add_search_group";
+            var parameters = new DynamicParameters();
+            parameters.Add("_user_session_id", searchGroup.UserSessionId);
+            parameters.Add("_consumer_ods_textbox", searchGroup.ConsumerOdsTextbox);
+            parameters.Add("_provider_ods_textbox", searchGroup.ProviderOdsTextbox);
+            parameters.Add("_search_date_range", searchGroup.SearchDateRange);
+            parameters.Add("_search_start_at", searchGroup.SearchStartAt);
+            parameters.Add("_search_end_at", DBNull.Value, DbType.DateTime);
+            var result = _dataService.ExecuteFunction<SearchGroup>(functionName, parameters);
+            return result.FirstOrDefault();
+        }
+
+        public SearchResult AddSearchResult(DTO.Request.Application.SearchResult searchResult)
+        {
+            var functionName = "application.add_search_result";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_group_id", searchResult.SearchGroupId);
+            parameters.Add("_provider_ods_code", searchResult.ProviderCode);
+            parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
+            parameters.Add("_error_code", searchResult.ErrorCode);
+            parameters.Add("_details", searchResult.Details);
+            var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters);
+            return result.FirstOrDefault();
+        }
+
+        public SearchGroup GetSearchGroup(int searchGroupId, int userId)
+        {
+            var functionName = "application.get_search_group";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_group_id", searchGroupId);
+            parameters.Add("_user_id", userId);
+            var result = _dataService.ExecuteFunction<SearchGroup>(functionName, parameters);
+            return result.FirstOrDefault();
+        }
+
+        public SearchResult GetSearchResult(int searchResultId, int userId)
+        {
+            var functionName = "application.get_search_result";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_result_id", searchResultId);
+            parameters.Add("_user_id", userId);
+            var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters);
+            return result.FirstOrDefault();
+        }
+
+        public SearchResultByGroup GetSearchResultByGroup(int searchGroupId, int userId)
+        {
+            var functionName = "application.get_search_result_by_group";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_group_id", searchGroupId);
+            parameters.Add("_user_id", userId);
+            var result = _dataService.ExecuteFunction<SearchResultByGroup>(functionName, parameters);
+            return result.FirstOrDefault();
+        }
+
+        public User LogonUser(DTO.Request.Application.User user)
         {
             var functionName = "application.logon_user";
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_display_name", user.DisplayName);
             parameters.Add("_organisation_id", user.OrganisationId);
-            var result = _dataService.ExecuteFunction<DTO.Response.Application.User>(functionName, parameters);
+            var result = _dataService.ExecuteFunction<User>(functionName, parameters);
             return result.FirstOrDefault();
         }
 
-        public DTO.Response.Application.User LogoffUser(DTO.Request.Application.User user)
+        public User LogoffUser(DTO.Request.Application.User user)
         {
             var functionName = "application.logoff_user";
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_user_session_id", user.UserSessionId);
-            var result = _dataService.ExecuteFunction<DTO.Response.Application.User>(functionName, parameters);
+            var result = _dataService.ExecuteFunction<User>(functionName, parameters);
             return result.FirstOrDefault();
         }
 

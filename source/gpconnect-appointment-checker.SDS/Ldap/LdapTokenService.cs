@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using User = gpconnect_appointment_checker.DTO.Request.Application.User;
 
 namespace gpconnect_appointment_checker.SDS
@@ -36,7 +37,7 @@ namespace gpconnect_appointment_checker.SDS
 
                 var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
                 var odsCode = new List<string> {context.Principal.GetClaimValue("ODS")};
-                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode).FirstOrDefault();
+                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode, ErrorCode.ProviderODSCodeNotFound).FirstOrDefault();
                 if (organisationDetails != null)
                 {
                     var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);

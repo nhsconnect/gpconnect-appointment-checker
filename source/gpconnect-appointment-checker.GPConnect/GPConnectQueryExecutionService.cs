@@ -40,6 +40,20 @@ namespace gpconnect_appointment_checker.GPConnect
             return capabilityStatement;
         }
 
+        public async Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+        {
+            _spineMessage = new SpineMessage();
+            var capabilityStatement = await GetCapabilityStatement(requestParameters, baseAddress);
+            return capabilityStatement;
+        }
+
+        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+        {
+            _spineMessage = new SpineMessage();
+            var freeSlots = await GetFreeSlots(requestParameters, startDate, endDate, baseAddress);
+            return freeSlots;
+        }
+
         public List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
         {
             var tokenSource = new CancellationTokenSource();
@@ -49,7 +63,7 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
-        public List<SlotSummary> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
+        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
@@ -70,6 +84,11 @@ namespace gpconnect_appointment_checker.GPConnect
         private string AddSecureSpineProxy(RequestParametersList requestParametersList)
         {
             return requestParametersList.RequestParameters.UseSSP ? AddScheme(requestParametersList.RequestParameters.SspHostname) + "/" + requestParametersList.BaseAddress : requestParametersList.BaseAddress;
+        }
+
+        private string AddSecureSpineProxy(string baseAddress, RequestParameters requestParameters)
+        {
+            return requestParameters.UseSSP ? AddScheme(requestParameters.SspHostname) + "/" + baseAddress : baseAddress;
         }
 
         private string AddScheme(string sspHostname)
