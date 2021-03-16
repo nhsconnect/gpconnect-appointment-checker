@@ -24,7 +24,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             nLogConfiguration.AddTarget(consoleTarget);
             nLogConfiguration.AddTarget(databaseTarget);
 
-            nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion);
+            nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
             nLogConfiguration.Variables.Add("userId", null);
             nLogConfiguration.Variables.Add("userSessionId", null);
 

@@ -14,7 +14,8 @@ insert into configuration.spine
     client_private_key,
     server_ca_certchain,
     sds_use_mutualauth,
-    spine_fqdn
+    spine_fqdn,
+    sds_tls_version
 )
 values
 (
@@ -32,5 +33,6 @@ values
 	null,
 	null,
 	false,
-	'https://orange.testlab.nhs.uk'
+	'https://orange.testlab.nhs.uk',
+	'negotiate'
 );

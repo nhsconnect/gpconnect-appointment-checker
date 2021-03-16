@@ -10,7 +10,7 @@
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
 
         public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
-        public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}\">{0}</a> to request access.";
+        public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it.";
 
@@ -61,6 +61,7 @@
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
+        public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";

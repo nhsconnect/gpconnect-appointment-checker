@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace gpconnect_appointment_checker.SDS
 {
@@ -51,11 +52,13 @@ namespace gpconnect_appointment_checker.SDS
                 var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
-                var ldapConnectionOptions = new LdapConnectionOptions();
+                Novell.Directory.Ldap.LdapConnectionOptions ldapConnectionOptions = new LdapConnectionOptions();
 
                 if (useLdaps)
                 {
-                    ldapConnectionOptions.ConfigureSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                    SslProtocols sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:sds_tls_version").Value);
+
+                    ldapConnectionOptions.ConfigureSslProtocols(sslProtocol);
                     ldapConnectionOptions.UseSsl();
                     ldapConnectionOptions.ConfigureLocalCertificateSelectionCallback(SelectLocalCertificate);
                     ldapConnectionOptions.ConfigureRemoteCertificateValidationCallback(ValidateServerCertificate);
@@ -187,6 +190,18 @@ namespace gpconnect_appointment_checker.SDS
                 _logger.LogError(e, "Error getting LDAP TLS version");
                 return "Error getting LDAP TLS version";
             }
+        }
+
+        private static SslProtocols ParseTlsVersion(string tlsVersion)
+        {
+            if (tlsVersion == "1.2")
+                return SslProtocols.Tls12;
+
+            if (tlsVersion == "1.3")
+                return SslProtocols.Tls13;
+
+            return SslProtocols.None;
+
         }
     }
 }

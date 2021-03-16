@@ -6,7 +6,15 @@ namespace gpconnect_appointment_checker.Helpers
     {
         public static class ApplicationVersion
         {
-            public static string GetAssemblyVersion => Assembly.GetEntryAssembly()?.GetName().FullName;
+            public static string GetAssemblyVersion()
+            {
+                string buildTag = System.Environment.GetEnvironmentVariable("BUILD_TAG");
+
+                if (string.IsNullOrWhiteSpace(buildTag))
+                    return Assembly.GetEntryAssembly()?.GetName().FullName;
+
+                return buildTag;
+            }
         }
     }
 }
