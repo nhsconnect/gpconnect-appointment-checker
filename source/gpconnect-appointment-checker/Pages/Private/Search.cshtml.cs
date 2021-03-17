@@ -64,10 +64,33 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public IActionResult OnGet(int searchGroupId)
+        public IActionResult OnGetSearchByGroup(int searchGroupId)
         {
-            var userCode = User.GetClaimValue("ODS");
-            if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
+            var userId = User.GetClaimValue("UserId").StringToInteger();
+            var searchGroup = _applicationService.GetSearchGroup(searchGroupId, userId);
+            if (searchGroup != null)
+            {
+                ProviderOdsCode = searchGroup.ProviderOdsTextbox;
+                ConsumerOdsCode = searchGroup.ConsumerOdsTextbox;
+                SelectedDateRange = searchGroup.SelectedDateRange;
+                PopulateSearchResultsForGroup(searchGroupId, userId);
+            }
+            return Page();
+        }
+
+        private void PopulateSearchResultsForGroup(int searchGroupId, int userId)
+        {
+            var searchResultsForGroup = _applicationService.GetSearchResultByGroup(searchGroupId, userId);
+        }
+
+        public IActionResult OnGetSearchByIdSearch(int searchResultId)
+        {
+            var userId = User.GetClaimValue("UserId").StringToInteger();
+            var searchResult = _applicationService.GetSearchResult(searchResultId, userId);
+            if (searchResult != null)
+            {
+                
+            }
             return Page();
         }
 
@@ -293,17 +316,18 @@ namespace gpconnect_appointment_checker.Pages
                         ProviderCode = ProviderOdsCodeAsList[i],
                         ConsumerCode = ConsumerOdsCodeAsList[0],
                         ErrorCode = (int)errorCodeOrDetail.Item1,
-                        Details = errorCodeOrDetail.Item2
+                        Details = errorCodeOrDetail.Item2,
+                        ProviderPublisher = errorCodeOrDetail.Item5?.product_name
                     });
 
                     slotEntrySummary.Add(new SlotEntrySummary
                     {
-                        ProviderLocationName = StringExtensions.AddressBuilder(errorCodeOrDetail.Item3?.PostalAddressFields.ToList(), errorCodeOrDetail.Item3?.PostalCode),
+                        ProviderLocationName = $"{errorCodeOrDetail.Item3?.OrganisationName}, {StringExtensions.AddressBuilder(errorCodeOrDetail.Item3?.PostalAddressFields.ToList(), errorCodeOrDetail.Item3?.PostalCode)}",
                         ProviderOdsCode = ProviderOdsCodeAsList[i],
-                        ConsumerLocationName = StringExtensions.AddressBuilder(errorCodeOrDetail.Item4?.PostalAddressFields.ToList(), errorCodeOrDetail.Item4?.PostalCode),
+                        ConsumerLocationName = $"{errorCodeOrDetail.Item4?.OrganisationName}, {StringExtensions.AddressBuilder(errorCodeOrDetail.Item4?.PostalAddressFields.ToList(), errorCodeOrDetail.Item4?.PostalCode)}",
                         ConsumerOdsCode = ConsumerOdsCodeAsList[0],
                         SearchSummaryDetail = errorCodeOrDetail.Item2,
-                        ProviderPublisher = null,
+                        ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
                         SearchResultId = searchResult.SearchResultId,
                         DetailsEnabled = errorCodeOrDetail.Item1 == ErrorCode.None,
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
@@ -361,19 +385,18 @@ namespace gpconnect_appointment_checker.Pages
         {
             var providerCapabilityStatement = providerCapabilityStatements.FirstOrDefault(x => x.OdsCode == providerOdsCode);
             var errorSource = providerCapabilityStatement?.ErrorCode ?? ErrorCode.None;
-            var errorDetail = string.Empty;
+            var details = string.Empty;
 
             if (errorSource == ErrorCode.CapabilityStatementHasErrors)
             {
-                errorDetail = StringExtensions.Coalesce(
+                details = StringExtensions.Coalesce(
                     providerCapabilityStatement?.CapabilityStatement.Issue?.FirstOrDefault()?.Diagnostics,
                     providerCapabilityStatement?.CapabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
             }
-            var details = string.Format(errorSource.GetDescription(), errorDetail);
             return (errorSource, details);
         }
 
-        private (ErrorCode, string, Organisation, Organisation) GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
+        private (ErrorCode, string, Organisation, Organisation, Spine) GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
         {
             var providerOrganisationLookupErrors = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
@@ -389,10 +412,12 @@ namespace gpconnect_appointment_checker.Pages
             var details = string.Empty;
             Organisation providerOrganisation = null;
             Organisation consumerOrganisation = null;
+            Spine providerSpine = null;
 
             if (providerErrorCode == ErrorCode.None)
             {
                 providerOrganisation = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Organisation;
+                providerSpine = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Spine;
             }
             else
             {
@@ -410,7 +435,7 @@ namespace gpconnect_appointment_checker.Pages
                 details = string.Format(errorSource.GetDescription(), consumerOdsCode);
             }
 
-            return (errorSource, details, providerOrganisation, consumerOrganisation);
+            return (errorSource, details, providerOrganisation, consumerOrganisation, providerSpine);
         }
 
         private List<SelectListItem> GetDateRanges()

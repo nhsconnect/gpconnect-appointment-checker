@@ -6,7 +6,8 @@ create function application.add_search_result
 	_provider_ods_code varchar(200),
 	_consumer_ods_code varchar(200),
 	_error_code integer,
-	_details character varying(8000)
+	_details character varying(8000),
+	_provider_publisher varchar(200)
 )
 returns table
 (
@@ -37,7 +38,8 @@ begin
 		consumer_ods_code,
 		consumer_organisation_id,
 		error_code,
-		details
+		details,
+		provider_publisher
 	)
 	values
 	(
@@ -47,7 +49,8 @@ begin
 		_consumer_ods_code,
 		_consumer_organisation_id,
 		_error_code,
-		_details
+		_details,
+		_provider_publisher
 	)
 	returning
 		application.search_result.search_result_id

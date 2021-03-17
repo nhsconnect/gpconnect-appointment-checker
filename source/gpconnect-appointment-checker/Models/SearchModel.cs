@@ -51,6 +51,9 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty]
         public string SelectedDateRange { get; set; }
 
+        [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
+        public int SearchGroupId { get; set; }
+
         public double SearchDuration { get; set; }
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;

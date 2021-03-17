@@ -14,7 +14,8 @@ returns table
 	provider_organisation_name character varying(100),
 	consumer_organisation_name character varying(100),
 	error_code integer,
-	details character varying(8000)
+	details character varying(8000),
+	provider_publisher varchar(200)
 )
 as $$
 begin
@@ -27,7 +28,8 @@ begin
 		provider_organisation.organisation_name as provider_organisation_name,
 		consumer_organisation.organisation_name as consumer_organisation_name,
 		sr.error_code,
-		sr.details
+		sr.details,
+		sr.provider_publisher
 	from
 		application.search_result sr
 		left outer join application.organisation provider_organisation on sr.provider_organisation_id = provider_organisation.organisation_id

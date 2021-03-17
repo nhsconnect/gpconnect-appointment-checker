@@ -29,6 +29,7 @@ create table application.search_result
     provider_organisation_id integer null,
     error_code integer null,
     details character varying(8000) null,
+    provider_publisher varchar(200),
 
     constraint application_searchresult_searchresultid_pk primary key (search_result_id),
     constraint application_searchresult_searchgroupid_fk foreign key (search_group_id) references application.search_group (search_group_id),

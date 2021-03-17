@@ -52,12 +52,11 @@ namespace gpconnect_appointment_checker.SDS
                 var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
                 var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
-                Novell.Directory.Ldap.LdapConnectionOptions ldapConnectionOptions = new LdapConnectionOptions();
+                var ldapConnectionOptions = new LdapConnectionOptions();
 
                 if (useLdaps)
                 {
-                    SslProtocols sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:sds_tls_version").Value);
-
+                    var sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:sds_tls_version").Value);
                     ldapConnectionOptions.ConfigureSslProtocols(sslProtocol);
                     ldapConnectionOptions.UseSsl();
                     ldapConnectionOptions.ConfigureLocalCertificateSelectionCallback(SelectLocalCertificate);
@@ -194,14 +193,15 @@ namespace gpconnect_appointment_checker.SDS
 
         private static SslProtocols ParseTlsVersion(string tlsVersion)
         {
-            if (tlsVersion == "1.2")
-                return SslProtocols.Tls12;
-
-            if (tlsVersion == "1.3")
-                return SslProtocols.Tls13;
-
-            return SslProtocols.None;
-
+            switch (tlsVersion)
+            {
+                case "1.2":
+                    return SslProtocols.Tls12;
+                case "1.3":
+                    return SslProtocols.Tls13;
+                default:
+                    return SslProtocols.None;
+            }
         }
     }
 }

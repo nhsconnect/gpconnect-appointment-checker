@@ -58,25 +58,22 @@ namespace gpconnect_appointment_checker.GPConnect
                         _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                         _logService.AddSpineMessageLog(_spineMessage);
 
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
+                        var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
 
-                            processedCapabilityStatements.Add(new CapabilityStatementList
-                            {
-                                OdsCode = requestParameter.OdsCode,
-                                CapabilityStatement = capabilityStatement,
-                                ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
-                            });
-                        }
-                        else
+                        processedCapabilityStatements.Add(new CapabilityStatementList
                         {
-                            processedCapabilityStatements.Add(new CapabilityStatementList
-                            {
-                                OdsCode = requestParameter.OdsCode,
-                                ErrorCode = ErrorCode.CapabilityStatementNotFound
-                            });
-                        }
+                            OdsCode = requestParameter.OdsCode,
+                            CapabilityStatement = capabilityStatement,
+                            ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
+                        });
+                    }
+                    else
+                    {
+                        processedCapabilityStatements.Add(new CapabilityStatementList
+                        {
+                            OdsCode = requestParameter.OdsCode,
+                            ErrorCode = ErrorCode.CapabilityStatementNotFound
+                        });
                     }
                 });
 

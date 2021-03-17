@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.Application;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Linq;
+using gpconnect_appointment_checker.DTO.Response.GpConnect;
 
 namespace gpconnect_appointment_checker.DAL.Application
 {
@@ -74,6 +76,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
             parameters.Add("_error_code", searchResult.ErrorCode);
             parameters.Add("_details", searchResult.Details);
+            parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
             var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters);
             return result.FirstOrDefault();
         }
@@ -98,14 +101,15 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public SearchResultByGroup GetSearchResultByGroup(int searchGroupId, int userId)
+        public List<SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId)
         {
             var functionName = "application.get_search_result_by_group";
             var parameters = new DynamicParameters();
             parameters.Add("_search_group_id", searchGroupId);
             parameters.Add("_user_id", userId);
-            var result = _dataService.ExecuteFunction<SearchResultByGroup>(functionName, parameters);
-            return result.FirstOrDefault();
+            var searchResultByGroup = _dataService.ExecuteFunction<SearchResultByGroup>(functionName, parameters);
+            var slotEntrySummaryList = new List<SlotEntrySummary>();
+            return slotEntrySummaryList;
         }
 
         public User LogonUser(DTO.Request.Application.User user)

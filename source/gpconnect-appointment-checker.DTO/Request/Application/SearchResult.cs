@@ -7,5 +7,6 @@
         public string ConsumerCode { get; set; }
         public int ErrorCode { get; set; }
         public string Details { get; set; }
+        public string ProviderPublisher { get; set; }
     }
 }

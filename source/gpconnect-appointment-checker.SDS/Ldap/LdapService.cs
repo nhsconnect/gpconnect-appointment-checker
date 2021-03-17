@@ -150,6 +150,7 @@ namespace gpconnect_appointment_checker.SDS
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
                     odsCodeWithPartyKey.Spine.asid = processedOrganisation?.asid;
+                    odsCodeWithPartyKey.Spine.product_name = processedOrganisation?.product_name;
                     odsCodeWithPartyKey.ErrorCode = processedOrganisation?.asid == null
                         ? ErrorCode.ProviderASIDCodeNotFound
                         : ErrorCode.None;

@@ -1,4 +1,6 @@
-﻿namespace gpconnect_appointment_checker.DAL.Interfaces
+﻿using System.Collections.Generic;
+
+namespace gpconnect_appointment_checker.DAL.Interfaces
 {
     public interface IApplicationService
     {
@@ -11,6 +13,6 @@
         DTO.Response.Application.SearchResult AddSearchResult(DTO.Request.Application.SearchResult searchResult);
         DTO.Response.Application.SearchGroup GetSearchGroup(int searchGroupId, int userId);
         DTO.Response.Application.SearchResult GetSearchResult(int searchResultId, int userId);
-        DTO.Response.Application.SearchResultByGroup GetSearchResultByGroup(int searchGroupId, int userId);
+        List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
     }
 }
