@@ -23,18 +23,22 @@ namespace gpconnect_appointment_checker.Configuration
             }
             finally
             {
-                logService.AddWebRequestLog(new WebRequest
+                var url = context.Request?.Path.Value;
+                if (!url.Contains(Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
                 {
-                    CreatedBy = context.User?.GetClaimValue("DisplayName"),
-                    Url = context.Request?.Path.Value,
-                    Description = "",
-                    Ip = context.Connection?.LocalIpAddress.ToString(),
-                    Server = context.Request?.Host.Host,
-                    SessionId = context.GetSessionId(),
-                    ReferrerUrl = context.Request?.Headers["Referer"].ToString(),
-                    ResponseCode = context.Response.StatusCode,
-                    UserAgent = context.Request?.Headers["User-Agent"].ToString()
-                });
+                    logService.AddWebRequestLog(new WebRequest
+                    {
+                        CreatedBy = context.User?.GetClaimValue("DisplayName"),
+                        Url = url,
+                        Description = "",
+                        Ip = context.Connection?.LocalIpAddress.ToString(),
+                        Server = context.Request?.Host.Host,
+                        SessionId = context.GetSessionId(),
+                        ReferrerUrl = context.Request?.Headers["Referer"].ToString(),
+                        ResponseCode = context.Response.StatusCode,
+                        UserAgent = context.Request?.Headers["User-Agent"].ToString()
+                    });
+                }
             }
         }
     }

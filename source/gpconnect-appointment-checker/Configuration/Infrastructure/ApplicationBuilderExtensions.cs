@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers(); 
-                endpoints.MapHealthChecks("/Healthcheck", new HealthCheckOptions()
+                endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.HEALTHCHECKERPATH, new HealthCheckOptions()
                 {
                     ResultStatusCodes =
                     {
