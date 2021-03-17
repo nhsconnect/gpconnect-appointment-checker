@@ -81,6 +81,7 @@ namespace gpconnect_appointment_checker.Pages
         private void PopulateSearchResultsForGroup(int searchGroupId, int userId)
         {
             var searchResultsForGroup = _applicationService.GetSearchResultByGroup(searchGroupId, userId);
+            SearchResultsSummary = searchResultsForGroup;
         }
 
         public IActionResult OnGetSearchByIdSearch(int searchResultId)
