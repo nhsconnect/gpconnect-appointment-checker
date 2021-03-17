@@ -35,6 +35,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             services.AddResponseCompression();
             services.AddHttpContextAccessor();
 
+            services.AddHealthChecks();
+
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizeFolder("/Private"); 
