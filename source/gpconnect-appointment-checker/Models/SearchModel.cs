@@ -31,10 +31,6 @@ namespace gpconnect_appointment_checker.Pages
         public string SelectedDateRange { get; set; }
 
         public double SearchDuration { get; set; }
-
-        [BindProperty]
-        public bool IncludePastAppointments { get; set; }
-
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;
 

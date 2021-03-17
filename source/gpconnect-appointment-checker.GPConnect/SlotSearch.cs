@@ -17,7 +17,7 @@ namespace gpconnect_appointment_checker.GPConnect
 {
     public partial class GpConnectQueryExecutionService
     {
-        public async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, bool includePastSlots)
+        public async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 AddRequiredRequestHeaders(requestParameters, client);
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
-                var uriBuilder = AddQueryParameters(requestParameters, startDate, endDate, requestUri, includePastSlots);
+                var uriBuilder = AddQueryParameters(requestParameters, startDate, endDate, requestUri);
                 var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                 var response = await client.SendAsync(request);
@@ -145,9 +145,8 @@ namespace gpconnect_appointment_checker.GPConnect
             return schedule;
         }
 
-        private static UriBuilder AddQueryParameters(RequestParameters requestParameters, DateTime startDate, DateTime endDate, Uri requestUri, bool includePastSlots)
+        private static UriBuilder AddQueryParameters(RequestParameters requestParameters, DateTime startDate, DateTime endDate, Uri requestUri)
         {
-            startDate = RecalculateStartDate(startDate, includePastSlots);
             var uriBuilder = new UriBuilder(requestUri.ToString());
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query.Add(Uri.EscapeDataString("status"), "free");
@@ -155,20 +154,11 @@ namespace gpconnect_appointment_checker.GPConnect
             query.Add(Uri.EscapeDataString("_include:recurse"), "Schedule:actor:Practitioner");
             query.Add(Uri.EscapeDataString("_include:recurse"), "Schedule:actor:Location");
             query.Add(Uri.EscapeDataString("_include:recurse"), "Location:managingOrganization");
-            query.Add(Uri.EscapeDataString("start"), $"ge{startDate:yyyy-MM-ddThh:mm:sszzzz}");
-            query.Add(Uri.EscapeDataString("end"), $"le{endDate:yyyy-MM-ddThh:mm:sszzzz}");
+            query.Add(Uri.EscapeDataString("start"), $"ge{startDate:yyyy-MM-dd}");
+            query.Add(Uri.EscapeDataString("end"), $"le{endDate:yyyy-MM-dd}");
             query.Add(Uri.EscapeDataString("searchFilter"), $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
             uriBuilder.Query = query.ToString();
             return uriBuilder;
-        }
-
-        private static DateTime RecalculateStartDate(DateTime startDate, bool includePastSlots)
-        {
-            if (DateTime.Now > startDate && !includePastSlots)
-            {
-                return DateTime.Now;
-            }
-            return startDate;
         }
 
         public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0)

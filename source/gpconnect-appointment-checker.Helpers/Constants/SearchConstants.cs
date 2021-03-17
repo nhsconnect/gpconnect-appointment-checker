@@ -68,7 +68,6 @@
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
-        public const string SEARCHINPUTINCLUDEPASTAPPOINTMENTSLABEL = "Include past appointments (EMIS Health only)";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
         public const string CLEARBUTTONTEXT = "Clear";
     }
