@@ -19,8 +19,8 @@ begin
 	return query
 	select
 		sg.search_group_id,
-		sg.consumer_ods_textbox,
 		sg.provider_ods_textbox,
+		sg.consumer_ods_textbox,
 		sg.selected_daterange,
 		sg.search_start_at,
 		sg.search_end_at

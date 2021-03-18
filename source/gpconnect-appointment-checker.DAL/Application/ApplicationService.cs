@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Linq;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.DAL.Application
@@ -111,9 +112,9 @@ namespace gpconnect_appointment_checker.DAL.Application
             var searchResultByGroup = _dataService.ExecuteFunction<SearchResultByGroup>(functionName, parameters);
             var slotEntrySummaryList = searchResultByGroup.Select(a => new SlotEntrySummary
             {
-                ProviderLocationName = a.ProviderOrganisationName,
+                ProviderLocationName = $"{a.ProviderOrganisationName}, {StringExtensions.AddressBuilder(new List<string>(a.ProviderAddressFields), a.ProviderPostcode)}",
                 ProviderOdsCode = a.ProviderOdsCode,
-                ConsumerLocationName = a.ConsumerOrganisationName,
+                ConsumerLocationName = $"{a.ConsumerOrganisationName}, {StringExtensions.AddressBuilder(new List<string>(a.ConsumerAddressFields), a.ConsumerPostcode)}",
                 ConsumerOdsCode = a.ConsumerOdsCode,
                 SearchSummaryDetail = a.Details,
                 ProviderPublisher = a.ProviderPublisher,
