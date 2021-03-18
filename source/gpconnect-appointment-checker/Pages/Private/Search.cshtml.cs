@@ -144,11 +144,11 @@ namespace gpconnect_appointment_checker.Pages
 
                         if (ProviderASIDPresent)
                         {
-                            
                             providerGpConnectDetails.asid = providerAsId.asid;
                             await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                             SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
                             SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
+                            ProviderPublisher = providerAsId.product_name;
                         }
                         else
                         {
@@ -439,6 +439,12 @@ namespace gpconnect_appointment_checker.Pages
             }
 
             return (errorSource, details, providerOrganisation, consumerOrganisation, providerSpine);
+        }
+
+        private int SetSearchBoxesForMultiSearch()
+        {
+            var multiSearchEnabled = User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
+            return multiSearchEnabled ? 100 : 10;
         }
 
         private List<SelectListItem> GetDateRanges()

@@ -28,6 +28,8 @@ namespace gpconnect_appointment_checker.Pages
         [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
         public string ConsumerOdsCode { get; set; }
 
+        public int SearchInputBoxLength => SetSearchBoxesForMultiSearch();
+
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         
         public List<string> ConsumerOdsCodeAsList => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();

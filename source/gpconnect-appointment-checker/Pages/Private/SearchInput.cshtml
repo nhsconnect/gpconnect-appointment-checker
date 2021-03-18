@@ -14,7 +14,7 @@
             {
                 @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
             }
-            <input class="nhsuk-input nhsuk-input--width-100 @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
+            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
 
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
@@ -23,7 +23,7 @@
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
             }
-            <input class="nhsuk-input nhsuk-input--width-100 @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
+            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
         <div class="nhsuk-form-group">
             <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
