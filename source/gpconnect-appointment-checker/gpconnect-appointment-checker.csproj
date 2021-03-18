@@ -25,6 +25,7 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="wwwroot\offline.html" />
   </ItemGroup>
 
   <ItemGroup>
