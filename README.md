@@ -8,7 +8,7 @@ The GP Connect Appointment Checker is a web application for GP Connect operation
 
 ## Tech stack
 
-  - .NET Core 5
+  - C# / .NET 5.0
     - ASP.NET
   - Docker
   - Postgresql 12
