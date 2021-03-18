@@ -50,6 +50,7 @@
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";
         public const string SEARCHDETAILSPROVIDERPUBLISHERLABEL = "Provider Publisher:";
+        public const string BACKTORESULTSSUMMARYLABEL = "Back to results summary";
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";

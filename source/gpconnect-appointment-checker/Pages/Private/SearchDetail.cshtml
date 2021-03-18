@@ -1,0 +1,10 @@
+﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchDetailModel
+
+<a class="nhsuk-button" href="/Search?SearchGroupId=@Model.SearchGroupId&Handler=SearchByGroup">@SearchConstants.BACKTORESULTSSUMMARYLABEL</a>
+@if (Model.SearchResults != null)
+{
+    <partial name="SearchDetailResults" />
+    <partial name="SearchDetailStats" />
+}

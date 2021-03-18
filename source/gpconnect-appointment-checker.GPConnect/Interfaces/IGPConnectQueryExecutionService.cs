@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.GPConnect.Interfaces
 {
     public interface IGpConnectQueryExecutionService
     {
         Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress);
+        SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream);
         List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
         List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
         List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameters);

@@ -18,12 +18,14 @@ namespace gpconnect_appointment_checker.DAL.Application
         private readonly ILogger<ApplicationService> _logger;
         private readonly IDataService _dataService;
         private readonly IAuditService _auditService;
+        private readonly ILogService _logService;
 
-        public ApplicationService(IConfiguration configuration, ILogger<ApplicationService> logger, IDataService dataService, IAuditService auditService)
+        public ApplicationService(IConfiguration configuration, ILogger<ApplicationService> logger, IDataService dataService, IAuditService auditService, ILogService logService)
         {
             _logger = logger;
             _dataService = dataService;
             _auditService = auditService;
+            _logService = logService;
         }
 
         public Organisation GetOrganisation(string odsCode)
@@ -79,8 +81,13 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_error_code", searchResult.ErrorCode);
             parameters.Add("_details", searchResult.Details);
             parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
-            var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters);
-            return result.FirstOrDefault();
+            var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters).FirstOrDefault();
+
+            if(searchResult.SpineMessageId != null)
+            {
+                _logService.UpdateSpineMessageLog(searchResult.SpineMessageId.Value, result.SearchResultId);
+            }
+            return result;
         }
 
         public SearchGroup GetSearchGroup(int searchGroupId, int userId)

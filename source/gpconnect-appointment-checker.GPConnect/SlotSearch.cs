@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -13,8 +14,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.GPConnect
 {
@@ -58,6 +57,9 @@ namespace gpconnect_appointment_checker.GPConnect
 
 
                 var slotSimple = new SlotSimple();
+
+
+
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
                 if (results.Issue?.Count > 0)
@@ -262,7 +264,7 @@ namespace gpconnect_appointment_checker.GPConnect
                         _spineMessage.ResponseHeaders = response.Headers.ToString();
                         stopWatch.Stop();
                         _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                        _logService.AddSpineMessageLog(_spineMessage);
+                        var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
 
                         var results = JsonConvert.DeserializeObject<Bundle>(contents);
 
@@ -273,7 +275,8 @@ namespace gpconnect_appointment_checker.GPConnect
                                 ErrorCode = ErrorCode.GenericSlotSearchError,
                                 ErrorDetail = results.Issue,
                                 FreeSlotCount = null,
-                                OdsCode = requestParameter.OdsCode
+                                OdsCode = requestParameter.OdsCode,
+                                SpineMessageId = spineMessage.SpineMessageId
                             });
                         }
                         else
@@ -283,7 +286,8 @@ namespace gpconnect_appointment_checker.GPConnect
                                 ErrorCode = ErrorCode.None,
                                 ErrorDetail = null,
                                 FreeSlotCount = results.entry?.Count(x => x.resource.resourceType == ResourceTypes.Slot),
-                                OdsCode = requestParameter.OdsCode
+                                OdsCode = requestParameter.OdsCode,
+                                SpineMessageId = spineMessage.SpineMessageId
                             });
                         }
                     }
@@ -291,7 +295,8 @@ namespace gpconnect_appointment_checker.GPConnect
                     {
                         processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
                         {
-                            OdsCode = requestParameter.OdsCode
+                            OdsCode = requestParameter.OdsCode,
+                            SpineMessageId = null
                         });
                     }
                 });
@@ -307,54 +312,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 _logger.LogError(exc, "An error occurred in trying to execute a GET request");
                 throw;
             }
-        }
-
-        private Practitioner GetPractitionerDetails(string reference, List<RootEntry> scheduleResources, List<RootEntry> practitionerResources)
-        {
-            var schedule = GetSchedule(reference, scheduleResources);
-            var schedulePractitioner = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
-            var practitionerRootEntry = practitionerResources?.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
-            var practitioner = new Practitioner
-            {
-                gender = practitionerRootEntry?.gender,
-                name = JsonConvert.DeserializeObject<List<PractitionerName>>(practitionerRootEntry?.name.ToString())
-            };
-            return practitioner;
-        }
-
-        private Location GetLocation(string reference, List<RootEntry> scheduleResources, List<RootEntry> locationResources)
-        {
-            var schedule = GetSchedule(reference, scheduleResources);
-            var scheduleLocation = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Location/"));
-            var locationRootEntry = locationResources?.FirstOrDefault(x => scheduleLocation?.reference == $"Location/{x.resource.id}")?.resource;
-            var location = new Location
-            {
-                name = locationRootEntry?.name.ToString(),
-                address = locationRootEntry?.address != null ? JsonConvert.DeserializeObject<LocationAddress>(locationRootEntry.address.ToString()) : null
-            };
-            return location;
-        }
-
-        private RootEntry GetSchedule(string reference, List<RootEntry> scheduleResources)
-        {
-            var schedule = scheduleResources.FirstOrDefault(x => reference == $"Schedule/{x.resource.id}");
-            return schedule;
-        }
-
-        private static UriBuilder AddQueryParameters(RequestParameters requestParameters, DateTime startDate, DateTime endDate, Uri requestUri)
-        {
-            var uriBuilder = new UriBuilder(requestUri.ToString());
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-            query.Add(Uri.EscapeDataString("status"), "free");
-            query.Add(Uri.EscapeDataString("_include"), "Slot:schedule");
-            query.Add(Uri.EscapeDataString("_include:recurse"), "Schedule:actor:Practitioner");
-            query.Add(Uri.EscapeDataString("_include:recurse"), "Schedule:actor:Location");
-            query.Add(Uri.EscapeDataString("_include:recurse"), "Location:managingOrganization");
-            query.Add(Uri.EscapeDataString("start"), $"ge{startDate:yyyy-MM-dd}");
-            query.Add(Uri.EscapeDataString("end"), $"le{endDate:yyyy-MM-dd}");
-            query.Add(Uri.EscapeDataString("searchFilter"), $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
-            uriBuilder.Query = query.ToString();
-            return uriBuilder;
         }
 
         public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0)

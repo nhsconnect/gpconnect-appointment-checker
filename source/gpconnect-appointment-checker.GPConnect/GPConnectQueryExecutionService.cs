@@ -63,6 +63,12 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
+        public SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream)
+        {
+            var freeSlots = GetFreeSlotsFromDatabase(responseStream);
+            return freeSlots;
+        }
+
         public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
         {
             var tokenSource = new CancellationTokenSource();

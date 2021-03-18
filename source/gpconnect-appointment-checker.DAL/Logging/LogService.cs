@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.DAL.Logging
 {
@@ -49,7 +50,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             _dataService.ExecuteFunction(functionName, parameters);
         }
 
-        public void AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
+        public DTO.Response.Logging.SpineMessage AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
         {
             var functionName = "logging.log_spine_message";
             var parameters = new DynamicParameters();
@@ -78,6 +79,16 @@ namespace gpconnect_appointment_checker.DAL.Logging
                 parameters.Add("_search_result_id", DBNull.Value, DbType.Int32);
             }
 
+            var result = _dataService.ExecuteFunction<DTO.Response.Logging.SpineMessage>(functionName, parameters).FirstOrDefault();
+            return result;
+        }
+
+        public void UpdateSpineMessageLog(int spineMessageId, int searchResultId)
+        {
+            var functionName = "logging.update_spine_message";
+            var parameters = new DynamicParameters();
+            parameters.Add("_spine_message_id", spineMessageId);
+            parameters.Add("_search_result_id", searchResultId);
             _dataService.ExecuteFunction(functionName, parameters);
         }
 

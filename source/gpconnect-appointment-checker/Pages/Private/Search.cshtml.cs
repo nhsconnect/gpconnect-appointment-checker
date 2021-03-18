@@ -84,17 +84,6 @@ namespace gpconnect_appointment_checker.Pages
             SearchResultsSummary = searchResultsForGroup;
         }
 
-        public IActionResult OnGetSearchByIdSearch(int searchResultId)
-        {
-            var userId = User.GetClaimValue("UserId").StringToInteger();
-            var searchResult = _applicationService.GetSearchResult(searchResultId, userId);
-            if (searchResult != null)
-            {
-                
-            }
-            return Page();
-        }
-
         public async Task<IActionResult> OnPostSearchAsync()
         {
             if (ModelState.IsValid)
@@ -283,6 +272,7 @@ namespace gpconnect_appointment_checker.Pages
 
             var providerOdsCount = ProviderOdsCodeAsList.Count;
             var consumerOdsCount = ConsumerOdsCodeAsList.Count;
+            List<SlotEntrySummaryCount> slotSearchSummaryList = null;
 
             if (providerOdsCount > consumerOdsCount)
             {
@@ -301,8 +291,8 @@ namespace gpconnect_appointment_checker.Pages
                             errorCodeOrDetail.Item2 = capabilityStatementErrorCodeOrDetail.Item2;
 
                             if (capabilityStatementErrorCodeOrDetail.Item1 == ErrorCode.None)
-                            {
-                                var slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(requestParameters, startDate, endDate);
+                            {                                
+                                slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(requestParameters, startDate, endDate);
                                 var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[i], slotSearchSummaryList);
 
                                 errorCodeOrDetail.Item1 = slotSearchErrorCodeOrDetail.Item1;
@@ -311,7 +301,7 @@ namespace gpconnect_appointment_checker.Pages
                         }
                     }
 
-                    var searchResult = _applicationService.AddSearchResult(new SearchResult
+                    var searchResultToAdd = new SearchResult
                     {
                         SearchGroupId = searchGroupId,
                         ProviderCode = ProviderOdsCodeAsList[i],
@@ -319,7 +309,15 @@ namespace gpconnect_appointment_checker.Pages
                         ErrorCode = (int)errorCodeOrDetail.Item1,
                         Details = errorCodeOrDetail.Item2,
                         ProviderPublisher = errorCodeOrDetail.Item5?.product_name
-                    });
+                    };
+
+                    if(slotSearchSummaryList != null)
+                    {
+                        var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i]).SpineMessageId;
+                        searchResultToAdd.SpineMessageId = spineMessageId;
+                    }
+
+                    var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
                     slotEntrySummary.Add(new SlotEntrySummary
                     {
