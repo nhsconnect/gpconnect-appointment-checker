@@ -13,5 +13,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public DateTime AddedDate { get; set; }
         public DateTime AuthorisedDate { get; set; }
         public DateTime LastLogonDate { get; set; }
+        public bool MultiSearchEnabled { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

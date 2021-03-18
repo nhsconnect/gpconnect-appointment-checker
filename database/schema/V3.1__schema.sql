@@ -30,6 +30,7 @@ create table application.search_result
     error_code integer null,
     details character varying(8000) null,
     provider_publisher varchar(200),
+    search_duration_seconds double precision,
 
     constraint application_searchresult_searchresultid_pk primary key (search_result_id),
     constraint application_searchresult_searchgroupid_fk foreign key (search_group_id) references application.search_group (search_group_id),
@@ -45,6 +46,17 @@ create table application.search_result
 
 alter table logging.spine_message add search_result_id integer null;
 alter table logging.spine_message add constraint logging_spinemessage_searchresultid_fk foreign key (search_result_id) references application.search_result (search_result_id);
+
+alter table application.user add is_admin boolean null;
+alter table application.user add multi_search_enabled boolean null;
+
+alter table application.user alter column is_admin set default false;
+alter table application.user alter column multi_search_enabled set default false;
+
+update application.user set is_admin=false, multi_search_enabled=false;
+
+alter table application.user alter column is_admin set not null;
+alter table application.user alter column multi_search_enabled set not null;
 
 grant select, insert, update on all tables in schema application to app_user;
 grant select, update on all sequences in schema application to app_user;

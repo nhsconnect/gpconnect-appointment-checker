@@ -60,6 +60,7 @@ namespace gpconnect_appointment_checker.Pages
                 SearchGroupId = searchResult.SearchGroupId;
                 SearchResultId = searchResult.SearchResultId;
                 ProviderPublisher = searchResult.ProviderPublisher;
+                SearchDuration = searchResult.SearchDurationSeconds;
 
                 var searchResults = _queryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchResult.ResponsePayload);
                 var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)

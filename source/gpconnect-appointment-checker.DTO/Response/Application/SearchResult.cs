@@ -16,5 +16,6 @@
         public string[] ConsumerAddressFields => ConsumerAddress.Split(new char[] { ',' });
         public string ConsumerPostcode { get; set; }
         public string ProviderPublisher { get; set; }
+        public double SearchDurationSeconds { get; set; }
     }
 }

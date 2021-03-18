@@ -81,9 +81,10 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_error_code", searchResult.ErrorCode);
             parameters.Add("_details", searchResult.Details);
             parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
+            parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
             var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters).FirstOrDefault();
 
-            if(searchResult.SpineMessageId != null)
+            if(searchResult.SpineMessageId != null && result != null)
             {
                 _logService.UpdateSpineMessageLog(searchResult.SpineMessageId.Value, result.SearchResultId);
             }

@@ -19,13 +19,13 @@ namespace gpconnect_appointment_checker.Pages
         [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
-        [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, 20)]
+        [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
         public string ProviderOdsCode { get; set; }
 
         [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
-        [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, 20)]
+        [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
         public string ConsumerOdsCode { get; set; }
 
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();

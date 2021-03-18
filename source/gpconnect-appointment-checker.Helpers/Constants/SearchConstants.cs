@@ -17,6 +17,7 @@
         public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
         public const string RUNASEARCHTEXT = "Run a search";
         public const string SEARCHTEXT = "Search";
+        public const string ADMINTEXT = "Admin";
         public const string HOMETEXT = "Home";
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
@@ -57,6 +58,8 @@
 
         public const string CONSUMERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of consumer ODS codes which you can enter ({0})";
         public const string PROVIDERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
+        public const string PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple provider ODS codes because multi search is not enabled";
+        public const string CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple consumer ODS codes because multi search is not enabled";
 
         public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";

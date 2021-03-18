@@ -9,5 +9,6 @@
         public string Details { get; set; }
         public string ProviderPublisher { get; set; }
         public int? SpineMessageId { get; set; }
+        public double SearchDurationSeconds { get; set; }
     }
 }

@@ -177,16 +177,6 @@ namespace gpconnect_appointment_checker.Pages
         {
             try
             {
-                var searchGroup = new DTO.Request.Application.SearchGroup
-                {
-                    UserSessionId = User.GetClaimValue("UserSessionId").StringToInteger(),
-                    ProviderOdsTextbox = ProviderOdsCode,
-                    ConsumerOdsTextbox = ConsumerOdsCode,
-                    SearchDateRange = SelectedDateRange,
-                    SearchStartAt = DateTime.UtcNow
-                };
-                
-                var createdSearchGroup = _applicationService.AddSearchGroup(searchGroup);
                 var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderODSCodeNotFound);
                 var consumerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerODSCodeNotFound);
 
@@ -199,7 +189,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                var slotEntrySummary = PopulateSearchResultsMulti(createdSearchGroup.SearchGroupId, providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                var slotEntrySummary = PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                 SearchResultsSummary = slotEntrySummary;
             }
             catch (LdapException)
@@ -260,9 +250,19 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private List<SlotEntrySummary> PopulateSearchResultsMulti(int searchGroupId, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
+        private List<SlotEntrySummary> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
         {
+            var searchGroup = new DTO.Request.Application.SearchGroup
+            {
+                UserSessionId = User.GetClaimValue("UserSessionId").StringToInteger(),
+                ProviderOdsTextbox = ProviderOdsCode,
+                ConsumerOdsTextbox = ConsumerOdsCode,
+                SearchDateRange = SelectedDateRange,
+                SearchStartAt = DateTime.UtcNow
+            };
+            var createdSearchGroup = _applicationService.AddSearchGroup(searchGroup);
+
             var slotEntrySummary = new List<SlotEntrySummary>(); 
 
             var requestParameters = _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
@@ -278,6 +278,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 for (var i = 0; i < providerOdsCount; i++)
                 {
+                    _stopwatch.Start();
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], ConsumerOdsCodeAsList[0], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
 
                     if (errorCodeOrDetail.Item1 == ErrorCode.None)
@@ -300,18 +301,22 @@ namespace gpconnect_appointment_checker.Pages
                             }
                         }
                     }
+                    _stopwatch.Stop();
 
                     var searchResultToAdd = new SearchResult
                     {
-                        SearchGroupId = searchGroupId,
+                        SearchGroupId = createdSearchGroup.SearchGroupId,
                         ProviderCode = ProviderOdsCodeAsList[i],
                         ConsumerCode = ConsumerOdsCodeAsList[0],
                         ErrorCode = (int)errorCodeOrDetail.Item1,
                         Details = errorCodeOrDetail.Item2,
-                        ProviderPublisher = errorCodeOrDetail.Item5?.product_name
+                        ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
+                        SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
                     };
 
-                    if(slotSearchSummaryList != null)
+                    _stopwatch.Reset();
+
+                    if (slotSearchSummaryList != null)
                     {
                         var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i]).SpineMessageId;
                         searchResultToAdd.SpineMessageId = spineMessageId;
@@ -332,7 +337,6 @@ namespace gpconnect_appointment_checker.Pages
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
                         DisplayConsumer = errorCodeOrDetail.Item4 != null
                     });
-
                 }
             }
             else if(consumerOdsCount > providerOdsCount)
@@ -340,14 +344,14 @@ namespace gpconnect_appointment_checker.Pages
                 for (var i = 0; i < consumerOdsCount; i++)
                 {
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                    _applicationService.AddSearchResult(new SearchResult
-                    {
-                        SearchGroupId = searchGroupId,
-                        ProviderCode = ProviderOdsCodeAsList[0],
-                        ConsumerCode = ConsumerOdsCodeAsList[i],
-                        ErrorCode = (int)errorCodeOrDetail.Item1,
-                        Details = errorCodeOrDetail.Item2
-                    });
+                    //_applicationService.AddSearchResult(new SearchResult
+                    //{
+                    //    SearchGroupId = searchGroupId,
+                    //    ProviderCode = ProviderOdsCodeAsList[0],
+                    //    ConsumerCode = ConsumerOdsCodeAsList[i],
+                    //    ErrorCode = (int)errorCodeOrDetail.Item1,
+                    //    Details = errorCodeOrDetail.Item2
+                    //});
                 }
             }
             return slotEntrySummary;

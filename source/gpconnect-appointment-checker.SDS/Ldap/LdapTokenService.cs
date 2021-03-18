@@ -62,6 +62,8 @@ namespace gpconnect_appointment_checker.SDS
                             identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
                             identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
                             identity.AddClaim(new Claim("ProviderODSCode", odsCode[0]));
+                            identity.AddClaim(new Claim("IsAdmin", loggedOnUser.IsAdmin.ToString()));
+                            identity.AddClaim(new Claim("MultiSearchEnabled", loggedOnUser.MultiSearchEnabled.ToString()));
                         }
                     }
                 }

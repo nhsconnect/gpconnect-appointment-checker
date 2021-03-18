@@ -19,7 +19,8 @@ returns table
 	consumer_organisation_name character varying,
 	consumer_address text,
 	consumer_postcode character varying,
-	provider_publisher character varying
+	provider_publisher character varying,
+	search_duration_seconds double precision
 )
 as $$
 begin
@@ -36,7 +37,8 @@ begin
 		consumer_organisation.organisation_name as consumer_organisation_name,
 		CONCAT(consumer_organisation.address_line_1, ', ', consumer_organisation.address_line_2, ', ', consumer_organisation.locality, ', ', consumer_organisation.city, ', ', consumer_organisation.county) as consumer_address,
 		consumer_organisation.postcode as consumer_postcode,
-		sr.provider_publisher
+		sr.provider_publisher,
+		sr.search_duration_seconds
 	from
 		application.search_result sr
 		inner join application.search_group sg on sr.search_group_id = sg.search_group_id

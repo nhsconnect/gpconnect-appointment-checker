@@ -19,6 +19,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.ConsumerAddress).ToColumn("consumer_address");
             Map(p => p.ConsumerPostcode).ToColumn("consumer_postcode");
             Map(p => p.ProviderPublisher).ToColumn("provider_publisher");
+            Map(p => p.SearchDurationSeconds).ToColumn("search_duration_seconds");
         }
     }
 }

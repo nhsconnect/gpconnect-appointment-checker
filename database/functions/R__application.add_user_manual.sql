@@ -13,7 +13,9 @@ returns table
 	is_authorised boolean,
 	added_date timestamp,
 	authorised_date timestamp,
-	last_logon_date timestamp
+	last_logon_date timestamp,
+	multi_search_enabled boolean,
+	is_admin boolean
 )
 as $$
 begin
@@ -39,7 +41,9 @@ begin
 		is_authorised, 
 		added_date, 
 		authorised_date,
-		last_logon_date
+		last_logon_date,
+		multi_search_enabled,
+		is_admin
 	) 
 	values
 	(
@@ -49,7 +53,9 @@ begin
 		true, 
 		now(), 
 		now(),
-		null
+		null,
+		false,
+		false
 	);
 
 	--------------------------------------------
@@ -64,7 +70,9 @@ begin
 		u.is_authorised,
 		u.added_date,
 		u.authorised_date,
-		u.last_logon_date
+		u.last_logon_date,
+		u.multi_search_enabled,
+		u.is_admin
 	from application.user u
 	where u.email_address = _email_address;
 	

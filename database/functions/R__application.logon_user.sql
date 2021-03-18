@@ -13,7 +13,9 @@ returns table
 	email_address varchar(200), 
 	display_name varchar(200), 
 	organisation_id integer,
-	is_authorised boolean
+	is_authorised boolean,
+	multi_search_enabled boolean,
+	is_admin boolean
 )
 as $$
 declare
@@ -23,6 +25,8 @@ declare
 	_existing_organisation_id integer;
 	_user_session_id integer;
 	_logon_date timestamp;
+	_multi_search_enabled boolean;
+	_is_admin boolean;
 begin
 
 	--------------------------------------------
@@ -50,12 +54,16 @@ begin
 		u.user_id, 
 		u.is_authorised,
 		u.display_name,
-		u.organisation_id
+		u.organisation_id,
+		u.multi_search_enabled,
+		u.is_admin
 	into
 		_user_id,
 		_is_authorised,
 		_existing_display_name,
-		_existing_organisation_id
+		_existing_organisation_id,
+		_multi_search_enabled,
+		_is_admin
 	from application.user u
 	where lower(u.email_address) = lower(_email_address);
 
@@ -69,7 +77,9 @@ begin
 			is_authorised,
 			added_date,
 			authorised_date,
-			last_logon_date
+			last_logon_date,
+			multi_search_enabled,
+			is_admin
 		)
 		values
 		(
@@ -79,14 +89,20 @@ begin
 			false,
 			_logon_date,
 			null,
-			null
+			null,
+			false,
+			false
 		)
 		returning
 			application.user.user_id, 
-			application.user.is_authorised
+			application.user.is_authorised,
+			application.user.is_admin,
+			application.user.multi_search_enabled
 		into 
 			_user_id,
-			_is_authorised;
+			_is_authorised,
+			_is_admin,
+			_multi_search_enabled;
 
 	end if;
 
@@ -189,7 +205,9 @@ begin
 		u.email_address,
 		u.display_name,
 		u.organisation_id,
-		_is_authorised as is_authorised
+		_is_authorised as is_authorised,
+		_multi_search_enabled as multi_search_enabled,
+		_is_admin as is_admin
 	from application.user u
 	where u.user_id = _user_id;
 	
