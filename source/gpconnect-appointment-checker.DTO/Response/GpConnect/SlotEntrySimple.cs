@@ -24,6 +24,8 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string LocationPostalCode { get; set; }
         public string LocationCountry { get; set; }
 
+        public bool SlotInPast => AppointmentDate <= DateTime.UtcNow && StartTime < DateTime.UtcNow;
+
         public bool NoAddressProvided => (LocationAddressLines == null || LocationAddressLines?.Count == 0)
                                          && string.IsNullOrEmpty(LocationCity) &&
                                          string.IsNullOrEmpty(LocationDistrict) &&

@@ -40,6 +40,7 @@ namespace gpconnect_appointment_checker.Pages
         protected Stopwatch _stopwatch = new Stopwatch();
         protected List<string> _auditSearchParameters = new List<string>(new[] { "", "", "" });
         protected List<string> _auditSearchIssues = new List<string>();
+        protected bool _multiSearchEnabled;
 
         public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
         {
@@ -55,6 +56,10 @@ namespace gpconnect_appointment_checker.Pages
             {
                 _loggerManager = loggerManager;
             }
+
+            if (_contextAccessor.HttpContext != null)
+                _multiSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("MultiSearchEnabled")
+                    .StringToBoolean(false);
         }
 
         public IActionResult OnGet()
@@ -338,7 +343,8 @@ namespace gpconnect_appointment_checker.Pages
                         SearchResultId = searchResult.SearchResultId,
                         DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
-                        DisplayConsumer = errorCodeOrDetail.Item4 != null
+                        DisplayConsumer = errorCodeOrDetail.Item4 != null,
+                        DisplayClass = (errorCodeOrDetail.Item1 != ErrorCode.None) ? "nhsuk-slot-summary-error" : (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount == 0) ? "nhsuk-slot-summary-warning" : "nhsuk-slot-summary"
                     });
                 }
             }
@@ -496,12 +502,6 @@ namespace gpconnect_appointment_checker.Pages
             }
 
             return (errorSource, details, providerOrganisation, consumerOrganisation, providerSpine);
-        }
-
-        private int SetSearchBoxesForMultiSearch()
-        {
-            var multiSearchEnabled = User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
-            return multiSearchEnabled ? 100 : 10;
         }
 
         private List<SelectListItem> GetDateRanges()

@@ -27,7 +27,7 @@
         public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
 
         public const string ISSUEWITHODSCODESINPUTLABEL = "Issue with ODS codes entered";
-        public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS code and multiple Consumer ODS codes";
+        public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS codes and multiple Consumer ODS codes at the same time.";
 
         public const string ISSUEWITHODSCODESTEXT = "Sorry, but the Provider ODS code '{0}' and the Consumer ODS code '{1}' have not been found";
         public const string ISSUEWITHCONSUMERODSCODETEXT = "Sorry, but the Consumer ODS code '{0}' has not been found";
@@ -50,7 +50,6 @@
 
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";
-        public const string SEARCHDETAILSPROVIDERPUBLISHERLABEL = "Provider Publisher:";
         public const string BACKTORESULTSSUMMARYLABEL = "Back to results summary";
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
@@ -60,6 +59,9 @@
         public const string PROVIDERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
         public const string PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple provider ODS codes because multi search is not enabled";
         public const string CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple consumer ODS codes because multi search is not enabled";
+
+        public const string PROVIDERODSCODEREPEATEDCODERRORMESSAGE = "Please remove the following repeated provider codes: {0}";
+        public const string CONSUMERODSCODEREPEATEDCODERRORMESSAGE = "Please remove the following repeated consumer codes: {0}";
 
         public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
@@ -90,6 +92,10 @@
 
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";
+
+        public const string SEARCHINPUTPROVIDERODSCODEMULTILABEL = "Enter one or more provider ODS codes (search at)";
+        public const string SEARCHINPUTCONSUMERODSCODEMULTILABEL = "Enter one or more consumer ODS codes (search on behalf of)";
+
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
         public const string CLEARBUTTONTEXT = "Clear";

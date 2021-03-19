@@ -9,7 +9,7 @@
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-providerodscode">@SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL</label>
+            <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
             @if (providerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
@@ -18,7 +18,7 @@
 
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-consumerodscode">@SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL</label>
+            <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
             @if (consumerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })

@@ -1,17 +1,29 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers.Enumerations
+
 @model SearchModel
 
 @foreach (var searchResult in Model.SearchResultsSummary)
 {
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
-            <dl class="nhsuk-summary-list">
+            <dl class="nhsuk-summary-list nhsuk-summary-list--no-border @searchResult.DisplayClass">
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</dt>
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.DisplayProvider)
                         {
                             <span>@searchResult.ProviderLocationName (@searchResult.ProviderOdsCode)</span>
+                        }
+                    </dd>
+                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
+                </div>
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSPUBLISHERLABEL</dt>
+                    <dd class="nhsuk-summary-list__value">
+                        @if (searchResult.DisplayProvider)
+                        {
+                            <span>@searchResult.ProviderPublisher</span>
                         }
                     </dd>
                     <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
@@ -29,16 +41,6 @@
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
                     <dd class="nhsuk-summary-list__value">@searchResult.SearchSummaryDetail</dd>
-                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
-                </div>
-                <div class="nhsuk-summary-list__row">
-                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSPROVIDERPUBLISHERLABEL</dt>
-                    <dd class="nhsuk-summary-list__value">
-                        @if (searchResult.DisplayProvider)
-                        {
-                            <span>@searchResult.ProviderPublisher</span>
-                        }
-                    </dd>
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {

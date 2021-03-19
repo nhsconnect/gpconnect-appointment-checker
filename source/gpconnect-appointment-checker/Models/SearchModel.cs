@@ -20,15 +20,19 @@ namespace gpconnect_appointment_checker.Pages
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
         [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
+        [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ProviderOdsCode { get; set; }
 
         [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty]
         [MaximumNumberOfCodes("max_number_consumer_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
+        [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ConsumerOdsCode { get; set; }
 
-        public int SearchInputBoxLength => SetSearchBoxesForMultiSearch();
+        public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;
+        public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL;
+        public string ConsumerOdsCodeInputBoxLabel => _multiSearchEnabled ? SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL : SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
 
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         
