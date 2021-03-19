@@ -1,11 +1,10 @@
-﻿using System;
+﻿using gpconnect_appointment_checker.DTO.Response.Application;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace gpconnect_appointment_checker.Models
+namespace gpconnect_appointment_checker.Pages
 {
-    public class AdminModel
+    public partial class AdminModel
     {
+        public List<User> UserList { get; set; }
     }
 }

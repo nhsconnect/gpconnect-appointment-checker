@@ -14,5 +14,6 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         DTO.Response.Application.SearchGroup GetSearchGroup(int searchGroupId, int userId);
         DTO.Response.Application.SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
+        List<DTO.Response.Application.User> GetUsers();
     }
 }

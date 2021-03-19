@@ -32,6 +32,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnGet()
         {
+            var userList = _applicationService.GetUsers();
+            UserList = userList;
             return Page();
         }
     }

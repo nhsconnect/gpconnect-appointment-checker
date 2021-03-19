@@ -37,6 +37,13 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
+        public List<User> GetUsers()
+        {
+            var functionName = "application.get_users";
+            var result = _dataService.ExecuteFunction<User>(functionName);
+            return result;
+        }
+
         public void SynchroniseOrganisation(Organisation organisation)
         {
             if (organisation != null)

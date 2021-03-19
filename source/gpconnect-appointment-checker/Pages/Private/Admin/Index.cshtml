@@ -1,40 +1,63 @@
 ﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
 @model AdminModel
 
 <form method="post" id="search-input-form">
     <div class="nhsuk-width-container">
-    <main class="nhsuk-main-wrapper">
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-full">
-                <h1>Appointment Checker Administration</h1>
-            </div>
-        </div>
-        <div class="nhsuk-grid-row">
-            <div class="nhsuk-grid-column-two-thirds">
-                <div class="nhsuk-expander-group">
-                    <details class="nhsuk-details nhsuk-expander">
-                        <summary class="nhsuk-details__summary">
-                            <span class="nhsuk-details__summary-text">
-                                Add Users
-                            </span>
-                        </summary>
-                        <div class="nhsuk-details__text">
-                            <p>Functionality to add a user</p>
-                        </div>
-                    </details>
-                    <details class="nhsuk-details nhsuk-expander">
-                        <summary class="nhsuk-details__summary">
-                            <span class="nhsuk-details__summary-text">
-                                Manage Users
-                            </span>
-                        </summary>
-                        <div class="nhsuk-details__text">
-                            <p>Functionality to manage existing users</p>
-                        </div>
-                    </details>
+        <main class="nhsuk-main-wrapper">
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <h1>Appointment Checker Administration</h1>
                 </div>
             </div>
-        </div>
-    </main>
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <h2>User List</h2>
+                    <div class="nhsuk-table__panel-with-heading-tab">
+                        <table role="table" class="nhsuk-table-responsive">
+                            <thead role="rowgroup" class="nhsuk-table__head">
+                                <tr role="row">
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSEMAILADDRESS</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSISAUTHORISED</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSISADMIN</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSLASTLOGONDATE</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSAUTHORISEDDATE</th>
+                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSADDEDDATE</th>
+                                </tr>
+                            </thead>
+                            <tbody class="nhsuk-table__body">
+                                @foreach (var user in Model.UserList)
+                                {
+                                    <tr role="row" class="nhsuk-table__row">
+                                        <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
+                                        <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
+                                        <td role="cell" class="nhsuk-table__cell">
+                                            <div class="nhsuk-checkboxes__item">
+                                                <input class="nhsuk-checkboxes__input" id="is-authorised-@user.UserId" name="is-authorised-@user.UserId" type="checkbox" checked="@user.IsAuthorised" aria-checked="@user.IsAuthorised" disabled=""><label class="nhsuk-label nhsuk-checkboxes__label" for="is-authorised-@user.UserId">&nbsp;</label>
+                                            </div>
+                                        </td>
+                                        <td role="cell" class="nhsuk-table__cell">
+                                            <div class="nhsuk-checkboxes__item">
+                                                <input class="nhsuk-checkboxes__input" id="is-admin-@user.UserId" name="is-admin-@user.UserId" type="checkbox" checked="@user.IsAdmin" aria-checked="@user.IsAdmin" disabled=""><label class="nhsuk-label nhsuk-checkboxes__label" for="is-admin-@user.UserId">&nbsp;</label>
+                                            </div>
+                                        </td>
+                                        <td role="cell" class="nhsuk-table__cell">
+                                            <div class="nhsuk-checkboxes__item">
+                                                <input class="nhsuk-checkboxes__input" id="is-multisearchenabled-@user.UserId" name="is-multisearchenabled-@user.UserId" type="checkbox" checked="@user.MultiSearchEnabled" aria-checked="@user.MultiSearchEnabled" disabled=""><label class="nhsuk-label nhsuk-checkboxes__label" for="is-multisearchenabled-@user.UserId">&nbsp;</label>
+                                            </div>
+                                        </td>
+                                        <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd-MMM-yyyy")</td>
+                                        <td role="cell" class="nhsuk-table__cell">@user.AuthorisedDate.ToString("dd-MMM-yyyy")</td>
+                                        <td role="cell" class="nhsuk-table__cell">@user.AddedDate.ToString("dd-MMM-yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </form>
