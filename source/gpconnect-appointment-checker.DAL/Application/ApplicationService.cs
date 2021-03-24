@@ -181,15 +181,6 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public void SetUserAuthorised(DTO.Request.Application.User user)
-        {
-            var functionName = "application.set_user_isauthorised";
-            var parameters = new DynamicParameters();
-            parameters.Add("_email_address", user.EmailAddress);
-            parameters.Add("_is_authorised", user.IsAuthorised);
-            _dataService.ExecuteFunction(functionName, parameters);
-        }
-
         public void SetUserStatus(int userId, bool isAuthorised)
         {
             var functionName = "application.set_user_status";
@@ -197,6 +188,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_id", userId);
             parameters.Add("_is_authorised", isAuthorised);
+            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
             if (isAuthorised && user != null)
             {
@@ -211,16 +203,22 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_id", userId);
             parameters.Add("_multi_search_enabled", multiSearchEnabled);
+            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             _dataService.ExecuteFunction(functionName, parameters);
         }
 
         public void AddUser(string emailAddress)
         {
-            var functionName = "application.add_user";
+            var functionName = "application.add_user_manual";
             var parameters = new DynamicParameters();
-            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_email_address", emailAddress);
-            _dataService.ExecuteFunction(functionName, parameters);
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
+            var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+            if (user != null)
+            {
+                _emailService.SendAuthorisationEmail(user.EmailAddress);
+            }
         }
     }
 }

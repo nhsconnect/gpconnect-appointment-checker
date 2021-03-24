@@ -323,7 +323,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 Item3 = auditSearchParameters[2].Replace(":", " "),
                 Details = (auditSearchIssues != null && auditSearchIssues.Count > 0) ? string.Join((char)10, auditSearchIssues) : $"{resultCount} free slot(s) returned",
                 EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
-                EntryTypeId = (int)AuditEntryTypes.SlotSearch
+                EntryTypeId = (int)AuditEntryType.SlotSearch
             };
             _auditService.AddEntry(auditEntry);
         }

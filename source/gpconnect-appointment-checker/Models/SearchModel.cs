@@ -31,8 +31,19 @@ namespace gpconnect_appointment_checker.Pages
         public string ConsumerOdsCode { get; set; }
 
         public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;
-        public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL;
-        public string ConsumerOdsCodeInputBoxLabel => _multiSearchEnabled ? SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL : SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+        public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? 
+            SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : 
+            SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL;
+
+        public string ProviderOdsCodeInputBoxHintText => _multiSearchEnabled ?
+            SearchConstants.SEARCHINPUTPROVIDERODSCODEHINTTEXT : string.Empty;
+
+        public string ConsumerOdsCodeInputBoxHintText => _multiSearchEnabled ?
+            SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT : string.Empty;
+
+        public string ConsumerOdsCodeInputBoxLabel => _multiSearchEnabled ? 
+            SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL : 
+            SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
 
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         

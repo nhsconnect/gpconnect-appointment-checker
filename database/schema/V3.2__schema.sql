@@ -1,6 +1,8 @@
 insert into audit.entry_type (entry_type_id, entry_description, item1_description, item2_description) values (10, 'User status changed', 'old status', 'new status');
 insert into audit.entry_type (entry_type_id, entry_description, item1_description, item2_description) values (11, 'User access level changed', 'old access level', 'new access level');
 insert into audit.entry_type (entry_type_id, entry_description, item1_description, item2_description) values (12, 'User multi search enabled status changed', 'old multi search enabled status', 'new multi search enabled status');
+insert into audit.entry_type (entry_type_id, entry_description) values (13, 'New user added');
+insert into audit.entry_type (entry_type_id, entry_description, item1_description, item2_description) values (14, 'Email sent', 'email address of sender', 'email address of recipient');
 
 alter table audit.entry add admin_user_id integer null;
 alter table audit.entry add constraint audit_entry_adminuserid_fk foreign key (admin_user_id) references application.user (user_id);

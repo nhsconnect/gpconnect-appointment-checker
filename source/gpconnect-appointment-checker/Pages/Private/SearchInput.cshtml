@@ -10,15 +10,16 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
+            <div class="nhsuk-hint" id="input-providerodscode-hint-text">@Model.ProviderOdsCodeInputBoxHintText</div>
             @if (providerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
             }
             <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
-
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
+            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">@Model.ConsumerOdsCodeInputBoxHintText</div>
             @if (consumerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })

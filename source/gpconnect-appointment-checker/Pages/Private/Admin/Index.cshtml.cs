@@ -67,6 +67,7 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
+                UserEmailAddress = CleansedUserEmailAddress;
                 _applicationService.AddUser(UserEmailAddress);
             }
             RefreshPage();

@@ -2,7 +2,9 @@ drop function if exists application.add_user_manual;
 
 create function application.add_user_manual
 (
-	_email_address varchar(200)
+	_email_address varchar(200),
+	_admin_user_id integer default null,
+	_user_session_id integer default null
 )
 returns table
 (
@@ -57,6 +59,11 @@ begin
 		false,
 		false
 	);
+
+	if (_admin_user_id is not null)
+	then
+		perform audit.add_entry(_user_id, _user_session_id, 13, null, null, null, _email_address, null, _admin_user_id);
+	end if;
 
 	--------------------------------------------
 	-- return user data

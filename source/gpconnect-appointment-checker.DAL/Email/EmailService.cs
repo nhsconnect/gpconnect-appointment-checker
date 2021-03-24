@@ -1,4 +1,5 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Request.Audit;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,7 @@ namespace gpconnect_appointment_checker.DAL.Email
         private readonly IHttpContextAccessor _context;
         private readonly IConfiguration _configuration;
         private readonly SmtpClient _smtpClient;
+        private readonly MailAddress _emailSender;
 
         public EmailService(SmtpClient smtpClient, IConfiguration configuration, ILogger<EmailService> logger, IAuditService auditService, IHttpContextAccessor context)
         {
@@ -25,6 +27,7 @@ namespace gpconnect_appointment_checker.DAL.Email
             _context = context;
             _configuration = configuration;
             _smtpClient = smtpClient;
+            _emailSender = new MailAddress(_configuration.GetSection("Email:sender_address").GetConfigurationString());
         }
 
         public void SendAuthorisationEmail(string recipient)
@@ -38,7 +41,8 @@ namespace gpconnect_appointment_checker.DAL.Email
                     Body = body,
                     To = {recipient}
                 };
-                SendEmail(mailMessage);
+                //SendEmail(mailMessage);
+                SendToAudit(recipient, body);
             }
         }
 
@@ -46,8 +50,7 @@ namespace gpconnect_appointment_checker.DAL.Email
         {
             try
             {
-                var sender = _configuration.GetSection("Email:sender_address").GetConfigurationString();
-                mailMessage.From = new MailAddress(sender);
+                mailMessage.From = _emailSender;
                 mailMessage.IsBodyHtml = false;
                 _smtpClient.Send(mailMessage);
             }
@@ -67,6 +70,18 @@ namespace gpconnect_appointment_checker.DAL.Email
                 return readText;
             }
             return null;
+        }
+
+        private void SendToAudit(string recipient, string details)
+        {
+            var auditEntry = new Entry
+            {
+                Item1 = _emailSender.Address,
+                Item2 = recipient,
+                Details = details,
+                EntryTypeId = (int)AuditEntryType.EmailSent
+            };
+            _auditService.AddEntry(auditEntry);
         }
     }
 }
