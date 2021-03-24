@@ -344,7 +344,7 @@ namespace gpconnect_appointment_checker.Pages
                         DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
                         DisplayConsumer = errorCodeOrDetail.Item4 != null,
-                        DisplayClass = (errorCodeOrDetail.Item1 != ErrorCode.None) ? "nhsuk-slot-summary-error" : (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount == 0) ? "nhsuk-slot-summary-warning" : "nhsuk-slot-summary"
+                        DisplayClass = (errorCodeOrDetail.Item1 != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
                     });
                 }
             }
@@ -417,7 +417,7 @@ namespace gpconnect_appointment_checker.Pages
                     });
                 }
             }
-            return slotEntrySummary;
+            return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
         }
 
         private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)

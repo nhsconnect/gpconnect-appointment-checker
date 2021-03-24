@@ -155,8 +155,9 @@ namespace gpconnect_appointment_checker.DAL.Application
                 SearchResultId = a.SearchResultId,
                 DetailsEnabled = a.ErrorCode == (int)ErrorCode.None,
                 DisplayProvider = a.ProviderOrganisationName != null,
-                DisplayConsumer = a.ConsumerOrganisationName != null
-            }).ToList();
+                DisplayConsumer = a.ConsumerOrganisationName != null,
+                DisplayClass = (a.ErrorCode != (int)ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
+            }).OrderBy(x => x.SearchResultId).ToList();
             return slotEntrySummaryList;
         }
 

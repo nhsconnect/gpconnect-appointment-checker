@@ -38,6 +38,18 @@ namespace gpconnect_appointment_checker.Console
                 Environment.Exit(-1);
             }
 
+            //ExecuteParallelRoutine(args);
+            ExecuteEmailSend(args);
+
+        }
+
+        private static void ExecuteEmailSend(string[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void ExecuteParallelRoutine(string[] args)
+        {
             _connectionstring = args.First();
             _ldapQueries = GetLdapQueries();
             _spineConfiguration = GetSpineConfiguration();

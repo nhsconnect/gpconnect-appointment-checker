@@ -10,7 +10,7 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-providerodscode-hint-text">@Model.ProviderOdsCodeInputBoxHintText</div>
+            <div class="nhsuk-hint" id="input-providerodscode-hint-text">@Html.Raw(Model.ProviderOdsCodeInputBoxHintText)</div>
             @if (providerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
@@ -19,7 +19,7 @@
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">@Model.ConsumerOdsCodeInputBoxHintText</div>
+            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">@Html.Raw(Model.ConsumerOdsCodeInputBoxHintText)</div>
             @if (consumerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
