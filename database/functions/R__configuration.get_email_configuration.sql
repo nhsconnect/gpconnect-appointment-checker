@@ -23,7 +23,7 @@ begin
 		e.encryption,
 		e.authentication_required,
 		e.user_name,
-		e.password,
+		e.password
 	from
 		configuration.email e;
 end;
