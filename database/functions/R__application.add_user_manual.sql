@@ -20,6 +20,7 @@ returns table
 	is_admin boolean
 )
 as $$
+declare	_user_id integer;
 begin
 
 	_email_address = lower(trim(coalesce(_email_address, '')));
@@ -58,7 +59,11 @@ begin
 		null,
 		false,
 		false
-	);
+	)
+	returning
+		application.user.user_id
+	into 
+		_user_id;
 
 	if (_admin_user_id is not null)
 	then
@@ -81,7 +86,7 @@ begin
 		u.multi_search_enabled,
 		u.is_admin
 	from application.user u
-	where u.email_address = _email_address;
+	where u.user_id = _user_id;
 	
 end;
 $$ language plpgsql;
