@@ -7,9 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using gpconnect_appointment_checker.DTO.Request.Email;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
+using Microsoft.AspNetCore.Http;
 
 namespace gpconnect_appointment_checker.DAL.Application
 {
@@ -19,13 +22,17 @@ namespace gpconnect_appointment_checker.DAL.Application
         private readonly IDataService _dataService;
         private readonly IAuditService _auditService;
         private readonly ILogService _logService;
+        private readonly IHttpContextAccessor _context;
+        private readonly IEmailService _emailService;
 
-        public ApplicationService(IConfiguration configuration, ILogger<ApplicationService> logger, IDataService dataService, IAuditService auditService, ILogService logService)
+        public ApplicationService(IConfiguration configuration, ILogger<ApplicationService> logger, IDataService dataService, IAuditService auditService, ILogService logService, IHttpContextAccessor context, IEmailService emailService)
         {
             _logger = logger;
             _dataService = dataService;
             _auditService = auditService;
             _logService = logService;
+            _context = context;
+            _emailService = emailService;
         }
 
         public Organisation GetOrganisation(string odsCode)
@@ -37,11 +44,23 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers()
+        public List<User> GetUsers(SortBy sortByColumn)
         {
             var functionName = "application.get_users";
             var result = _dataService.ExecuteFunction<User>(functionName);
-            return result;
+            var orderedResult = result.AsQueryable().OrderBy(sortByColumn.ToString()).ToList();
+            return orderedResult;
+        }
+
+        public List<User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn)
+        {
+            var functionName = "application.get_users";
+            var result = _dataService.ExecuteFunction<User>(functionName);
+            var filteredList = result.AsQueryable();
+            filteredList = !string.IsNullOrEmpty(surname) ? filteredList.Where(x => x.DisplayName.Contains(surname, StringComparison.OrdinalIgnoreCase)) : filteredList;
+            filteredList = !string.IsNullOrEmpty(emailAddress) ? filteredList.Where(x => x.EmailAddress.Contains(emailAddress, StringComparison.OrdinalIgnoreCase)) : filteredList;
+            filteredList = !string.IsNullOrEmpty(organisationName) ? filteredList.Where(x => x.OrganisationName.Contains(organisationName, StringComparison.OrdinalIgnoreCase)) : filteredList;
+            return filteredList.OrderBy(sortByColumn.ToString()).ToList();
         }
 
         public void SynchroniseOrganisation(Organisation organisation)
@@ -168,6 +187,39 @@ namespace gpconnect_appointment_checker.DAL.Application
             var parameters = new DynamicParameters();
             parameters.Add("_email_address", user.EmailAddress);
             parameters.Add("_is_authorised", user.IsAuthorised);
+            _dataService.ExecuteFunction(functionName, parameters);
+        }
+
+        public void SetUserStatus(int userId, bool isAuthorised)
+        {
+            var functionName = "application.set_user_status";
+            var parameters = new DynamicParameters();
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_user_id", userId);
+            parameters.Add("_is_authorised", isAuthorised);
+            var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+            if (isAuthorised && user != null)
+            {
+                _emailService.SendAuthorisationEmail(user.EmailAddress);
+            }
+        }
+
+        public void SetMultiSearch(int userId, bool multiSearchEnabled)
+        {
+            var functionName = "application.set_multi_search";
+            var parameters = new DynamicParameters();
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_user_id", userId);
+            parameters.Add("_multi_search_enabled", multiSearchEnabled);
+            _dataService.ExecuteFunction(functionName, parameters);
+        }
+
+        public void AddUser(string emailAddress)
+        {
+            var functionName = "application.add_user";
+            var parameters = new DynamicParameters();
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_email_address", emailAddress);
             _dataService.ExecuteFunction(functionName, parameters);
         }
     }

@@ -9,7 +9,8 @@ create function audit.add_entry
     _item2 varchar(100) default null,
     _item3 varchar(100) default null,
     _details varchar(1000) default null,
-    _entry_elapsed_ms integer default null
+    _entry_elapsed_ms integer default null,
+    _admin_user_id integer default null
 )
 returns void
 as $$
@@ -25,7 +26,8 @@ begin
     	item3,
     	details,
     	entry_elapsed_ms,
-    	entry_date
+    	entry_date,
+	admin_user_id
     )
     values
     (
@@ -37,7 +39,8 @@ begin
     	_item3,
     	_details,
     	_entry_elapsed_ms,
-    	now()
+    	now(),
+	_admin_user_id
     );
 
 end;

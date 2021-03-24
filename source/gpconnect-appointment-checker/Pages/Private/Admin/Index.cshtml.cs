@@ -1,5 +1,7 @@
-﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
+﻿using System;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -30,9 +32,58 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            var userList = _applicationService.GetUsers();
+            SortByColumn = SortBy.EmailAddress.ToString();
+            RefreshPage();
+        }
+
+        public void OnPostSortBy(SortBy sortby)
+        {
+            SortByColumn = sortby.ToString();
+            RefreshPage();
+        }
+
+        public void OnPostSetUserStatus(int userid, bool userstatus)
+        {
+            _applicationService.SetUserStatus(userid, userstatus);
+            RefreshPage();
+        }
+
+        public void OnPostSetMultiSearch(int userid, bool multisearchstatus)
+        {
+            _applicationService.SetMultiSearch(userid, multisearchstatus);
+            RefreshPage();
+        }
+
+        public IActionResult OnPostRunSearch()
+        {
+            var userList = _applicationService.FindUsers(SurnameSearchValue, EmailAddressSearchValue, OrganisationNameSearchValue, Enum.Parse<SortBy>(SortByColumn));
+            UserList = userList;
+            return Page();
+        }
+
+        public void OnPostSaveNewUser()
+        {
+            if (ModelState.IsValid)
+            {
+                _applicationService.AddUser(UserEmailAddress);
+            }
+            RefreshPage();
+        }
+
+        public void OnPostClearSearch()
+        {
+            SurnameSearchValue = null;
+            EmailAddressSearchValue = null;
+            OrganisationNameSearchValue = null;
+            ModelState.Clear();
+            RefreshPage();
+        }
+
+        private IActionResult RefreshPage()
+        {
+            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn));
             UserList = userList;
             return Page();
         }

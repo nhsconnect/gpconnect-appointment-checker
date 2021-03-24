@@ -20,18 +20,6 @@ namespace gpconnect_appointment_checker.Helpers
             }
         }
 
-        //public static T DeserializeJsonFromStream<T>(this Stream stream)
-        //{
-        //    if (stream == null || stream.CanRead == false)
-        //        return default;
-
-        //    using var sr = new StreamReader(stream);
-        //    using var jtr = new JsonTextReader(sr);
-        //    var js = new JsonSerializer();
-        //    var searchResult = js.Deserialize<T>(jtr);
-        //    return searchResult;
-        //}
-
         public static string StreamToString(this Stream stream)
         {
             string content = null;

@@ -56,6 +56,7 @@ namespace gpconnect_appointment_checker.Configuration
             LoadConfiguration<Spine>("SELECT * FROM configuration.get_spine_configuration()", "Spine");
             LoadConfiguration<General>("SELECT * FROM configuration.get_general_configuration()", "General");
             LoadConfiguration<Sso>("SELECT * FROM configuration.get_sso_configuration()", "SingleSignOn");
+            LoadConfiguration<Email>("SELECT * FROM configuration.get_email_configuration()", "Email");
         }
 
         private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class

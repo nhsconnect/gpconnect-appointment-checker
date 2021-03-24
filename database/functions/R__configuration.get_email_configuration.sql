@@ -1,0 +1,30 @@
+drop function if exists configuration.get_email_configuration;
+
+create function configuration.get_email_configuration
+(
+)
+returns table
+(
+    sender_address varchar(100),
+    host_name varchar(100),
+    port smallint,
+    encryption varchar(10),
+    authentication_required boolean,
+    user_name varchar(100),
+    password varchar(100)
+)
+as $$
+begin
+	return query
+	select
+		e.sender_address,
+		e.host_name,
+		e.port,
+		e.encryption,
+		e.authentication_required,
+		e.user_name,
+		e.password,
+	from
+		configuration.email e;
+end;
+$$ language plpgsql;

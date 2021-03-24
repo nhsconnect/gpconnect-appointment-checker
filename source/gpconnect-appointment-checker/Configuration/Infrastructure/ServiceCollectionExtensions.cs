@@ -58,6 +58,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Cookie.SameSite = SameSiteMode.None;
             });
             HttpClientExtensions.AddHttpClientServices(services, configuration, env);
+            SmtpClientExtensions.AddSmtpClientServices(services, configuration);
             return services;
         }
     }

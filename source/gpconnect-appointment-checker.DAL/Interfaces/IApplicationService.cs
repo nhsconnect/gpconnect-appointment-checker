@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.DAL.Interfaces
 {
@@ -14,6 +15,10 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         DTO.Response.Application.SearchGroup GetSearchGroup(int searchGroupId, int userId);
         DTO.Response.Application.SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
-        List<DTO.Response.Application.User> GetUsers();
+        List<DTO.Response.Application.User> GetUsers(SortBy sortBy);
+        List<DTO.Response.Application.User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortBy);
+        void SetUserStatus(int userId, bool isAuthorised);
+        void SetMultiSearch(int userId, bool multiSearchEnabled);
+        void AddUser(string emailAddress);
     }
 }

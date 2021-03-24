@@ -4,6 +4,7 @@ using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Application;
 using gpconnect_appointment_checker.DAL.Audit;
 using gpconnect_appointment_checker.DAL.Configuration;
+using gpconnect_appointment_checker.DAL.Email;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DAL.Logging;
 using gpconnect_appointment_checker.GPConnect;
@@ -46,6 +47,7 @@ namespace gpconnect_appointment_checker
                         services.AddTransient<ILdapService, LdapService>();
                         services.AddTransient<ILdapTokenService, LdapTokenService>();
                         services.AddScoped<ILogService, LogService>();
+                        services.AddScoped<IEmailService, EmailService>();
                         services.AddSingleton<ILoggerManager, LoggerManager>();
                     });
                     webBuilder.UseStartup<Startup>();

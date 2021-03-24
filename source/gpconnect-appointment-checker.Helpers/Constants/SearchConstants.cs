@@ -22,7 +22,11 @@
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string SIGNOUTBUTTONTEXT = "Sign out";
-        
+        public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
+        public const string AUTHORISEBUTTONTEXT = "Authorise";
+
+        public const string FINDBUTTONTEXT = "Find";
+
         public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
         public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
 
@@ -65,6 +69,10 @@
 
         public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
+        public const string USEREMAILADDRESSVALIDERRORMESSAGE = "You must enter a valid email address";
+
+        public const string NEWUSEREMAILADDRESS = "Authorise a new user. Enter an email address";
+        public const string SAVENEWUSERBUTTONTEXT = "Save";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
@@ -81,14 +89,13 @@
         public const string SEARCHRESULTSMODEOFAPPOINTMENTCOLUMNHEADERTEXT = "Mode of appointment";
         public const string SEARCHRESULTSPRACTITIONERCOLUMNHEADERTEXT = "Practitioner";
 
-        public const string USERLISTRESULTSEMAILADDRESS = "Email address";
+        public const string USERLISTRESULTSEMAILADDRESS = "Email";
         public const string USERLISTRESULTSDISPLAYNAME = "Name";
-        public const string USERLISTRESULTSISAUTHORISED = "Is authorised?";
-        public const string USERLISTRESULTSISADMIN = "Is admin?";
-        public const string USERLISTRESULTSADDEDDATE = "Date added";
-        public const string USERLISTRESULTSAUTHORISEDDATE = "Date authorised";
-        public const string USERLISTRESULTSLASTLOGONDATE = "Last logon date";
-        public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi search enabled?";
+        public const string USERLISTRESULTSORGANISATIONNAME = "Organisation";
+        public const string USERLISTRESULTSSTATUS = "Status";
+        public const string USERLISTRESULTSACCESSLEVEL = "Access Level";
+        public const string USERLISTRESULTSLASTLOGONDATE = "Last signed on";
+        public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi Search?";
 
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";

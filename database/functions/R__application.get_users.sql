@@ -8,13 +8,12 @@ returns table
 	user_id integer, 
 	email_address varchar(200), 
 	display_name varchar(200), 
-	organisation_id integer,
+	organisation_name varchar(200),
 	is_authorised boolean,
-	added_date timestamp,
-	authorised_date timestamp,
 	last_logon_date timestamp,
-	multi_search_enabled boolean,
-	is_admin boolean
+	status text,
+	access_level text,
+	multi_search_enabled boolean
 )
 as $$
 begin
@@ -27,15 +26,15 @@ begin
 		u.user_id,
 		u.email_address,
 		u.display_name,
-		u.organisation_id,
+		o.organisation_name,
 		u.is_authorised,
-		u.added_date,
-		u.authorised_date,
 		u.last_logon_date,
-		u.multi_search_enabled,
-		u.is_admin
+		CASE WHEN u.is_authorised = True THEN 'Authorised' WHEN u.is_authorised = False THEN 'Unauthorised' END status,
+		CASE WHEN u.is_admin = True THEN 'Admin' WHEN u.is_admin = False THEN 'User' END access_level,
+		u.multi_search_enabled
 	from application.user u
-	order by u.user_id;
+	inner join application.organisation o on u.organisation_id = o.organisation_id
+	order by u.email_address;
 	
 end;
 $$ language plpgsql;
