@@ -31,7 +31,7 @@
                         <thead role="rowgroup" class="nhsuk-table__head">
                             <tr role="row">
                                 <th role="columnheader" class="" scope="col">
-                                    <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@SortDirection.ASC" asp-page-handler="SortBy" type="submit">
+                                    <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
                                         @SearchConstants.USERLISTRESULTSEMAILADDRESS
                                         @if (Model.SortByColumn == SortBy.EmailAddress.ToString())
                                         {
@@ -42,13 +42,13 @@
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGANISATIONNAME</th>
                                 <th role="columnheader" class="" scope="col">
-                                    <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@SortDirection.ASC" asp-page-handler="SortBy" type="submit">
-                                        @SearchConstants.USERLISTRESULTSLASTLOGONDATE
-                                        @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
-                                        {
-                                            @Html.Raw(Model.SortByDirectionIcon)
-                                        }
-                                    </button>
+                                    <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
+                                            @SearchConstants.USERLISTRESULTSLASTLOGONDATE
+                                            @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
+                                            {
+                                                @Html.Raw(Model.SortByDirectionIcon)
+                                            }
+                                        </button>
                                 </th>
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
