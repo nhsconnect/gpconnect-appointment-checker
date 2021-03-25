@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using Dapper;
+﻿using Dapper;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.Application;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Data;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using gpconnect_appointment_checker.DTO.Request.Email;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 
 namespace gpconnect_appointment_checker.DAL.Application
 {
@@ -44,11 +43,11 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers(SortBy sortByColumn)
+        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection)
         {
             var functionName = "application.get_users";
             var result = _dataService.ExecuteFunction<User>(functionName);
-            var orderedResult = result.AsQueryable().OrderBy(sortByColumn.ToString()).ToList();
+            var orderedResult = result.AsQueryable().OrderBy($"{sortByColumn} {sortDirection}").ToList();
             return orderedResult;
         }
 

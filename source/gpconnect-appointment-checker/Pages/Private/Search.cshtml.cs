@@ -62,10 +62,20 @@ namespace gpconnect_appointment_checker.Pages
                     .StringToBoolean(false);
         }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet(string providerOdsCode, string consumerOdsCode)
         {
-            var userCode = User.GetClaimValue("ODS");
-            if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
+            if (!string.IsNullOrEmpty(providerOdsCode) && !string.IsNullOrEmpty(consumerOdsCode))
+            {
+                ProviderOdsCode = providerOdsCode; 
+                ConsumerOdsCode = consumerOdsCode;
+            }
+            else
+            {
+                var userCode = User.GetClaimValue("ODS");
+                if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
+            }
+            ModelState.ClearValidationState("ProviderOdsCode");
+            ModelState.ClearValidationState("ConsumerOdsCode");
             return Page();
         }
 
@@ -502,6 +512,12 @@ namespace gpconnect_appointment_checker.Pages
             }
 
             return (errorSource, details, providerOrganisation, consumerOrganisation, providerSpine);
+        }
+
+        private int GetMaxNumberOfCodesForMultiSearch()
+        {
+            var maxNumberOfCodesForMultiSearch = _configuration["General:max_number_provider_codes_search"].StringToInteger(20);
+            return maxNumberOfCodesForMultiSearch;
         }
 
         private List<SelectListItem> GetDateRanges()

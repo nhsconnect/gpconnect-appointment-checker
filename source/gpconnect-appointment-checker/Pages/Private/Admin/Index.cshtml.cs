@@ -1,5 +1,4 @@
-﻿using System;
-using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
+﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -35,29 +35,53 @@ namespace gpconnect_appointment_checker.Pages
         public void OnGet()
         {
             SortByColumn = SortBy.EmailAddress.ToString();
+            SortByState = SortDirection.ASC.ToString();
+            SortByDirectionIcon = GetSortDirectionIcon(SortByState);
             RefreshPage();
         }
 
-        public void OnPostSortBy(SortBy sortby)
+        private string GetSortDirectionIcon(string sortByState)
         {
+            switch (Enum.Parse<SortDirection>(sortByState))
+            {
+                case SortDirection.ASC:
+                    return "&nbsp;&uarr;";
+                default:
+                    return "&nbsp;&darr;";
+            }
+        }
+
+        public void OnPostSortBy(SortBy sortby, SortDirection sortDirection)
+        {
+            ClearValidationState();
             SortByColumn = sortby.ToString();
+            SortByState = sortDirection.ToString();
+            SortByDirectionIcon = GetSortDirectionIcon(SortByState);
             RefreshPage();
         }
 
         public void OnPostSetUserStatus(int userid, bool userstatus)
         {
+            ClearValidationState(); 
             _applicationService.SetUserStatus(userid, userstatus);
             RefreshPage();
         }
 
         public void OnPostSetMultiSearch(int userid, bool multisearchstatus)
         {
+            ClearValidationState();
             _applicationService.SetMultiSearch(userid, multisearchstatus);
             RefreshPage();
         }
 
+        private void ClearValidationState()
+        {
+            ModelState.ClearValidationState("UserEmailAddress");
+        }
+
         public IActionResult OnPostRunSearch()
         {
+            ClearValidationState();
             var userList = _applicationService.FindUsers(SurnameSearchValue, EmailAddressSearchValue, OrganisationNameSearchValue, Enum.Parse<SortBy>(SortByColumn));
             UserList = userList;
             return Page();
@@ -69,12 +93,15 @@ namespace gpconnect_appointment_checker.Pages
             {
                 UserEmailAddress = CleansedUserEmailAddress;
                 _applicationService.AddUser(UserEmailAddress);
+                UserEmailAddress = null;
             }
+            ModelState.Clear();
             RefreshPage();
         }
 
         public void OnPostClearSearch()
         {
+            ClearValidationState();
             SurnameSearchValue = null;
             EmailAddressSearchValue = null;
             OrganisationNameSearchValue = null;
@@ -84,7 +111,7 @@ namespace gpconnect_appointment_checker.Pages
 
         private IActionResult RefreshPage()
         {
-            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn));
+            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState));
             UserList = userList;
             return Page();
         }

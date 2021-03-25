@@ -8,5 +8,11 @@ namespace gpconnect_appointment_checker.Helpers
         {
             return bool.TryParse(valueIn, out _) ? Convert.ToBoolean(valueIn) : defaultValue;
         }
+
+        public static string BooleanToYesNo(this bool input) =>
+            input switch
+            {
+                _ => input ? "Yes" : "No"
+            };
     }
 }

@@ -5,4 +5,10 @@
         EmailAddress,
         LastLogonDate
     }
+
+    public enum SortDirection
+    {
+        ASC,
+        DESC
+    }
 }

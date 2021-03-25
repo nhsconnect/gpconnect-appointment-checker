@@ -71,9 +71,10 @@ namespace gpconnect_appointment_checker.Helpers.Constants
 
         public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
         public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
-        public const string USEREMAILADDRESSVALIDERRORMESSAGE = "You must enter a valid email address";
+        public const string USEREMAILADDRESSVALIDERRORMESSAGE = "You must enter a valid nhs.net email address";
+        public const string EMAILADDRESSREQUIREDERRORMESSAGE = "You must enter an nhs.net email address";
 
-        public const string NEWUSEREMAILADDRESS = "Authorise a new user. Enter an email address";
+        public const string NEWUSEREMAILADDRESS = "Authorise a new user. Enter an nhs.net email address";
         public const string SAVENEWUSERBUTTONTEXT = "Save";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
@@ -105,8 +106,8 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string SEARCHINPUTPROVIDERODSCODEMULTILABEL = "Enter one or more provider ODS codes (search at)";
         public const string SEARCHINPUTCONSUMERODSCODEMULTILABEL = "Enter one or more consumer ODS codes (search on behalf of)";
 
-        public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to 20 codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one consumer ODS code below.";
-        public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to 20 codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one provider ODS code above.";
+        public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one consumer ODS code below.";
+        public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one provider ODS code above.";
 
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";

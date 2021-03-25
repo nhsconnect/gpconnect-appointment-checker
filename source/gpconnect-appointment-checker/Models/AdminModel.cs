@@ -8,6 +8,7 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class AdminModel
     {
+        [Required(ErrorMessage = SearchConstants.EMAILADDRESSREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.NHSNETEMAILADDRESS, ErrorMessage = SearchConstants.USEREMAILADDRESSVALIDERRORMESSAGE)]
         [BindProperty]
         public string UserEmailAddress { get; set; }
@@ -17,6 +18,13 @@ namespace gpconnect_appointment_checker.Pages
         public List<User> UserList { get; set; }
         [BindProperty]
         public string SortByColumn { get; set; }
+
+        [BindProperty]
+        public string SortByState { get; set; }
+
+        [BindProperty]
+        public string SortByDirectionIcon { get; set; }
+        
 
         [BindProperty]
         public string EmailAddressSearchValue { get; set; }

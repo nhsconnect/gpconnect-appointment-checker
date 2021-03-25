@@ -10,7 +10,9 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-providerodscode-hint-text">@Html.Raw(Model.ProviderOdsCodeInputBoxHintText)</div>
+            <div class="nhsuk-hint" id="input-providerodscode-hint-text">
+                @Html.Raw(string.Format(Model.ProviderOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+            </div>
             @if (providerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
@@ -19,7 +21,9 @@
         </div>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">@Html.Raw(Model.ConsumerOdsCodeInputBoxHintText)</div>
+            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">
+                @Html.Raw(string.Format(Model.ConsumerOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+            </div>
             @if (consumerOdsCodeInvalid)
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
@@ -30,7 +34,7 @@
             <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
             <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
-        <button class="nhsuk-button" asp-page-handler="Search" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
+        <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
         <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
     </div>
 </div>
