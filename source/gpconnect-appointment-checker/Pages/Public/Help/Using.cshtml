@@ -1,0 +1,21 @@
+﻿@model HelpModel
+@{
+    var maxCodes = Model.MaxNumberConsumerCodesSearch;
+}
+
+<h2>Using the Appointment Checker</h2>
+<h3>Standard Version</h3>
+<p><strong>Provider ODS code:</strong> enter the ODS code of the service whose appointment configuration you want to check.</p>
+<p><strong>Consumer ODS code:</strong> enter the ODS code of a service which will be looking for free slots at the Provider.</p>
+<p><strong>Date range:</strong> select a week (Monday – Sunday) from the drop-down list, that you want to run the search for.</p>
+<p>Depending on the system in use at the Provider service, the results of the search may include free slots which are in the past. In this case, they will be highlighted in grey.</p>
+<p>Otherwise, only free slots in the future (after the current date and current time) will be included. For example, if you run the checker on Friday, only slots for Friday (after the current time), Saturday and Sunday will be included.</p>
+<p>Press the 'Search for free slots' button to run the search.</p>
+<h3>Multiple Search version</h3>
+<p>If you have been given access, you will also be able to search for slots for multiple ODS codes, meaning you can see the results much more quickly.</p>
+<p><strong>To run a Multiple ODS Code search</strong>, enter:</p>
+<p>EITHER up to @maxCodes provider ODS codes and one consumer ODS code,</p>
+<p>OR one provider ODS code and up to @maxCodes consumer ODS codes.</p>
+<p>When entering multiple codes, each one should be separated by a space or a comma.</p>
+<p>The <strong>date range</strong> works exactly as it does in the standard version (see above).</p>
+<p>Press the 'Search for free slots' button to run the search. A summary showing the number of slots found for each combination of provider and supplier will then be displayed. Click on the 'Details' button to see the slot details for this combination.</p>
