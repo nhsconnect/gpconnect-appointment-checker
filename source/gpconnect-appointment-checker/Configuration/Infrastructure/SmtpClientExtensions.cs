@@ -11,34 +11,31 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void AddSmtpClientServices(IServiceCollection services, IConfiguration configuration)
         {
+            ServicePointManager.SecurityProtocol = GetSecurityProtocol(configuration);
             services.AddScoped(serviceProvider => new SmtpClient
             {
                 Host = configuration.GetSection("Email:host_name").Value,
                 Port = configuration.GetSection("Email:port").Value.StringToInteger(),
                 DeliveryFormat = SmtpDeliveryFormat.SevenBit,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                EnableSsl = GetEncryption(configuration),
+                EnableSsl = true,
                 Credentials = GetCredentials(configuration)
             });
         }
 
-        private static bool GetEncryption(IConfiguration configuration)
+        private static SecurityProtocolType GetSecurityProtocol(IConfiguration configuration)
         {
-            var encryptionMethod = configuration.GetSection("Email:encryption").Value;
-            return Enum.TryParse(typeof(SecurityProtocolType), encryptionMethod, true, out _);
+            var encryptionMethod = configuration.GetSection("Email:encryption").GetConfigurationString("Tls12", false);
+            return Enum.Parse<SecurityProtocolType>(encryptionMethod);
         }
 
         private static ICredentialsByHost GetCredentials(IConfiguration configuration)
         {
-            if (configuration.GetSection("Email:authentication_required").Value.StringToBoolean(false))
+            return new NetworkCredential
             {
-                return new NetworkCredential
-                {
-                    UserName = configuration.GetSection("Email:user_name").Value,
-                    Password = configuration.GetSection("Email:password").Value
-                };
-            }
-            return null;
+                UserName = configuration.GetSection("Email:user_name").GetConfigurationString(null, true),
+                Password = configuration.GetSection("Email:password").GetConfigurationString(null, true)
+            };
         }
     }
 }

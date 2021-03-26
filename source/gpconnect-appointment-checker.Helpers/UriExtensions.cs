@@ -14,5 +14,10 @@ namespace gpconnect_appointment_checker.Helpers
             uriBuilder.Query = httpContext.Request.QueryString.ToString();
             return uriBuilder.Uri;
         }
+
+        public static string GetBaseSiteUrl(this HttpContext httpContext)
+        {
+            return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/";
+        }
     }
 }
