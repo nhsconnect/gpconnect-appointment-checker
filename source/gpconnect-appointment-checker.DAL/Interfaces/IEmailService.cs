@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        void SendAuthorisationEmail(string recipient);
+        void SendUserStatusEmail(bool isAuthorised, string recipient);
     }
 }

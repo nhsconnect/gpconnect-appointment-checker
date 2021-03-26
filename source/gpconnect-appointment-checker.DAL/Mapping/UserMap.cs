@@ -18,6 +18,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.IsAuthorised).ToColumn("is_authorised");
             Map(p => p.MultiSearchEnabled).ToColumn("multi_search_enabled");
             Map(p => p.IsAdmin).ToColumn("is_admin");
+            Map(p => p.IsNewUser).ToColumn("is_new_user");
         }
     }
 }

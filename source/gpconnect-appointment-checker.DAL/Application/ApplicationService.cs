@@ -190,9 +190,9 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_is_authorised", isAuthorised);
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
-            if (isAuthorised && user != null)
+            if (user != null)
             {
-                _emailService.SendAuthorisationEmail(user.EmailAddress);
+                _emailService.SendUserStatusEmail(isAuthorised, user.EmailAddress);
             }
         }
 
@@ -215,9 +215,9 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
-            if (user != null)
+            if (user != null && user.IsNewUser)
             {
-                _emailService.SendAuthorisationEmail(user.EmailAddress);
+                _emailService.SendUserStatusEmail(user.IsAuthorised, user.EmailAddress);
             }
         }
     }

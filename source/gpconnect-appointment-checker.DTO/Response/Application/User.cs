@@ -15,5 +15,6 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public bool IsAuthorised { get; set; }
         public bool MultiSearchEnabled { get; set; }
         public bool IsAdmin { get; set; }
+        public bool IsNewUser { get; set; }
     }
 }

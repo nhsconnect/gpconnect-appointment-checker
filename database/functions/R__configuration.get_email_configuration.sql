@@ -11,7 +11,8 @@ returns table
     encryption varchar(10),
     authentication_required boolean,
     user_name varchar(100),
-    password varchar(100)
+    password varchar(100),
+    default_subject varchar(100)
 )
 as $$
 begin
@@ -23,7 +24,8 @@ begin
 		e.encryption,
 		e.authentication_required,
 		e.user_name,
-		e.password
+		e.password,
+		e.default_subject
 	from
 		configuration.email e;
 end;

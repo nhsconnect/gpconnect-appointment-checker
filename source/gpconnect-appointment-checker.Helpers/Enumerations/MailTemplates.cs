@@ -2,6 +2,7 @@
 {
     public enum MailTemplate
     {
-        AuthorisedConfirmationEmail
+        AuthorisedConfirmationEmail,
+        DeauthorisedConfirmationEmail
     }
 }

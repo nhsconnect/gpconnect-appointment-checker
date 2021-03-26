@@ -17,26 +17,27 @@ create table configuration.email
     authentication_required boolean,
     user_name varchar(100),
     password varchar(100),
+    default_subject varchar(100),
 
     constraint configuration_email_singlerowlock_pk primary key (single_row_lock),
     constraint configuration_email_singlerowlock_ck check (single_row_lock = true),
     constraint configuration_email_senderaddress_ck check (char_length(trim(sender_address)) > 0),
     constraint configuration_email_hostname_ck check (char_length(trim(host_name)) > 0),
     constraint configuration_email_port_ck check (port > 0),
-    constraint configuration_email_encryption_ck check (char_length(trim(encryption)) > 0)
+    constraint configuration_email_encryption_ck check (char_length(trim(encryption)) > 0),
+    constraint configuration_email_defaultsubject_ck check (char_length(trim(default_subject)) > 0)
 );
-
-grant select, insert, update on all tables in schema application to app_user;
 
 insert into configuration.email
 (
-    single_row_lock, sender_address, host_name, port, encryption, authentication_required, user_name, password
+    single_row_lock, sender_address, host_name, port, encryption, authentication_required, user_name, password, default_subject
 )
 values
 (
-    true, 'gpconnect.appointmentchecker@nhs.net', 'send.nhs.net', 587, 'TLS', true, '', ''
+    true, 'gpconnect.appointmentchecker@nhs.net', 'send.nhs.net', 587, 'TLS', true, '', '', 'GP Connect Appointment Checker - Update'
 );
 
+grant select, insert, update on all tables in schema application to app_user;
 grant select, insert, update on all tables in schema configuration to app_user;
 grant select, update on all sequences in schema configuration to app_user;
 grant execute on all functions in schema configuration to app_user;
