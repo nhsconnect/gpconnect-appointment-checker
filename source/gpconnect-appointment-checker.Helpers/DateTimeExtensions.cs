@@ -10,7 +10,7 @@ namespace gpconnect_appointment_checker.Helpers
                 _ => valueIn.AddDays(-1 * (7 + (valueIn.DayOfWeek - startOfWeek)) % 7).Date
             };
 
-        public static string DateFormatter(this DateTime? valueIn, string dateFormat)
+        public static string DateFormatter(this DateTimeOffset? valueIn, string dateFormat)
         {
             return valueIn.HasValue ? valueIn.Value.ToString(dateFormat) : string.Empty;
         }

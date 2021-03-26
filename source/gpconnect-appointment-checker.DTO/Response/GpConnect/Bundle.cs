@@ -94,8 +94,8 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public List<RootServiceType> serviceType { get; set; }
         public RootSchedule schedule { get; set; }
         public string status { get; set; }
-        public DateTime? start { get; set; }
-        public DateTime? end { get; set; }
+        public DateTimeOffset? start { get; set; }
+        public DateTimeOffset? end { get; set; }
         public RootServiceCategory serviceCategory { get; set; }
         public List<RootActor> actor { get; set; }
         public RootPlanningHorizon planningHorizon { get; set; }
