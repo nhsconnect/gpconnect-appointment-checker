@@ -46,7 +46,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 var responseStream = await response.Content.ReadAsStringAsync();
 
                 _spineMessage.ResponsePayload = responseStream;
-
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
                 _spineMessage.RequestPayload = request.ToString();
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
@@ -55,11 +54,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
-
                 var slotSimple = new SlotSimple();
-
-
-
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
                 if (results.Issue?.Count > 0)
@@ -83,9 +78,9 @@ namespace gpconnect_appointment_checker.GPConnect
                                 let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
                                 select new SlotEntrySimple
                                 {
-                                    AppointmentDate = slot.resource.start,
+                                    AppointmentDate = slot.resource.start.GetValueOrDefault().DateTime,
                                     SessionName = schedule.resource.serviceCategory?.text,
-                                    StartTime = slot.resource.start,
+                                    StartTime = slot.resource.start.GetValueOrDefault().DateTime,
                                     Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
                                     SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
                                     DeliveryChannel = slot.resource.extension?.FirstOrDefault()?.valueCode,
@@ -186,9 +181,9 @@ namespace gpconnect_appointment_checker.GPConnect
                             let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
                             select new SlotEntrySimple
                             {
-                                AppointmentDate = slot.resource.start,
+                                AppointmentDate = slot.resource.start.GetValueOrDefault().DateTime,
                                 SessionName = schedule.resource.serviceCategory?.text,
-                                StartTime = slot.resource.start,
+                                StartTime = slot.resource.start.GetValueOrDefault().DateTime,
                                 Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
                                 SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
                                 DeliveryChannel = slot.resource.extension?.FirstOrDefault()?.valueCode,

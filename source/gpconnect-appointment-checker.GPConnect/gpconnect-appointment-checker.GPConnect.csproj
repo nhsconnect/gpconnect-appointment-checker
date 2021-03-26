@@ -17,4 +17,10 @@
     <ProjectReference Include="..\gpconnect-appointment-checker.DAL\gpconnect-appointment-checker.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="bundledst.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

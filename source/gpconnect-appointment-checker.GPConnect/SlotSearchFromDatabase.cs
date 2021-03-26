@@ -29,9 +29,9 @@ namespace gpconnect_appointment_checker.GPConnect
                             let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
                             select new SlotEntrySimple
                             {
-                                AppointmentDate = slot.resource.start,
+                                AppointmentDate = slot.resource.start.GetValueOrDefault().DateTime,
                                 SessionName = schedule.resource.serviceCategory?.text,
-                                StartTime = slot.resource.start,
+                                StartTime = slot.resource.start.GetValueOrDefault().DateTime,
                                 Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
                                 SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
                                 DeliveryChannel = slot.resource.extension?.FirstOrDefault()?.valueCode,
