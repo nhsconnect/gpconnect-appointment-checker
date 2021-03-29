@@ -4,9 +4,12 @@ using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -87,6 +90,14 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
+        public IActionResult OnPostFilterByStatus()
+        {
+            ClearValidationState();
+            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<StatusFilter>(SelectedStatusFilter));
+            UserList = userList;
+            return Page();
+        }
+
         public void OnPostSaveNewUser()
         {
             if (ModelState.IsValid)
@@ -114,6 +125,17 @@ namespace gpconnect_appointment_checker.Pages
             var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState));
             UserList = userList;
             return Page();
+        }
+
+
+        private List<SelectListItem> GetStatusFilters()
+        {
+            var values = Enum.GetValues(typeof(StatusFilter)).Cast<StatusFilter>().Select(v => new SelectListItem
+            {
+                Text = v.ToString(),
+                Value = ((int)v).ToString()
+            }).ToList();
+            return values;
         }
     }
 }

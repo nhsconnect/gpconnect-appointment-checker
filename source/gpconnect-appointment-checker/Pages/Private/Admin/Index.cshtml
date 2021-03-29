@@ -43,12 +43,12 @@
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGANISATIONNAME</th>
                                 <th role="columnheader" class="" scope="col">
                                     <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
-                                            @SearchConstants.USERLISTRESULTSLASTLOGONDATE
-                                            @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
-                                            {
-                                                @Html.Raw(Model.SortByDirectionIcon)
-                                            }
-                                        </button>
+                                        @SearchConstants.USERLISTRESULTSLASTLOGONDATE
+                                        @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
+                                        {
+                                            @Html.Raw(Model.SortByDirectionIcon)
+                                        }
+                                    </button>
                                 </th>
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
                                 <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
@@ -68,7 +68,9 @@
                                 </td>
                                 <td role="cell" class="" scope="nhsuk-table__cell"></td>
                                 <td role="cell" class="" scope="nhsuk-table__cell"></td>
-                                <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                <td role="cell" class="" scope="nhsuk-table__cell">
+                                    <select asp-for="@Model.SelectedStatusFilter" asp-items="@Model.StatusFilters" class="nhsuk-select" id="@Model.SelectedStatusFilter"></select>
+                                </td>
                                 <td role="cell" class="" scope="nhsuk-table__cell"></td>
                             </tr>
                             <tr role="row">
@@ -81,7 +83,9 @@
                                 <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                 <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                 <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                                <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                <td role="cell" class="" scope="nhsuk-table__cell">
+                                    <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBUTTONTEXT</button>
+                                </td>
                                 <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             </tr>
                             @foreach (var user in Model.UserList)
@@ -127,4 +131,5 @@
     </div>
     <input type="hidden" asp-for="SortByColumn" value="@Model.SortByColumn" />
     <input type="hidden" asp-for="SortByState" value="@Model.SortByState" />
+    <input type="hidden" asp-for="SelectedStatusFilter" value="@Model.SelectedStatusFilter" />
 </form>

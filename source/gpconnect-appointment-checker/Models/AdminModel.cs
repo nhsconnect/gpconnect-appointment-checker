@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using gpconnect_appointment_checker.Helpers.Constants;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -15,6 +16,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public string CleansedUserEmailAddress => UserEmailAddress.ToLower();
 
+        public List<SelectListItem> StatusFilters => GetStatusFilters();
+
         public List<User> UserList { get; set; }
         [BindProperty]
         public string SortByColumn { get; set; }
@@ -24,7 +27,8 @@ namespace gpconnect_appointment_checker.Pages
 
         [BindProperty]
         public string SortByDirectionIcon { get; set; }
-        
+        [BindProperty]
+        public string SelectedStatusFilter { get; set; }
 
         [BindProperty]
         public string EmailAddressSearchValue { get; set; }

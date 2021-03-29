@@ -28,6 +28,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string AUTHORISEBUTTONTEXT = "Authorise";
 
         public const string FINDBUTTONTEXT = "Find";
+        public const string FILTERBUTTONTEXT = "Filter";
 
         public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
         public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";

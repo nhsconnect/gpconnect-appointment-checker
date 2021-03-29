@@ -43,12 +43,16 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection)
+        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection, StatusFilter statusFilter)
         {
             var functionName = "application.get_users";
-            var result = _dataService.ExecuteFunction<User>(functionName);
-            var orderedResult = result.AsQueryable().OrderBy($"{sortByColumn} {sortDirection}").ToList();
-            return orderedResult;
+            var result = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
+            if (statusFilter != StatusFilter.All)
+            {
+                result = result.Where(x => x.Status == statusFilter.ToString());
+            }
+            result = result.OrderBy($"{sortByColumn} {sortDirection}");
+            return result.ToList();
         }
 
         public List<User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn)
