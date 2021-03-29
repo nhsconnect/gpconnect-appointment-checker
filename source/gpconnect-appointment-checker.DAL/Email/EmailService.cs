@@ -76,11 +76,10 @@ namespace gpconnect_appointment_checker.DAL.Email
 
         private string GetEmailTemplate(MailTemplate mailTemplate)
         {
-            var path = $"{AppContext.BaseDirectory}\\Email\\Templates\\{mailTemplate}.txt";
-            if (File.Exists(path))
+            var file = FileHelper.ReadFileContents($@"Email\Templates\{mailTemplate}.txt");
+            if(file != null)
             {
-                var readText = File.ReadAllText(path);
-                return PopulateDynamicFields(readText);
+                return PopulateDynamicFields(file);
             }
             return null;
         }

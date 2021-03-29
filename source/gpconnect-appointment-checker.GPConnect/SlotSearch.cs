@@ -54,6 +54,9 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
+
+                //responseStream = FileHelper.ReadFileContents("feed.json");
+
                 var slotSimple = new SlotSimple();
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 

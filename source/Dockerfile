@@ -1,3 +1,6 @@
+FROM postgres:11.9
+RUN apt-get update && apt-get -y install postgresql-11-cron
+
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 ARG BUILD_TAG
 ENV BUILD_TAG=$BUILD_TAG
@@ -33,5 +36,6 @@ WORKDIR /app
 COPY --from=publish /app .
 
 RUN sed -i "s|DEFAULT@SECLEVEL=2|DEFAULT@SECLEVEL=1|g" /etc/ssl/openssl.cnf
+# RUN sed -i "s|SHARED_PRELOAD_LIBRARIES=PG_CRON|g" /var/lib/postgresql/data/postgresql.conf
 
 ENTRYPOINT ["dotnet", "gpconnect-appointment-checker.dll"]
