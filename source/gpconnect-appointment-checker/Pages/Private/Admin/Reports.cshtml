@@ -1,0 +1,54 @@
+﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
+@using System.Data
+@model ReportsModel
+
+<form method="post" id="search-input-form">
+    <div class="nhsuk-width-container">
+        <main class="nhsuk-main-wrapper">
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <h1>Appointment Checker Reports</h1>
+                </div>
+            </div>
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <div class="nhsuk-form-group">
+                        <select asp-for="@Model.SelectedReport" asp-items="@Model.ReportsList" class="nhsuk-select" id="@Model.SelectedReport"></select>
+                    </div>
+                    <button class="nhsuk-button" asp-page-handler="LoadReport" type="submit">@SearchConstants.LOADREPORTBUTTONTEXT</button>
+                    <button class="nhsuk-button" asp-page-handler="ExportReport" type="submit">@SearchConstants.EXPORTREPORTBUTTONTEXT</button>
+                </div>
+            </div>
+            @if (Model.ReportData != null)
+            {
+                <div class="nhsuk-grid-row">
+                    <div class="nhsuk-grid-column-full">
+                        <table role="table" class="nhsuk-table">
+                            <thead role="rowgroup" class="nhsuk-table__head">
+                                <tr role="row">
+                                    @foreach (DataColumn column in Model.ReportData.Columns)
+                                    {
+                                        <th role="columnheader" class="" scope="col">@column.Caption</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody class="nhsuk-table__body">
+                                @foreach (DataRow row in Model.ReportData.Rows)
+                                {
+                                    <tr role="row" class="nhsuk-table__row">
+                                        @foreach (var cell in row.ItemArray)
+                                        {
+                                            <td role="cell" class="nhsuk-table__cell">
+                                                @cell.ToString()
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                        </table>
+                    </div>
+                </div>
+            }
+        </main>
+    </div>
+</form>

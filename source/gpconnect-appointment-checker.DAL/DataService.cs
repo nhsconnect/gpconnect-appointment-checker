@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 
 namespace gpconnect_appointment_checker.DAL
 {
@@ -31,6 +33,36 @@ namespace gpconnect_appointment_checker.DAL
             {
                 _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {functionName}");
                 throw;
+            }
+        }
+
+        public DataTable ExecuteFunctionAndGetDataTable(string functionName)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+            connection.Open();
+            using (var cmd = new NpgsqlCommand(functionName, connection))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Prepare();
+
+                var da = new NpgsqlDataAdapter(cmd);
+                var _ds = new DataSet();
+                var _dt = new DataTable();
+
+                da.Fill(_ds);
+
+                try
+                {
+                    _dt = _ds.Tables[0];
+                }
+                catch (Exception exc)
+                {
+                    _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {functionName}");
+                    throw;
+                }
+
+                connection.Close();
+                return _dt;
             }
         }
 

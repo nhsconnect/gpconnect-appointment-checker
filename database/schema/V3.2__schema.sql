@@ -34,10 +34,23 @@ insert into configuration.email
 )
 values
 (
-    true, 'gpconnect.appointmentchecker@nhs.net', 'send.nhs.net', 587, 'TLS', true, '', '', 'GP Connect Appointment Checker - Update'
+    true, 'gpconnect.appointmentchecker@nhs.net', 'smtp.office365.com', 587, 'Tls12', true, '', '', 'GP Connect Appointment Checker - Update'
 );
 
 grant select, insert, update on all tables in schema application to app_user;
 grant select, insert, update on all tables in schema configuration to app_user;
 grant select, update on all sequences in schema configuration to app_user;
 grant execute on all functions in schema configuration to app_user;
+
+create table reporting.list
+(
+    report_name varchar(100),
+    function_name varchar(100),
+
+    constraint reporting_list_reportname_ck check (char_length(trim(report_name)) > 0),
+    constraint reporting_list_functionname_ck check (char_length(trim(function_name)) > 0)
+);
+
+grant select, insert, update on all tables in schema reporting to app_user;
+grant select, update on all sequences in schema reporting to app_user;
+grant execute on all functions in schema reporting to app_user;

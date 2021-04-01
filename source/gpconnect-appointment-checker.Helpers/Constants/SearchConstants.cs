@@ -20,6 +20,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string RUNASEARCHTEXT = "Run a search";
         public const string SEARCHTEXT = "Search";
         public const string ADMINTEXT = "Admin";
+        public const string REPORTSTEXT = "Reports";
         public const string HOMETEXT = "Home";
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
@@ -77,6 +78,8 @@ namespace gpconnect_appointment_checker.Helpers.Constants
 
         public const string NEWUSEREMAILADDRESS = "Authorise a new user. Enter an nhs.net email address";
         public const string SAVENEWUSERBUTTONTEXT = "Save";
+        public const string LOADREPORTBUTTONTEXT = "Load Report";
+        public const string EXPORTREPORTBUTTONTEXT = "Export Report";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
