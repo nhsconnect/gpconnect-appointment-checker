@@ -1,10 +1,15 @@
-﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
+﻿using System;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -34,9 +39,15 @@ namespace gpconnect_appointment_checker.Pages
             ReportData = report;
         }
 
-        public void OnPostExportReport()
+        public FileStreamResult OnPostExportReport()
         {
-            _reportingService.ExportReport(SelectedReport);
+            var reportName = ReportsList.FirstOrDefault(x => x.Value == SelectedReport)?.Text;
+            var memoryStream = _reportingService.ExportReport(SelectedReport, reportName);
+            return new FileStreamResult(memoryStream,
+                new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            {
+                FileDownloadName = $"{SelectedReport}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
+            };
         }
 
         private List<SelectListItem> GetReportsList()
