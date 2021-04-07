@@ -20,6 +20,8 @@ namespace gpconnect_appointment_checker.Helpers.Enumerations
         CapabilityStatementHasErrors = 6,
         [Description(Constants.SearchConstants.ISSUEWITHLDAPTEXT)]
         GenericLdapError = 7,
-        GenericSlotSearchError = 8
+        GenericSlotSearchError = 8,
+        [Description(Constants.SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT)]
+        ConsumerNotEnabledForGpConnectAppointmentManagement = 9
     }
 }

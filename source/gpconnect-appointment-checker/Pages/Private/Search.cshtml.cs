@@ -166,6 +166,7 @@ namespace gpconnect_appointment_checker.Pages
                     var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCode);
                     var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCode);
                     ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
+                    ConsumerEnabledForGpConnectAppointmentManagement = consumerGpConnectDetails != null;
 
                     if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                     {
@@ -215,7 +216,7 @@ namespace gpconnect_appointment_checker.Pages
                 _auditSearchParameters[2] = SelectedDateRange;
 
                 var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
-                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCodeAsList, ErrorCode.None);
+                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 

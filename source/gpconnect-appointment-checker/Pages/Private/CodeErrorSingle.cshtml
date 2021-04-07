@@ -79,3 +79,15 @@ else if (Model.LdapErrorRaised)
         </div>
     </div>
 }
+
+@if (!Model.ConsumerEnabledForGpConnectAppointmentManagement)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTCONSUMERLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT, Model.ConsumerOdsCode)</p>
+            </div>
+        </div>
+    </div>
+}

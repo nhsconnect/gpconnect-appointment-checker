@@ -79,6 +79,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public bool ProviderASIDPresent { get; set; } = true;
         public bool ProviderEnabledForGpConnectAppointmentManagement { get; set; } = true;
+        public bool ConsumerEnabledForGpConnectAppointmentManagement { get; set; } = true;
 
         public bool SlotSearchOk { get; set; } = true;
         public bool CapabilityStatementOk { get; set; } = true;

@@ -8,6 +8,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string ISSUEWITHCONSUMERODSCODELABEL = "Issue with Consumer ODS code";
         public const string ISSUEWITHPROVIDERODSCODELABEL = "Issue with Provider ODS code";
         public const string ISSUEWITHGPCONNECTPROVIDERLABEL = "Issue with GP Connect Provider";
+        public const string ISSUEWITHGPCONNECTCONSUMERLABEL = "Issue with GP Connect Consumer";
         public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL = "An error occured when sending a message to the provider system";
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
 
@@ -42,6 +43,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string ISSUEWITHPROVIDERODSCODETEXT = "Sorry, but the Provider ODS code '{0}' has not been found";
         public const string ISSUEWITHGPCONNECTPROVIDERTEXT = "Sorry, this organisation is not enabled for GP Connect";
         public const string ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT = "Sorry, but the Provider ODS code {0} is not enabled for GP Connect Appointment Management";
+        public const string ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT = "Sorry, but the Consumer ODS code {0} is not enabled for GP Connect Appointment Management";
 
         public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT = "The error returned was \"{0} ({1})\".";
         public const string ISSUEWITHLDAPTEXT = "The SDS server is currently unavailable. Please try your search again.";
