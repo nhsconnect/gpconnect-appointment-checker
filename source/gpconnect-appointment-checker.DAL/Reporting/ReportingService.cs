@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using Microsoft.AspNetCore.Http;
 
 namespace gpconnect_appointment_checker.DAL.Reporting
 {
@@ -18,13 +20,17 @@ namespace gpconnect_appointment_checker.DAL.Reporting
     {
         private readonly ILogger<ReportingService> _logger;
         private readonly IDataService _dataService;
+        private readonly IApplicationService _applicationService;
+        private readonly IHttpContextAccessor _context;
         private string _functionName;
         private string _reportName;
 
-        public ReportingService(ILogger<ReportingService> logger, IDataService dataService)
+        public ReportingService(ILogger<ReportingService> logger, IDataService dataService, IApplicationService applicationService, IHttpContextAccessor context)
         {
+            _context = context;
             _logger = logger;
             _dataService = dataService;
+            _applicationService = applicationService;
         }
 
         public DataTable GetReport(string functionName)
@@ -38,6 +44,20 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             _functionName = functionName;
             _reportName = reportName;
             var result = _dataService.ExecuteFunctionAndGetDataTable($"reporting.{_functionName}");
+            var spreadsheetDocument = CreateReport(result);
+            return spreadsheetDocument;
+        }
+
+        public MemoryStream ExportReport(int searchGroupId, string reportName)
+        {
+            var userId = _context.HttpContext.User.GetClaimValue("UserId", nullIfEmpty: true).StringToInteger();
+            var parameters = new Dictionary<string, int>
+            {
+                { "_user_id", userId },
+                { "_search_group_id", searchGroupId }
+            };
+            var result = _dataService.ExecuteFunctionAndGetDataTable("application.get_search_result_by_group", parameters);
+            _reportName = reportName;
             var spreadsheetDocument = CreateReport(result);
             return spreadsheetDocument;
         }
@@ -90,7 +110,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             var columns = new Columns();
             for (var i = 0; i < result.Columns.Count; i++)
             {
-                var maxColumnLength = result.AsEnumerable().Max(row => row.Field<object>(result.Columns[i].ColumnName).ToString()?.Length);
+                var maxColumnLength = result.AsEnumerable().Max(row => row.Field<object>(result.Columns[i].ColumnName)?.ToString()?.Length);
                 var columnNameLength = result.Columns[i].ColumnName.Length;
                 var col = new Column
                 {
@@ -117,7 +137,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
                     var cell = new Cell
                     {
                         DataType = cellValue.GetCellDataType(),
-                        CellValue = new CellValue(cellValue)
+                        CellValue = cellValue?.Length > 0 ? new CellValue(cellValue) : null
                     };
                     row.AppendChild(cell);
                 }

@@ -18,9 +18,11 @@ using Microsoft.Extensions.Logging;
 using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 using Organisation = gpconnect_appointment_checker.DTO.Response.Application.Organisation;
 using SearchResult = gpconnect_appointment_checker.DTO.Request.Application.SearchResult;
 
@@ -36,13 +38,15 @@ namespace gpconnect_appointment_checker.Pages
         protected ITokenService _tokenService;
         protected IGpConnectQueryExecutionService _queryExecutionService;
         protected IAuditService _auditService;
+        protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
         protected Stopwatch _stopwatch = new Stopwatch();
         protected List<string> _auditSearchParameters = new List<string>(new[] { "", "", "" });
         protected List<string> _auditSearchIssues = new List<string>();
         protected bool _multiSearchEnabled;
+        protected List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -52,6 +56,7 @@ namespace gpconnect_appointment_checker.Pages
             _queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
             _auditService = auditService;
+            _reportingService = reportingService;
             if (null != loggerManager)
             {
                 _loggerManager = loggerManager;
@@ -91,6 +96,16 @@ namespace gpconnect_appointment_checker.Pages
                 PopulateSearchResultsForGroup(searchGroupId, userId);
             }
             return Page();
+        }
+
+        public FileStreamResult OnPostExportReport(int searchgroupid)
+        {
+            var memoryStream = _reportingService.ExportReport(searchgroupid, ReportConstants.SLOTSUMMARYREPORTHEADING);
+            return new FileStreamResult(memoryStream,
+                new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            {
+                FileDownloadName = $"{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
+            };
         }
 
         private void PopulateSearchResultsForGroup(int searchGroupId, int userId)
@@ -206,6 +221,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 var slotEntrySummary = PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                 SearchResultsSummary = slotEntrySummary;
+                _searchResultsSummaryDataTable = slotEntrySummary;
             }
             catch (LdapException)
             {
@@ -277,6 +293,7 @@ namespace gpconnect_appointment_checker.Pages
                 SearchStartAt = DateTime.UtcNow
             };
             var createdSearchGroup = _applicationService.AddSearchGroup(searchGroup);
+            SearchGroupId = createdSearchGroup.SearchGroupId;
 
             var slotEntrySummary = new List<SlotEntrySummary>(); 
 
