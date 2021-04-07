@@ -116,6 +116,7 @@ namespace gpconnect_appointment_checker.Pages
             SurnameSearchValue = null;
             EmailAddressSearchValue = null;
             OrganisationNameSearchValue = null;
+            SelectedStatusFilter = StatusFilter.All.ToString();
             ModelState.Clear();
             RefreshPage();
         }
