@@ -1,13 +1,15 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Audit;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.CustomAttributes;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
+using System.Linq;
 using System.Net.Mail;
+using System.Reflection;
 
 namespace gpconnect_appointment_checker.DAL.Email
 {
@@ -33,11 +35,11 @@ namespace gpconnect_appointment_checker.DAL.Email
             var template = isAuthorised
                 ? MailTemplate.AuthorisedConfirmationEmail
                 : MailTemplate.DeauthorisedConfirmationEmail;
-            var body = GetEmailTemplate(template);
-            SendEmail(recipient, body);
+            var bodySubject = GetEmailSubjectAndBody(template);
+            SendEmail(recipient, bodySubject.Item1, bodySubject.Item2);
         }
 
-        private void SendEmail(string recipient, string body)
+        private void SendEmail(string recipient, string subject, string body)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (string.IsNullOrEmpty(body)) throw new ArgumentNullException(nameof(body));
@@ -49,10 +51,9 @@ namespace gpconnect_appointment_checker.DAL.Email
                 {
                     From = new MailAddress(sender, displayName),
                     IsBodyHtml = false,
-                    Subject = _configuration.GetSection("Email:default_subject").GetConfigurationString(),
+                    Subject = subject,
                     Body = body,
-                    To = { recipient },
-                    Bcc = { sender }
+                    To = { recipient }
                 };
                 _smtpClient.Send(mailMessage);
                 SendToAudit(recipient, body);
@@ -74,14 +75,29 @@ namespace gpconnect_appointment_checker.DAL.Email
             }
         }
 
-        private string GetEmailTemplate(MailTemplate mailTemplate)
+        private (string, string) GetEmailSubjectAndBody(MailTemplate mailTemplate)
         {
             var file = FileHelper.ReadFileContents($@"Email\Templates\{mailTemplate}.txt");
             if(file != null)
             {
-                return PopulateDynamicFields(file);
+                var subject = GetEmailSubject(mailTemplate,
+                    _configuration.GetSection("Email:default_subject").GetConfigurationString());
+                var body = PopulateDynamicFields(file);
+                return (subject, body);
             }
-            return null;
+            return (null, null);
+        }
+
+        private static string GetEmailSubject(MailTemplate mailTemplate, string defaultSubject)
+        {
+            FieldInfo fi = mailTemplate.GetType().GetField(mailTemplate.ToString());
+            MailSubjectAttribute[] attributes = fi.GetCustomAttributes(typeof(MailSubjectAttribute), false) as MailSubjectAttribute[];
+
+            if (attributes != null && attributes.Any())
+            {
+                return attributes.First().MailSubject;
+            }
+            return defaultSubject;
         }
 
         private string PopulateDynamicFields(string readText)

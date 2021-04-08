@@ -2,4 +2,4 @@
 
 To use the tool, go to <url> and follow the instructions. Sign on with the email address that this email was sent to, and your usual password.
 
-For more help, use the 'Help' link which appears on the Checker Tool pages.
+For more help, use the 'Help' link which appears on the Appointment Checker Tool pages.

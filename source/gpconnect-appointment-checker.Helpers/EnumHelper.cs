@@ -22,7 +22,6 @@ namespace gpconnect_appointment_checker.Helpers
                     description = ((DescriptionAttribute)attrs[0]).Description;
                 }
             }
-
             return description;
         }
     }
