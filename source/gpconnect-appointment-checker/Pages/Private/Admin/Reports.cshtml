@@ -9,11 +9,8 @@
             <div class="nhsuk-grid-row">
                 <div class="nhsuk-grid-column-full">
                     <h1>Appointment Checker Reports</h1>
-                </div>
-            </div>
-            <div class="nhsuk-grid-row">
-                <div class="nhsuk-grid-column-full">
                     <div class="nhsuk-form-group">
+                        @Html.ValidationMessageFor(m => m.SelectedReport, "", new { @class = "nhsuk-error-message" })
                         <select asp-for="@Model.SelectedReport" asp-items="@Model.ReportsList" class="nhsuk-select" id="@Model.SelectedReport"></select>
                     </div>
                     <button class="nhsuk-button" asp-page-handler="LoadReport" type="submit">@SearchConstants.LOADREPORTBUTTONTEXT</button>
@@ -22,32 +19,28 @@
             </div>
             @if (Model.ReportData != null)
             {
-                <div class="nhsuk-grid-row">
-                    <div class="nhsuk-grid-column-full">
-                        <table role="table" class="nhsuk-table">
-                            <thead role="rowgroup" class="nhsuk-table__head">
-                                <tr role="row">
-                                    @foreach (DataColumn column in Model.ReportData.Columns)
-                                    {
-                                        <th role="columnheader" class="" scope="col">@column.Caption</th>
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody class="nhsuk-table__body">
-                                @foreach (DataRow row in Model.ReportData.Rows)
+                <table role="table" class="nhsuk-table">
+                    <thead role="rowgroup" class="nhsuk-table__head">
+                        <tr role="row">
+                            @foreach (DataColumn column in Model.ReportData.Columns)
+                            {
+                                <th role="columnheader" class="" scope="col">@column.Caption</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="nhsuk-table__body">
+                        @foreach (DataRow row in Model.ReportData.Rows)
+                        {
+                            <tr role="row" class="nhsuk-table__row">
+                                @foreach (var cell in row.ItemArray)
                                 {
-                                    <tr role="row" class="nhsuk-table__row">
-                                        @foreach (var cell in row.ItemArray)
-                                        {
-                                            <td role="cell" class="nhsuk-table__cell">
-                                                @cell.ToString()
-                                            </td>
-                                        }
-                                    </tr>
+                                    <td role="cell" class="nhsuk-table__cell">
+                                        @cell.ToString()
+                                    </td>
                                 }
-                        </table>
-                    </div>
-                </div>
+                            </tr>
+                        }
+                </table>
             }
         </main>
     </div>
