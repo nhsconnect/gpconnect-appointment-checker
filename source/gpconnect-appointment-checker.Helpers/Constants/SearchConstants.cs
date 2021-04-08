@@ -43,7 +43,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string ISSUEWITHPROVIDERODSCODETEXT = "Sorry, but the Provider ODS code '{0}' has not been found";
         public const string ISSUEWITHGPCONNECTPROVIDERTEXT = "Sorry, this organisation is not enabled for GP Connect";
         public const string ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT = "Sorry, but the Provider ODS code {0} is not enabled for GP Connect Appointment Management";
-        public const string ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT = "Sorry, but the Consumer ODS code {0} is not enabled for GP Connect Appointment Management";
+        public const string ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT = "The Consumer ODS code {0} is not enabled for GP Connect";
 
         public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT = "The error returned was \"{0} ({1})\".";
         public const string ISSUEWITHLDAPTEXT = "The SDS server is currently unavailable. Please try your search again.";
