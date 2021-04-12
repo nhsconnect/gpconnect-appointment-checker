@@ -26,107 +26,110 @@
                         </div>
                         <button class="nhsuk-button" asp-page-handler="SaveNewUser" type="submit">@SearchConstants.SAVENEWUSERBUTTONTEXT</button>
                     </div>
-                    <div class="nhsuk-do-dont-list">
-                        <h3 class="nhsuk-do-dont-list__label">User list</h3>
-                        <table role="table" class="nhsuk-table">
-                            <thead role="rowgroup" class="nhsuk-table__head">
-                                <tr role="row">
-                                    <th role="columnheader" class="" scope="col">
-                                        <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
-                                            @SearchConstants.USERLISTRESULTSEMAILADDRESS
-                                            @if (Model.SortByColumn == SortBy.EmailAddress.ToString())
-                                            {
-                                                @Html.Raw(Model.SortByDirectionIcon)
-                                            }
-                                        </button>
-                                    </th>
-                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
-                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGANISATIONNAME</th>
-                                    <th role="columnheader" class="" scope="col">
-                                        <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
-                                            @SearchConstants.USERLISTRESULTSLASTLOGONDATE
-                                            @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
-                                            {
-                                                @Html.Raw(Model.SortByDirectionIcon)
-                                            }
-                                        </button>
-                                    </th>
-                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
-                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
-                                    <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
-                                </tr>
-                            </thead>
-                            <tbody class="nhsuk-table__body">
-                                <tr role="row">
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <input class="nhsuk-input nhsuk-input--width-10" id="input-emailaddresssearch" no-validate asp-for="@Model.EmailAddressSearchValue" name="emailaddresssearchvalue" value="@Model.EmailAddressSearchValue" type="text" aria-describedby="input-emailaddresssearch-hint-text">
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <input class="nhsuk-input nhsuk-input--width-10" id="input-surnamesearch" no-validate asp-for="@Model.SurnameSearchValue" name="surnamesearchvalue" value="@Model.SurnameSearchValue" type="text" aria-describedby="input-surnamesearch-hint-text">
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <input class="nhsuk-input nhsuk-input--width-10" id="input-organisationnamesearch" no-validate asp-for="@Model.OrganisationNameSearchValue" name="organisationnamesearchvalue" value="@Model.OrganisationNameSearchValue" type="text" aria-describedby="input-organisationnamesearch-hint-text">
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell"></td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell"></td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <select asp-for="@Model.SelectedStatusFilter" asp-items="@Model.StatusFilters" class="nhsuk-select" id="@Model.SelectedStatusFilter"></select>
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell"></td>
-                                </tr>
-                                <tr role="row">
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <button class="nhsuk-button" asp-page-handler="RunSearch" type="submit">@SearchConstants.FINDBUTTONTEXT</button>
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBUTTONTEXT</button>
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                                </tr>
-                                @foreach (var user in Model.UserList)
-                                {
-                                    <tr role="row" class="nhsuk-table__row">
-                                        <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
-                                        <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
-                                        <td role="cell" class="nhsuk-table__cell">@user.OrganisationName</td>
-                                        <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
-                                        <td role="cell" class="nhsuk-table__cell">@user.AccessLevel</td>
-                                        <td role="cell" class="nhsuk-table__cell">
-                                            @if (user.IsAuthorised)
-                                            {
-                                                <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-route-userid="@user.UserId" asp-route-userstatus="false" asp-page-handler="SetUserStatus">
-                                                    @user.Status
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <button type="submit" class="nhsuk-tag nhsuk-tag--red" asp-route-userid="@user.UserId" asp-route-userstatus="true" asp-page-handler="SetUserStatus">
-                                                    @user.Status
-                                                </button>
-                                            }
-                                        </td>
-                                        <td role="cell" class="nhsuk-table__cell">
-
-                                            @if (user.MultiSearchEnabled)
-                                            {
-                                                <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@user.UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
-                                            }
-                                            else
-                                            {
-                                                <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-userid="@user.UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
-                                            }
-                                        </td>
+                    @if (Model.UserList.Count > 0)
+                    {
+                        <div class="nhsuk-do-dont-list">
+                            <h3 class="nhsuk-do-dont-list__label">User list</h3>
+                            <table role="table" class="nhsuk-table">
+                                <thead role="rowgroup" class="nhsuk-table__head">
+                                    <tr role="row">
+                                        <th role="columnheader" class="" scope="col">
+                                            <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
+                                                @SearchConstants.USERLISTRESULTSEMAILADDRESS
+                                                @if (Model.SortByColumn == SortBy.EmailAddress.ToString())
+                                                {
+                                                    @Html.Raw(Model.SortByDirectionIcon)
+                                                }
+                                            </button>
+                                        </th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGANISATIONNAME</th>
+                                        <th role="columnheader" class="" scope="col">
+                                            <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == "ASC") { @SortDirection.DESC.ToString() } else { @SortDirection.ASC.ToString() }" asp-page-handler="SortBy" type="submit">
+                                                @SearchConstants.USERLISTRESULTSLASTLOGONDATE
+                                                @if (Model.SortByColumn == SortBy.LastLogonDate.ToString())
+                                                {
+                                                    @Html.Raw(Model.SortByDirectionIcon)
+                                                }
+                                            </button>
+                                        </th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody class="nhsuk-table__body">
+                                    <tr role="row">
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <input class="nhsuk-input nhsuk-input--width-10" id="input-emailaddresssearch" no-validate asp-for="@Model.EmailAddressSearchValue" name="emailaddresssearchvalue" value="@Model.EmailAddressSearchValue" type="text" aria-describedby="input-emailaddresssearch-hint-text">
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <input class="nhsuk-input nhsuk-input--width-10" id="input-surnamesearch" no-validate asp-for="@Model.SurnameSearchValue" name="surnamesearchvalue" value="@Model.SurnameSearchValue" type="text" aria-describedby="input-surnamesearch-hint-text">
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <input class="nhsuk-input nhsuk-input--width-10" id="input-organisationnamesearch" no-validate asp-for="@Model.OrganisationNameSearchValue" name="organisationnamesearchvalue" value="@Model.OrganisationNameSearchValue" type="text" aria-describedby="input-organisationnamesearch-hint-text">
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <select asp-for="@Model.SelectedStatusFilter" asp-items="@Model.StatusFilters" class="nhsuk-select" id="@Model.SelectedStatusFilter"></select>
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                    </tr>
+                                    <tr role="row">
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <button class="nhsuk-button" asp-page-handler="RunSearch" type="submit">@SearchConstants.FINDBUTTONTEXT</button>
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">
+                                            <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBUTTONTEXT</button>
+                                        </td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                    </tr>
+                                    @foreach (var user in Model.UserList)
+                                    {
+                                        <tr role="row" class="nhsuk-table__row">
+                                            <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.OrganisationName</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.AccessLevel</td>
+                                            <td role="cell" class="nhsuk-table__cell">
+                                                @if (user.IsAuthorised)
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-route-userid="@user.UserId" asp-route-userstatus="false" asp-page-handler="SetUserStatus">
+                                                        @user.Status
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--red" asp-route-userid="@user.UserId" asp-route-userstatus="true" asp-page-handler="SetUserStatus">
+                                                        @user.Status
+                                                    </button>
+                                                }
+                                            </td>
+                                            <td role="cell" class="nhsuk-table__cell">
+
+                                                @if (user.MultiSearchEnabled)
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@user.UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-userid="@user.UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
             </div>
         </main>

@@ -1,7 +1,11 @@
 ﻿@page
 @using gpconnect_appointment_checker.Helpers.Constants
 @using System.Data
+@using Microsoft.AspNetCore.Mvc.ModelBinding
 @model ReportsModel
+@{
+    var SelectedReportInvalid = Model.ModelState["SelectedReport"]?.ValidationState == ModelValidationState.Invalid;
+}
 
 <form method="post" id="search-input-form">
     <div class="nhsuk-width-container">
@@ -9,39 +13,39 @@
             <div class="nhsuk-grid-row">
                 <div class="nhsuk-grid-column-full">
                     <h1>Appointment Checker Reports</h1>
-                    <div class="nhsuk-form-group">
+                    <div class="nhsuk-form-group @(SelectedReportInvalid ? "nhsuk-form-group--error" : string.Empty)">
                         @Html.ValidationMessageFor(m => m.SelectedReport, "", new { @class = "nhsuk-error-message" })
-                        <select asp-for="@Model.SelectedReport" asp-items="@Model.ReportsList" class="nhsuk-select" id="@Model.SelectedReport"></select>
+                        <select asp-for="@Model.SelectedReport" asp-items="@Model.ReportsList" class="nhsuk-select @(SelectedReportInvalid ? "nhsuk-input--error" : string.Empty)" id="@Model.SelectedReport"></select>
                     </div>
                     <button class="nhsuk-button" asp-page-handler="LoadReport" type="submit">@SearchConstants.LOADREPORTBUTTONTEXT</button>
                     <button class="nhsuk-button" asp-page-handler="ExportReport" type="submit">@SearchConstants.EXPORTREPORTBUTTONTEXT</button>
+                    @if (Model.ReportData != null)
+                    {
+                        <table role="table" class="nhsuk-table">
+                            <thead role="rowgroup" class="nhsuk-table__head">
+                                <tr role="row">
+                                    @foreach (DataColumn column in Model.ReportData.Columns)
+                                    {
+                                        <th role="columnheader" class="" scope="col">@column.Caption</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody class="nhsuk-table__body">
+                                @foreach (DataRow row in Model.ReportData.Rows)
+                                {
+                                    <tr role="row" class="nhsuk-table__row">
+                                        @foreach (var cell in row.ItemArray)
+                                        {
+                                            <td role="cell" class="nhsuk-table__cell">
+                                                @cell.ToString()
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                        </table>
+                    }
                 </div>
             </div>
-            @if (Model.ReportData != null)
-            {
-                <table role="table" class="nhsuk-table">
-                    <thead role="rowgroup" class="nhsuk-table__head">
-                        <tr role="row">
-                            @foreach (DataColumn column in Model.ReportData.Columns)
-                            {
-                                <th role="columnheader" class="" scope="col">@column.Caption</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody class="nhsuk-table__body">
-                        @foreach (DataRow row in Model.ReportData.Rows)
-                        {
-                            <tr role="row" class="nhsuk-table__row">
-                                @foreach (var cell in row.ItemArray)
-                                {
-                                    <td role="cell" class="nhsuk-table__cell">
-                                        @cell.ToString()
-                                    </td>
-                                }
-                            </tr>
-                        }
-                </table>
-            }
         </main>
     </div>
 </form>
