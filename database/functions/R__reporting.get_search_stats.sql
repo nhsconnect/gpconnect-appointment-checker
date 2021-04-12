@@ -5,20 +5,20 @@ create function reporting.get_search_stats
 )
 returns table
 (
-    week integer,
-    month integer,
-    year integer,
-    count integer
+    "Week" integer,
+    "Month" integer,
+    "Year" integer,
+    "Count" integer
 )
 as $$
 begin
 
     return query
     select 
-        date_part('week', logged_date)::integer as week,
-        date_part('month', logged_date)::integer as month, 
-        date_part('year', logged_date)::integer as year, 
-        count(*)::integer as count
+        date_part('week', logged_date)::integer AS "Week",
+        date_part('month', logged_date)::integer AS "Month", 
+        date_part('year', logged_date)::integer AS "Year", 
+        count(*)::integer AS "Count"
     from logging.spine_message 
     where spine_message_type_id = 3 
     group by 

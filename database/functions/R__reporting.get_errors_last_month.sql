@@ -5,20 +5,19 @@ create function reporting.get_errors_last_month
 )
 returns table
 (
-    error_message text,
-    logger text,
-    num_occurrences integer,
-    last_ocurred timestamp
+    "Error Message" text,
+    "Error Logger" text,
+    "Number of Occurrences" integer,
+    "Last Occurred" timestamp
 )
 as $$
 begin
-
     return query
     select 
-        el.message::text as error_message, 
-        el.logger::text, 
-        count(*)::integer as num_occurrences,
-        max(el.logged) as last_occurred
+        el.message::text AS "Error Message", 
+        el.logger::text AS "Error Logger", 
+        count(*)::integer AS "Number of Occurrences",
+        max(el.logged) AS "Last Occurred"
     from logging.error_log el
     where el.level = 'ERROR'
     and el.logged > now() - 1 * interval '1 month' 

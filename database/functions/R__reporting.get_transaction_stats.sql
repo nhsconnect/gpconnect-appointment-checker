@@ -5,20 +5,20 @@ create function reporting.get_transaction_stats
 )
 returns table
 (
-    month integer,
-    year integer,
-    interaction_id text,
-    count integer
+    "Month" integer,
+    "Year" integer,
+    "Interaction Identifier" text,
+    "Count" integer
 )
 as $$
 begin
 
     return query
     select 
-        msg.month::integer,
-        msg.year::integer,
-        sm.interaction_id::text,
-        msg.count::integer
+        msg.month::integer AS "Month",
+        msg.year::integer AS "Year",
+        sm.interaction_id::text AS "Interaction Identifier",
+        msg.count::integer AS "Count"
     from
     (
         select 

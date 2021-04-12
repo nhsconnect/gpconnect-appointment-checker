@@ -5,9 +5,8 @@ create function reporting.get_user_stats
 )
 returns table
 (
-    stat_id integer,
-    stat_name text,
-    stat_value integer
+    "Name" text,
+    "Count" integer
 )
 as $$
 declare
@@ -39,25 +38,21 @@ begin
 
     return query
     select
-        1 as stat_id,
-        'total_authorised_users' as stat_name,
-        _total_authorised_users as stat_value
+        'Total Authorised Users' AS "Type",
+        _total_authorised_users AS "Count"
     union
     select
-        2 as stat_id,
-        'total_unauthorised_users' as stat_name,
-        _total_unauthorised_users as stat_value
+        'Total Unauthorised Users' AS "Type",
+        _total_unauthorised_users AS "Count"
     union
     select
-        3 as stat_id,
-        'users_loggedon_month' as stat_name,
-        _users_loggedon_month as stat_value
+        'Users Logged on Month' AS "Type",
+        _users_loggedon_month AS "Count"
     union
     select
-        4 as stat_id,
-        'users_loggedon_week' as stat_name,
-        _users_loggedon_week as stat_value
-    order by 
-        stat_id asc;
+        'Users Logged on Week' AS "Type",
+        _users_loggedon_week AS "Count"
+	
+	ORDER BY 1;
 end;
 $$ language plpgsql;
