@@ -22,13 +22,4 @@
     <ProjectReference Include="..\gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Email\Templates\DeauthorisedConfirmationEmail.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Email\Templates\AuthorisedConfirmationEmail.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

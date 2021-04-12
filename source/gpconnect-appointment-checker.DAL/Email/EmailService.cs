@@ -1,15 +1,15 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Audit;
+using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.Helpers.CustomAttributes;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
-using System.Reflection;
 
 namespace gpconnect_appointment_checker.DAL.Email
 {
@@ -17,41 +17,45 @@ namespace gpconnect_appointment_checker.DAL.Email
     {
         private readonly ILogger<EmailService> _logger;
         private readonly IAuditService _auditService;
+        private readonly IDataService _dataService;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly SmtpClient _smtpClient;
+        private readonly Lazy<List<EmailTemplate>> _emailTemplates;
 
-        public EmailService(SmtpClient smtpClient, IConfiguration configuration, ILogger<EmailService> logger, IAuditService auditService, IHttpContextAccessor contextAccessor)
+        public EmailService(SmtpClient smtpClient, IConfiguration configuration, ILogger<EmailService> logger, IAuditService auditService, IHttpContextAccessor contextAccessor, IDataService dataService)
         {
             _logger = logger;
             _auditService = auditService;
             _configuration = configuration;
             _smtpClient = smtpClient;
             _contextAccessor = contextAccessor;
+            _dataService = dataService;
+            _emailTemplates = new Lazy<List<EmailTemplate>>(GetEmailTemplates);
         }
 
         public void SendUserStatusEmail(bool isAuthorised, string recipient)
         {
             var template = isAuthorised
-                ? MailTemplate.AuthorisedConfirmationEmail
-                : MailTemplate.DeauthorisedConfirmationEmail;
-            var bodySubject = GetEmailSubjectAndBody(template);
-            SendEmail(recipient, bodySubject.Item1, bodySubject.Item2);
+                ? _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.AuthorisedConfirmationEmail)
+                : _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.DeauthorisedConfirmationEmail);
+            SendEmail(recipient, template);
         }
 
-        private void SendEmail(string recipient, string subject, string body)
+        private void SendEmail(string recipient, EmailTemplate emailTemplate)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
-            if (string.IsNullOrEmpty(body)) throw new ArgumentNullException(nameof(body));
+            if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
             var sender = _configuration.GetSection("Email:sender_address").GetConfigurationString(null, true);
             var displayName = _configuration.GetSection("General:product_name").GetConfigurationString(sender);
             try
             {
+                var body = PopulateDynamicFields(emailTemplate.Body);
                 var mailMessage = new MailMessage
                 {
                     From = new MailAddress(sender, displayName),
                     IsBodyHtml = false,
-                    Subject = subject,
+                    Subject = emailTemplate.Subject,
                     Body = body,
                     To = { recipient }
                 };
@@ -75,36 +79,11 @@ namespace gpconnect_appointment_checker.DAL.Email
             }
         }
 
-        private (string, string) GetEmailSubjectAndBody(MailTemplate mailTemplate)
+        private string PopulateDynamicFields(string bodyText)
         {
-            var file = FileHelper.ReadFileContents($@"Email\Templates\{mailTemplate}.txt");
-            if(file != null)
-            {
-                var subject = GetEmailSubject(mailTemplate,
-                    _configuration.GetSection("Email:default_subject").GetConfigurationString());
-                var body = PopulateDynamicFields(file);
-                return (subject, body);
-            }
-            return (null, null);
-        }
-
-        private static string GetEmailSubject(MailTemplate mailTemplate, string defaultSubject)
-        {
-            FieldInfo fi = mailTemplate.GetType().GetField(mailTemplate.ToString());
-            MailSubjectAttribute[] attributes = fi.GetCustomAttributes(typeof(MailSubjectAttribute), false) as MailSubjectAttribute[];
-
-            if (attributes != null && attributes.Any())
-            {
-                return attributes.First().MailSubject;
-            }
-            return defaultSubject;
-        }
-
-        private string PopulateDynamicFields(string readText)
-        {
-            readText = readText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));
-            readText = readText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());
-            return readText;
+            bodyText = bodyText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));
+            bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());
+            return bodyText;
         }
 
         private void SendToAudit(string recipient, string details)
@@ -117,6 +96,13 @@ namespace gpconnect_appointment_checker.DAL.Email
                 EntryTypeId = (int)AuditEntryType.EmailSent
             };
             _auditService.AddEntry(auditEntry);
+        }
+
+        public List<EmailTemplate> GetEmailTemplates()
+        {
+            var functionName = "application.get_email_templates";
+            var result = _dataService.ExecuteFunction<EmailTemplate>(functionName);
+            return result;
         }
     }
 }
