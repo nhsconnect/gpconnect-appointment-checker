@@ -37,7 +37,7 @@ If you still need access, please email <address> with your name, email address, 
 
 insert into audit.entry_type (entry_type_id, entry_description, item1_description, item2_description, item3_description) values (15, 'User ran multiple slot search', 'consumer ods codes', 'provider ods codes', 'selected date range');
 
-insert into audit.entry_type (entry_type_id, entry_description, item1_description) values (16, 'User create account');
+insert into audit.entry_type (entry_type_id, entry_description) values (16, 'User create account');
 
 UPDATE audit.entry_type SET entry_description='User ran single slot search', item3_description='selected date range' WHERE entry_type_id=4;
 
