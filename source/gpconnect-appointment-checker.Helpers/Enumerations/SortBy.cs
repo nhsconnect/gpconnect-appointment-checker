@@ -3,7 +3,8 @@
     public enum SortBy
     {
         EmailAddress,
-        LastLogonDate
+        LastLogonDate,
+        AccessRequestCount
     }
 
     public enum SortDirection

@@ -1,0 +1,15 @@
+﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
+@model CreateAccountInterstitialModel
+@addTagHelper *, gpconnect-appointment-checker
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-warning-callout">
+            <h3 class="nhsuk-warning-callout__label">@SearchConstants.CREATEACCOUNTINTERSTITIALLABEL</h3>
+            <p>@SearchConstants.CREATEACCOUNTINTERSTITIALTEXT</p>
+            <a class="nhsuk-button" href="/Auth/Register">@SearchConstants.CONTINUEBUTTONTEXT</a>
+            <a class="nhsuk-button nhsuk-button--secondary" href="/" draggable="false">@SearchConstants.CANCELBUTTONTEXT</a>
+        </div>
+    </div>
+</div>

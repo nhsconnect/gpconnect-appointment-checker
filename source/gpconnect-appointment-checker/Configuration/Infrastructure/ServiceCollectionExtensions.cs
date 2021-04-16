@@ -41,7 +41,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 options.Conventions.AuthorizeFolder("/Private"); 
                 options.Conventions.AllowAnonymousToFolder("/Public");
-                options.Conventions.AddPageRoute("/Private/Admin/Index", "/Admin");
+                options.Conventions.AddPageRoute("/Private/Admin/Index", "/Admin");                
                 options.Conventions.AddPageRoute("/Private/Admin/Reports", "/Reports");
                 options.Conventions.AddPageRoute("/Private/Search", "/Search");
                 options.Conventions.AddPageRoute("/Private/SearchDetail", "/SearchDetail/{searchDetailId}");
@@ -49,6 +49,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
                 options.Conventions.AddPageRoute("/Public/Accessibility", "/Accessibility");
                 options.Conventions.AddPageRoute("/Public/PrivacyAndCookies", "/PrivacyAndCookies");
+                options.Conventions.AddPageRoute("/Public/CreateAccountInterstitial", "/CreateAccountInterstitial");
+                options.Conventions.AddPageRoute("/Private/CreateAccount", "/CreateAccount");
                 options.Conventions.AddPageRoute("/Public/Help/Help", "/Help");
             });
             services.AddAntiforgery(options => 

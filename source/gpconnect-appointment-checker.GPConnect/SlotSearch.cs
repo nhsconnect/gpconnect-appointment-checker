@@ -54,9 +54,6 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
-
-                //responseStream = FileHelper.ReadFileContents("feed.json");
-
                 var slotSimple = new SlotSimple();
                 var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
@@ -312,7 +309,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0)
+        public void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, bool isMultiSearch, int? resultCount = 0)
         {
             var auditEntry = new Entry
             {
@@ -321,7 +318,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 Item3 = auditSearchParameters[2].Replace(":", " "),
                 Details = (auditSearchIssues != null && auditSearchIssues.Count > 0) ? string.Join((char)10, auditSearchIssues) : $"{resultCount} free slot(s) returned",
                 EntryElapsedMs = Convert.ToInt32(stopWatch.ElapsedMilliseconds),
-                EntryTypeId = (int)AuditEntryType.SlotSearch
+                EntryTypeId = !isMultiSearch ? (int)AuditEntryType.SingleSlotSearch : (int)AuditEntryType.MultiSlotSearch
             };
             _auditService.AddEntry(auditEntry);
         }

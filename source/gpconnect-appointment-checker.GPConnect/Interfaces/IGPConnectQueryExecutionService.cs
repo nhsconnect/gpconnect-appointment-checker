@@ -15,6 +15,6 @@ namespace gpconnect_appointment_checker.GPConnect.Interfaces
         List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
         List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameters);
         Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress);
-        void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, int? resultCount = 0);
+        void SendToAudit(List<string> auditSearchParameters, List<string> auditSearchIssues, Stopwatch stopWatch, bool isMultiSearch, int? resultCount = 0);
     }
 }

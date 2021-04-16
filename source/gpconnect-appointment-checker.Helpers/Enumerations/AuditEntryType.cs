@@ -5,7 +5,7 @@
         UserLogonSuccess = 1,
         UserLogonFailed = 2,
         UserLogoff = 3,
-        SlotSearch = 4,
+        SingleSlotSearch = 4,
         UserDisplayNameChanged = 5,
         UserOrganisationChanged = 6,
         OrganisationNameChanged = 7,
@@ -15,6 +15,8 @@
         UserAccessLevelChanged = 11,
         UserMultiSearchEnabledStatusChanged = 12,
         NewUserAdded = 13,
-        EmailSent = 14
+        EmailSent = 14,
+        MultiSlotSearch = 15,
+        UserCreateAccount = 16
     }
 }

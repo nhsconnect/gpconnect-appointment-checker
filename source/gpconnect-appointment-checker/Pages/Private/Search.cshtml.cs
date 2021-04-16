@@ -120,6 +120,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 ProviderOdsCode = CleansedProviderOdsCodeInput;
                 ConsumerOdsCode = CleansedConsumerOdsCodeInput;
+                
                 _stopwatch.Start();
                 if (IsMultiSearch && ValidSearchCombination)
                 {
@@ -131,8 +132,17 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 _stopwatch.Stop();
                 SearchDuration = _stopwatch.Elapsed.TotalSeconds;
-                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, SearchResultsCount);
+                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsCount);
             }
+
+            //_contextAccessor.HttpContext.QueryString.Add("providerOdsCode", ProviderOdsCode);
+            //_contextAccessor.HttpContext.Request.QueryString.Add("consumerOdsCode", ConsumerOdsCode);
+
+            var queryString = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(_contextAccessor.HttpContext.Request.QueryString.ToUriComponent());
+
+            queryString["providerOdsCode"] = ProviderOdsCode;
+
+
             return Page();
         }
 

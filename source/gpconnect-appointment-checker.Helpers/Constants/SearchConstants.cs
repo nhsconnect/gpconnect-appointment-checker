@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace gpconnect_appointment_checker.Helpers.Constants
+﻿namespace gpconnect_appointment_checker.Helpers.Constants
 {
     public class SearchConstants
     {
@@ -15,7 +13,10 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
         public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
-        public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it.";
+        public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it, or create an account if you don't already have one.";
+        
+        public const string CREATEACCOUNTINTERSTITIALLABEL = "Access to GP Connect Appointment Checker";
+        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked. Then you will be asked to complete a short form, and tick a box to confirm that you have agreed to the Terms and Conditions of use.";
 
         public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
         public const string RUNASEARCHTEXT = "Run a search";
@@ -25,6 +26,8 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string HOMETEXT = "Home";
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
+        public const string CREATEACCOUNTBUTTONTEXT = "Create account";
+        
         public const string SIGNOUTBUTTONTEXT = "Sign out";
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
         public const string AUTHORISEBUTTONTEXT = "Authorise";
@@ -82,6 +85,9 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string SAVENEWUSERBUTTONTEXT = "Save";
         public const string LOADREPORTBUTTONTEXT = "Load Report";
         public const string EXPORTREPORTBUTTONTEXT = "Export Report";
+        
+        public const string CONTINUEBUTTONTEXT = "Continue";
+        public const string CANCELBUTTONTEXT = "Cancel";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
@@ -105,6 +111,7 @@ namespace gpconnect_appointment_checker.Helpers.Constants
         public const string USERLISTRESULTSACCESSLEVEL = "Access Level";
         public const string USERLISTRESULTSLASTLOGONDATE = "Last signed on";
         public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi Search?";
+        public const string USERLISTRESULTSACCESSREQUESTCOUNT = "Number of access requests";
 
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";

@@ -37,6 +37,17 @@ namespace gpconnect_appointment_checker.Controllers
             });
         }
 
+        [Route("/Auth/Register")]
+        [AllowAnonymous]
+        public async Task Register()
+        {
+            await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties
+            {
+                RedirectUri = "/CreateAccount",
+                ExpiresUtc = DateTimeOffset.Now.AddMinutes(30)
+            });
+        }
+
         [Route("/Auth/Signout")]
         public IActionResult Signout()
         {
