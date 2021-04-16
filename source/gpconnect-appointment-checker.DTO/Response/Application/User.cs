@@ -17,5 +17,6 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public bool IsAdmin { get; set; }
         public bool IsNewUser { get; set; }
         public int AccessRequestCount { get; set; }
+        public bool IsPastLastLogonThreshold { get; set; }
     }
 }

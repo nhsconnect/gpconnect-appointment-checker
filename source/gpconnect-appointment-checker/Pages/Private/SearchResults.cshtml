@@ -59,7 +59,7 @@
                             @foreach (var t in locationGrouping)
                             {
                                 var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
-                                <tr role="row" class="nhsuk-table__row  @if (t.SlotInPast){ @Html.Raw("nhsuk-past-slot") }">
+                                <tr role="row" class="nhsuk-table__row  @if (t.SlotInPast){ <text>nhsuk-row-warning</text> }">
                                     <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
                                     <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
                                     <td role="cell" class="nhsuk-table__cell">@t.StartTime.DateFormatter("t")</td>

@@ -28,9 +28,10 @@
                     </div>
                     @if (Model.UserList.Count > 0)
                     {
-                        <div class="nhsuk-do-dont-list">
-                            <h3 class="nhsuk-do-dont-list__label">User list</h3>
-                            <table role="table" class="nhsuk-table">
+                        <div class="nhsuk-table__panel-with-heading-tab">
+                            <h3 class="nhsuk-table__heading-tab">User list</h3>
+                            <table class="nhsuk-table">
+                                <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">User list</caption>
                                 <thead role="rowgroup" class="nhsuk-table__head">
                                     <tr role="row">
                                         <th role="columnheader" class="" scope="col">
@@ -102,39 +103,39 @@
                                     </tr>
                                     @foreach (var user in Model.UserList)
                                     {
-                                <tr role="row" class="nhsuk-table__row">
-                                    <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
-                                    <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
-                                    <td role="cell" class="nhsuk-table__cell">@user.OrganisationName</td>
-                                    <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
-                                    <td role="cell" class="nhsuk-table__cell">@user.AccessRequestCount</td>
-                                    <td role="cell" class="nhsuk-table__cell">@user.AccessLevel</td>
-                                    <td role="cell" class="nhsuk-table__cell">
-                                        @if (user.IsAuthorised)
-                                        {
-                                            <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-route-userid="@user.UserId" asp-route-userstatus="false" asp-page-handler="SetUserStatus">
-                                                @user.Status
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit" class="nhsuk-tag nhsuk-tag--red" asp-route-userid="@user.UserId" asp-route-userstatus="true" asp-page-handler="SetUserStatus">
-                                                @user.Status
-                                            </button>
-                                        }
-                                    </td>
-                                    <td role="cell" class="nhsuk-table__cell">
+                                        <tr role="row" class="nhsuk-table__row @if(user.IsPastLastLogonThreshold) { <text>nhsuk-row-warning</text> }">
+                                            <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.OrganisationName</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.AccessRequestCount</td>
+                                            <td role="cell" class="nhsuk-table__cell">@user.AccessLevel</td>
+                                            <td role="cell" class="nhsuk-table__cell">
+                                                @if (user.IsAuthorised)
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-route-userid="@user.UserId" asp-route-userstatus="false" asp-page-handler="SetUserStatus">
+                                                        @user.Status
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--red" asp-route-userid="@user.UserId" asp-route-userstatus="true" asp-page-handler="SetUserStatus">
+                                                        @user.Status
+                                                    </button>
+                                                }
+                                            </td>
+                                            <td role="cell" class="nhsuk-table__cell">
 
-                                        @if (user.MultiSearchEnabled)
-                                        {
-                                            <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@user.UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-userid="@user.UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
-                                        }
-                                    </td>
-                                </tr>
+                                                @if (user.MultiSearchEnabled)
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@user.UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-userid="@user.UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
+                                                }
+                                            </td>
+                                        </tr>
                                     }
                                 </tbody>
                             </table>

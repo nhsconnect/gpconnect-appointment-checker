@@ -20,6 +20,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.IsAdmin).ToColumn("is_admin");
             Map(p => p.IsNewUser).ToColumn("is_new_user");
             Map(p => p.AccessRequestCount).ToColumn("number_of_access_requests");
+            Map(p => p.IsPastLastLogonThreshold).ToColumn("is_past_last_logon_threshold");
         }
     }
 }
