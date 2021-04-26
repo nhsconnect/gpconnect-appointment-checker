@@ -16,10 +16,18 @@
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it, or create an account if you don't already have one.";
         
         public const string CREATEACCOUNTINTERSTITIALLABEL = "Access to GP Connect Appointment Checker";
-        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked. Then you will be asked to complete a short form, and tick a box to confirm that you have agreed to the Terms and Conditions of use.";
+        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked, " + FORMCOMPLETIONTEXT;
+
+        public const string USERNAMELABEL = "User name";
+        public const string JOBROLELABEL = "Job role";
+        public const string ORGANISATIONLABEL = "Organisation (if different to the one shown above)";
+        public const string ACCESSREQUESTREASONLABEL = "Reason for requesting access to the Appointment Checker.";
+        public const string ACCESSREQUESTREASONHINTTEXT = "Please provide as much information as possible, this will allow your account to be created quickly. For example, \"I am responsible for setting up slots acrosss my PCN and want to check them.\"";
 
         public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
         public const string RUNASEARCHTEXT = "Run a search";
+        public const string ALREADYHAVEANACCOUNTLABEL = "Account Found";
+        public const string ALREADYHAVEANACCOUNTTEXT = "You already have an account and can use the Appointment Checker";
         public const string SEARCHTEXT = "Search";
         public const string ADMINTEXT = "Admin";
         public const string REPORTSTEXT = "Reports";
@@ -27,7 +35,21 @@
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string CREATEACCOUNTBUTTONTEXT = "Create account";
-        
+
+        public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
+        public const string PENDINGACCOUNTLABEL = "Pending Account";
+
+        public const string NOACCOUNTLABEL = "No Account";
+        public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
+        public const string REQUESTDENIEDLABEL = "Request Denied";
+        public const string DEAUTHORISEDLABEL = "Deauthorised";
+        public const string PLEASEWAITLABEL = "Thank you&hellip;please wait";
+        public const string DEAUTHORISEDTEXT = "Your account has been disabled. If you wish to use it again, " + FORMCOMPLETIONTEXT;
+        public const string REQUESTDENIEDTEXT = "Your request to create an account has been denied.  If you wish to apply again, " + FORMCOMPLETIONTEXT;        
+        public const string FORMCOMPLETIONTEXT = "then you will be asked to complete a short form, and confirm that you have agreed to the Terms and Conditions of use.";
+        public const string NOACCOUNTTEXT = "You do not have an account to use the Appointment Checker. Please use the Create Account option.";
+        public const string PLEASEWAITTEXT = "You currently do not have the necessary authorisation to use the Appointment Checker or your request for an account is currently being reviewed and you will be notified of the outcome as soon as possible.</p><p>If, for whatever reason, you need to complete another Create Account form, please do so by clicking on the button below.";
+
         public const string SIGNOUTBUTTONTEXT = "Sign out";
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
         public const string AUTHORISEBUTTONTEXT = "Authorise";
@@ -67,6 +89,9 @@
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
+        public const string JOBROLEREQUIREDERRORMESSAGE = "You must enter a job role";
+        public const string ORGANISATIONREQUIREDERRORMESSAGE = "You must enter an organisation";
+        public const string ACCESSREQUESTREASONREQUIREDERRORMESSAGE = "You must enter a reason";
 
         public const string CONSUMERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of consumer ODS codes which you can enter ({0})";
         public const string PROVIDERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
@@ -85,9 +110,11 @@
         public const string SAVENEWUSERBUTTONTEXT = "Save";
         public const string LOADREPORTBUTTONTEXT = "Load Report";
         public const string EXPORTREPORTBUTTONTEXT = "Export Report";
-        
+
+        public const string SUBMITBUTTONTEXT = "Submit";
         public const string CONTINUEBUTTONTEXT = "Continue";
         public const string CANCELBUTTONTEXT = "Cancel";
+        public const string CLEARBUTTONTEXT = "Clear";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
@@ -124,7 +151,6 @@
 
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
-        public const string CLEARBUTTONTEXT = "Clear";
         public const string FREESLOTSFOUNDTEXT = "{0} free slots found";
     }
 }

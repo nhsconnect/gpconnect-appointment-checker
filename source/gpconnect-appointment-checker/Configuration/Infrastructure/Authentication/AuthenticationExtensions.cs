@@ -1,6 +1,5 @@
 ﻿using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;

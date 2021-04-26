@@ -1,0 +1,56 @@
+﻿@page
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers;
+@model CreateAccountModel
+@addTagHelper *, gpconnect-appointment-checker
+
+@{
+    var jobRoleInvalid = Model.ModelState["JobRole"]?.ValidationState == ModelValidationState.Invalid;
+    var organisationInvalid = Model.ModelState["Organisation"]?.ValidationState == ModelValidationState.Invalid;
+    var accessRequestReasonInvalid = Model.ModelState["AccessRequestReason"]?.ValidationState == ModelValidationState.Invalid;
+}
+
+<form method="post" id="search-input-form">
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-form-group">
+                <label class="nhsuk-label" for="input-username">@SearchConstants.USERNAMELABEL</label>
+                <input class="nhsuk-input" id="input-username" asp-for="@Model.UserName" name="username" value="@User.GetClaimValue("DisplayName")" type="text" disabled>
+            </div>
+            <div class="nhsuk-form-group @(jobRoleInvalid ? "nhsuk-form-group--error": string.Empty)">
+                <label class="nhsuk-label" for="input-jobrole">@SearchConstants.JOBROLELABEL</label>
+                @if (jobRoleInvalid)
+                {
+                    @Html.ValidationMessageFor(m => m.JobRole, "", new { @class = "nhsuk-error-message" })
+                }
+                <input class="nhsuk-input @(jobRoleInvalid ? "nhsuk-input--error": string.Empty)" id="input-jobrole" no-validate asp-for="@Model.JobRole" name="jobrole" value="@Model.JobRole" type="text">
+            </div>
+            <div class="nhsuk-form-group @(organisationInvalid ? "nhsuk-form-group--error": string.Empty)">
+                <label class="nhsuk-label" for="input-organisation">@SearchConstants.ORGANISATIONLABEL</label>
+                @if (organisationInvalid)
+                {
+                    @Html.ValidationMessageFor(m => m.Organisation, "", new { @class = "nhsuk-error-message" })
+                }
+                <input class="nhsuk-input @(organisationInvalid ? "nhsuk-input--error": string.Empty)" id="input-organisation" no-validate asp-for="@Model.Organisation" name="organisation" value="@User.GetClaimValue("OrganisationName")" type="text">
+            </div>
+            <div class="nhsuk-form-group @(accessRequestReasonInvalid ? "nhsuk-form-group--error": string.Empty)">
+                <label class="nhsuk-label" for="input-accessrequestreason">@SearchConstants.ACCESSREQUESTREASONLABEL</label>
+                <div class="nhsuk-hint" id="input-accessrequestreason-hint-text">@SearchConstants.ACCESSREQUESTREASONHINTTEXT</div>
+                @if (accessRequestReasonInvalid)
+                {
+                    @Html.ValidationMessageFor(m => m.AccessRequestReason, "", new { @class = "nhsuk-error-message" })
+                }
+                <textarea class="nhsuk-textarea @(accessRequestReasonInvalid ? "nhsuk-textarea--error": string.Empty)" id="input-accessrequestreason" asp-for="@Model.AccessRequestReason" name="accessrequestreason" rows="5" aria-describedby="input-accessrequestreason-hint-text">@Model.AccessRequestReason</textarea>
+            </div>
+
+            <div class="nhsuk-form-group">
+                <p>By clicking on "Submit", you agree to abide by the Appointment Checker <a href="/TermsAndConditions">Terms and Conditions</a></p>
+            </div>
+
+            <button class="nhsuk-button" asp-page-handler="SendForm" type="submit">@SearchConstants.SUBMITBUTTONTEXT</button>
+            <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+            <button class="nhsuk-button nhsuk-button--reverse" asp-page-handler="Cancel" type="submit">@SearchConstants.CANCELBUTTONTEXT</button>
+        </div>
+    </div>
+</form>

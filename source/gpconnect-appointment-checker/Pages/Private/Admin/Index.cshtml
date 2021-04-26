@@ -64,7 +64,8 @@
                                             </button>
                                         </th>
                                         <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
-                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
+                                        <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS
+                                            <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-page-handler="SetUserStatuses">Update Users</button></th>
                                         <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
                                     </tr>
                                 </thead>
@@ -79,12 +80,13 @@
                                         <td role="cell" class="" scope="nhsuk-table__cell">
                                             <input class="nhsuk-input nhsuk-input--width-10" id="input-organisationnamesearch" no-validate asp-for="@Model.OrganisationNameSearchValue" name="organisationnamesearchvalue" value="@Model.OrganisationNameSearchValue" type="text" aria-describedby="input-organisationnamesearch-hint-text">
                                         </td>
-                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
-                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                         <td role="cell" class="" scope="nhsuk-table__cell">
-                                            <select asp-for="@Model.SelectedStatusFilter" asp-items="@Model.StatusFilters" class="nhsuk-select" id="@Model.SelectedStatusFilter"></select>
+                                            <select asp-for="SelectedUserAccountStatusFilter" asp-items="@Model.GetUserAccountStatuses(null, true)" class="nhsuk-select" id="@Model.SelectedUserAccountStatusFilter"></select>
                                         </td>
-                                        <td role="cell" class="" scope="nhsuk-table__cell"></td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                     </tr>
                                     <tr role="row">
                                         <td role="cell" class="" scope="nhsuk-table__cell">
@@ -96,6 +98,7 @@
                                         <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                         <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                         <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                        <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                         <td role="cell" class="" scope="nhsuk-table__cell">
                                             <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBUTTONTEXT</button>
                                         </td>
@@ -103,29 +106,21 @@
                                     </tr>
                                     @foreach (var user in Model.UserList)
                                     {
-                                        <tr role="row" class="nhsuk-table__row @if(user.IsPastLastLogonThreshold) { <text>nhsuk-row-warning</text> }">
-                                            <td role="cell" class="nhsuk-table__cell">@user.EmailAddress</td>
-                                            <td role="cell" class="nhsuk-table__cell">@user.DisplayName</td>
-                                            <td role="cell" class="nhsuk-table__cell">@user.OrganisationName</td>
-                                            <td role="cell" class="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
-                                            <td role="cell" class="nhsuk-table__cell">@user.AccessRequestCount</td>
-                                            <td role="cell" class="nhsuk-table__cell">@user.AccessLevel</td>
-                                            <td role="cell" class="nhsuk-table__cell">
-                                                @if (user.IsAuthorised)
-                                                {
-                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-route-userid="@user.UserId" asp-route-userstatus="false" asp-page-handler="SetUserStatus">
-                                                        @user.Status
-                                                    </button>
-                                                }
-                                                else
-                                                {
-                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--red" asp-route-userid="@user.UserId" asp-route-userstatus="true" asp-page-handler="SetUserStatus">
-                                                        @user.Status
-                                                    </button>
-                                                }
-                                            </td>
-                                            <td role="cell" class="nhsuk-table__cell">
+                                        <tr role="row" class="@if(user.IsPastLastLogonThreshold) { <text>nhsuk-row-warning</text> }" scope="nhsuk-table__cell">
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.EmailAddress</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.DisplayName</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.OrganisationName</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.LastLogonDate.ToString("dd MMM yyyy")</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.AccessRequestCount</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">@user.AccessLevel</td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">
+                                                @*<select asp-for="@user.UserAccountStatus" asp-items="@Model.GetUserAccountStatuses()" class="nhsuk-select" id="@user.UserId"></select>*@
+                                                <select asp-for="@Model.SelectedUserAccountStatus" asp-items="@Model.GetUserAccountStatuses(user.UserAccountStatus)" class="nhsuk-select" id="@user.UserId"></select>
 
+                                                
+                                                <select asp-for="@Model.SelectedUserAccountStatus" asp-items="@Model.GetUserAccountStatuses(user.UserAccountStatus)" class="nhsuk-select" id="@user.UserId"></select>
+                                            </td>
+                                            <td role="cell" class="" scope="nhsuk-table__cell">
                                                 @if (user.MultiSearchEnabled)
                                                 {
                                                     <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@user.UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@user.MultiSearchEnabled.BooleanToYesNo()</button>
@@ -147,5 +142,5 @@
     </div>
     <input type="hidden" asp-for="SortByColumn" value="@Model.SortByColumn" />
     <input type="hidden" asp-for="SortByState" value="@Model.SortByState" />
-    <input type="hidden" asp-for="SelectedStatusFilter" value="@Model.SelectedStatusFilter" />
+    <input type="hidden" asp-for="SelectedUserAccountStatusFilter" value="@Model.SelectedUserAccountStatusFilter" />
 </form>

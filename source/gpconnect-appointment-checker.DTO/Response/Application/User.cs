@@ -1,4 +1,5 @@
-﻿using System;
+﻿using gpconnect_appointment_checker.Helpers.Enumerations;
+using System;
 
 namespace gpconnect_appointment_checker.DTO.Response.Application
 {
@@ -11,8 +12,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public string OrganisationName { get; set; }
         public string AccessLevel { get; set; }
         public DateTime LastLogonDate { get; set; }
-        public string Status { get; set; }
-        public bool IsAuthorised { get; set; }
+        public UserAccountStatus UserAccountStatus { get; set; }
         public bool MultiSearchEnabled { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsNewUser { get; set; }

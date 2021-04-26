@@ -1,10 +1,11 @@
-drop function if exists application.add_user_manual;
+drop function if exists application.add_or_update_user;
 
-create function application.add_user_manual
+create function application.add_or_update_user
 (
 	_email_address varchar(200),
-	_admin_user_id integer default null,
-	_user_session_id integer default null
+	_user_account_status_id integer,
+	_display_name varchar(200),
+	_organisation_id integer
 )
 returns table
 (
@@ -17,12 +18,10 @@ returns table
 	authorised_date timestamp,
 	last_logon_date timestamp,
 	multi_search_enabled boolean,
-	is_admin boolean,
-	is_new_user boolean
+	is_admin boolean
 )
 as $$
 declare	_user_id integer;
-declare _is_new_user boolean := false;
 begin
 	_email_address = lower(trim(coalesce(_email_address, '')));
 	
@@ -32,7 +31,6 @@ begin
 		
 	if (_user_id is null) 
 	then
-		_is_new_user := true;
 		insert into application."user" 
 		(
 			email_address, 
@@ -48,9 +46,9 @@ begin
 		values
 		(
 			_email_address,
-			'not-set', 
-			-1, 
-			2, 
+			_display_name, 
+			_organisation_id, 
+			1,
 			now(), 
 			now(),
 			null,
@@ -60,12 +58,16 @@ begin
 		returning
 			application.user.user_id
 		into 
-			_user_id;
-
-		if (_admin_user_id is not null)
-		then
-			perform audit.add_entry(_user_id, _user_session_id, 13, null, null, null, _email_address, null, _admin_user_id);
-		end if;
+			_user_id;		
+	else
+		update 
+			application.user
+		set
+			user_account_status_id = 1,
+			display_name = _display_name,
+			organisation_id = _organisation_id			
+		where
+			application.user.user_id = _user_id;
 	end if;
 	
 	--------------------------------------------
@@ -82,8 +84,7 @@ begin
 		u.authorised_date,
 		u.last_logon_date,
 		u.multi_search_enabled,
-		u.is_admin,
-		_is_new_user
+		u.is_admin
 	from application.user u
 	where u.user_id = _user_id;
 	

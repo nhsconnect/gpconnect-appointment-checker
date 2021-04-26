@@ -13,14 +13,14 @@ returns table
 	email_address varchar(200), 
 	display_name varchar(200), 
 	organisation_id integer,
-	is_authorised boolean,
+	user_account_status_id integer,
 	multi_search_enabled boolean,
 	is_admin boolean
 )
 as $$
 declare
 	_user_id integer;
-	_is_authorised boolean;
+	_user_account_status_id integer;
 	_existing_display_name varchar(200);
 	_existing_organisation_id integer;
 	_user_session_id integer;
@@ -52,14 +52,14 @@ begin
 	--
 	select
 		u.user_id, 
-		u.is_authorised,
+		u.user_account_status_id,
 		u.display_name,
 		u.organisation_id,
 		u.multi_search_enabled,
 		u.is_admin
 	into
 		_user_id,
-		_is_authorised,
+		_user_account_status_id,
 		_existing_display_name,
 		_existing_organisation_id,
 		_multi_search_enabled,
@@ -74,7 +74,7 @@ begin
 			email_address,
 			display_name,
 			organisation_id,
-			is_authorised,
+			user_account_status_id,
 			added_date,
 			authorised_date,
 			last_logon_date,
@@ -86,7 +86,7 @@ begin
 			_email_address,
 			_display_name,
 			_organisation_id,
-			false,
+			1,
 			_logon_date,
 			null,
 			null,
@@ -95,12 +95,12 @@ begin
 		)
 		returning
 			application.user.user_id, 
-			application.user.is_authorised,
+			application.user.user_account_status_id,
 			application.user.is_admin,
 			application.user.multi_search_enabled
 		into 
 			_user_id,
-			_is_authorised,
+			_user_account_status_id,
 			_is_admin,
 			_multi_search_enabled;
 
@@ -148,14 +148,14 @@ begin
 	--------------------------------------------
 	-- if authorised create user session
 	--
-	if (_is_authorised)
+	if (_user_account_status_id = 2)
 	then
 		-- update last logon date
 		update application.user u
 		set
 			last_logon_date = _logon_date
 		where u.user_id = _user_id
-		and u.is_authorised;
+		and u.user_account_status_id = 2;
 
 		-- create user session
 		insert into application.user_session
@@ -205,7 +205,7 @@ begin
 		u.email_address,
 		u.display_name,
 		u.organisation_id,
-		_is_authorised as is_authorised,
+		_user_account_status_id as user_account_status_id,
 		_multi_search_enabled as multi_search_enabled,
 		_is_admin as is_admin
 	from application.user u

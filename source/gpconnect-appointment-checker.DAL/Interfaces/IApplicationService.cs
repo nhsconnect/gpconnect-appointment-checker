@@ -7,6 +7,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
     {
         DTO.Response.Application.Organisation GetOrganisation(string odsCode);
         void SynchroniseOrganisation(DTO.Response.Application.Organisation organisation);
+        DTO.Response.Application.User GetUser(string emailAddress);
         DTO.Response.Application.User LogonUser(DTO.Request.Application.User user);
         DTO.Response.Application.User LogoffUser(DTO.Request.Application.User user);
         DTO.Response.Application.SearchGroup AddSearchGroup(DTO.Request.Application.SearchGroup searchGroup);
@@ -14,10 +15,12 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         DTO.Response.Application.SearchGroup GetSearchGroup(int searchGroupId, int userId);
         DTO.Response.Application.SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
-        List<DTO.Response.Application.User> GetUsers(SortBy sortBy, SortDirection sortDirection, StatusFilter statusFilter = StatusFilter.All);
+        List<DTO.Response.Application.User> GetUsers(SortBy sortBy, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null);
         List<DTO.Response.Application.User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortBy);
-        void SetUserStatus(int userId, bool isAuthorised);
+        void SetUserStatus(int userId, UserAccountStatus userAccountStatus);
         void SetMultiSearch(int userId, bool multiSearchEnabled);
-        void AddUser(string emailAddress);
+        void AddUser(string emailAddress);        
+        void UpdateUserTermsAndConditions(bool isAccepted);
+        void AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount);
     }
 }

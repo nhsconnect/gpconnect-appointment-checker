@@ -1,12 +1,14 @@
 ﻿@page
 @using gpconnect_appointment_checker.Helpers.Constants
-@model CreateAccountModel
+@model PendingAccountModel
 @addTagHelper *, gpconnect-appointment-checker
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-warning-callout">
-            Create Account
+            <h3 class="nhsuk-warning-callout__label">@SearchConstants.PENDINGACCOUNTLABEL</h3>
+            <p>@SearchConstants.PENDINGACCOUNTTEXT</p>
+            <a class="nhsuk-button" href="/">@SearchConstants.HOMETEXT</a>
         </div>
     </div>
 </div>

@@ -34,46 +34,95 @@ namespace gpconnect_appointment_checker.SDS
             {
                 if (context == null) throw new ArgumentNullException(nameof(context));
                 if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
-
-                var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-                var odsCode = new List<string> {context.Principal.GetClaimValue("ODS")};
-                var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode, ErrorCode.ProviderODSCodeNotFound).FirstOrDefault();
-                if (organisationDetails != null)
-                {
-                    var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
-                    var loggedOnUser = _applicationService.LogonUser(new User
-                    {
-                        EmailAddress = emailAddress,
-                        DisplayName = context.Principal.GetClaimValue("DisplayName"),
-                        OrganisationId = organisation.OrganisationId
-                    });
-
-                    if (!loggedOnUser.IsAuthorised)
-                    {
-                        context.Response.Redirect("/AccessDenied");
-                        context.HandleResponse();
-                    }
-                    else
-                    {
-                        if (context.Principal.Identity is ClaimsIdentity identity)
-                        {
-                            identity.AddOrReplaceClaimValue("Email", emailAddress);
-                            identity.AddClaim(new Claim("OrganisationName", organisationDetails.Organisation.OrganisationName));
-                            identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                            identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
-                            identity.AddClaim(new Claim("ProviderODSCode", odsCode[0]));
-                            identity.AddClaim(new Claim("IsAdmin", loggedOnUser.IsAdmin.ToString()));
-                            identity.AddClaim(new Claim("MultiSearchEnabled", loggedOnUser.MultiSearchEnabled.ToString()));
-                        }
-                    }
-                }
+                return PerformRedirectionBasedOnStatus(context);
             }
             catch (Exception exc)
             {
                 _logger.LogError(exc, "An error occurred attempting to authorise the user");
                 throw;
             }
+        }
+
+        private Task PerformRedirectionBasedOnStatus(TokenValidatedContext context)
+        {
+            var odsCode = new List<string> { context.Principal.GetClaimValue("ODS") };
+            var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode, ErrorCode.ProviderODSCodeNotFound).FirstOrDefault();
+
+            if (organisationDetails != null)
+            {
+                var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
+                var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
+                var user = _applicationService.GetUser(emailAddress);
+
+                if (user != null)
+                {
+                    switch (user.UserAccountStatus)
+                    {
+                        case UserAccountStatus.Authorised:
+                            var loggedOnUser = LogonAuthorisedUser(emailAddress, context, organisation);
+                            PopulateAdditionalClaims(user.UserAccountStatus, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
+                            context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
+                            break;
+                        case UserAccountStatus.Pending:
+                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                            context.Properties.RedirectUri = "/PendingAccount";
+                            break;
+                        case UserAccountStatus.Deauthorised:
+                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                            context.Properties.RedirectUri = "/Deauthorised";
+                            break;
+                        case UserAccountStatus.RequestDenied:
+                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                            context.Properties.RedirectUri = "/RequestDenied";
+                            break;
+                    }
+                }
+                else
+                {
+                    PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                    context.Properties.RedirectUri = "/NoAccount";
+                }
+            }
             return Task.CompletedTask;
+        }
+
+        private string GetAuthorisedRedirectUri(string redirectUri)
+        {
+            return redirectUri == "/CreateAccount" ? "/AuthorisedAccountPresent" : "/Search";
+        }
+
+        private void PopulateAdditionalClaims(UserAccountStatus? userAccountStatus, DTO.Response.Application.User loggedOnUser, string emailAddress, TokenValidatedContext context, DTO.Response.Application.Organisation organisation, DTO.Response.Application.OrganisationList organisationDetails, List<string> odsCode)
+        {
+            if (context.Principal.Identity is ClaimsIdentity identity)
+            {
+                identity.AddOrReplaceClaimValue("Email", emailAddress);
+                identity.AddClaim(new Claim("OrganisationName", organisationDetails.Organisation.OrganisationName));
+                identity.AddClaim(new Claim("OrganisationId", organisation.OrganisationId.ToString()));
+                identity.AddClaim(new Claim("ProviderODSCode", odsCode[0]));
+                if (userAccountStatus != null)
+                {
+                    identity.AddClaim(new Claim("UserAccountStatus", userAccountStatus.ToString()));
+                }
+
+                if (loggedOnUser != null)
+                {
+                    identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
+                    identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                    identity.AddClaim(new Claim("IsAdmin", loggedOnUser.IsAdmin.ToString()));
+                    identity.AddClaim(new Claim("MultiSearchEnabled", loggedOnUser.MultiSearchEnabled.ToString()));
+                }
+            }
+        }
+
+        private DTO.Response.Application.User LogonAuthorisedUser(string emailAddress, TokenValidatedContext context, DTO.Response.Application.Organisation organisation)
+        {
+            var loggedOnUser = _applicationService.LogonUser(new User
+            {
+                EmailAddress = emailAddress,
+                DisplayName = context.Principal.GetClaimValue("DisplayName"),
+                OrganisationId = organisation.OrganisationId
+            });
+            return loggedOnUser;
         }
     }
 }

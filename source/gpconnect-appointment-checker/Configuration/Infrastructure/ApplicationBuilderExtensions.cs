@@ -25,6 +25,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.UseHsts();
 
             app.UseHttpsRedirection();
+
             app.UseStaticFiles(new StaticFileOptions
             {
                 OnPrepareResponse = context =>

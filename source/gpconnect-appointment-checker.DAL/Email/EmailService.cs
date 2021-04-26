@@ -34,15 +34,39 @@ namespace gpconnect_appointment_checker.DAL.Email
             _emailTemplates = new Lazy<List<EmailTemplate>>(GetEmailTemplates);
         }
 
-        public void SendUserStatusEmail(bool isAuthorised, string recipient)
+        public void SendUserStatusEmail(UserAccountStatus userAccountStatus, string recipient)
         {
-            var template = isAuthorised
-                ? _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.AuthorisedConfirmationEmail)
-                : _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.DeauthorisedConfirmationEmail);
-            SendEmail(recipient, template);
+            EmailTemplate template = null;
+            switch(userAccountStatus)
+            {
+                case UserAccountStatus.Authorised:
+                    template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.AuthorisedConfirmationEmail);
+                    break;
+                case UserAccountStatus.Deauthorised:
+                    template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.DeauthorisedConfirmationEmail);
+                    break;
+            }
+
+            if (template != null)           
+            {
+                SendEmail(recipient, template);
+            }
         }
 
-        private void SendEmail(string recipient, EmailTemplate emailTemplate)
+        public void SendUserCreateAccountEmail(DTO.Request.Application.UserCreateAccount userCreateAccount)
+        {
+            var template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.UserCreateAccountEmail);
+            if (template != null)
+            {
+                template.Body = template.Body.Replace("<email_address>", userCreateAccount.EmailAddress);
+                template.Body = template.Body.Replace("<job_role>", userCreateAccount.JobRole);
+                template.Body = template.Body.Replace("<organisation_name>", userCreateAccount.OrganisationName);
+                template.Body = template.Body.Replace("<access_reason>", userCreateAccount.Reason);
+                SendEmail(userCreateAccount.EmailAddress, template, true);
+            }
+        }
+
+        private void SendEmail(string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
@@ -57,8 +81,9 @@ namespace gpconnect_appointment_checker.DAL.Email
                     IsBodyHtml = false,
                     Subject = emailTemplate.Subject,
                     Body = body,
-                    To = { recipient }
+                    To = { recipient }                    
                 };
+                if (sendToSender) mailMessage.To.Add(sender);
                 _smtpClient.Send(mailMessage);
                 SendToAudit(recipient, body);
             }
@@ -82,7 +107,7 @@ namespace gpconnect_appointment_checker.DAL.Email
         private string PopulateDynamicFields(string bodyText)
         {
             bodyText = bodyText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));
-            bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());
+            bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());            
             return bodyText;
         }
 

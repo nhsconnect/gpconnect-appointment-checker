@@ -43,13 +43,13 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection, StatusFilter statusFilter)
+        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null)
         {
             var functionName = "application.get_users";
             var result = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
-            if (statusFilter != StatusFilter.All)
+            if (userAccountStatusFilter != null)
             {
-                result = result.Where(x => x.Status == statusFilter.ToString());
+                result = result.Where(x => x.UserAccountStatus == userAccountStatusFilter.Value);
             }
             result = result.OrderBy($"{sortByColumn} {sortDirection}");
             return result.ToList();
@@ -185,18 +185,33 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public void SetUserStatus(int userId, bool isAuthorised)
+        public void AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount)
+        {
+            var functionName = "application.add_or_update_user";
+            var parameters = new DynamicParameters();
+            parameters.Add("_email_address", userCreateAccount.EmailAddress);
+            parameters.Add("_display_name", userCreateAccount.DisplayName);
+            parameters.Add("_organisation_id", userCreateAccount.OrganisationId);
+            parameters.Add("_user_account_status_id", (int)userCreateAccount.UserAccountStatus);
+            var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+            if (user != null && user.UserAccountStatus == UserAccountStatus.Pending)
+            {
+                _emailService.SendUserCreateAccountEmail(userCreateAccount);
+            }
+        }
+
+        public void SetUserStatus(int userId, UserAccountStatus userAccountStatus)
         {
             var functionName = "application.set_user_status";
             var parameters = new DynamicParameters();
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_id", userId);
-            parameters.Add("_is_authorised", isAuthorised);
+            parameters.Add("_user_account_status_id", (int)userAccountStatus);
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
             if (user != null)
             {
-                _emailService.SendUserStatusEmail(isAuthorised, user.EmailAddress);
+                _emailService.SendUserStatusEmail(user.UserAccountStatus, user.EmailAddress);
             }
         }
 
@@ -221,8 +236,26 @@ namespace gpconnect_appointment_checker.DAL.Application
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
             if (user != null && user.IsNewUser)
             {
-                _emailService.SendUserStatusEmail(user.IsAuthorised, user.EmailAddress);
+                _emailService.SendUserStatusEmail(user.UserAccountStatus, user.EmailAddress);
             }
+        }
+
+        public void UpdateUserTermsAndConditions(bool isAccepted)
+        {
+            var functionName = "application.update_user_terms_and_conditions";
+            var parameters = new DynamicParameters();
+            parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_accepted", isAccepted);
+            _dataService.ExecuteFunction(functionName, parameters);
+        }
+
+        public User GetUser(string emailAddress)
+        {
+            var functionName = "application.get_user";
+            var parameters = new DynamicParameters();
+            parameters.Add("_email_address", emailAddress);
+            var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+            return user;
         }
     }
 }

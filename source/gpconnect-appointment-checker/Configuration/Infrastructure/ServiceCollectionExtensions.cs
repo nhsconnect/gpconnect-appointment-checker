@@ -1,4 +1,7 @@
 ﻿using System;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
+using gpconnect_appointment_checker.Helpers.Enumerations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -39,20 +42,36 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             services.AddRazorPages(options =>
             {
-                options.Conventions.AuthorizeFolder("/Private"); 
+                options.Conventions.AuthorizeFolder("/Private", "MustHaveAuthorisedUserStatus");
+                options.Conventions.AuthorizeFolder("/Pending", "MustHaveNotAuthorisedUserStatus");
                 options.Conventions.AllowAnonymousToFolder("/Public");
                 options.Conventions.AddPageRoute("/Private/Admin/Index", "/Admin");                
                 options.Conventions.AddPageRoute("/Private/Admin/Reports", "/Reports");
-                options.Conventions.AddPageRoute("/Private/Search", "/Search");
+                options.Conventions.AddPageRoute("/Private/Search", "/Search");                
                 options.Conventions.AddPageRoute("/Private/SearchDetail", "/SearchDetail/{searchDetailId}");
                 options.Conventions.AddPageRoute("/Public/Error", "/Error");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
                 options.Conventions.AddPageRoute("/Public/Accessibility", "/Accessibility");
                 options.Conventions.AddPageRoute("/Public/PrivacyAndCookies", "/PrivacyAndCookies");
-                options.Conventions.AddPageRoute("/Public/CreateAccountInterstitial", "/CreateAccountInterstitial");
-                options.Conventions.AddPageRoute("/Private/CreateAccount", "/CreateAccount");
+                options.Conventions.AddPageRoute("/Public/TermsAndConditions", "/TermsAndConditions");
+                options.Conventions.AddPageRoute("/Pending/CreateAccountInterstitial", "/CreateAccountInterstitial");
+                options.Conventions.AddPageRoute("/Private/AuthorisedAccountPresent", "/AuthorisedAccountPresent");
+                options.Conventions.AddPageRoute("/Pending/PendingAccount", "/PendingAccount");
+                options.Conventions.AddPageRoute("/Pending/Deauthorised", "/Deauthorised");
+                options.Conventions.AddPageRoute("/Pending/RequestDenied", "/RequestDenied");
+                options.Conventions.AddPageRoute("/Pending/CreateAccount", "/CreateAccount");
+                options.Conventions.AddPageRoute("/Pending/NoAccount", "/NoAccount");
                 options.Conventions.AddPageRoute("/Public/Help/Help", "/Help");
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("MustHaveAuthorisedUserStatus", policy => policy.Requirements.Add(new AuthorisedUserRequirement()));                
+                options.AddPolicy("MustHaveNotAuthorisedUserStatus", policy => policy.Requirements.Add(new NotAuthorisedUserRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, AuthorisedUserHandler>();
+            services.AddSingleton<IAuthorizationHandler, NotAuthorisedUserHandler>();
+
             services.AddAntiforgery(options => 
             { 
                 options.SuppressXFrameOptionsHeader = true;

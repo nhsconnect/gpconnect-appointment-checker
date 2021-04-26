@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 
 namespace gpconnect_appointment_checker.Helpers
 {
@@ -15,6 +16,19 @@ namespace gpconnect_appointment_checker.Helpers
                 }
             }
             return nullIfEmpty != true ? defaultValue : null;
+        }
+
+        public static T? GetClaimValue<T>(this ClaimsPrincipal claims, string claimKey) where T : struct
+        {
+            var claim = claims.FindFirst(claimKey);
+            if (claim != null)
+            {
+                if (!string.IsNullOrEmpty(claim.Value))
+                {
+                    return (T)Enum.Parse(typeof(T), claim.Value, true);
+                }
+            }
+            return null;
         }
 
         public static void AddOrReplaceClaimValue(this ClaimsIdentity identity, string claimKey, string replacementValue)

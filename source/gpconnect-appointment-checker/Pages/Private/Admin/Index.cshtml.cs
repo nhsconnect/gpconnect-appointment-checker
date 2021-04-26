@@ -1,5 +1,6 @@
 ﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,10 +64,12 @@ namespace gpconnect_appointment_checker.Pages
             RefreshPage();
         }
 
-        public void OnPostSetUserStatus(int userid, bool userstatus)
+        public void OnPostSetUserStatuses()
         {
-            ClearValidationState(); 
-            _applicationService.SetUserStatus(userid, userstatus);
+            ClearValidationState();
+
+            var selectedUserAccountStatus = SelectedUserAccountStatus;
+            //_applicationService.SetUserStatus(userid, selectedUserAccountStatus);
             RefreshPage();
         }
 
@@ -93,7 +96,7 @@ namespace gpconnect_appointment_checker.Pages
         public IActionResult OnPostFilterByStatus()
         {
             ClearValidationState();
-            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<StatusFilter>(SelectedStatusFilter));
+            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
             UserList = userList;
             return Page();
         }
@@ -116,7 +119,7 @@ namespace gpconnect_appointment_checker.Pages
             SurnameSearchValue = null;
             EmailAddressSearchValue = null;
             OrganisationNameSearchValue = null;
-            SelectedStatusFilter = StatusFilter.All.ToString();
+            //SelectedStatusFilter = StatusFilter.All.ToString();
             ModelState.Clear();
             RefreshPage();
         }
@@ -128,15 +131,24 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-
-        private List<SelectListItem> GetStatusFilters()
+        public IEnumerable<SelectListItem> GetUserAccountStatuses(UserAccountStatus? userAccountStatus, bool includeDefault = false)
         {
-            var values = Enum.GetValues(typeof(StatusFilter)).Cast<StatusFilter>().Select(v => new SelectListItem
+            List<SelectListItem> valuesList = new List<SelectListItem>();
+            if (includeDefault)
             {
-                Text = v.ToString(),
-                Value = ((int)v).ToString()
-            }).ToList();
-            return values;
+                valuesList.Add(new SelectListItem { Text = "", Value = "", Selected = true });
+            }
+
+            IEnumerable<SelectListItem> values = Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>().Select(v => new SelectListItem
+            {
+                Text = v.GetDescription(),
+                Value = v.ToString(),
+                Selected = userAccountStatus != null ? userAccountStatus == v : false
+            });
+    
+            valuesList.AddRange(values);            
+            
+            return valuesList;
         }
     }
 }
