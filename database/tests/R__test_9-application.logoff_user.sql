@@ -23,7 +23,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -46,7 +46,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
