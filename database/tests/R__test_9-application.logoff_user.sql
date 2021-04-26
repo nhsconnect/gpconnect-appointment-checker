@@ -31,14 +31,14 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	perform 
-		*
-	from
-	application.set_user_isauthorised
-	(
-		_email_address := _email_address,
-		_is_authorised := true
-	);
+	--perform 
+	--	*
+--	from
+--	application.set_user_isauthorised
+--	(
+--		_email_address := _email_address,
+--		_is_authorised := true
+--	);
 
 	perform
 		user_id,

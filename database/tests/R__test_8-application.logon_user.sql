@@ -47,16 +47,16 @@ begin
 	);
 
 	-- authorise user
-	perform 
-		*
-	from
-	application.set_user_status
-	(
-		_user_id := 1,
-		_admin_user_id := 1,
-		_user_account_status_id := 2,
-		_user_session_id := 1
-	);
+	--perform 
+	--	*
+--	from
+--	application.set_user_status
+--	(
+--		_user_id := 1,
+--		_admin_user_id := 1,
+--		_user_account_status_id := 2,
+--		_user_session_id := 1
+--	);
 
 	-- existing user, authorised
 	perform
