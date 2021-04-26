@@ -16,7 +16,7 @@
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it, or create an account if you don't already have one.";
         
         public const string CREATEACCOUNTINTERSTITIALLABEL = "Access to GP Connect Appointment Checker";
-        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked, " + FORMCOMPLETIONTEXT;
+        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked. Then you will be asked to complete a short form, and confirm that you have agreed to the Terms and Conditions of use.";
 
         public const string USERNAMELABEL = "User name";
         public const string JOBROLELABEL = "Job role";
@@ -38,16 +38,13 @@
 
         public const string PENDINGACCOUNTLABEL = "Thank you&hellip;please wait";
         public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
-
-        public const string NOACCOUNTLABEL = "No Account";
-        public const string NOACCOUNTTEXT = "You do not have an account to use the Appointment Checker. Please use the Create Account option.";
-        
+                
         public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
         public const string REQUESTSUBMITTEDLABEL = "Request Submitted";
         public const string REQUESTSUBMITTEDTEXT = "Your request to create an account has been submitted. You will receive an email as soon as your account has been set up.";
 
-        public const string DENIEDORREVOKEDLABEL = "Access Denied";
-        public const string DENIEDORREVOKEDTEXT = "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";
+        public const string SUBMITUSERFORMLABEL = "Access Denied";
+        public const string SUBMITUSERFORMTEXT = "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";
         
         public const string SIGNOUTBUTTONTEXT = "Sign out";
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";

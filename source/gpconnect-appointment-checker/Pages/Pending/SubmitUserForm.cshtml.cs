@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public class NoAccountModel : PageModel
+    public class SubmitUserFormModel : PageModel
     {
-        public NoAccountModel()
+        public SubmitUserFormModel()
         {
         }
 

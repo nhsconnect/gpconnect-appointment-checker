@@ -70,14 +70,14 @@ namespace gpconnect_appointment_checker.SDS
                         case UserAccountStatus.Deauthorised:
                         case UserAccountStatus.RequestDenied:
                             PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = "/DeniedOrRevokedAccount";
+                            context.Properties.RedirectUri = "/SubmitUserForm";
                             break;
                     }
                 }
                 else
                 {
                     PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                    context.Properties.RedirectUri = "/NoAccount";
+                    context.Properties.RedirectUri = "/SubmitUserForm";
                 }
             }
             return Task.CompletedTask;
