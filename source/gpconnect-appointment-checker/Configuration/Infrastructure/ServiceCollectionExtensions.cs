@@ -57,8 +57,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Pending/CreateAccountInterstitial", "/CreateAccountInterstitial");
                 options.Conventions.AddPageRoute("/Private/AuthorisedAccountPresent", "/AuthorisedAccountPresent");
                 options.Conventions.AddPageRoute("/Pending/PendingAccount", "/PendingAccount");
-                options.Conventions.AddPageRoute("/Pending/Deauthorised", "/Deauthorised");
-                options.Conventions.AddPageRoute("/Pending/RequestDenied", "/RequestDenied");
+                options.Conventions.AddPageRoute("/Pending/DeniedOrRevokedAccount", "/DeniedOrRevokedAccount");
                 options.Conventions.AddPageRoute("/Pending/CreateAccount", "/CreateAccount");
                 options.Conventions.AddPageRoute("/Pending/NoAccount", "/NoAccount");
                 options.Conventions.AddPageRoute("/Public/Help/Help", "/Help");

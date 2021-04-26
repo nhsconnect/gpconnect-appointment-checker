@@ -68,12 +68,9 @@ namespace gpconnect_appointment_checker.SDS
                             context.Properties.RedirectUri = "/PendingAccount";
                             break;
                         case UserAccountStatus.Deauthorised:
-                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = "/Deauthorised";
-                            break;
                         case UserAccountStatus.RequestDenied:
                             PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = "/RequestDenied";
+                            context.Properties.RedirectUri = "/DeniedOrRevokedAccount";
                             break;
                     }
                 }

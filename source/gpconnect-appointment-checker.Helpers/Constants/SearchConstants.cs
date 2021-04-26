@@ -36,20 +36,19 @@
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string CREATEACCOUNTBUTTONTEXT = "Create account";
 
+        public const string PENDINGACCOUNTLABEL = "Thank you&hellip;please wait";
         public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
-        public const string PENDINGACCOUNTLABEL = "Pending Account";
 
         public const string NOACCOUNTLABEL = "No Account";
-        public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
-        public const string REQUESTDENIEDLABEL = "Request Denied";
-        public const string DEAUTHORISEDLABEL = "Deauthorised";
-        public const string PLEASEWAITLABEL = "Thank you&hellip;please wait";
-        public const string DEAUTHORISEDTEXT = "Your account has been disabled. If you wish to use it again, " + FORMCOMPLETIONTEXT;
-        public const string REQUESTDENIEDTEXT = "Your request to create an account has been denied.  If you wish to apply again, " + FORMCOMPLETIONTEXT;        
-        public const string FORMCOMPLETIONTEXT = "then you will be asked to complete a short form, and confirm that you have agreed to the Terms and Conditions of use.";
         public const string NOACCOUNTTEXT = "You do not have an account to use the Appointment Checker. Please use the Create Account option.";
-        public const string PLEASEWAITTEXT = "You currently do not have the necessary authorisation to use the Appointment Checker or your request for an account is currently being reviewed and you will be notified of the outcome as soon as possible.</p><p>If, for whatever reason, you need to complete another Create Account form, please do so by clicking on the button below.";
+        
+        public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
+        public const string REQUESTSUBMITTEDLABEL = "Request Submitted";
+        public const string REQUESTSUBMITTEDTEXT = "Your request to create an account has been submitted. You will receive an email as soon as your account has been set up.";
 
+        public const string DENIEDORREVOKEDLABEL = "Access Denied";
+        public const string DENIEDORREVOKEDTEXT = "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";
+        
         public const string SIGNOUTBUTTONTEXT = "Sign out";
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
         public const string AUTHORISEBUTTONTEXT = "Authorise";
