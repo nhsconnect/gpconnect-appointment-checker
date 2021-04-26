@@ -23,7 +23,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -38,7 +38,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -50,10 +50,12 @@ begin
 	perform 
 		*
 	from
-	application.set_user_isauthorised
+	application.set_user_status
 	(
-		_email_address := _email_address,
-		_is_authorised := true
+		_user_id := 1,
+		_admin_user_id := 1,
+		_user_account_status_id := 2,
+		_user_session_id := 1
 	);
 
 	-- existing user, authorised
@@ -63,7 +65,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -78,7 +80,7 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -93,7 +95,7 @@ begin
 		email_address,
 		display_name,
 		-1,
-		is_authorised
+		user_account_status_id
 	from application.logon_user
 	(
 		_email_address := _email_address,
