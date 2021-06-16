@@ -34,15 +34,15 @@ namespace gpconnect_appointment_checker.DAL.Email
             _emailTemplates = new Lazy<List<EmailTemplate>>(GetEmailTemplates);
         }
 
-        public void SendUserStatusEmail(UserAccountStatus userAccountStatus, string recipient)
+        public void SendUserStatusEmail(int userAccountStatusId, string recipient)
         {
             EmailTemplate template = null;
-            switch(userAccountStatus)
+            switch(userAccountStatusId)
             {
-                case UserAccountStatus.Authorised:
+                case (int)UserAccountStatus.Authorised:
                     template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.AuthorisedConfirmationEmail);
                     break;
-                case UserAccountStatus.Deauthorised:
+                case (int)UserAccountStatus.Deauthorised:
                     template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.DeauthorisedConfirmationEmail);
                     break;
             }

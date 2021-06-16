@@ -56,20 +56,20 @@ namespace gpconnect_appointment_checker.SDS
 
                 if (user != null)
                 {
-                    switch (user.UserAccountStatus)
+                    switch ((UserAccountStatus)user.UserAccountStatusId)
                     {
                         case UserAccountStatus.Authorised:
                             var loggedOnUser = LogonAuthorisedUser(emailAddress, context, organisation);
-                            PopulateAdditionalClaims(user.UserAccountStatus, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
+                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
                             context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
                             break;
                         case UserAccountStatus.Pending:
-                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
                             context.Properties.RedirectUri = "/PendingAccount";
                             break;
                         case UserAccountStatus.Deauthorised:
                         case UserAccountStatus.RequestDenied:
-                            PopulateAdditionalClaims(user.UserAccountStatus, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
                             context.Properties.RedirectUri = "/SubmitUserForm";
                             break;
                     }

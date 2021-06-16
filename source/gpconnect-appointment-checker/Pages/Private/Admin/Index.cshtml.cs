@@ -1,16 +1,12 @@
 ﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -64,12 +60,10 @@ namespace gpconnect_appointment_checker.Pages
             RefreshPage();
         }
 
-        public void OnPostSetUserStatuses()
+        public void OnPostSetUserStatuses(int[] UserId, int[] UserAccountStatusId)
         {
             ClearValidationState();
-
-            var selectedUserAccountStatus = SelectedUserAccountStatus;
-            //_applicationService.SetUserStatus(userid, selectedUserAccountStatus);
+            _applicationService.SetUserStatus(UserId, UserAccountStatusId);
             RefreshPage();
         }
 
@@ -95,9 +89,12 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostFilterByStatus()
         {
-            ClearValidationState();
-            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
-            UserList = userList;
+            if (!string.IsNullOrEmpty(SelectedUserAccountStatusFilter))
+            {
+                ClearValidationState();
+                var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
+                UserList = userList;
+            }
             return Page();
         }
 
@@ -119,7 +116,6 @@ namespace gpconnect_appointment_checker.Pages
             SurnameSearchValue = null;
             EmailAddressSearchValue = null;
             OrganisationNameSearchValue = null;
-            //SelectedStatusFilter = StatusFilter.All.ToString();
             ModelState.Clear();
             RefreshPage();
         }
@@ -129,26 +125,6 @@ namespace gpconnect_appointment_checker.Pages
             var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState));
             UserList = userList;
             return Page();
-        }
-
-        public IEnumerable<SelectListItem> GetUserAccountStatuses(UserAccountStatus? userAccountStatus, bool includeDefault = false)
-        {
-            List<SelectListItem> valuesList = new List<SelectListItem>();
-            if (includeDefault)
-            {
-                valuesList.Add(new SelectListItem { Text = "", Value = "", Selected = true });
-            }
-
-            IEnumerable<SelectListItem> values = Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>().Select(v => new SelectListItem
-            {
-                Text = v.GetDescription(),
-                Value = v.ToString(),
-                Selected = userAccountStatus != null ? userAccountStatus == v : false
-            });
-    
-            valuesList.AddRange(values);            
-            
-            return valuesList;
         }
     }
 }

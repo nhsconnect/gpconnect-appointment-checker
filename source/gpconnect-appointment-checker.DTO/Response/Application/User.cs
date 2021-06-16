@@ -12,11 +12,12 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public string OrganisationName { get; set; }
         public string AccessLevel { get; set; }
         public DateTime LastLogonDate { get; set; }
-        public UserAccountStatus UserAccountStatus { get; set; }
+        public int UserAccountStatusId { get; set; }
         public bool MultiSearchEnabled { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsNewUser { get; set; }
         public int AccessRequestCount { get; set; }
         public bool IsPastLastLogonThreshold { get; set; }
+        public bool StatusChanged { get; set; }
     }
 }

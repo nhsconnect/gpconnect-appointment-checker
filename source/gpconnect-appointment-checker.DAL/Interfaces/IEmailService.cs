@@ -4,7 +4,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
 {
     public interface IEmailService
     {
-        void SendUserStatusEmail(UserAccountStatus userAccountStatus, string recipient);
+        void SendUserStatusEmail(int userAccountStatusId, string recipient);
         void SendUserCreateAccountEmail(DTO.Request.Application.UserCreateAccount userCreateAccount);
     }
 }

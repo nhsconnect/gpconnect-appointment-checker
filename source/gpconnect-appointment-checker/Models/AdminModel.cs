@@ -1,6 +1,5 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.Helpers.Constants;
-using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,7 +28,12 @@ namespace gpconnect_appointment_checker.Pages
         public string SelectedUserAccountStatusFilter { get; set; }
 
         [BindProperty]
-        public UserAccountStatus SelectedUserAccountStatus { get; set; }
+        public int[] UserAccountStatusId { get; set; }
+
+        [BindProperty]
+        public int[] UserId { get; set; }
+
+         
 
         [BindProperty]
         public string EmailAddressSearchValue { get; set; }

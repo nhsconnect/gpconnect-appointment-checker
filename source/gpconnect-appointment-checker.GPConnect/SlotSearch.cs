@@ -140,7 +140,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                     using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                    var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+                    var contents = await response.Content.ReadAsStringAsync(cancellationToken);
 
                     _spineMessage.ResponsePayload = contents;
                     _spineMessage.ResponseStatus = response.StatusCode.ToString();
@@ -251,7 +251,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                         using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead,
                             cancellationToken);
-                        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+                        var contents = await response.Content.ReadAsStringAsync(cancellationToken);
 
                         _spineMessage.ResponsePayload = contents;
                         _spineMessage.ResponseStatus = response.StatusCode.ToString();
