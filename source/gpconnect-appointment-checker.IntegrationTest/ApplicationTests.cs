@@ -88,6 +88,44 @@ namespace gpconnect_appointment_checker.IntegrationTest
             Assert.All(result, x => Assert.IsType<bool>(x.MultiSearchEnabled));
         }
 
+        [Theory]
+        [InlineData("@nhs.net", SortBy.EmailAddress)]
+        public async void UsersFoundByEmailAddress(string emailAddress, SortBy sortBy)
+        {
+            var result = _applicationService.FindUsers(null, emailAddress, null, sortBy);
+            Assert.IsType<List<User>>(result);
+            Assert.True(result.Count > 0);
+            Assert.Contains(result,  x => x.EmailAddress.Contains(emailAddress));
+        }
+
+        [Theory]
+        [InlineData("@gmail.com", SortBy.EmailAddress)]
+        public async void UsersNotFoundByEmailAddress(string emailAddress, SortBy sortBy)
+        {
+            var result = _applicationService.FindUsers(null, emailAddress, null, sortBy);
+            Assert.IsType<List<User>>(result);
+            Assert.True(result.Count == 0);
+        }
+
+        [Theory]
+        [InlineData("HEALTH AND SOCIAL CARE INFORMATION CENTRE", SortBy.EmailAddress)]
+        public async void UsersFoundByOrganisationName(string organisationName, SortBy sortBy)
+        {
+            var result = _applicationService.FindUsers(null, null, null, sortBy);
+            Assert.IsType<List<User>>(result);
+            Assert.True(result.Count > 0);
+            Assert.Contains(result, x => x.OrganisationName.Contains(organisationName));
+        }
+
+        [Theory]
+        [InlineData("Gmail", SortBy.EmailAddress)]
+        public async void UsersNotFoundByOrganisationName(string organisationName, SortBy sortBy)
+        {
+            var result = _applicationService.FindUsers(null, null, organisationName, sortBy);
+            Assert.IsType<List<User>>(result);
+            Assert.True(result.Count == 0);
+        }
+
         private static void SetupConfiguration(Mock<IConfiguration> mockConfiguration)
         {
             var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");

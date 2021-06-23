@@ -1,6 +1,6 @@
 ﻿@page
 @using gpconnect_appointment_checker.Helpers
-@model LoginModel
+@model LogoutModel
 @using gpconnect_appointment_checker.Helpers.Constants
 
 @if (User.Identity.IsAuthenticated)
@@ -9,5 +9,6 @@
         @User.GetClaimValue("Email")<br />
         @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
     </div>
-    @Html.ActionLink(@SearchConstants.SIGNOUTBUTTONTEXT, "Signout", "Auth", null, new { @style = "color:#ffffff" })
+    
+    @Html.ActionLink(@SearchConstants.SIGNOUTBUTTONTEXT, "Logout", "Auth", null, new { @style = "color:#ffffff" })
 }

@@ -31,15 +31,6 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	--perform 
-	--	*
---	from
---	application.set_user_isauthorised
---	(
---		_email_address := _email_address,
---		_is_authorised := true
---	);
-
 	perform
 		user_id,
 		user_session_id,
@@ -53,6 +44,8 @@ begin
 		_display_name := _display_name,
 		_organisation_id := _organisation_id
 	);
+
+	update application.user set user_account_status_id = 2 where email_address = _emailaddress;
 
 	select
 		us.user_session_id into _user_session_id

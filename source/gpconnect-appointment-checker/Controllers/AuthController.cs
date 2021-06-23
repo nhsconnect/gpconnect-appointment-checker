@@ -48,8 +48,8 @@ namespace gpconnect_appointment_checker.Controllers
             });
         }
 
-        [Route("/Auth/Signout")]
-        public IActionResult Signout()
+        [Route("/Auth/Logout")]
+        public IActionResult Logout()
         {
             var userSessionId = _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0);
             try
