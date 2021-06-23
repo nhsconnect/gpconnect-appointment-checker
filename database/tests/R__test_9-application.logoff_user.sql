@@ -6,6 +6,7 @@ declare
 	_ods_code varchar(20);
 	_organisation_id integer;
 	_user_session_id integer;
+	_user_id integer;
 begin
 
 	_email_address := 'logoff-test@test.com';
@@ -45,7 +46,22 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	update application.user u set user_account_status_id = 2 where u.email_address = _email_address;
+	select
+		u.user_id into _user_id
+	from
+		application.user u
+	where 
+		u.email_address = _email_address;
+
+	perform
+		*
+	from application.set_user_status
+	(
+		_user_id := _user_id,
+		_admin_user_id := _user_id,
+		_user_account_status_id := 2,
+		_user_session_id := _user_session_id
+	);
 
 	select
 		us.user_session_id into _user_session_id
