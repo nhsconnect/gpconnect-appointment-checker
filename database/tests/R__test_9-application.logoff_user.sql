@@ -45,7 +45,7 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	update application.user set user_account_status_id = 2 where email_address = _emailaddress;
+	update application.user set user_account_status_id = 2 where email_address = _email_address;
 
 	select
 		us.user_session_id into _user_session_id
