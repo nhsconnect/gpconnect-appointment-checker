@@ -34,12 +34,30 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	update 
-		application.user 
-	set 
-		user_account_status_id = 2 
+	select
+		u.user_id into _user_id
+	from
+		application.user u
 	where 
-		email_address = _email_address;
+		u.email_address = _email_address;
+
+	perform
+		user_id,
+		user_session_id,
+		email_address,
+		display_name,
+		organisation_id,
+		user_account_status_id,
+		multi_search_enabled,
+		is_admin,
+		status_changed
+	from application.set_user_status
+	(
+		_user_id := _user_id,
+		_admin_user_id := _user_id,
+		_user_account_status_id := 2,
+		_user_session_id := _user_session_id
+	);
 
 	perform
 		user_id,
@@ -56,31 +74,6 @@ begin
 		_display_name := _display_name,
 		_organisation_id := _organisation_id
 	);
-
-	select
-		u.user_id into _user_id
-	from
-		application.user u
-	where 
-		u.email_address = _email_address;
-
-	--perform
-	--	user_id,
-	--	user_session_id,
-	--	email_address,
-	--	display_name,
-	--	organisation_id,
-	--	user_account_status_id,
-	--	multi_search_enabled,
-	--	is_admin,
-	--	status_changed
-	--from application.set_user_status
-	--(
-	--	_user_id := _user_id,
-	--	_admin_user_id := _user_id,
-	--	_user_account_status_id := 2,
-	--	_user_session_id := _user_session_id
-	--);
 
 	select
 		us.user_session_id into _user_session_id
