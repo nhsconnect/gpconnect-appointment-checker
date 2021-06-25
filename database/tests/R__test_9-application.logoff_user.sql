@@ -24,7 +24,9 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		user_account_status_id
+		user_account_status_id,
+		multi_search_enabled,
+		is_admin
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -38,7 +40,9 @@ begin
 		email_address,
 		display_name,
 		organisation_id,
-		user_account_status_id
+		user_account_status_id,
+		multi_search_enabled,
+		is_admin
 	from application.logon_user
 	(
 		_email_address := _email_address,
@@ -54,7 +58,15 @@ begin
 		u.email_address = _email_address;
 
 	perform
-		*
+		user_id,
+		user_session_id,
+		email_address,
+		display_name,
+		organisation_id,
+		user_account_status_id,
+		multi_search_enabled,
+		is_admin,
+		status_changed
 	from application.set_user_status
 	(
 		_user_id := _user_id,
