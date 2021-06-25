@@ -39,7 +39,7 @@ begin
 	set 
 		user_account_status_id = 2 
 	where 
-		email_address = _email_address
+		email_address = _email_address;
 
 	perform
 		user_id,
