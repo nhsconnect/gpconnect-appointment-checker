@@ -34,6 +34,13 @@ begin
 		_organisation_id := _organisation_id
 	);
 
+	update 
+		application.user 
+	set 
+		user_account_status_id = 2 
+	where 
+		email_address = _email_address
+
 	perform
 		user_id,
 		user_session_id,
@@ -57,23 +64,23 @@ begin
 	where 
 		u.email_address = _email_address;
 
-	perform
-		user_id,
-		user_session_id,
-		email_address,
-		display_name,
-		organisation_id,
-		user_account_status_id,
-		multi_search_enabled,
-		is_admin,
-		status_changed
-	from application.set_user_status
-	(
-		_user_id := _user_id,
-		_admin_user_id := _user_id,
-		_user_account_status_id := 2,
-		_user_session_id := _user_session_id
-	);
+	--perform
+	--	user_id,
+	--	user_session_id,
+	--	email_address,
+	--	display_name,
+	--	organisation_id,
+	--	user_account_status_id,
+	--	multi_search_enabled,
+	--	is_admin,
+	--	status_changed
+	--from application.set_user_status
+	--(
+	--	_user_id := _user_id,
+	--	_admin_user_id := _user_id,
+	--	_user_account_status_id := 2,
+	--	_user_session_id := _user_session_id
+	--);
 
 	select
 		us.user_session_id into _user_session_id
