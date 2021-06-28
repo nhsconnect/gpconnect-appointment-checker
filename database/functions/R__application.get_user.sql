@@ -13,7 +13,8 @@ returns table
 	user_account_status_id integer,
 	last_logon_date timestamp without time zone,
 	is_admin boolean,
-	multi_search_enabled boolean
+	multi_search_enabled boolean,
+	organisation_id integer
 )
 as $$
 begin			
@@ -26,7 +27,8 @@ begin
 		u.user_account_status_id,
 		u.last_logon_date,
 		u.is_admin,
-		u.multi_search_enabled
+		u.multi_search_enabled,
+		u.organisation_id
 	from application.user u
 	inner join application.organisation o on u.organisation_id = o.organisation_id	
 	where u.email_address = _email_address;

@@ -55,6 +55,13 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.ToList();
         }
 
+        public List<User> GetAdminUsers()
+        {
+            var functionName = "application.get_users";
+            var result = _dataService.ExecuteFunction<User>(functionName).AsQueryable().Where(x => x.AccessLevel == "Admin");
+            return result.ToList();
+        }
+
         public List<User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn)
         {
             var functionName = "application.get_users";

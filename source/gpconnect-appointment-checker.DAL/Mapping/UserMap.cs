@@ -8,6 +8,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
         public UserMap()
         {
             Map(p => p.OrganisationName).ToColumn("organisation_name");
+            Map(p => p.OrganisationId).ToColumn("organisation_id");
             Map(p => p.UserId).ToColumn("user_id");
             Map(p => p.UserSessionId).ToColumn("user_session_id");
             Map(p => p.EmailAddress).ToColumn("email_address");

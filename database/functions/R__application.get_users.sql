@@ -14,7 +14,8 @@ returns table
 	access_level text,
 	multi_search_enabled boolean,
 	number_of_access_requests bigint,
-	is_past_last_logon_threshold boolean
+	is_past_last_logon_threshold boolean,
+	organisation_id integer
 )
 as $$
 declare last_logon_threshold_highlight timestamp with time zone;
@@ -38,7 +39,8 @@ begin
 		CASE WHEN u.is_admin = True THEN 'Admin' WHEN u.is_admin = False THEN 'User' END access_level,
 		u.multi_search_enabled,
 		access_requests.access_requests_count,
-		u.last_logon_date <= last_logon_threshold_highlight AS is_past_last_logon_threshold
+		u.last_logon_date <= last_logon_threshold_highlight AS is_past_last_logon_threshold,
+		u.organisation_id
 	from application.user u
 	inner join application.organisation o on u.organisation_id = o.organisation_id	
 	left outer join 

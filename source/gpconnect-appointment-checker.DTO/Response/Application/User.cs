@@ -19,5 +19,6 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public int AccessRequestCount { get; set; }
         public bool IsPastLastLogonThreshold { get; set; }
         public bool StatusChanged { get; set; }
+        public int OrganisationId { get; set; }
     }
 }

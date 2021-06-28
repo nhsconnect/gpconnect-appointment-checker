@@ -16,6 +16,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         DTO.Response.Application.SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
         List<DTO.Response.Application.User> GetUsers(SortBy sortBy, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null);
+        List<DTO.Response.Application.User> GetAdminUsers();
         List<DTO.Response.Application.User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortBy);
         void SetUserStatus(int[] userId, int[] userAccountStatusId);
         void SetMultiSearch(int userId, bool multiSearchEnabled);

@@ -131,5 +131,20 @@ namespace gpconnect_appointment_checker.DAL
                 throw;
             }
         }
+
+        public int ExecuteQuery(string query)
+        {
+            try
+            {
+                using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+                var rowsAffected = connection.Execute(query, commandType: CommandType.Text);
+                return rowsAffected;
+            }
+            catch (Exception exc)
+            {
+                _logger?.LogError(exc, $"An error has occurred while attempting to execute a query {query}");
+                throw;
+            }
+        }
     }
 }
