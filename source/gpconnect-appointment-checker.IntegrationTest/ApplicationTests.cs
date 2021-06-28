@@ -46,30 +46,6 @@ namespace gpconnect_appointment_checker.IntegrationTest
             _user = AddUserDetailsToContext(_mockHttpContextAccessor);
         }
 
-        private User AddUserDetailsToContext(Mock<IHttpContextAccessor> mockHttpContextAccessor)
-        {
-            var adminUser = _applicationService.GetAdminUsers().FirstOrDefault();
-            
-            var logOnUser = new DTO.Request.Application.User
-            {
-                OrganisationId = adminUser.OrganisationId,
-                DisplayName = adminUser.DisplayName,
-                EmailAddress = adminUser.EmailAddress
-            };
-
-            var loggedOnAdminUser = _applicationService.LogonUser(logOnUser);
-
-            IList<Claim> claimCollection = new List<Claim>
-            {
-                new Claim("UserId", loggedOnAdminUser.UserId.ToString()),
-                new Claim("UserSessionId", loggedOnAdminUser.UserSessionId.ToString())
-            };
-
-            mockHttpContextAccessor.Setup(a => a.HttpContext.User.Claims).Returns(claimCollection);
-
-            return loggedOnAdminUser;
-        }
-
         [Theory]
         [InlineData("A20047", "PR", "DR LEGG'S SURGERY", "LS1 4HY")]
         [InlineData("B82617", "PR", "COXWOLD SURGERY", "YO61 4BB")]
@@ -158,14 +134,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         [InlineData("test@test.com", "Test User", 1, "A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021", "1 June 2021 13:17:18")]
         public async void AddAndFindSearchGroup(string emailAddress, string displayName, int organisationId, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
         {
-            var result = _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
-            {
-                ConsumerOdsTextbox = consumerOdsCodeInput,
-                ProviderOdsTextbox = providerOdsCodeInput,
-                SearchDateRange = searchDateRangeInput,
-                SearchStartAt = DateTime.Parse(searchStartAt),
-                UserSessionId = _user.UserSessionId
-            });
+            var result = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
             Assert.IsType<SearchGroup>(result);
             Assert.NotNull(result);
             Assert.Equal(result.ProviderOdsTextbox, providerOdsCodeInput);
@@ -173,6 +142,43 @@ namespace gpconnect_appointment_checker.IntegrationTest
             Assert.Equal(result.SelectedDateRange, searchDateRangeInput);
             Assert.Equal(result.SearchStartAt, DateTime.Parse(searchStartAt));
             Assert.True(result.SearchGroupId > 0);
+        }
+
+        private SearchGroup AddSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        {
+            return _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
+            {
+                ConsumerOdsTextbox = consumerOdsCodeInput,
+                ProviderOdsTextbox = providerOdsCodeInput,
+                SearchDateRange = searchDateRangeInput,
+                SearchStartAt = DateTime.Parse(searchStartAt),
+                UserSessionId = _user.UserSessionId
+            });
+        }
+
+        [Theory]
+        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
+        public async void AddAndFindSearchResult(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        {
+            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
+
+            var searchResult = new DTO.Request.Application.SearchResult
+            {
+                SearchGroupId = searchGroup.SearchGroupId,
+                ProviderCode = providerCode,
+                ConsumerCode = consumerCode,
+                ErrorCode = errorCode,
+                Details = details,
+                ProviderPublisher = providerPublisher,
+                SearchDurationSeconds = searchDurationSeconds
+            };
+
+            var result = _applicationService.AddSearchResult(searchResult);
+
+            Assert.IsType<SearchResult>(result);
+            Assert.NotNull(result);
+            Assert.True(result.SearchGroupId > 0);
+            Assert.True(result.SearchResultId > 0);
         }
 
         private static void SetupConfiguration(Mock<IConfiguration> mockConfiguration)
@@ -208,6 +214,30 @@ namespace gpconnect_appointment_checker.IntegrationTest
                     config.AddMap(new EmailTemplateMap());
                 });
             }
+        }
+
+        private User AddUserDetailsToContext(Mock<IHttpContextAccessor> mockHttpContextAccessor)
+        {
+            var adminUser = _applicationService.GetAdminUsers().FirstOrDefault();
+
+            var logOnUser = new DTO.Request.Application.User
+            {
+                OrganisationId = adminUser.OrganisationId,
+                DisplayName = adminUser.DisplayName,
+                EmailAddress = adminUser.EmailAddress
+            };
+
+            var loggedOnAdminUser = _applicationService.LogonUser(logOnUser);
+
+            IList<Claim> claimCollection = new List<Claim>
+            {
+                new Claim("UserId", loggedOnAdminUser.UserId.ToString()),
+                new Claim("UserSessionId", loggedOnAdminUser.UserSessionId.ToString())
+            };
+
+            mockHttpContextAccessor.Setup(a => a.HttpContext.User.Claims).Returns(claimCollection);
+
+            return loggedOnAdminUser;
         }
     }
 }
