@@ -4,6 +4,7 @@ using gpconnect_appointment_checker.DAL.Application;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DAL.Mapping;
 using gpconnect_appointment_checker.DTO.Response.Application;
+using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -24,8 +26,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
     {
         private readonly ApplicationService _applicationService;
         private readonly DataService _dataService;
-        private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
-        private readonly User  _user;
+        private readonly User _user;
 
         public ApplicationTests()
         {
@@ -35,15 +36,15 @@ namespace gpconnect_appointment_checker.IntegrationTest
             var mockAuditService = new Mock<IAuditService>();
             var mockEmailService = new Mock<IEmailService>();
             var mockConfiguration = new Mock<IConfiguration>();
-            _mockHttpContextAccessor = SetupContextAccessor();
+            var httpContextAccessor = SetupContextAccessor();
 
             SetupFluentMappings();
             SetupConfiguration(mockConfiguration);
 
             _dataService = new DataService(mockConfiguration.Object, mockLoggerDataService.Object);
-            _applicationService = new ApplicationService(mockConfiguration.Object, mockLogger.Object, _dataService, mockAuditService.Object, mockLogService.Object, _mockHttpContextAccessor.Object, mockEmailService.Object);
+            _applicationService = new ApplicationService(mockConfiguration.Object, mockLogger.Object, _dataService, mockAuditService.Object, mockLogService.Object, httpContextAccessor, mockEmailService.Object);
 
-            _user = AddUserDetailsToContext(_mockHttpContextAccessor);
+            _user = AddUserDetailsToContext(httpContextAccessor);
         }
 
         [Theory]
@@ -179,6 +180,95 @@ namespace gpconnect_appointment_checker.IntegrationTest
             Assert.NotNull(result);
             Assert.True(result.SearchGroupId > 0);
             Assert.True(result.SearchResultId > 0);
+
+            var foundSearchResult = _applicationService.GetSearchResult(result.SearchResultId, _user.UserId);
+
+            Assert.IsType<SearchResult>(foundSearchResult);
+            Assert.NotNull(foundSearchResult);
+            Assert.True(foundSearchResult.SearchGroupId > 0);
+            Assert.True(foundSearchResult.SearchResultId > 0);
+            Assert.Equal(foundSearchResult.ProviderOdsCode, providerCode);
+            Assert.Equal(foundSearchResult.ConsumerOdsCode, consumerCode);
+            Assert.Equal(foundSearchResult.SearchDurationSeconds, searchDurationSeconds);
+            Assert.Equal(foundSearchResult.ProviderPublisher, providerPublisher);
+        }
+
+        [Theory]
+        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
+        public async void GetSearchResultByGroup(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        {
+            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
+            var searchResult = new DTO.Request.Application.SearchResult
+            {
+                SearchGroupId = searchGroup.SearchGroupId,
+                ProviderCode = providerCode,
+                ConsumerCode = consumerCode,
+                ErrorCode = errorCode,
+                Details = details,
+                ProviderPublisher = providerPublisher,
+                SearchDurationSeconds = searchDurationSeconds
+            };
+
+            var result = _applicationService.AddSearchResult(searchResult);
+            var foundSearchResultByGroup = _applicationService.GetSearchResultByGroup(searchGroup.SearchGroupId, _user.UserId);
+            Assert.IsType<List<SlotEntrySummary>>(foundSearchResultByGroup);
+            Assert.True(foundSearchResultByGroup.Count > 0);
+            Assert.Contains(foundSearchResultByGroup, x => x.ProviderOdsCode == providerCode);
+            Assert.Contains(foundSearchResultByGroup, x => x.ConsumerOdsCode == consumerCode);
+            Assert.Contains(foundSearchResultByGroup, x => x.ProviderPublisher == providerPublisher);
+            Assert.Contains(foundSearchResultByGroup, x => x.SearchSummaryDetail == details);
+        }
+
+        [Theory]
+        [InlineData("user1@test.com", "User 1", 1, "Job Role 1", "Reason for wanting access")]
+        public async void AddAndSetUserAccountStatus(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
+        {
+            var userCreateAccount = new DTO.Request.Application.UserCreateAccount
+            {
+                EmailAddress = emailAddress,
+                DisplayName = displayName,
+                OrganisationId = organisationId,
+                JobRole = jobRole,
+                Reason = reason
+            };
+            _applicationService.AddOrUpdateUser(userCreateAccount);
+            var user = _applicationService.GetUser(emailAddress);
+
+            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.RequestDenied });
+            user = _applicationService.GetUser(emailAddress);
+            Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.RequestDenied);
+
+            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.Deauthorised });
+            user = _applicationService.GetUser(emailAddress);
+            Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.Deauthorised);
+
+            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.Authorised });
+            user = _applicationService.GetUser(emailAddress);
+            Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.Authorised);
+        }
+
+        [Theory]
+        [InlineData("user2@test.com", "User 2", 1, "Job Role 2", "Reason for wanting access is given here")]
+        public async void AddAndSetUserMultiSearch(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
+        {
+            var userCreateAccount = new DTO.Request.Application.UserCreateAccount
+            {
+                EmailAddress = emailAddress,
+                DisplayName = displayName,
+                OrganisationId = organisationId,
+                JobRole = jobRole,
+                Reason = reason
+            };
+            _applicationService.AddOrUpdateUser(userCreateAccount);
+            var user = _applicationService.GetUser(emailAddress);
+            
+            _applicationService.SetMultiSearch(user.UserId, true);
+            user = _applicationService.GetUser(emailAddress);
+            Assert.True(user.MultiSearchEnabled);
+
+            _applicationService.SetMultiSearch(user.UserId, false);
+            user = _applicationService.GetUser(emailAddress);
+            Assert.False(user.MultiSearchEnabled);
         }
 
         private static void SetupConfiguration(Mock<IConfiguration> mockConfiguration)
@@ -192,12 +282,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
             mockConfiguration.Setup(a => a.GetSection(It.Is<string>(s => s == "ConnectionStrings"))).Returns(mockConfSection.Object);
         }
 
-        private Mock<IHttpContextAccessor> SetupContextAccessor()
+        private HttpContextAccessor SetupContextAccessor()
         {
-            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-            var contextUser = new ClaimsPrincipal(new ClaimsIdentity());
-            httpContextAccessorMock.Setup(h => h.HttpContext.User).Returns(contextUser);
-            return httpContextAccessorMock;
+            var httpContextAccessor = new HttpContextAccessor();
+            return httpContextAccessor;
         }
 
         private static void SetupFluentMappings()
@@ -216,7 +304,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
             }
         }
 
-        private User AddUserDetailsToContext(Mock<IHttpContextAccessor> mockHttpContextAccessor)
+        private User AddUserDetailsToContext(HttpContextAccessor httpContextAccessor)
         {
             var adminUser = _applicationService.GetAdminUsers().FirstOrDefault();
 
@@ -235,7 +323,16 @@ namespace gpconnect_appointment_checker.IntegrationTest
                 new Claim("UserSessionId", loggedOnAdminUser.UserSessionId.ToString())
             };
 
-            mockHttpContextAccessor.Setup(a => a.HttpContext.User.Claims).Returns(claimCollection);
+            var identity = new GenericIdentity(loggedOnAdminUser.DisplayName, "TestAdminUser");
+            identity.AddClaims(claimCollection);
+            var contextUser = new ClaimsPrincipal(identity);
+
+            var httpContext = new DefaultHttpContext()
+            {
+                User = contextUser,
+            };
+
+            httpContextAccessor.HttpContext = httpContext;
 
             return loggedOnAdminUser;
         }
