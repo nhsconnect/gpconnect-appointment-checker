@@ -34,7 +34,7 @@ insert into configuration.email
 )
 values
 (
-    true, 'gpconnect.appointmentchecker@nhs.net', 'smtp.office365.com', 587, 'Tls12', true, '', '', 'GP Connect Appointment Checker - Update'
+    true, 'test@email.com', 'smtp.email.com', 100, 'Tls12', true, '', '', 'GP Connect Appointment Checker - Update'
 );
 
 grant select, insert, update on all tables in schema application to app_user;
