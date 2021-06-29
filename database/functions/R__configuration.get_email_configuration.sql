@@ -9,7 +9,6 @@ returns table
     host_name varchar(100),
     port smallint,
     encryption varchar(10),
-    authentication_required boolean,
     user_name varchar(100),
     password varchar(100),
     default_subject varchar(100)
@@ -22,7 +21,6 @@ begin
 		e.host_name,
 		e.port,
 		e.encryption,
-		e.authentication_required,
 		e.user_name,
 		e.password,
 		e.default_subject
