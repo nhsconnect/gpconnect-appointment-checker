@@ -5,9 +5,9 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
     public class SlotEntrySimple
     {
-        public DateTime? AppointmentDate { get; set; }
+        public DateTimeOffset? AppointmentDate { get; set; }
         public string SessionName { get; set; }
-        public DateTime? StartTime { get; set; }
+        public DateTimeOffset? StartTime { get; set; }
         public double Duration { get; set; }
         public string SlotType { get; set; }
         public string DeliveryChannel { get; set; }
