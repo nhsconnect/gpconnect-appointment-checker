@@ -8,11 +8,13 @@ create function logging.update_spine_message
 returns void
 as $$
 begin
+
 	update 
 		logging.spine_message 
 	set 
 		search_result_id = _search_result_id 
 	where 
-		spine_message_id = _spine_message_id;
+		spine_message_id = _spine_message_id
+		and spine_message_id is null;
 end;
 $$ language plpgsql;

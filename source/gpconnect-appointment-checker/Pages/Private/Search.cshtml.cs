@@ -95,6 +95,8 @@ namespace gpconnect_appointment_checker.Pages
                 SelectedDateRange = searchGroup.SelectedDateRange;
                 PopulateSearchResultsForGroup(searchGroupId, userId);
             }
+            ModelState.ClearValidationState("ProviderOdsCode");
+            ModelState.ClearValidationState("ConsumerOdsCode");
             return Page();
         }
 
@@ -134,14 +136,6 @@ namespace gpconnect_appointment_checker.Pages
                 SearchDuration = _stopwatch.Elapsed.TotalSeconds;
                 _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsCount);
             }
-
-            //_contextAccessor.HttpContext.QueryString.Add("providerOdsCode", ProviderOdsCode);
-            //_contextAccessor.HttpContext.Request.QueryString.Add("consumerOdsCode", ConsumerOdsCode);
-
-            var queryString = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(_contextAccessor.HttpContext.Request.QueryString.ToUriComponent());
-
-            queryString["providerOdsCode"] = ProviderOdsCode;
-
 
             return Page();
         }
@@ -451,7 +445,8 @@ namespace gpconnect_appointment_checker.Pages
                         SearchResultId = searchResult.SearchResultId,
                         DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
-                        DisplayConsumer = errorCodeOrDetail.Item4 != null
+                        DisplayConsumer = errorCodeOrDetail.Item4 != null,
+                        DisplayClass = (errorCodeOrDetail.Item1 != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
                     });
                 }
             }

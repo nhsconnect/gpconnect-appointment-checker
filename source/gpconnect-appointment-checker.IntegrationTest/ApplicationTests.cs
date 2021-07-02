@@ -50,7 +50,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         [Theory]
         [InlineData("A20047", "PR", "DR LEGG'S SURGERY", "LS1 4HY")]
         [InlineData("B82617", "PR", "COXWOLD SURGERY", "YO61 4BB")]
-        public async void OrganisationFound(string odsCode, string organisationTypeCode, string organisationName, string postalCode)
+        public void OrganisationFound(string odsCode, string organisationTypeCode, string organisationName, string postalCode)
         {
             var result = _applicationService.GetOrganisation(odsCode);
             Assert.IsType<Organisation>(result);
@@ -64,7 +64,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         [Theory]
         [InlineData("X00000")]
         [InlineData("Y00000")]
-        public async void OrganisationNotFound(string odsCode)
+        public void OrganisationNotFound(string odsCode)
         {
             var result = _applicationService.GetOrganisation(odsCode);
             Assert.Null(result);
@@ -77,7 +77,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         [InlineData(SortBy.EmailAddress, SortDirection.DESC)]
         [InlineData(SortBy.AccessRequestCount, SortDirection.DESC)]
         [InlineData(SortBy.LastLogonDate, SortDirection.DESC)]
-        public async void UsersFound(SortBy sortBy, SortDirection sortDirection)
+        public void UsersFound(SortBy sortBy, SortDirection sortDirection)
         {
             var result = _applicationService.GetUsers(sortBy, sortDirection);
             Assert.IsType<List<User>>(result);
@@ -95,7 +95,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("@nhs.net", SortBy.EmailAddress)]
-        public async void UsersFoundByEmailAddress(string emailAddress, SortBy sortBy)
+        public void UsersFoundByEmailAddress(string emailAddress, SortBy sortBy)
         {
             var result = _applicationService.FindUsers(null, emailAddress, null, sortBy);
             Assert.IsType<List<User>>(result);
@@ -105,7 +105,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("@gmail.com", SortBy.EmailAddress)]
-        public async void UsersNotFoundByEmailAddress(string emailAddress, SortBy sortBy)
+        public void UsersNotFoundByEmailAddress(string emailAddress, SortBy sortBy)
         {
             var result = _applicationService.FindUsers(null, emailAddress, null, sortBy);
             Assert.IsType<List<User>>(result);
@@ -114,7 +114,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("HEALTH AND SOCIAL CARE INFORMATION CENTRE", SortBy.EmailAddress)]
-        public async void UsersFoundByOrganisationName(string organisationName, SortBy sortBy)
+        public void UsersFoundByOrganisationName(string organisationName, SortBy sortBy)
         {
             var result = _applicationService.FindUsers(null, null, null, sortBy);
             Assert.IsType<List<User>>(result);
@@ -124,7 +124,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("Gmail", SortBy.EmailAddress)]
-        public async void UsersNotFoundByOrganisationName(string organisationName, SortBy sortBy)
+        public void UsersNotFoundByOrganisationName(string organisationName, SortBy sortBy)
         {
             var result = _applicationService.FindUsers(null, null, organisationName, sortBy);
             Assert.IsType<List<User>>(result);
@@ -133,7 +133,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("test@test.com", "Test User", 1, "A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021", "1 June 2021 13:17:18")]
-        public async void AddAndFindSearchGroup(string emailAddress, string displayName, int organisationId, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        public void AddAndFindSearchGroup(string emailAddress, string displayName, int organisationId, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
         {
             var result = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
             Assert.IsType<SearchGroup>(result);
@@ -159,7 +159,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
-        public async void AddAndFindSearchResult(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        public void AddAndFindSearchResult(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
         {
             var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
 
@@ -195,7 +195,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
-        public async void GetSearchResultByGroup(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        public void GetSearchResultByGroup(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
         {
             var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
             var searchResult = new DTO.Request.Application.SearchResult
@@ -221,7 +221,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("user1@test.com", "User 1", 1, "Job Role 1", "Reason for wanting access")]
-        public async void AddAndSetUserAccountStatus(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
+        public void AddAndSetUserAccountStatus(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
         {
             var userCreateAccount = new DTO.Request.Application.UserCreateAccount
             {
@@ -249,7 +249,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         [Theory]
         [InlineData("user2@test.com", "User 2", 1, "Job Role 2", "Reason for wanting access is given here")]
-        public async void AddAndSetUserMultiSearch(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
+        public void AddAndSetUserMultiSearch(string emailAddress, string displayName, int organisationId, string jobRole, string reason)
         {
             var userCreateAccount = new DTO.Request.Application.UserCreateAccount
             {

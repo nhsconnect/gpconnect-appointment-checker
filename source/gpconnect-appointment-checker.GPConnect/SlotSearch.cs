@@ -119,7 +119,7 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedFreeSlots = new ConcurrentBag<SlotSimple>();
 
-                Parallel.ForEach(requestParameterList, async requestParameter =>
+                Parallel.ForEach(requestParameterList, requestParameter =>
                 {
                     var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
                         x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
@@ -140,7 +140,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                     using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                    var contents = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
 
                     _spineMessage.ResponsePayload = contents;
                     _spineMessage.ResponseStatus = response.StatusCode.ToString();
@@ -225,7 +225,7 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
 
-                Parallel.ForEach(requestParameterList, async requestParameter =>
+                Parallel.ForEach(requestParameterList, requestParameter =>
                 {
                     if (requestParameter.RequestParameters != null)
                     {
@@ -251,7 +251,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                         using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead,
                             cancellationToken);
-                        var contents = await response.Content.ReadAsStringAsync(cancellationToken);
+                        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
 
                         _spineMessage.ResponsePayload = contents;
                         _spineMessage.ResponseStatus = response.StatusCode.ToString();
