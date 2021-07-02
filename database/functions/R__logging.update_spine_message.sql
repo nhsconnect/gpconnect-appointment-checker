@@ -15,6 +15,6 @@ begin
 		search_result_id = _search_result_id 
 	where 
 		spine_message_id = _spine_message_id
-		and spine_message_id is null;
+		and search_result_id is null;
 end;
 $$ language plpgsql;
