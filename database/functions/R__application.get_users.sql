@@ -35,7 +35,7 @@ begin
 		u.display_name,
 		o.organisation_name,
 		u.user_account_status_id,
-		CASE WHEN u.last_logon_date IS NULL THEN ' ' ELSE u.last_logon_date::TEXT END last_logon_date,
+		CASE WHEN u.last_logon_date IS NULL THEN '' ELSE to_char(u.last_logon_date, 'D Mon YYYY') END last_logon_date,
 		CASE WHEN u.is_admin = True THEN 'Admin' WHEN u.is_admin = False THEN 'User' END access_level,
 		u.multi_search_enabled,
 		access_requests.access_requests_count,

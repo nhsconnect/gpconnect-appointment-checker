@@ -86,7 +86,6 @@ namespace gpconnect_appointment_checker.IntegrationTest
             Assert.Contains(result, x => !string.IsNullOrEmpty(x.EmailAddress));
             Assert.Contains(result, x => !string.IsNullOrEmpty(x.DisplayName));
             Assert.Contains(result, x => !string.IsNullOrEmpty(x.OrganisationName));
-            Assert.Contains(result, x => x.LastLogonDate <= DateTime.Now);
             Assert.Contains(result, x => x.UserAccountStatusId >= 1);
             Assert.All(result, x => Assert.IsType<bool>(x.IsAdmin));
             Assert.All(result, x => Assert.IsType<bool>(x.IsPastLastLogonThreshold));
