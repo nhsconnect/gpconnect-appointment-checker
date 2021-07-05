@@ -81,7 +81,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostCancel()
         {
-            return Redirect("/Pending/Index");
+            return Redirect("/SubmitUserForm");
         }
     }
 }

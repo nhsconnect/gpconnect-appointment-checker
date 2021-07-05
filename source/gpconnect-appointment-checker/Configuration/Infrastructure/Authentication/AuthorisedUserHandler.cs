@@ -10,7 +10,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorisedUserRequirement requirement)
         {
-            if (context.User.GetClaimValue("UserAccountStatus") != null)
+            if (!string.IsNullOrEmpty(context.User.GetClaimValue("UserAccountStatus")))
             {
                 if (context.User.GetClaimValue("UserAccountStatus") == UserAccountStatus.Authorised.ToString())
                 {
@@ -19,9 +19,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 else
                 {
                     var authFilterContext = context.Resource as DefaultHttpContext;
-                    authFilterContext.Response.Redirect("/Pending/Index");
+                    authFilterContext.Response.Redirect("/Index");
                     context.Succeed(requirement);
                 }
+            }
+            else
+            {
+                context.Succeed(requirement);
             }
 
             return Task.CompletedTask;
