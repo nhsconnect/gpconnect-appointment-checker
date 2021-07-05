@@ -42,6 +42,7 @@
         public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
         public const string REQUESTSUBMITTEDLABEL = "Request Submitted";
         public const string REQUESTSUBMITTEDTEXT = "Your request to create an account has been submitted. You will receive an email as soon as your account has been set up.";
+        public const string REQUESTSUBMITTEDERRORTEXT = "There was a problem creating your Appointment Checker account. Please email <a href=\"mailto:{0}\">{0}</a> and your account will be set up manually.";
 
         public const string SUBMITUSERFORMLABEL = "Access Denied";
         public const string SUBMITUSERFORMTEXT = "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";

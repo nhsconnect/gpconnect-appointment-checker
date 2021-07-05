@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 
 namespace gpconnect_appointment_checker.DAL.Email
@@ -34,10 +35,10 @@ namespace gpconnect_appointment_checker.DAL.Email
             _emailTemplates = new Lazy<List<EmailTemplate>>(GetEmailTemplates);
         }
 
-        public void SendUserStatusEmail(int userAccountStatusId, string recipient)
+        public bool SendUserStatusEmail(int userAccountStatusId, string recipient)
         {
             EmailTemplate template = null;
-            switch(userAccountStatusId)
+            switch (userAccountStatusId)
             {
                 case (int)UserAccountStatus.Authorised:
                     template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.AuthorisedConfirmationEmail);
@@ -47,13 +48,14 @@ namespace gpconnect_appointment_checker.DAL.Email
                     break;
             }
 
-            if (template != null)           
+            if (template != null)
             {
-                SendEmail(recipient, template);
+                return SendEmail(recipient, template);
             }
+            return false;
         }
 
-        public void SendUserCreateAccountEmail(DTO.Request.Application.UserCreateAccount userCreateAccount)
+        public bool SendUserCreateAccountEmail(DTO.Request.Application.UserCreateAccount userCreateAccount)
         {
             var template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.UserCreateAccountEmail);
             if (template != null)
@@ -62,11 +64,12 @@ namespace gpconnect_appointment_checker.DAL.Email
                 template.Body = template.Body.Replace("<job_role>", userCreateAccount.JobRole);
                 template.Body = template.Body.Replace("<organisation_name>", userCreateAccount.OrganisationName);
                 template.Body = template.Body.Replace("<access_reason>", userCreateAccount.Reason);
-                SendEmail(userCreateAccount.EmailAddress, template, true);
+                return SendEmail(userCreateAccount.EmailAddress, template, true);
             }
+            return false;
         }
 
-        private void SendEmail(string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
+        private bool SendEmail(string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
@@ -81,33 +84,50 @@ namespace gpconnect_appointment_checker.DAL.Email
                     IsBodyHtml = false,
                     Subject = emailTemplate.Subject,
                     Body = body,
-                    To = { recipient }                    
+                    To = { recipient }
                 };
                 if (sendToSender) mailMessage.To.Add(sender);
+                
                 _smtpClient.Send(mailMessage);
                 SendToAudit(recipient, body);
+                return true;
+            }
+            catch (WebException webException)
+            {
+                _logger?.LogError(webException, "A connectivity error has occurred while attempting to send an email");
+                return false;
+            }
+            catch (TimeoutException timeoutException)
+            {
+                _logger?.LogError(timeoutException, "A timeout error has occurred while attempting to send an email");
+                return false;
             }
             catch (ArgumentNullException argumentNullException)
             {
                 _logger?.LogError(argumentNullException, "One of the required arguments for sending an email is empty");
-                throw;
+                return false;
             }
             catch (SmtpException smtpException)
             {
                 _logger?.LogError(smtpException, "An SMTP error has occurred while attempting to send an email");
-                throw;
+                return false;
             }
             catch (Exception exception)
             {
                 _logger?.LogError(exception, "A general error has occurred while attempting to send an email");
-                throw;
+                return false;
             }
+        }
+
+        private void _smtpClient_SendCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private string PopulateDynamicFields(string bodyText)
         {
             bodyText = bodyText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));
-            bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());            
+            bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());
             return bodyText;
         }
 

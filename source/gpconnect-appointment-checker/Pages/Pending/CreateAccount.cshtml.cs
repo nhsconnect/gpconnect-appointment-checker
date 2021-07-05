@@ -43,6 +43,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<IActionResult> OnPostSendFormAsync()
         {
+            var emailSent = false;
             if (ModelState.IsValid)
             {
                 var userCreateAccount = new UserCreateAccount
@@ -54,7 +55,16 @@ namespace gpconnect_appointment_checker.Pages
                     DisplayName = User.GetClaimValue("DisplayName"),
                     OrganisationId = User.GetClaimValue("OrganisationId").StringToInteger()
                 };
-                _applicationService.AddOrUpdateUser(userCreateAccount);
+                var createdUser = _applicationService.AddOrUpdateUser(userCreateAccount);               
+
+                if (createdUser != null && createdUser.UserAccountStatusId == (int)UserAccountStatus.Pending)
+                {
+                    emailSent = _emailService.SendUserCreateAccountEmail(userCreateAccount);                    
+                }
+
+                TempData["EmailAddressManual"] = _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty);
+                TempData["EmailSent"] = emailSent;
+
                 return Redirect("/Pending/Index");
             }
             return Page();

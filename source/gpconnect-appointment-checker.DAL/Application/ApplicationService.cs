@@ -192,7 +192,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public void AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount)
+        public User AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount)
         {
             var functionName = "application.add_or_update_user";
             var parameters = new DynamicParameters();
@@ -201,14 +201,12 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_organisation_id", userCreateAccount.OrganisationId);
             parameters.Add("_user_account_status_id", (int)userCreateAccount.UserAccountStatus);
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
-            if (user != null && user.UserAccountStatusId == (int)UserAccountStatus.Pending)
-            {
-                _emailService.SendUserCreateAccountEmail(userCreateAccount);
-            }
+            return user;
         }
 
-        public void SetUserStatus(int[] userId, int[] userAccountStatusId)
+        public List<User> SetUserStatus(int[] userId, int[] userAccountStatusId)
         {
+            var userStatusUpdateList = new List<User>();
             for (var i = 0; i < userId.Length; i++)
             {
                 var functionName = "application.set_user_status";
@@ -218,11 +216,13 @@ namespace gpconnect_appointment_checker.DAL.Application
                 parameters.Add("_user_account_status_id", userAccountStatusId[i]);
                 parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
                 var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+
                 if (user != null && user.StatusChanged)
                 {
-                    _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
+                    userStatusUpdateList.Add(user);                    
                 }
             }
+            return userStatusUpdateList;
         }
 
         public void SetMultiSearch(int userId, bool multiSearchEnabled)
@@ -236,7 +236,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             _dataService.ExecuteFunction(functionName, parameters);
         }
 
-        public void AddUser(string emailAddress)
+        public User AddUser(string emailAddress)
         {
             var functionName = "application.add_user_manual";
             var parameters = new DynamicParameters();
@@ -244,10 +244,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
-            if (user != null && user.IsNewUser)
-            {
-                _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
-            }
+            return user;
         }
 
         public void UpdateUserTermsAndConditions(bool isAccepted)

@@ -6,8 +6,16 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-warning-callout">
             <h3 class="nhsuk-warning-callout__label">@SearchConstants.REQUESTSUBMITTEDLABEL</h3>
-            <p>@SearchConstants.REQUESTSUBMITTEDTEXT</p>
-            @*<a class="nhsuk-button" href="/CreateAccount" draggable="false">@SearchConstants.CREATEACCOUNTBUTTONTEXT</a>*@
+            <p>
+                @if (TempData["EmailSent"] as bool? == false)
+                {
+                    @Html.Raw(string.Format(SearchConstants.REQUESTSUBMITTEDERRORTEXT, TempData["EmailAddressManual"]))
+                }
+                else
+                {
+                    @SearchConstants.REQUESTSUBMITTEDTEXT
+                }
+            </p>
         </div>
     </div>
 </div>

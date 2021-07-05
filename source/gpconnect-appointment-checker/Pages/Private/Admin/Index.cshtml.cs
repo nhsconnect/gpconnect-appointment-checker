@@ -16,15 +16,17 @@ namespace gpconnect_appointment_checker.Pages
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<AdminModel> _logger;
         protected IApplicationService _applicationService;
+        protected IEmailService _emailService;
         protected IAuditService _auditService;
         protected readonly ILoggerManager _loggerManager;
 
-        public AdminModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<AdminModel> logger, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
+        public AdminModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<AdminModel> logger, IApplicationService applicationService, IAuditService auditService, IEmailService emailService, ILoggerManager loggerManager = null)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _applicationService = applicationService;
+            _emailService = emailService;
             _auditService = auditService;
             if (null != loggerManager)
             {
@@ -63,7 +65,11 @@ namespace gpconnect_appointment_checker.Pages
         public void OnPostSetUserStatuses(int[] UserId, int[] UserAccountStatusId)
         {
             ClearValidationState();
-            _applicationService.SetUserStatus(UserId, UserAccountStatusId);
+            var users = _applicationService.SetUserStatus(UserId, UserAccountStatusId);
+            foreach(var user in users)
+            {
+                _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
+            }            
             RefreshPage();
         }
 
@@ -103,7 +109,11 @@ namespace gpconnect_appointment_checker.Pages
             if (ModelState.IsValid)
             {
                 UserEmailAddress = CleansedUserEmailAddress;
-                _applicationService.AddUser(UserEmailAddress);
+                var user = _applicationService.AddUser(UserEmailAddress);
+                if (user != null && user.IsNewUser)
+                {
+                    _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
+                }
                 UserEmailAddress = null;
             }
             ModelState.Clear();

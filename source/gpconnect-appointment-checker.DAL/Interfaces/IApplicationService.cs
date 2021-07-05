@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.DAL.Interfaces
@@ -18,10 +19,10 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         List<DTO.Response.Application.User> GetUsers(SortBy sortBy, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null);
         List<DTO.Response.Application.User> GetAdminUsers();
         List<DTO.Response.Application.User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortBy);
-        void SetUserStatus(int[] userId, int[] userAccountStatusId);
+        List<User> SetUserStatus(int[] userId, int[] userAccountStatusId);
         void SetMultiSearch(int userId, bool multiSearchEnabled);
-        void AddUser(string emailAddress);        
+        User AddUser(string emailAddress);
         void UpdateUserTermsAndConditions(bool isAccepted);
-        void AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount);
+        User AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount);
     }
 }
