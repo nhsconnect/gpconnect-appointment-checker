@@ -87,7 +87,15 @@ namespace gpconnect_appointment_checker.DAL.Email
                     To = { recipient }
                 };
                 if (sendToSender) mailMessage.To.Add(sender);
-                
+
+                _logger.LogInformation($"Sending email with the following details");
+                _logger.LogInformation($"Hostname: {_smtpClient.Host}");
+                _logger.LogInformation($"Port: {_smtpClient.Port}");
+                _logger.LogInformation($"DeliveryFormat: {_smtpClient.DeliveryFormat}");
+                _logger.LogInformation($"DeliveryMethod: {_smtpClient.DeliveryMethod}");
+                _logger.LogInformation($"EnableSsl: {_smtpClient.EnableSsl}");
+                _logger.LogInformation($"Credentials: {_smtpClient.Credentials}");
+
                 _smtpClient.Send(mailMessage);
                 SendToAudit(recipient, body);
                 return true;
