@@ -97,16 +97,15 @@ new SelectList(Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>
                                 <tr role="row">
                                     <td role="cell" class="" scope="nhsuk-table__cell">
                                         <button class="nhsuk-button" asp-page-handler="RunSearch" type="submit">@SearchConstants.FINDBUTTONTEXT</button>
-                                    </td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">
                                         <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
                                     </td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                                    <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">
-                                        <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBUTTONTEXT</button>
+                                        <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBYSTATUSBUTTONTEXT</button>
                                     </td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                                 </tr>
