@@ -35,7 +35,7 @@ namespace gpconnect_appointment_checker.DAL.Email
             _emailTemplates = new Lazy<List<EmailTemplate>>(GetEmailTemplates);
         }
 
-        public bool SendUserStatusEmail(int userAccountStatusId, string recipient)
+        public bool SendUserStatusEmail(int userId, int userAccountStatusId, string recipient)
         {
             EmailTemplate template = null;
             switch (userAccountStatusId)
@@ -50,12 +50,12 @@ namespace gpconnect_appointment_checker.DAL.Email
 
             if (template != null)
             {
-                return SendEmail(recipient, template);
+                return SendEmail(userId, recipient, template);
             }
             return false;
         }
 
-        public bool SendUserCreateAccountEmail(DTO.Request.Application.UserCreateAccount userCreateAccount)
+        public bool SendUserCreateAccountEmail(User createdUser, DTO.Request.Application.UserCreateAccount userCreateAccount)
         {
             var template = _emailTemplates.Value.FirstOrDefault(x => x.MailTemplate == MailTemplate.UserCreateAccountEmail);
             if (template != null)
@@ -64,12 +64,12 @@ namespace gpconnect_appointment_checker.DAL.Email
                 template.Body = template.Body.Replace("<job_role>", userCreateAccount.JobRole);
                 template.Body = template.Body.Replace("<organisation_name>", userCreateAccount.OrganisationName);
                 template.Body = template.Body.Replace("<access_reason>", userCreateAccount.Reason);
-                return SendEmail(userCreateAccount.EmailAddress, template, true);
+                return SendEmail(createdUser.UserId, userCreateAccount.EmailAddress, template, true);
             }
             return false;
         }
 
-        private bool SendEmail(string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
+        private bool SendEmail(int userId, string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
@@ -89,7 +89,7 @@ namespace gpconnect_appointment_checker.DAL.Email
                 if (sendToSender) mailMessage.To.Add(sender);
                 
                 _smtpClient.Send(mailMessage);
-                SendToAudit(recipient, body);
+                SendToAudit(userId, recipient, body);
                 return true;
             }
             catch (WebException webException)
@@ -131,10 +131,11 @@ namespace gpconnect_appointment_checker.DAL.Email
             return bodyText;
         }
 
-        private void SendToAudit(string recipient, string details)
+        private void SendToAudit(int userId, string recipient, string details)
         {
             var auditEntry = new Entry
-            {
+            {    
+                UserId = userId,
                 Item1 = _configuration.GetSection("Email:sender_address").GetConfigurationString(),
                 Item2 = recipient,
                 Details = details,

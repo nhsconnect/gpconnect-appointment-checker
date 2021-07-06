@@ -68,7 +68,7 @@ namespace gpconnect_appointment_checker.Pages
             var users = _applicationService.SetUserStatus(UserId, UserAccountStatusId);
             foreach(var user in users)
             {
-                _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
+                _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
             }            
             RefreshPage();
         }
@@ -112,7 +112,7 @@ namespace gpconnect_appointment_checker.Pages
                 var user = _applicationService.AddUser(UserEmailAddress);
                 if (user != null && user.IsNewUser)
                 {
-                    _emailService.SendUserStatusEmail(user.UserAccountStatusId, user.EmailAddress);
+                    _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
                 }
                 UserEmailAddress = null;
             }

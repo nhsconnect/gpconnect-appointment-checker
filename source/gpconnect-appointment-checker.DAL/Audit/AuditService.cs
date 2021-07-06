@@ -26,6 +26,10 @@ namespace gpconnect_appointment_checker.DAL.Audit
             {
                 parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
             }
+            else if(auditEntry.UserId > 0)
+            {
+                parameters.Add("_user_id", auditEntry.UserId, DbType.Int32);
+            }
             else
             {
                 parameters.Add("_user_id", DBNull.Value, DbType.Int32);

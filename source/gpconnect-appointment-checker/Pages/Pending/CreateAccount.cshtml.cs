@@ -59,7 +59,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (createdUser != null && createdUser.UserAccountStatusId == (int)UserAccountStatus.Pending)
                 {
-                    emailSent = _emailService.SendUserCreateAccountEmail(userCreateAccount);                    
+                    emailSent = _emailService.SendUserCreateAccountEmail(createdUser, userCreateAccount);                    
                 }
 
                 TempData["EmailAddressManual"] = _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty);
