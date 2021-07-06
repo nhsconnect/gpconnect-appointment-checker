@@ -66,10 +66,10 @@ namespace gpconnect_appointment_checker.Pages
         {
             ClearValidationState();
             var users = _applicationService.SetUserStatus(UserId, UserAccountStatusId);
-            foreach(var user in users)
+            foreach (var user in users)
             {
                 _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
-            }            
+            }
             RefreshPage();
         }
 
@@ -95,12 +95,9 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnPostFilterByStatus()
         {
-            if (!string.IsNullOrEmpty(SelectedUserAccountStatusFilter))
-            {
-                ClearValidationState();
-                var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
-                UserList = userList;
-            }
+            ClearValidationState();
+            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), string.IsNullOrEmpty(SelectedUserAccountStatusFilter) ? null : Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
+            UserList = userList;
             return Page();
         }
 
