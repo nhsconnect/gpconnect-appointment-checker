@@ -64,7 +64,16 @@ begin
 
 		if (_admin_user_id is not null)
 		then
-			perform audit.add_entry(_user_id, _user_session_id, 13, null, null, null, _email_address, null, _admin_user_id);
+			perform
+			from audit.add_entry
+			(
+				_user_id := _user_id,
+				_user_session_id := _user_session_id,
+				_entry_type_id := 16,
+				_item1 := 'user account created',
+				_item2 := _email_address,
+				_admin_user_id := _admin_user_id
+			);
 		end if;
 	end if;
 	
