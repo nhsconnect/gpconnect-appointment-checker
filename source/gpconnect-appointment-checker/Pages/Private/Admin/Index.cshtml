@@ -128,11 +128,11 @@ new SelectList(Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>
                                             <td role="cell" class="" scope="nhsuk-table__cell">
                                                 @if (Model.UserList[i].MultiSearchEnabled)
                                                 {
-                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-userid="@Model.UserList[i].UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@Model.UserList[i].MultiSearchEnabled.BooleanToYesNo()</button>
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-multisearchstatususerid="@Model.UserList[i].UserId" asp-route-multisearchstatus="false" asp-page-handler="SetMultiSearch">@Model.UserList[i].MultiSearchEnabled.BooleanToYesNo()</button>
                                                 }
                                                 else
                                                 {
-                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-userid="@Model.UserList[i].UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@Model.UserList[i].MultiSearchEnabled.BooleanToYesNo()</button>
+                                                    <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-multisearchstatususerid="@Model.UserList[i].UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@Model.UserList[i].MultiSearchEnabled.BooleanToYesNo()</button>
                                                 }
                                             </td>
                                         </tr>
