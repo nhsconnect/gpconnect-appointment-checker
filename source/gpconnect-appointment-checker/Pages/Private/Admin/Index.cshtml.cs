@@ -75,7 +75,9 @@ namespace gpconnect_appointment_checker.Pages
 
         public void OnPostSetMultiSearch(int userid, bool multisearchstatus)
         {
+            _logger.LogInformation("Called OnPostSetMultiSearch");
             ClearValidationState();
+            _logger.LogInformation("Called _applicationService.SetMultiSearch");
             _applicationService.SetMultiSearch(userid, multisearchstatus);
             RefreshPage();
         }
