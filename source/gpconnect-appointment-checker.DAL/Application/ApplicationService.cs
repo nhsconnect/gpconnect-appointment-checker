@@ -227,23 +227,12 @@ namespace gpconnect_appointment_checker.DAL.Application
 
         public void SetMultiSearch(int userId, bool multiSearchEnabled)
         {
-            _logger.LogInformation("Gets to SetMultiSearch");
-            _logger.LogInformation($"userId is {userId}");
-            _logger.LogInformation($"multiSearchEnabled is {multiSearchEnabled}");
-            _logger.LogInformation($"_admin_user_id is {_context.HttpContext?.User?.GetClaimValue("UserId")}");
-            _logger.LogInformation($"_user_session_id is {_context.HttpContext?.User?.GetClaimValue("UserSessionId")}");
-
-
-            _logger.LogInformation("Generating parameters");
             var functionName = "application.set_multi_search";
             var parameters = new DynamicParameters();
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_id", userId);
             parameters.Add("_multi_search_enabled", multiSearchEnabled);
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
-
-            _logger.LogInformation($"Executing function {functionName}");
-
             _dataService.ExecuteFunction(functionName, parameters);
         }
 
