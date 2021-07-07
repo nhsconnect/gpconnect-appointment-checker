@@ -58,21 +58,7 @@ begin
 		returning
 			application.user.user_id
 		into 
-			_user_id;
-
-		if (_user_id is not null)
-		then
-			perform
-			from audit.add_entry
-			(
-				_user_id := _user_id,
-				_user_session_id := null,
-				_entry_type_id := 16,
-				_item1 := 'user account created',
-				_item2 := _email_address
-			);
-		end if;
-		
+			_user_id;			
 	else
 		update 
 			application.user
@@ -82,6 +68,19 @@ begin
 			organisation_id = _organisation_id			
 		where
 			application.user.user_id = _user_id;
+	end if;
+
+	if (_user_id is not null)
+	then
+		perform
+		from audit.add_entry
+		(
+			_user_id := _user_id,
+			_user_session_id := null,
+			_entry_type_id := 16,
+			_item1 := 'user account created',
+			_item2 := _email_address
+		);
 	end if;
 	
 	--------------------------------------------
