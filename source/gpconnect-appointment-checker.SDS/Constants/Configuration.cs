@@ -5,5 +5,6 @@
         public const string GetOrganisationDetailsByOdsCode = "GetOrganisationDetailsByOdsCode";
         public const string GetGpProviderEndpointAndPartyKeyByOdsCode = "GetGpProviderEndpointAndPartyKeyByOdsCode";
         public const string GetGpProviderAsIdByOdsCodeAndPartyKey = "GetGpProviderAsIdByOdsCodeAndPartyKey";
+        public const string GetGpConsumerAsIdByOdsCode = "GetGpConsumerAsIdByOdsCode";
     }
 }

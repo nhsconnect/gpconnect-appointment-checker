@@ -168,9 +168,9 @@ namespace gpconnect_appointment_checker.Pages
                     //Step 2 - VALIDATE PROVIDER ODS CODE IN SPINE DIRECTORY
                     //Is ODS code configured in Spine Directory as an GP Connect Appointments provider system? / Retrieve provider endpoint and party key from Spine Directory
                     var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCode);
-                    var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCode);
+                    var consumerEnablement = _ldapService.GetGpConsumerAsIdByOdsCode(ConsumerOdsCode);
                     ProviderEnabledForGpConnectAppointmentManagement = providerGpConnectDetails != null;
-                    ConsumerEnabledForGpConnectAppointmentManagement = consumerGpConnectDetails != null;
+                    ConsumerEnabledForGpConnectAppointmentManagement = consumerEnablement != null;
 
                     if (ProviderEnabledForGpConnectAppointmentManagement && consumerOrganisationDetails != null)
                     {
@@ -180,7 +180,7 @@ namespace gpconnect_appointment_checker.Pages
                         if (ProviderASIDPresent)
                         {
                             providerGpConnectDetails.asid = providerAsId.asid;
-                            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                            await PopulateSearchResults(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
                             SearchAtResultsText = $"{providerOrganisationDetails.OrganisationName} ({providerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(providerOrganisationDetails.PostalAddressFields.ToList(), providerOrganisationDetails.PostalCode)}";
                             SearchOnBehalfOfResultsText = $"{consumerOrganisationDetails.OrganisationName} ({consumerOrganisationDetails.ODSCode}) - {StringExtensions.AddressBuilder(consumerOrganisationDetails.PostalAddressFields.ToList(), consumerOrganisationDetails.PostalCode)}";
                             ProviderPublisher = providerAsId.product_name;
@@ -220,11 +220,11 @@ namespace gpconnect_appointment_checker.Pages
                 _auditSearchParameters[2] = SelectedDateRange;
 
                 var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
-                var consumerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
+                var consumerEnablement = _ldapService.GetGpConsumerAsIdByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                var slotEntrySummary = PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                var slotEntrySummary = PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
                 SearchResultsSummary = slotEntrySummary;
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
@@ -235,11 +235,11 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails, Spine consumerGpConnectDetails, Organisation consumerOrganisationDetails)
+        private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails)
         {
             var requestParameters = _tokenService.ConstructRequestParameters(
                 _contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                consumerEnablement, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
             var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
             var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 

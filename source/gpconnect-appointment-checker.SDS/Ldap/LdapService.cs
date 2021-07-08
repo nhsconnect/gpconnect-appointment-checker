@@ -110,6 +110,27 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
+        public Spine GetGpConsumerAsIdByOdsCode(string odsCode)
+        {
+            try
+            {
+                var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpConsumerAsIdByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
+                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+                return result;
+            }
+            catch (LdapException ldapException)
+            {
+                _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+        }
+
         public List<SpineList> GetGpProviderEndpointAndPartyKeyByOdsCode(List<string> odsCodes, ErrorCode errorCodeToRaise)
         {
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
@@ -125,6 +146,35 @@ namespace gpconnect_appointment_checker.SDS
                         PartyKey = processedOrganisation?.party_key,
                         Spine = processedOrganisation,
                         ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None
+                    });
+                });
+                return processedCodes.ToList();
+            }
+            catch (LdapException ldapException)
+            {
+                _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, $"An error has occurred while attempting to execute an LDAP query - sdsQuery is {sdsQuery.QueryText} - searchBase is {sdsQuery.SearchBase}");
+                throw;
+            }
+        }
+
+        public List<SpineList> GetGpConsumerAsIdByOdsCode(List<string> odsCodes, ErrorCode errorCodeToRaise)
+        {
+            var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpConsumerAsIdByOdsCode);
+            try
+            {
+                var processedCodes = new ConcurrentBag<SpineList>();
+                Parallel.ForEach(odsCodes, (odsCode) =>
+                {
+                    var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    processedCodes.Add(new SpineList
+                    {
+                        OdsCode = odsCode,
+                        ErrorCode = result == null ? errorCodeToRaise : ErrorCode.None
                     });
                 });
                 return processedCodes.ToList();

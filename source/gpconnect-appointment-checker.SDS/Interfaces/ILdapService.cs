@@ -13,5 +13,7 @@ namespace gpconnect_appointment_checker.SDS.Interfaces
         Organisation GetOrganisationDetailsByOdsCode(string odsCode);
         Spine GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode);
         Spine GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey);
+        Spine GetGpConsumerAsIdByOdsCode(string odsCode);
+        List<SpineList> GetGpConsumerAsIdByOdsCode(List<string> odsCode, ErrorCode errorCodeToRaise);
     }
 }
