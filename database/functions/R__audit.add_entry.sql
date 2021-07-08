@@ -5,9 +5,9 @@ create function audit.add_entry
     _user_id integer,
     _user_session_id integer,
     _entry_type_id integer,
-    _item1 varchar(100) default null,
-    _item2 varchar(100) default null,
-    _item3 varchar(100) default null,
+    _item1 varchar(1000) default null,
+    _item2 varchar(1000) default null,
+    _item3 varchar(1000) default null,
     _details varchar(1000) default null,
     _entry_elapsed_ms integer default null,
     _admin_user_id integer default null
