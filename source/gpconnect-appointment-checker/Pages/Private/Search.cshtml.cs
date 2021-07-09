@@ -362,7 +362,7 @@ namespace gpconnect_appointment_checker.Pages
                         searchResultToAdd.SpineMessageId = spineMessageId;
                     }
 
-                    var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+                    //var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
                     slotEntrySummary.Add(new SlotEntrySummary
                     {
@@ -372,7 +372,7 @@ namespace gpconnect_appointment_checker.Pages
                         ConsumerOdsCode = ConsumerOdsCodeAsList[0],
                         SearchSummaryDetail = errorCodeOrDetail.Item2,
                         ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
-                        SearchResultId = searchResult.SearchResultId,
+                        //SearchResultId = searchResult.SearchResultId,
                         DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
                         DisplayConsumer = errorCodeOrDetail.Item4 != null,
@@ -432,7 +432,7 @@ namespace gpconnect_appointment_checker.Pages
                         searchResultToAdd.SpineMessageId = spineMessageId;
                     }
 
-                    var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+                    //var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
                     slotEntrySummary.Add(new SlotEntrySummary
                     {
@@ -442,7 +442,7 @@ namespace gpconnect_appointment_checker.Pages
                         ConsumerOdsCode = ConsumerOdsCodeAsList[i],
                         SearchSummaryDetail = errorCodeOrDetail.Item2,
                         ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
-                        SearchResultId = searchResult.SearchResultId,
+                        //SearchResultId = searchResult.SearchResultId,
                         DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
                         DisplayProvider = errorCodeOrDetail.Item3 != null,
                         DisplayConsumer = errorCodeOrDetail.Item4 != null,
@@ -450,7 +450,8 @@ namespace gpconnect_appointment_checker.Pages
                     });
                 }
             }
-            return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
+            //return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
+            return slotEntrySummary.ToList();
         }
 
         private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)
