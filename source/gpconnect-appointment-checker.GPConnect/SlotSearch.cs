@@ -119,7 +119,7 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedFreeSlots = new ConcurrentBag<SlotSimple>();
 
-                Parallel.ForEach(requestParameterList, requestParameter =>
+                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
                 {
                     var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
                         x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
@@ -225,7 +225,7 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
 
-                Parallel.ForEach(requestParameterList, requestParameter =>
+                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
                 {
                     if (requestParameter.RequestParameters != null)
                     {

@@ -35,7 +35,7 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var processedCodes = new ConcurrentBag<OrganisationList>();
-                Parallel.ForEach(odsCodes, (odsCode) =>
+                Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new OrganisationList
@@ -137,7 +137,7 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var processedCodes = new ConcurrentBag<SpineList>();
-                Parallel.ForEach(odsCodes, (odsCode) =>
+                Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new SpineList
@@ -168,7 +168,7 @@ namespace gpconnect_appointment_checker.SDS
             try
             {
                 var processedCodes = new ConcurrentBag<SpineList>();
-                Parallel.ForEach(odsCodes, (odsCode) =>
+                Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
                     var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new SpineList
@@ -196,7 +196,7 @@ namespace gpconnect_appointment_checker.SDS
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
             try
             {
-                Parallel.ForEach(odsCodesWithPartyKeys.Where(x => !string.IsNullOrEmpty(x.PartyKey)), (odsCodeWithPartyKey) =>
+                Parallel.ForEach(odsCodesWithPartyKeys.Where(x => !string.IsNullOrEmpty(x.PartyKey)), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCodeWithPartyKey) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
                     odsCodeWithPartyKey.Spine.asid = processedOrganisation?.asid;

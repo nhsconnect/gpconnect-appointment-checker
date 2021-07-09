@@ -22,7 +22,7 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var processedCapabilityStatements = new ConcurrentBag<CapabilityStatementList>();
-                Parallel.ForEach(requestParameterList, requestParameter =>
+                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
                 {
                     if (requestParameter.RequestParameters != null)
                     {

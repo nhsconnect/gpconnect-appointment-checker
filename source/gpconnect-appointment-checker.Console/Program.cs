@@ -114,7 +114,7 @@ namespace gpconnect_appointment_checker.Console
         public static List<T> RunParallel<T>(List<string> odsCodes, string queryName) where T : class
         {
             var processedCodes = new ConcurrentBag<T>();
-            Parallel.ForEach(odsCodes, (odsCode) =>
+            Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
             {
                 processedCodes.Add(RunLdapQuery<T>(odsCode, queryName));
             });
@@ -124,7 +124,7 @@ namespace gpconnect_appointment_checker.Console
         public static List<CapabilityStatement> RunParallelAPICall(List<string> odsCodes, string queryName)
         {
             var processedCapabilityStatements = new ConcurrentBag<CapabilityStatement>();
-            Parallel.ForEach(odsCodes, (odsCode) =>
+            Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
             {
                 processedCapabilityStatements.Add(ConstructApiCall(odsCode));
             });

@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     });
                 }
 
-                Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), providerSpineMessage =>
+                Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, providerSpineMessage =>
                 {
                     var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
                     var tokenAudience = providerSpineMessage.Spine.ssp_hostname;
