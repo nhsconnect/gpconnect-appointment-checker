@@ -49,15 +49,19 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 var requestParameterList = new ConcurrentBag<RequestParametersList>();
 
-                foreach (var providerSpineMessage in providerSpineMessages.Where(x => !x.ProviderEnabledForGpConnectAppointmentManagement))
-                {
+                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                    .Where(x => !x.ProviderEnabledForGpConnectAppointmentManagement).ForAll(providerSpineMessage =>
+                    //foreach (var providerSpineMessage in providerSpineMessages.Where(x => !x.ProviderEnabledForGpConnectAppointmentManagement))
+                    {
                     requestParameterList.Add(new RequestParametersList
                     {
                         OdsCode = providerSpineMessage.OdsCode
                     });
-                }
+                });
 
-                Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, providerSpineMessage =>
+                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                    .Where(x => x.ProviderEnabledForGpConnectAppointmentManagement).ForAll(providerSpineMessage =>
+                //Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, providerSpineMessage =>
                 {
                     var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
                     var tokenAudience = providerSpineMessage.Spine.ssp_hostname;

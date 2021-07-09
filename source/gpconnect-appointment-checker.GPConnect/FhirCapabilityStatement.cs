@@ -22,10 +22,14 @@ namespace gpconnect_appointment_checker.GPConnect
             try
             {
                 var processedCapabilityStatements = new ConcurrentBag<CapabilityStatementList>();
-                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
+
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                    .Where(x => x.RequestParameters != null).ForAll(requestParameter =>
+
+                //Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
                 {
-                    if (requestParameter.RequestParameters != null)
-                    {
+                    //if (requestParameter.RequestParameters != null)
+                    //{
                         var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
                             x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
                         requestParameter.RequestParameters.SpineMessageTypeId =
@@ -66,16 +70,26 @@ namespace gpconnect_appointment_checker.GPConnect
                             CapabilityStatement = capabilityStatement,
                             ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
                         });
-                    }
-                    else
+                    //}
+                    //else
+                    //{
+                    //    processedCapabilityStatements.Add(new CapabilityStatementList
+                    //    {
+                    //        OdsCode = requestParameter.OdsCode,
+                    //        ErrorCode = ErrorCode.CapabilityStatementNotFound
+                    //    });
+                    //}
+                });
+
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                    .Where(x => x.RequestParameters == null).ForAll(requestParameter =>
                     {
                         processedCapabilityStatements.Add(new CapabilityStatementList
                         {
                             OdsCode = requestParameter.OdsCode,
                             ErrorCode = ErrorCode.CapabilityStatementNotFound
                         });
-                    }
-                });
+                    });
 
                 return processedCapabilityStatements.ToList();
             }
