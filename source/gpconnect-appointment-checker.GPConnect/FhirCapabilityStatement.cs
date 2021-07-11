@@ -23,7 +23,7 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedCapabilityStatements = new ConcurrentBag<CapabilityStatementList>();
 
-                requestParameterList.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => x.RequestParameters != null).ForAll(requestParameter =>
 
                 //Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
@@ -81,7 +81,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     //}
                 });
 
-                requestParameterList.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => x.RequestParameters == null).ForAll(requestParameter =>
                     {
                         processedCapabilityStatements.Add(new CapabilityStatementList

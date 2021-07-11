@@ -49,7 +49,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 var requestParameterList = new ConcurrentBag<RequestParametersList>();
 
-                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => !x.ProviderEnabledForGpConnectAppointmentManagement).ForAll(providerSpineMessage =>
                     //foreach (var providerSpineMessage in providerSpineMessages.Where(x => !x.ProviderEnabledForGpConnectAppointmentManagement))
                     {
@@ -59,7 +59,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     });
                 });
 
-                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)))
+                providerSpineMessages.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => x.ProviderEnabledForGpConnectAppointmentManagement).ForAll(providerSpineMessage =>
                 //Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, providerSpineMessage =>
                 {

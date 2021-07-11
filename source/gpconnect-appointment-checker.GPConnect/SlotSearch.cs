@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.DTO.Request.Audit;
+﻿using gpconnect_appointment_checker.DTO;
+using gpconnect_appointment_checker.DTO.Request.Audit;
 using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Constants;
@@ -119,11 +120,12 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 var processedFreeSlots = new ConcurrentBag<SlotSimple>();
 
-                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                    .ForAll(requestParameter =>
                 {
                     var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                        x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
-                    requestParameter.RequestParameters.SpineMessageTypeId = (int) SpineMessageTypes.GpConnectSearchFreeSlots;
+                        x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                    requestParameter.RequestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                     requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
 
                     var stopWatch = new Stopwatch();
@@ -163,7 +165,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                     var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot)
                         .ToList();
-                    if (slotResources == null || slotResources?.Count == 0) 
+                    if (slotResources == null || slotResources?.Count == 0)
                         processedFreeSlots.Add(slotSimple);
 
                     var practitionerResources = results.entry
@@ -174,32 +176,32 @@ namespace gpconnect_appointment_checker.GPConnect
                         .ToList();
 
                     var slotList = (from slot in slotResources?.Where(s => s.resource != null)
-                            let practitioner = GetPractitionerDetails(slot.resource.schedule.reference,
-                                scheduleResources, practitionerResources)
-                            let location = GetLocation(slot.resource.schedule.reference, scheduleResources,
-                                locationResources)
-                            let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
-                            select new SlotEntrySimple
-                            {
-                                AppointmentDate = slot.resource.start.GetValueOrDefault().DateTime,
-                                SessionName = schedule.resource.serviceCategory?.text,
-                                StartTime = slot.resource.start.GetValueOrDefault().DateTime,
-                                Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
-                                SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
-                                DeliveryChannel = slot.resource.extension?.FirstOrDefault()?.valueCode,
-                                PractitionerGivenName = practitioner?.name?.FirstOrDefault()?.given?.FirstOrDefault(),
-                                PractitionerFamilyName = practitioner?.name?.FirstOrDefault()?.family,
-                                PractitionerPrefix = practitioner?.name?.FirstOrDefault()?.prefix?.FirstOrDefault(),
-                                PractitionerRole = schedule.resource.extension?.FirstOrDefault()?.valueCodeableConcept
-                                    ?.coding?.FirstOrDefault()?.display,
-                                PractitionerGender = practitioner?.gender,
-                                LocationName = location?.name,
-                                LocationAddressLines = location?.address?.line,
-                                LocationCity = location?.address?.city,
-                                LocationCountry = location?.address?.country,
-                                LocationDistrict = location?.address?.district,
-                                LocationPostalCode = location?.address?.postalCode
-                            }).OrderBy(z => z.LocationName)
+                                    let practitioner = GetPractitionerDetails(slot.resource.schedule.reference,
+                                        scheduleResources, practitionerResources)
+                                    let location = GetLocation(slot.resource.schedule.reference, scheduleResources,
+                                        locationResources)
+                                    let schedule = GetSchedule(slot.resource.schedule.reference, scheduleResources)
+                                    select new SlotEntrySimple
+                                    {
+                                        AppointmentDate = slot.resource.start.GetValueOrDefault().DateTime,
+                                        SessionName = schedule.resource.serviceCategory?.text,
+                                        StartTime = slot.resource.start.GetValueOrDefault().DateTime,
+                                        Duration = slot.resource.start.DurationBetweenTwoDates(slot.resource.end),
+                                        SlotType = slot.resource.serviceType.FirstOrDefault()?.text,
+                                        DeliveryChannel = slot.resource.extension?.FirstOrDefault()?.valueCode,
+                                        PractitionerGivenName = practitioner?.name?.FirstOrDefault()?.given?.FirstOrDefault(),
+                                        PractitionerFamilyName = practitioner?.name?.FirstOrDefault()?.family,
+                                        PractitionerPrefix = practitioner?.name?.FirstOrDefault()?.prefix?.FirstOrDefault(),
+                                        PractitionerRole = schedule.resource.extension?.FirstOrDefault()?.valueCodeableConcept
+                                            ?.coding?.FirstOrDefault()?.display,
+                                        PractitionerGender = practitioner?.gender,
+                                        LocationName = location?.name,
+                                        LocationAddressLines = location?.address?.line,
+                                        LocationCity = location?.address?.city,
+                                        LocationCountry = location?.address?.country,
+                                        LocationDistrict = location?.address?.district,
+                                        LocationPostalCode = location?.address?.postalCode
+                                    }).OrderBy(z => z.LocationName)
                         .ThenBy(s => s.AppointmentDate)
                         .ThenBy(s => s.StartTime);
                     slotSimple.SlotEntrySimple.AddRange(slotList);
@@ -219,20 +221,33 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+        private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
         {
             try
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
 
-                Parallel.ForEach(requestParameterList, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, requestParameter =>
-                {
-                    if (requestParameter.RequestParameters != null)
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                    .Where(x => x.RequestParameters == null).ForAll(requestParameter =>
                     {
+                        processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                        {
+                            OdsCode = requestParameter.OdsCode,
+                            SpineMessageId = null
+                        });
+                    });
+                
+                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                    .Where(x => x.RequestParameters != null).ForAll(requestParameter =>
+                {
+                    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
+                    {
+                        _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
+
                         var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                            x.SpineMessageTypeId == (int) SpineMessageTypes.GpConnectSearchFreeSlots);
+                                x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
                         requestParameter.RequestParameters.SpineMessageTypeId =
-                            (int) SpineMessageTypes.GpConnectSearchFreeSlots;
+                            (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                         requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
 
                         var stopWatch = new Stopwatch();
@@ -251,6 +266,9 @@ namespace gpconnect_appointment_checker.GPConnect
 
                         using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead,
                             cancellationToken);
+
+                        _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
+
                         var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
 
                         _spineMessage.ResponsePayload = contents;
@@ -286,14 +304,7 @@ namespace gpconnect_appointment_checker.GPConnect
                             });
                         }
                     }
-                    else
-                    {
-                        processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
-                        {
-                            OdsCode = requestParameter.OdsCode,
-                            SpineMessageId = null
-                        });
-                    }
+                    _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
                 });
                 return processedSlotEntrySummaryCount.ToList();
             }

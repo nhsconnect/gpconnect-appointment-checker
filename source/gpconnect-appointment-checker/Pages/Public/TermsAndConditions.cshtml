@@ -1,27 +1,10 @@
 ﻿@page
-@using gpconnect_appointment_checker.Helpers.Constants
 @model TermsAndConditionsModel
 @addTagHelper *, gpconnect-appointment-checker
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <h1>Terms and Conditions</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin justo nibh, hendrerit quis suscipit quis, ultricies at ipsum. Donec dictum quam vel auctor aliquet. Nam ornare viverra nibh id vestibulum. Quisque nisi tellus, dapibus id viverra id, volutpat at mauris. Nulla sed facilisis nulla. Ut vitae lacus aliquet, rutrum arcu quis, fringilla velit. Aliquam suscipit tristique tellus, eget imperdiet purus ultricies vitae. Nulla non magna lectus. Pellentesque at vestibulum justo. Vivamus efficitur pellentesque enim ut mollis. Maecenas placerat ligula sit amet accumsan cursus.</p>
-        <p>Aenean facilisis nisl non scelerisque ultrices. Suspendisse orci nunc, euismod et consectetur vel, tempus in tellus. Sed vel diam nibh. Donec mollis tristique bibendum. Fusce eget varius mauris. Proin facilisis dui vitae sagittis pellentesque. Donec dictum scelerisque urna nec sagittis. Fusce purus turpis, tincidunt ac lacus dapibus, laoreet ultrices urna. Vivamus pretium purus nec vehicula feugiat. Quisque commodo et dui id vestibulum. Curabitur finibus egestas aliquam. Proin ultrices mauris nec dui commodo pharetra. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras massa lacus, vehicula in dui sit amet, maximus sollicitudin eros. Suspendisse et semper libero. Vivamus bibendum neque vulputate est auctor eleifend.</p>
         <p>If you have any questions about the terms and conditions, please email us at <a href="mailto:@Html.Raw(Model.GetAccessEmailAddress)">@Model.GetAccessEmailAddress</a></p>
-        @*<div class="nhsuk-form-group">
-            <fieldset class="nhsuk-fieldset">
-                <legend class="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
-                    Please indicate your acceptance of the following:-
-                </legend>
-                <div class="nhsuk-checkboxes">
-                    <div class="nhsuk-checkboxes__item">
-                        <input class="nhsuk-checkboxes__input" asp-for="AcceptsTerms" />
-                        <label class="nhsuk-label nhsuk-checkboxes__label" asp-for="AcceptsTerms">Terms and Conditions</label>
-                    </div>
-                </div>
-            </fieldset>
-            <button class="nhsuk-button" asp-page-handler="AcceptTerms" type="submit">@SearchConstants.CONTINUEBUTTONTEXT</button>
-        </div>*@
     </div>
 </div>

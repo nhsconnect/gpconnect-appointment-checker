@@ -1,4 +1,5 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO;
 using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
@@ -69,12 +70,12 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
-        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
+        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             _spineMessage = new SpineMessage();
-            var freeSlotsSummary = GetFreeSlotsSummary(requestParameterList, startDate, endDate, token);
+            var freeSlotsSummary = GetFreeSlotsSummary(organisationErrorCodeOrDetails, requestParameterList, startDate, endDate, token);
             return freeSlotsSummary;
         }
 
