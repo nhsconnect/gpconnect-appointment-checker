@@ -18,9 +18,9 @@
         
         public const string CREATEACCOUNTINTERSTITIALLABEL = "Register to use the GP Connect Appointment Checker";
         public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
-        public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or return to the <a href=\"{0}\">login page</a>.";
+        public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or <a href=\"{0}\">Cancel</a> to return to the home page.";
 
-        public const string CREATEACCOUNTCANCELTEXT = "If you do not wish to continue, please <a href=\"{0}\">" + CANCELTEXT + "</a> and return to the home page.";
+        public const string CREATEACCOUNTCANCELTEXT = "If you do not wish to continue, please <a href=\"{0}\">" + CANCELTEXT + "</a> to return to the home page.";
 
         public const string USERNAMELABEL = "User name";
         public const string JOBROLELABEL = "Job role";

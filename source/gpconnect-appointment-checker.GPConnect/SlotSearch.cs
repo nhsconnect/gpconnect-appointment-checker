@@ -116,14 +116,14 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private List<SlotSimple> GetFreeSlots(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
         {
+            var getRequest = new HttpRequestMessage();
             try
             {
                 var processedFreeSlots = new ConcurrentBag<SlotSimple>();
-
                 requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .ForAll(requestParameter =>
                 {
-                    var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                    var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
                         x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
                     requestParameter.RequestParameters.SpineMessageTypeId = (int)SpineMessageTypes.GpConnectSearchFreeSlots;
                     requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
@@ -139,14 +139,16 @@ namespace gpconnect_appointment_checker.GPConnect
                     _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                     var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
                     var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
-                    var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
-                    using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                    getRequest.Method = HttpMethod.Get;
+                    getRequest.RequestUri = uriBuilder.Uri;
+
+                    using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                     var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
 
                     _spineMessage.ResponsePayload = contents;
                     _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                    _spineMessage.RequestPayload = request.ToString();
+                    _spineMessage.RequestPayload = getRequest.ToString();
                     _spineMessage.ResponseHeaders = response.Headers.ToString();
                     stopWatch.Stop();
                     _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
@@ -216,7 +218,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error occurred in trying to execute a GET request");
+                _logger.LogError(exc, "An error occurred in trying to execute a GET request - ", getRequest);
                 throw;
             }
         }
