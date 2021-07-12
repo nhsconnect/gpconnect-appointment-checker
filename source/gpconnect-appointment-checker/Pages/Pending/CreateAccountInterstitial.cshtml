@@ -7,9 +7,9 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-warning-callout">
             <h3 class="nhsuk-warning-callout__label">@SearchConstants.CREATEACCOUNTINTERSTITIALLABEL</h3>
-            <p>@SearchConstants.CREATEACCOUNTINTERSTITIALTEXT</p>
+            @Html.Raw(SearchConstants.CREATEACCOUNTINTERSTITIALTEXT)
             <a class="nhsuk-button" href="/Auth/Register">@SearchConstants.CONTINUEBUTTONTEXT</a>
-            <a class="nhsuk-button nhsuk-button--secondary" href="/" draggable="false">@SearchConstants.CANCELBUTTONTEXT</a>
+            <p>@Html.Raw(string.Format(SearchConstants.CREATEACCOUNTINTERSTITIALALTTEXT, "/"))</p>
         </div>
     </div>
 </div>

@@ -13,10 +13,12 @@
         public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
         public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
-        public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. You need to sign in to use it, or create an account if you don't already have one.";
+        public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. Please sign in to use it.";
+        public const string ACCESSTEXTREGISTERALT = "If you don't have an account, please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a>.";
         
-        public const string CREATEACCOUNTINTERSTITIALLABEL = "Access to GP Connect Appointment Checker";
-        public const string CREATEACCOUNTINTERSTITIALTEXT = "To create an account which will allow you to use the Appointment Checker, sign in using your usual @nhs.net user name and password when asked. Then you will be asked to complete a short form, and confirm that you have agreed to the Terms and Conditions of use.";
+        public const string CREATEACCOUNTINTERSTITIALLABEL = "Register to use the GP Connect Appointment Checker";
+        public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
+        public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or return to the <a href=\"{0}\">login page</a>.";
 
         public const string USERNAMELABEL = "User name";
         public const string JOBROLELABEL = "Job role";
@@ -34,7 +36,7 @@
         public const string HOMETEXT = "Home";
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
-        public const string CREATEACCOUNTBUTTONTEXT = "Create account";
+        public const string CREATEACCOUNTBUTTONTEXT = "Register";
 
         public const string PENDINGACCOUNTLABEL = "Thank you&hellip;please wait";
         public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
@@ -56,6 +58,7 @@
 
         public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
         public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
+        public const string TERMSANDCONDITIONSTEXT = "Terms and Conditions";
 
         public const string ISSUEWITHODSCODESINPUTLABEL = "Issue with ODS codes entered";
         public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS codes and multiple Consumer ODS codes at the same time.";
