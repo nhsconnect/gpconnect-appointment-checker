@@ -268,8 +268,7 @@ namespace gpconnect_appointment_checker.GPConnect
                         AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
                         _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                         var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
-                        var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate,
-                            requestUri);
+                        var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
 
                         getRequest.Method = HttpMethod.Get;
                         getRequest.RequestUri = uriBuilder.Uri;
