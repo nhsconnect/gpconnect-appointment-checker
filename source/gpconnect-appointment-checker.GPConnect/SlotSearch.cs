@@ -22,6 +22,8 @@ namespace gpconnect_appointment_checker.GPConnect
     {
         private async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
         {
+            var getRequest = new HttpRequestMessage();
+            
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
@@ -40,15 +42,17 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
                 var uriBuilder = AddQueryParameters(requestParameters, startDate, endDate, requestUri);
-                var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+                
+                getRequest.Method = HttpMethod.Get;
+                getRequest.RequestUri = uriBuilder.Uri;
 
-                var response = await client.SendAsync(request);
+                var response = await client.SendAsync(getRequest);
 
                 var responseStream = await response.Content.ReadAsStringAsync();
 
                 _spineMessage.ResponsePayload = responseStream;
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                _spineMessage.RequestPayload = request.ToString();
+                _spineMessage.RequestPayload = getRequest.ToString();
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
 
                 stopWatch.Stop();
@@ -109,7 +113,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error occurred in trying to execute a GET request");
+                _logger.LogError(exc, $"An error occurred in trying to execute a GET request - {getRequest}");
                 throw;
             }
         }
@@ -225,6 +229,8 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
         {
+            var getRequest = new HttpRequestMessage();
+
             try
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
@@ -264,9 +270,11 @@ namespace gpconnect_appointment_checker.GPConnect
                         var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
                         var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate,
                             requestUri);
-                        var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
-                        using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead,
+                        getRequest.Method = HttpMethod.Get;
+                        getRequest.RequestUri = uriBuilder.Uri;
+
+                        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead,
                             cancellationToken);
 
                         _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
@@ -275,7 +283,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                         _spineMessage.ResponsePayload = contents;
                         _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                        _spineMessage.RequestPayload = request.ToString();
+                        _spineMessage.RequestPayload = getRequest.ToString();
                         _spineMessage.ResponseHeaders = response.Headers.ToString();
                         stopWatch.Stop();
                         _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
@@ -317,7 +325,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error occurred in trying to execute a GET request");
+                _logger.LogError(exc, $"An error occurred in trying to execute a GET request - {getRequest}");
                 throw;
             }
         }
