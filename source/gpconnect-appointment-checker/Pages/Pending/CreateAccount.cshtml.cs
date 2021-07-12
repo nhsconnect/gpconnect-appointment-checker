@@ -78,10 +78,5 @@ namespace gpconnect_appointment_checker.Pages
             ModelState.Clear();
             return Page();
         }
-
-        public IActionResult OnPostCancel()
-        {
-            return Redirect("/SubmitUserForm");
-        }
     }
 }

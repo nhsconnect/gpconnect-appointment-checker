@@ -14,6 +14,7 @@
 <form method="post" id="search-input-form">
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
+            <h1>@SearchConstants.REGISTERTOUSETEXT</h1>
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-username">@SearchConstants.USERNAMELABEL</label>
                 <input class="nhsuk-input" id="input-username" asp-for="@Model.UserName" name="username" value="@User.GetClaimValue("DisplayName")" type="text" disabled>
@@ -45,12 +46,13 @@
             </div>
 
             <div class="nhsuk-form-group">
-                <p>By clicking on "Submit", you agree to abide by the Appointment Checker <a href="/TermsAndConditions">Terms and Conditions</a></p>
+                <p>By clicking on "Submit", you agree to abide by the Appointment Checker <a target="_blank" href="/TermsAndConditions">Terms and Conditions</a></p>
             </div>
 
             <button class="nhsuk-button" asp-page-handler="SendForm" type="submit">@SearchConstants.SUBMITBUTTONTEXT</button>
             <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
-            <button class="nhsuk-button nhsuk-button--reverse" asp-page-handler="Cancel" type="submit">@SearchConstants.CANCELBUTTONTEXT</button>
+
+            <p>@Html.Raw(string.Format(SearchConstants.CREATEACCOUNTCANCELTEXT, "/"))</p>
         </div>
     </div>
 </form>

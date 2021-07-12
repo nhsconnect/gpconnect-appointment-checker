@@ -20,6 +20,8 @@
         public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
         public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or return to the <a href=\"{0}\">login page</a>.";
 
+        public const string CREATEACCOUNTCANCELTEXT = "If you do not wish to continue, please <a href=\"{0}\">" + CANCELTEXT + "</a> and return to the home page.";
+
         public const string USERNAMELABEL = "User name";
         public const string JOBROLELABEL = "Job role";
         public const string ORGANISATIONLABEL = "Organisation (if different to the one shown above)";
@@ -37,6 +39,8 @@
         public const string HELPTEXT = "Help";
         public const string SIGNINBUTTONTEXT = "Sign in";
         public const string CREATEACCOUNTBUTTONTEXT = "Register";
+        public const string CANCELTEXT = "Cancel";
+        public const string REGISTERTOUSETEXT = "Register to use the Appointment Checker";
 
         public const string PENDINGACCOUNTLABEL = "Thank you&hellip;please wait";
         public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
