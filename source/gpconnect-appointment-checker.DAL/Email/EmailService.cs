@@ -64,12 +64,12 @@ namespace gpconnect_appointment_checker.DAL.Email
                 template.Body = template.Body.Replace("<job_role>", userCreateAccount.JobRole);
                 template.Body = template.Body.Replace("<organisation_name>", userCreateAccount.OrganisationName);
                 template.Body = template.Body.Replace("<access_reason>", userCreateAccount.Reason);
-                return SendEmail(createdUser.UserId, userCreateAccount.EmailAddress, template, true);
+                return SendEmail(createdUser.UserId, userCreateAccount.EmailAddress, template, true, false);
             }
             return false;
         }
 
-        private bool SendEmail(int userId, string recipient, EmailTemplate emailTemplate, bool sendToSender = false)
+        private bool SendEmail(int userId, string recipient, EmailTemplate emailTemplate, bool sendToSender = false, bool sendToRecipient = true)
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
@@ -83,10 +83,10 @@ namespace gpconnect_appointment_checker.DAL.Email
                     From = new MailAddress(sender, displayName),
                     IsBodyHtml = false,
                     Subject = emailTemplate.Subject,
-                    Body = body,
-                    To = { recipient }
+                    Body = body
                 };
                 if (sendToSender) mailMessage.To.Add(sender);
+                if (sendToRecipient) mailMessage.To.Add(recipient);
                 
                 _smtpClient.Send(mailMessage);
                 SendToAudit(userId, recipient, body);
