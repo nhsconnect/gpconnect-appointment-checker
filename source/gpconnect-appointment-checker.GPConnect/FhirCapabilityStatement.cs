@@ -102,6 +102,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private async Task<CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress)
         {
+            var getRequest = new HttpRequestMessage();
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
@@ -118,18 +119,15 @@ namespace gpconnect_appointment_checker.GPConnect
                 AddRequiredRequestHeaders(requestParameters, client);
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
 
-                using var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata")
-                };
+                getRequest.Method = HttpMethod.Get;
+                getRequest.RequestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata");
 
-                var response = await client.SendAsync(request);
+                var response = await client.SendAsync(getRequest);
                 var responseStream = await response.Content.ReadAsStringAsync();
 
                 _spineMessage.ResponsePayload = responseStream;
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                _spineMessage.RequestPayload = request.ToString();
+                _spineMessage.RequestPayload = getRequest.ToString();
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
                 stopWatch.Stop();
                 _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
@@ -140,7 +138,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "An error occurred in trying to execute a GET request");
+                _logger.LogError(exc, $"An error occurred in trying to execute a GET request - {getRequest}");
                 throw;
             }
         }
