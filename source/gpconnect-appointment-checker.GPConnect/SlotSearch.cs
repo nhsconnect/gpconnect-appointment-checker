@@ -247,7 +247,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null), requestParameter =>
                 {
-                    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
+                    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                     {
                         _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
