@@ -120,7 +120,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private List<SlotSimple> GetFreeSlots(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
         {
-            var getRequest = new HttpRequestMessage();
+            HttpRequestMessage getRequest = null;
             try
             {
                 var processedFreeSlots = new ConcurrentBag<SlotSimple>();
@@ -144,8 +144,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
                     var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
 
-                    getRequest.Method = HttpMethod.Get;
-                    getRequest.RequestUri = uriBuilder.Uri;
+                    getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                     using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                     var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
@@ -229,8 +228,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
         {
-            var getRequest = new HttpRequestMessage();
-
+            HttpRequestMessage getRequest = null;
             try
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
@@ -245,14 +243,13 @@ namespace gpconnect_appointment_checker.GPConnect
                         });
                     });
                 
-                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                    .Where(x => x.RequestParameters != null).ForAll(requestParameter =>
+                requestParameterList.AsParallel().Where(x => x.RequestParameters != null).ForAll(requestParameter =>
                 {
                     if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
                     {
                         _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
-                        var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                        var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
                                 x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
                         requestParameter.RequestParameters.SpineMessageTypeId =
                             (int)SpineMessageTypes.GpConnectSearchFreeSlots;
@@ -270,15 +267,15 @@ namespace gpconnect_appointment_checker.GPConnect
                         var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
                         var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
 
-                        getRequest.Method = HttpMethod.Get;
-                        getRequest.RequestUri = uriBuilder.Uri;
+                        getRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-                        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead,
-                            cancellationToken);
+                        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
                         _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
 
                         var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+
+                        _logger.LogInformation($"XXX READING REQUEST {contents}");
 
                         _spineMessage.ResponsePayload = contents;
                         _spineMessage.ResponseStatus = response.StatusCode.ToString();
