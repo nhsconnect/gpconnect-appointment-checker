@@ -227,14 +227,16 @@ namespace gpconnect_appointment_checker.GPConnect
         }
 
         private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-        {
-            HttpRequestMessage getRequest = null;
+        {            
             try
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
 
-                requestParameterList.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                    .Where(x => x.RequestParameters == null).ForAll(requestParameter =>
+                requestParameterList.AsParallel()
+                    .WithDegreeOfParallelism(Environment.ProcessorCount)
+                    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                    .Where(x => x.RequestParameters == null)
+                    .ForAll(requestParameter =>
                     {
                         processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
                         {
@@ -243,7 +245,11 @@ namespace gpconnect_appointment_checker.GPConnect
                         });
                     });
                 
-                requestParameterList.AsParallel().Where(x => x.RequestParameters != null).ForAll(requestParameter =>
+                requestParameterList.AsParallel()
+                    .WithDegreeOfParallelism(Environment.ProcessorCount)
+                    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                    .Where(x => x.RequestParameters != null)
+                    .ForAll(requestParameter =>
                 {
                     if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
                     {
@@ -267,7 +273,7 @@ namespace gpconnect_appointment_checker.GPConnect
                         var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
                         var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
 
-                        getRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
+                        var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
                         using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
@@ -321,7 +327,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, $"An error occurred in trying to execute a GET request - {getRequest}");
+                _logger.LogError(exc, $"An error occurred in trying to execute a GET request");
                 throw;
             }
         }
