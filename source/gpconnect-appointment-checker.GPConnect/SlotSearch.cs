@@ -244,12 +244,8 @@ namespace gpconnect_appointment_checker.GPConnect
                             SpineMessageId = null
                         });
                     });
-                
-                requestParameterList.AsParallel()
-                    .WithDegreeOfParallelism(Environment.ProcessorCount)
-                    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                    .Where(x => x.RequestParameters != null)
-                    .ForAll(requestParameter =>
+
+                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null), requestParameter =>
                 {
                     if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
                     {
@@ -292,32 +288,62 @@ namespace gpconnect_appointment_checker.GPConnect
                         var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
 
                         var results = JsonConvert.DeserializeObject<Bundle>(contents);
-
-                        if (results.Issue?.Count > 0)
-                        {
-                            processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
-                            {
-                                ErrorCode = ErrorCode.GenericSlotSearchError,
-                                ErrorDetail = results.Issue,
-                                FreeSlotCount = null,
-                                OdsCode = requestParameter.OdsCode,
-                                SpineMessageId = spineMessage.SpineMessageId
-                            });
-                        }
-                        else
-                        {
-                            processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
-                            {
-                                ErrorCode = ErrorCode.None,
-                                ErrorDetail = null,
-                                FreeSlotCount = results.entry?.Count(x => x.resource.resourceType == ResourceTypes.Slot),
-                                OdsCode = requestParameter.OdsCode,
-                                SpineMessageId = spineMessage.SpineMessageId
-                            });
-                        }
+                        PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
                     }
                     _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
                 });
+                
+                //requestParameterList.AsParallel()
+                //    .WithDegreeOfParallelism(Environment.ProcessorCount)
+                //    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)                  
+                //    .Where(x => x.RequestParameters != null)
+                //    .ForAll(requestParameter =>
+                //{
+                //    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
+                //    {
+                //        _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
+
+                //        var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
+                //                x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                //        requestParameter.RequestParameters.SpineMessageTypeId =
+                //            (int)SpineMessageTypes.GpConnectSearchFreeSlots;
+                //        requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
+
+                //        var stopWatch = new Stopwatch();
+                //        stopWatch.Start();
+                //        _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
+
+                //        var client = _httpClientFactory.CreateClient("GpConnectClient");
+
+                //        client.Timeout = new TimeSpan(0, 0, 30);
+                //        AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
+                //        _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
+                //        var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
+                //        var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
+
+                //        var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+
+                //        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+                //        _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
+
+                //        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+
+                //        _logger.LogInformation($"XXX READING REQUEST {contents}");
+
+                //        _spineMessage.ResponsePayload = contents;
+                //        _spineMessage.ResponseStatus = response.StatusCode.ToString();
+                //        _spineMessage.RequestPayload = getRequest.ToString();
+                //        _spineMessage.ResponseHeaders = response.Headers.ToString();
+                //        stopWatch.Stop();
+                //        _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                //        var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
+
+                //        var results = JsonConvert.DeserializeObject<Bundle>(contents);
+                //        PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
+                //    }
+                //    _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
+                //});
                 return processedSlotEntrySummaryCount.ToList();
             }
             catch (TimeoutException timeoutException)
@@ -329,6 +355,32 @@ namespace gpconnect_appointment_checker.GPConnect
             {
                 _logger.LogError(exc, $"An error occurred in trying to execute a GET request");
                 throw;
+            }
+        }
+
+        private static void PopulateSlotEntrySummaryCount(RequestParametersList requestParameter, ConcurrentBag<SlotEntrySummaryCount> processedSlotEntrySummaryCount, DTO.Response.Logging.SpineMessage spineMessage, Bundle results)
+        {
+            if (results.Issue?.Count > 0)
+            {
+                processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                {
+                    ErrorCode = ErrorCode.GenericSlotSearchError,
+                    ErrorDetail = results.Issue,
+                    FreeSlotCount = null,
+                    OdsCode = requestParameter.OdsCode,
+                    SpineMessageId = spineMessage.SpineMessageId
+                });
+            }
+            else
+            {
+                processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                {
+                    ErrorCode = ErrorCode.None,
+                    ErrorDetail = null,
+                    FreeSlotCount = results.entry?.Count(x => x.resource.resourceType == ResourceTypes.Slot),
+                    OdsCode = requestParameter.OdsCode,
+                    SpineMessageId = spineMessage.SpineMessageId
+                });
             }
         }
 
