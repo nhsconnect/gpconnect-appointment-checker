@@ -22,14 +22,14 @@ namespace gpconnect_appointment_checker.Pages
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
-        //[RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
+        [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ProviderOdsCode { get; set; }
 
         [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
-        //[RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
+        [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ConsumerOdsCode { get; set; }
 
         public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;

@@ -23,7 +23,7 @@ namespace gpconnect_appointment_checker.GPConnect
         private async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
         {
             var getRequest = new HttpRequestMessage();
-            
+
             try
             {
                 var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
@@ -42,7 +42,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                 var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
                 var uriBuilder = AddQueryParameters(requestParameters, startDate, endDate, requestUri);
-                
+
                 getRequest.Method = HttpMethod.Get;
                 getRequest.RequestUri = uriBuilder.Uri;
 
@@ -226,124 +226,40 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-        {            
+        private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, SearchType searchType)
+        {
             try
             {
                 var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
 
-                requestParameterList.AsParallel()
-                    .WithDegreeOfParallelism(Environment.ProcessorCount)
-                    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                    .Where(x => x.RequestParameters == null)
-                    .ForAll(requestParameter =>
+                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters == null), requestParameter =>
+                {
+                    processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
                     {
-                        processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
-                        {
-                            OdsCode = requestParameter.OdsCode,
-                            SpineMessageId = null
-                        });
+                        OdsCode = requestParameter.OdsCode,
+                        SpineMessageId = null
                     });
+                });
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null), requestParameter =>
                 {
-                    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
+                    switch (searchType)
                     {
-                        _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
-
-                        var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
-                                x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
-                        requestParameter.RequestParameters.SpineMessageTypeId =
-                            (int)SpineMessageTypes.GpConnectSearchFreeSlots;
-                        requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
-
-                        var stopWatch = new Stopwatch();
-                        stopWatch.Start();
-                        _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
-
-                        var client = _httpClientFactory.CreateClient("GpConnectClient");
-
-                        client.Timeout = new TimeSpan(0, 0, 30);
-                        AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
-                        _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-                        var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
-                        var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
-
-                        var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-
-                        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-
-                        _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
-
-                        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
-
-                        _logger.LogInformation($"XXX READING REQUEST {contents}");
-
-                        _spineMessage.ResponsePayload = contents;
-                        _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                        _spineMessage.RequestPayload = getRequest.ToString();
-                        _spineMessage.ResponseHeaders = response.Headers.ToString();
-                        stopWatch.Stop();
-                        _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                        var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
-
-                        var results = JsonConvert.DeserializeObject<Bundle>(contents);
-                        PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
+                        case SearchType.Provider:
+                            if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
+                            {
+                                PopulateResults(startDate, endDate, requestParameter, processedSlotEntrySummaryCount, cancellationToken);
+                            }
+                            break;
+                        case SearchType.Consumer:
+                            if (organisationErrorCodeOrDetails.Where(x => x.consumerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
+                            {
+                                PopulateResults(startDate, endDate, requestParameter, processedSlotEntrySummaryCount, cancellationToken);
+                            }
+                            break;
                     }
-                    _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
                 });
-                
-                //requestParameterList.AsParallel()
-                //    .WithDegreeOfParallelism(Environment.ProcessorCount)
-                //    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)                  
-                //    .Where(x => x.RequestParameters != null)
-                //    .ForAll(requestParameter =>
-                //{
-                //    if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation.ODSCode == requestParameter.OdsCode)?.FirstOrDefault().errorSource == ErrorCode.None)
-                //    {
-                //        _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
-                //        var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
-                //                x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
-                //        requestParameter.RequestParameters.SpineMessageTypeId =
-                //            (int)SpineMessageTypes.GpConnectSearchFreeSlots;
-                //        requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
-
-                //        var stopWatch = new Stopwatch();
-                //        stopWatch.Start();
-                //        _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
-
-                //        var client = _httpClientFactory.CreateClient("GpConnectClient");
-
-                //        client.Timeout = new TimeSpan(0, 0, 30);
-                //        AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
-                //        _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-                //        var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
-                //        var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
-
-                //        var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-
-                //        using var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-
-                //        _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
-
-                //        var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
-
-                //        _logger.LogInformation($"XXX READING REQUEST {contents}");
-
-                //        _spineMessage.ResponsePayload = contents;
-                //        _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                //        _spineMessage.RequestPayload = getRequest.ToString();
-                //        _spineMessage.ResponseHeaders = response.Headers.ToString();
-                //        stopWatch.Stop();
-                //        _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                //        var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
-
-                //        var results = JsonConvert.DeserializeObject<Bundle>(contents);
-                //        PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
-                //    }
-                //    _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
-                //});
                 return processedSlotEntrySummaryCount.ToList();
             }
             catch (TimeoutException timeoutException)
@@ -356,6 +272,51 @@ namespace gpconnect_appointment_checker.GPConnect
                 _logger.LogError(exc, $"An error occurred in trying to execute a GET request");
                 throw;
             }
+        }
+
+        private void PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, ConcurrentBag<SlotEntrySummaryCount> processedSlotEntrySummaryCount, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
+
+            var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
+                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+            requestParameter.RequestParameters.SpineMessageTypeId =
+                (int)SpineMessageTypes.GpConnectSearchFreeSlots;
+            requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
+
+            var client = _httpClientFactory.CreateClient("GpConnectClient");
+
+            client.Timeout = new TimeSpan(0, 0, 30);
+            AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
+            _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
+            var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
+            var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
+
+            var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+            var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+            _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
+
+            var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+
+            _logger.LogInformation($"XXX READING REQUEST {contents}");
+
+            _spineMessage.ResponsePayload = contents;
+            _spineMessage.ResponseStatus = response.StatusCode.ToString();
+            _spineMessage.RequestPayload = getRequest.ToString();
+            _spineMessage.ResponseHeaders = response.Headers.ToString();
+            stopWatch.Stop();
+            _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+            var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
+
+            var results = JsonConvert.DeserializeObject<Bundle>(contents);
+            PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
+
+            _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
         }
 
         private static void PopulateSlotEntrySummaryCount(RequestParametersList requestParameter, ConcurrentBag<SlotEntrySummaryCount> processedSlotEntrySummaryCount, DTO.Response.Logging.SpineMessage spineMessage, Bundle results)

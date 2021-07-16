@@ -1,7 +1,6 @@
 ﻿@page
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using gpconnect_appointment_checker.Helpers.Constants
-@using gpconnect_appointment_checker.Helpers;
 @model CreateAccountModel
 @addTagHelper *, gpconnect-appointment-checker
 
@@ -17,7 +16,7 @@
             <h2>@SearchConstants.REGISTERTOUSETEXT</h2>
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-username">@SearchConstants.USERNAMELABEL</label>
-                <input class="nhsuk-input" id="input-username" asp-for="@Model.UserName" name="username" value="@User.GetClaimValue("DisplayName")" type="text" disabled>
+                <input class="nhsuk-input" id="input-username" asp-for="@Model.UserName" name="username" value="@Model.UserName" type="text" disabled>
             </div>
             <div class="nhsuk-form-group @(jobRoleInvalid ? "nhsuk-form-group--error": string.Empty)">
                 <label class="nhsuk-label" for="input-jobrole">@SearchConstants.JOBROLELABEL</label>
@@ -27,13 +26,19 @@
                 }
                 <input class="nhsuk-input @(jobRoleInvalid ? "nhsuk-input--error": string.Empty)" id="input-jobrole" no-validate asp-for="@Model.JobRole" name="jobrole" value="@Model.JobRole" type="text">
             </div>
+
+            <input type="hidden" name="UserName" id="UserName" value="@Model.UserName" />
+            <input type="hidden" name="Organisation" id="Organisation" value="@Model.Organisation" />
+            <input type="hidden" name="OrganisationId" id="OrganisationId" value="@Model.OrganisationId" />
+            <input type="hidden" name="EmailAddress" id="EmailAddress" value="@Model.EmailAddress" />
+
             <div class="nhsuk-form-group @(organisationInvalid ? "nhsuk-form-group--error": string.Empty)">
                 <label class="nhsuk-label" for="input-organisation">@SearchConstants.ORGANISATIONLABEL</label>
                 @if (organisationInvalid)
                 {
                     @Html.ValidationMessageFor(m => m.Organisation, "", new { @class = "nhsuk-error-message" })
                 }
-                <input class="nhsuk-input @(organisationInvalid ? "nhsuk-input--error": string.Empty)" id="input-organisation" no-validate asp-for="@Model.Organisation" name="organisation" value="@User.GetClaimValue("OrganisationName")" type="text">
+                <input class="nhsuk-input @(organisationInvalid ? "nhsuk-input--error": string.Empty)" id="input-organisation" no-validate asp-for="@Model.Organisation" name="organisation" value="@Model.Organisation" type="text">
             </div>
             <div class="nhsuk-form-group @(accessRequestReasonInvalid ? "nhsuk-form-group--error": string.Empty)">
                 <label class="nhsuk-label" for="input-accessrequestreason">@SearchConstants.ACCESSREQUESTREASONLABEL</label>

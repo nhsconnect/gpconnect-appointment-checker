@@ -50,7 +50,7 @@ begin
 			_organisation_id, 
 			1,
 			now(), 
-			now(),
+			null,
 			null,
 			false,
 			false

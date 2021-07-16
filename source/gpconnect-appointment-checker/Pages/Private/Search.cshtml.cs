@@ -312,36 +312,31 @@ namespace gpconnect_appointment_checker.Pages
             var consumerOdsCount = ConsumerOdsCodeAsList.Count;
             List<SlotEntrySummaryCount> slotSearchSummaryList = new List<SlotEntrySummaryCount>();
             List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetail = new List<OrganisationErrorCodeOrDetail>();
+            List<CapabilityStatementErrorCodeOrDetail> capabilityStatementErrorCodeOrDetail = new List<CapabilityStatementErrorCodeOrDetail>();
 
             if (providerOdsCount > consumerOdsCount)
             {
                 for (var i = 0; i < providerOdsCount; i++)
                 {
-                    _logger.LogInformation($"XXX START Provider Code {ProviderOdsCodeAsList[i]} {DateTime.UtcNow:O}");
                     _stopwatch.Start();
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], ConsumerOdsCodeAsList[0], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
+
+                    var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+                    var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
+                    capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
                 }
 
                 var slotCount = 0;
 
-                //if (errorCodeOrDetail.Item1 == ErrorCode.None)
-                //{
-                if (requestParameters != null && organisationErrorCodeOrDetail != null)
+                if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
                 {
-                    //var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
-                    //var capabilityStatementErrorCodeOrDetail = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
-
-                    //errorCodeOrDetail.Item1 = capabilityStatementErrorCodeOrDetail.Item1;
-                    //errorCodeOrDetail.Item2 = capabilityStatementErrorCodeOrDetail.Item2;
-
-                    //if (capabilityStatementErrorCodeOrDetail.Item1 == ErrorCode.None)
-                    //{                                
-                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate);
+                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Provider);
 
                     for (var i = 0; i < providerOdsCount; i++)
                     {
                         var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
+                        var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
 
                         if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
                         {
@@ -350,36 +345,35 @@ namespace gpconnect_appointment_checker.Pages
                             organisationErrorCodeOrDetailForCode.details = slotSearchErrorCodeOrDetail.Item2;
                             slotCount = slotSearchErrorCodeOrDetail.Item3;
                         }
+                        else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
+                        {
+                            organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
+                            organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
+                            slotCount = 0;
+                        }
 
-                        //errorCodeOrDetail.Item1 = slotSearchErrorCodeOrDetail.Item1;
-                        //errorCodeOrDetail.Item2 = slotSearchErrorCodeOrDetail.Item2;
+                        _stopwatch.Stop();
 
-                        //slotCount = slotSearchErrorCodeOrDetail.Item3;
-                        //}
+                        var searchResultToAdd = new SearchResult
+                        {
+                            SearchGroupId = createdSearchGroup.SearchGroupId,
+                            ProviderCode = ProviderOdsCodeAsList[i],
+                            ConsumerCode = ConsumerOdsCodeAsList[0],
+                            ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
+                            Details = organisationErrorCodeOrDetailForCode.details,
+                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
+                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
+                        };
 
-                        //}
-                        //    _stopwatch.Stop();
+                        _stopwatch.Reset();
 
-                        //    var searchResultToAdd = new SearchResult
-                        //    {
-                        //        SearchGroupId = createdSearchGroup.SearchGroupId,
-                        //        ProviderCode = ProviderOdsCodeAsList[i],
-                        //        ConsumerCode = ConsumerOdsCodeAsList[0],
-                        //        ErrorCode = (int)errorCodeOrDetail.Item1,
-                        //        Details = errorCodeOrDetail.Item2,
-                        //        ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
-                        //        SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
-                        //    };
+                        if (slotSearchSummaryList != null)
+                        {
+                            var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i])?.SpineMessageId;
+                            searchResultToAdd.SpineMessageId = spineMessageId;
+                        }
 
-                        //    _stopwatch.Reset();
-
-                        //    if (slotSearchSummaryList != null)
-                        //    {
-                        //        var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i]).SpineMessageId;
-                        //        searchResultToAdd.SpineMessageId = spineMessageId;
-                        //    }
-
-                        //    //var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+                        var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
                         slotEntrySummary.Add(new SlotEntrySummary
                         {
@@ -389,87 +383,94 @@ namespace gpconnect_appointment_checker.Pages
                             ConsumerOdsCode = ConsumerOdsCodeAsList[0],
                             SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
-                            //SearchResultId = searchResult.SearchResultId,
+                            SearchResultId = searchResult.SearchResultId,
                             DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
                             DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
                             DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
                             DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
                         });
-                        _logger.LogInformation($"XXX END Provider Code {ProviderOdsCodeAsList[i]} {DateTime.UtcNow:O}");
                     }
-                    //else if (consumerOdsCount > providerOdsCount)
-                    //{
-                    //    for (var i = 0; i < consumerOdsCount; i++)
-                    //    {
-                    //        _stopwatch.Start();
-                    //        var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
-                    //        var slotCount = 0;
-
-                    //        if (errorCodeOrDetail.Item1 == ErrorCode.None)
-                    //        {
-                    //            if (requestParameters != null)
-                    //            {
-                    //                var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
-                    //                var capabilityStatementErrorCodeOrDetail = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
-
-                    //                errorCodeOrDetail.Item1 = capabilityStatementErrorCodeOrDetail.Item1;
-                    //                errorCodeOrDetail.Item2 = capabilityStatementErrorCodeOrDetail.Item2;
-
-                    //                if (capabilityStatementErrorCodeOrDetail.Item1 == ErrorCode.None)
-                    //                {
-                    //                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(requestParameters, startDate, endDate);
-                    //                    var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[0], slotSearchSummaryList);
-
-                    //                    errorCodeOrDetail.Item1 = slotSearchErrorCodeOrDetail.Item1;
-                    //                    errorCodeOrDetail.Item2 = slotSearchErrorCodeOrDetail.Item2;
-
-                    //                    slotCount = slotSearchErrorCodeOrDetail.Item3;
-
-                    //                }
-                    //            }
-                    //        }
-                    //        _stopwatch.Stop();
-
-                    //        var searchResultToAdd = new SearchResult
-                    //        {
-                    //            SearchGroupId = createdSearchGroup.SearchGroupId,
-                    //            ProviderCode = ProviderOdsCodeAsList[0],
-                    //            ConsumerCode = ConsumerOdsCodeAsList[i],
-                    //            ErrorCode = (int)errorCodeOrDetail.Item1,
-                    //            Details = errorCodeOrDetail.Item2,
-                    //            ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
-                    //            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
-                    //        };
-
-                    //        _stopwatch.Reset();
-
-                    //        if (slotSearchSummaryList != null)
-                    //        {
-                    //            var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[0]).SpineMessageId;
-                    //            searchResultToAdd.SpineMessageId = spineMessageId;
-                    //        }
-
-                    //        //var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
-
-                    //        slotEntrySummary.Add(new SlotEntrySummary
-                    //        {
-                    //            ProviderLocationName = $"{errorCodeOrDetail.Item3?.OrganisationName}, {StringExtensions.AddressBuilder(errorCodeOrDetail.Item3?.PostalAddressFields.ToList(), errorCodeOrDetail.Item3?.PostalCode)}",
-                    //            ProviderOdsCode = ProviderOdsCodeAsList[0],
-                    //            ConsumerLocationName = $"{errorCodeOrDetail.Item4?.OrganisationName}, {StringExtensions.AddressBuilder(errorCodeOrDetail.Item4?.PostalAddressFields.ToList(), errorCodeOrDetail.Item4?.PostalCode)}",
-                    //            ConsumerOdsCode = ConsumerOdsCodeAsList[i],
-                    //            SearchSummaryDetail = errorCodeOrDetail.Item2,
-                    //            ProviderPublisher = errorCodeOrDetail.Item5?.product_name,
-                    //            //SearchResultId = searchResult.SearchResultId,
-                    //            DetailsEnabled = (errorCodeOrDetail.Item1 == ErrorCode.None && slotCount > 0),
-                    //            DisplayProvider = errorCodeOrDetail.Item3 != null,
-                    //            DisplayConsumer = errorCodeOrDetail.Item4 != null,
-                    //            DisplayClass = (errorCodeOrDetail.Item1 != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
-                    //        });
-                    //    }
                 }
             }
-            //return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
-            return slotEntrySummary.ToList();            
+            else if (consumerOdsCount > providerOdsCount)
+            {
+                for (var i = 0; i < consumerOdsCount; i++)
+                {
+                    _stopwatch.Start();
+                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                    organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
+
+                    var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+                    var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
+                    capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
+                }
+
+                var slotCount = 0;
+
+                if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
+                {
+                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Consumer);
+
+                    for (var i = 0; i < consumerOdsCount; i++)
+                    {
+                        var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
+                        var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
+
+                        if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
+                        {
+                            var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ConsumerOdsCodeAsList[i], slotSearchSummaryList);
+                            organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
+                            organisationErrorCodeOrDetailForCode.details = slotSearchErrorCodeOrDetail.Item2;
+                            slotCount = slotSearchErrorCodeOrDetail.Item3;
+                        }
+                        else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
+                        {
+                            organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
+                            organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
+                            slotCount = 0;
+                        }
+
+                        _stopwatch.Stop();
+
+                        var searchResultToAdd = new SearchResult
+                        {
+                            SearchGroupId = createdSearchGroup.SearchGroupId,
+                            ProviderCode = ProviderOdsCodeAsList[0],
+                            ConsumerCode = ConsumerOdsCodeAsList[i],
+                            ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
+                            Details = organisationErrorCodeOrDetailForCode.details,
+                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
+                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
+                        };
+
+                        _stopwatch.Reset();
+
+                        if (slotSearchSummaryList != null)
+                        {
+                            var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ConsumerOdsCodeAsList[i])?.SpineMessageId;
+                            searchResultToAdd.SpineMessageId = spineMessageId;
+                        }
+
+                        var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+
+                        slotEntrySummary.Add(new SlotEntrySummary
+                        {
+                            ProviderLocationName = $"{organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationName}, {StringExtensions.AddressBuilder(organisationErrorCodeOrDetailForCode.providerOrganisation?.PostalAddressFields.ToList(), organisationErrorCodeOrDetailForCode.providerOrganisation?.PostalCode)}",
+                            ProviderOdsCode = ProviderOdsCodeAsList[0],
+                            ConsumerLocationName = $"{organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationName}, {StringExtensions.AddressBuilder(organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalAddressFields.ToList(), organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalCode)}",
+                            ConsumerOdsCode = ConsumerOdsCodeAsList[i],
+                            SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
+                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
+                            SearchResultId = searchResult.SearchResultId,
+                            DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
+                            DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
+                            DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
+                            DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
+                        });
+                    }                    
+                }
+            }
+            return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
         }
 
         private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)
@@ -499,7 +500,7 @@ namespace gpconnect_appointment_checker.Pages
             return (errorSource, detail, slotEntrySummary.FreeSlotCount.GetValueOrDefault());
         }
 
-        private (ErrorCode, string) GetCapabilityStatementErrorCodeOrDetail(string providerOdsCode, List<CapabilityStatementList> providerCapabilityStatements)
+        private CapabilityStatementErrorCodeOrDetail GetCapabilityStatementErrorCodeOrDetail(string providerOdsCode, List<CapabilityStatementList> providerCapabilityStatements)
         {
             var providerCapabilityStatement = providerCapabilityStatements.FirstOrDefault(x => x.OdsCode == providerOdsCode);
             var errorSource = providerCapabilityStatement?.ErrorCode ?? ErrorCode.None;
@@ -511,10 +512,16 @@ namespace gpconnect_appointment_checker.Pages
                     providerCapabilityStatement?.CapabilityStatement.Issue?.FirstOrDefault()?.Diagnostics,
                     providerCapabilityStatement?.CapabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
             }
-            return (errorSource, details);
+
+            return new CapabilityStatementErrorCodeOrDetail
+            {
+                SuppliedProviderOdsCode = providerOdsCode,
+                details = details,
+                errorSource = errorSource
+            };
         }
 
-        private OrganisationErrorCodeOrDetail /*(ErrorCode, string, Organisation, Organisation, Spine)*/ GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
+        private OrganisationErrorCodeOrDetail GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
         {
             var providerOrganisationLookupErrors = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;

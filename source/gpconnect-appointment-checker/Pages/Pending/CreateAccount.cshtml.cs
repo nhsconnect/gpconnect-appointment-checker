@@ -35,6 +35,11 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnGet()
         {
+            UserName = User.GetClaimValue("DisplayName");
+            Organisation = User.GetClaimValue("OrganisationName");
+            OrganisationId = User.GetClaimValue("OrganisationId").StringToInteger();
+            EmailAddress = User.GetClaimValue("Email");
+
             ModelState.ClearValidationState("JobRole");
             ModelState.ClearValidationState("Organisation");
             ModelState.ClearValidationState("AccessRequestReason");
@@ -48,12 +53,12 @@ namespace gpconnect_appointment_checker.Pages
             {
                 var userCreateAccount = new UserCreateAccount
                 {
-                    EmailAddress = User.GetClaimValue("Email"),
+                    EmailAddress = EmailAddress,
                     JobRole = JobRole,
                     OrganisationName = Organisation,
                     Reason = AccessRequestReason,
-                    DisplayName = User.GetClaimValue("DisplayName"),
-                    OrganisationId = User.GetClaimValue("OrganisationId").StringToInteger()
+                    DisplayName = UserName,
+                    OrganisationId = OrganisationId
                 };
                 var createdUser = _applicationService.AddOrUpdateUser(userCreateAccount);               
 

@@ -4,9 +4,11 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -22,6 +24,12 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly IConfigurationService _configurationService;
         private readonly IHttpClientFactory _httpClientFactory;
         private SpineMessage _spineMessage;
+        private SemaphoreSlim _semaphore;
+        private long _circuitStatus;
+        private const long OPEN = 0;
+        private const long TRIPPED = 1;
+        public string UNAVAILABLE = "Unavailable";
+        public const int MAXCONCURRENTREQUESTS = 20;
 
         public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService)
         {
@@ -30,6 +38,11 @@ namespace gpconnect_appointment_checker.GPConnect
             _logService = logService;
             _httpClientFactory = httpClientFactory;
             _auditService = auditService;
+
+            _semaphore = new SemaphoreSlim(MAXCONCURRENTREQUESTS);
+            _circuitStatus = OPEN;
+
+            ServicePointManager.DefaultConnectionLimit = MAXCONCURRENTREQUESTS;
         }
 
         public List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)
@@ -70,12 +83,12 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
-        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
+        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, SearchType searchType)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             _spineMessage = new SpineMessage();
-            var freeSlotsSummary = GetFreeSlotsSummary(organisationErrorCodeOrDetails, requestParameterList, startDate, endDate, token);
+            var freeSlotsSummary = GetFreeSlotsSummary(organisationErrorCodeOrDetails, requestParameterList, startDate, endDate, token, searchType);
             return freeSlotsSummary;
         }
 
