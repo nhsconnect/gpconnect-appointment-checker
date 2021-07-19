@@ -17,66 +17,72 @@ namespace gpconnect_appointment_checker.GPConnect
 {
     public partial class GpConnectQueryExecutionService
     {
-        private List<CapabilityStatementList> GetCapabilityStatement(List<RequestParametersList> requestParameterList, CancellationToken cancellationToken)
+        private async Task<CapabilityStatementList> PopulateCapabilityStatementResults(RequestParametersList requestParameter, CancellationToken cancellationToken)
+        {
+            var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
+                    x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
+            requestParameter.RequestParameters.SpineMessageTypeId =
+                (int)SpineMessageTypes.GpConnectReadMetaData;
+            requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
+
+            var client = _httpClientFactory.CreateClient("GpConnectClient");
+            AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
+            _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
+
+            using var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/metadata")
+            };
+
+            using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
+
+            _spineMessage.ResponsePayload = contents;
+            _spineMessage.ResponseStatus = response.StatusCode.ToString();
+            _spineMessage.RequestPayload = request.ToString();
+            _spineMessage.ResponseHeaders = response.Headers.ToString();
+            stopWatch.Stop();
+            _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+            _logService.AddSpineMessageLog(_spineMessage);
+
+            var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
+
+            return new CapabilityStatementList
+            {
+                OdsCode = requestParameter.OdsCode,
+                CapabilityStatement = capabilityStatement,
+                ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
+            };
+        }
+
+        private async Task<List<CapabilityStatementList>> GetCapabilityStatement(List<RequestParametersList> requestParameterList, CancellationToken cancellationToken)
         {
             try
             {
-                var processedCapabilityStatements = new ConcurrentBag<CapabilityStatementList>();
-
-                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.BaseAddress != null), requestParameter =>
-                {
-                    var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
-                        x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
-                    requestParameter.RequestParameters.SpineMessageTypeId =
-                        (int)SpineMessageTypes.GpConnectReadMetaData;
-                    requestParameter.RequestParameters.InteractionId = spineMessageType?.InteractionId;
-
-                    var stopWatch = new Stopwatch();
-                    stopWatch.Start();
-
-                    _spineMessage.SpineMessageTypeId = requestParameter.RequestParameters.SpineMessageTypeId;
-
-                    var client = _httpClientFactory.CreateClient("GpConnectClient");
-                    AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
-                    _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-
-                    using var request = new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Get,
-                        RequestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/metadata")
-                    };
-
-                    using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                    var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
-
-                    _spineMessage.ResponsePayload = contents;
-                    _spineMessage.ResponseStatus = response.StatusCode.ToString();
-                    _spineMessage.RequestPayload = request.ToString();
-                    _spineMessage.ResponseHeaders = response.Headers.ToString();
-                    stopWatch.Stop();
-                    _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
-                    _logService.AddSpineMessageLog(_spineMessage);
-
-                    var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
-
-                    processedCapabilityStatements.Add(new CapabilityStatementList
-                    {
-                        OdsCode = requestParameter.OdsCode,
-                        CapabilityStatement = capabilityStatement,
-                        ErrorCode = (capabilityStatement.Issue?.Count > 0 ? ErrorCode.CapabilityStatementHasErrors : ErrorCode.None)
-                    });
-                });
+                var tasks = new ConcurrentBag<Task<CapabilityStatementList>>();
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters == null), requestParameter =>
                 {
-                    processedCapabilityStatements.Add(new CapabilityStatementList
+                    tasks.Add(Task.FromResult(new CapabilityStatementList
                     {
                         OdsCode = requestParameter.OdsCode,
                         ErrorCode = ErrorCode.CapabilityStatementNotFound
-                    });
+                    }));
                 });
 
-                return processedCapabilityStatements.ToList();
+                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.BaseAddress != null), requestParameter =>
+                {
+                    tasks.Add(PopulateCapabilityStatementResults(requestParameter, cancellationToken));
+                });
+
+                var results = await Task.WhenAll(tasks);
+                return results.ToList();
             }
             catch (Exception exc)
             {

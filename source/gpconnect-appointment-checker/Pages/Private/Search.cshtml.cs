@@ -209,7 +209,7 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private void GetSearchResultsMulti()
+        private async Task GetSearchResultsMulti()
         {
             try
             {
@@ -225,7 +225,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                var slotEntrySummary = PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
+                var slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
                 SearchResultsSummary = slotEntrySummary;
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
@@ -287,7 +287,7 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private List<SlotEntrySummary> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
+        private async Task<List<SlotEntrySummary>> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
         {
             var searchGroup = new DTO.Request.Application.SearchGroup
@@ -303,7 +303,7 @@ namespace gpconnect_appointment_checker.Pages
 
             var slotEntrySummary = new List<SlotEntrySummary>();
 
-            var requestParameters = _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
+            var requestParameters = await _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
                 consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
             var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
             var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
@@ -322,7 +322,7 @@ namespace gpconnect_appointment_checker.Pages
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], ConsumerOdsCodeAsList[0], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
-                    var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+                    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
                     var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
                     capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
                 }
@@ -331,7 +331,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
                 {
-                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Provider);
+                    slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Provider);
 
                     for (var i = 0; i < providerOdsCount; i++)
                     {
@@ -400,7 +400,7 @@ namespace gpconnect_appointment_checker.Pages
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
-                    var capabilityStatementList = _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+                    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
                     var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
                     capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
                 }
@@ -409,7 +409,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
                 {
-                    slotSearchSummaryList = _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Consumer);
+                    slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Consumer);
 
                     for (var i = 0; i < consumerOdsCount; i++)
                     {

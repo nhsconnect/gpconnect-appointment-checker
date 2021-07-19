@@ -45,7 +45,7 @@ namespace gpconnect_appointment_checker.GPConnect
             ServicePointManager.DefaultConnectionLimit = MAXCONCURRENTREQUESTS;
         }
 
-        public List<CapabilityStatementList> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)
+        public Task<List<CapabilityStatementList>> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
@@ -83,7 +83,7 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
-        public List<SlotEntrySummaryCount> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, SearchType searchType)
+        public Task<List<SlotEntrySummaryCount>> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, SearchType searchType)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;

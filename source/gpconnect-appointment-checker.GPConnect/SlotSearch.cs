@@ -226,19 +226,19 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private List<SlotEntrySummaryCount> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, SearchType searchType)
+        private async Task<List<SlotEntrySummaryCount>> GetFreeSlotsSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetails, List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, SearchType searchType)
         {
             try
             {
-                var processedSlotEntrySummaryCount = new ConcurrentBag<SlotEntrySummaryCount>();
+                var tasks = new ConcurrentBag<Task<SlotEntrySummaryCount>>();
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters == null), requestParameter =>
                 {
-                    processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                    tasks.Add(Task.FromResult(new SlotEntrySummaryCount
                     {
                         OdsCode = requestParameter.OdsCode,
                         SpineMessageId = null
-                    });
+                    }));
                 });
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null), requestParameter =>
@@ -248,18 +248,19 @@ namespace gpconnect_appointment_checker.GPConnect
                         case SearchType.Provider:
                             if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
-                                PopulateResults(startDate, endDate, requestParameter, processedSlotEntrySummaryCount, cancellationToken);
+                                tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
                             }
                             break;
                         case SearchType.Consumer:
                             if (organisationErrorCodeOrDetails.Where(x => x.consumerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
-                                PopulateResults(startDate, endDate, requestParameter, processedSlotEntrySummaryCount, cancellationToken);
+                                tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
                             }
                             break;
                     }
                 });
 
+                var processedSlotEntrySummaryCount = await Task.WhenAll(tasks);
                 return processedSlotEntrySummaryCount.ToList();
             }
             catch (TimeoutException timeoutException)
@@ -274,7 +275,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private void PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, ConcurrentBag<SlotEntrySummaryCount> processedSlotEntrySummaryCount, CancellationToken cancellationToken)
+        private async Task<SlotEntrySummaryCount> PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
@@ -314,34 +315,34 @@ namespace gpconnect_appointment_checker.GPConnect
             var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
 
             var results = JsonConvert.DeserializeObject<Bundle>(contents);
-            PopulateSlotEntrySummaryCount(requestParameter, processedSlotEntrySummaryCount, spineMessage, results);
-
             _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
+
+            return PopulateSlotEntrySummaryCount(requestParameter, spineMessage, results);
         }
 
-        private static void PopulateSlotEntrySummaryCount(RequestParametersList requestParameter, ConcurrentBag<SlotEntrySummaryCount> processedSlotEntrySummaryCount, DTO.Response.Logging.SpineMessage spineMessage, Bundle results)
+        private static SlotEntrySummaryCount PopulateSlotEntrySummaryCount(RequestParametersList requestParameter, DTO.Response.Logging.SpineMessage spineMessage, Bundle results)
         {
             if (results.Issue?.Count > 0)
             {
-                processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                return new SlotEntrySummaryCount
                 {
                     ErrorCode = ErrorCode.GenericSlotSearchError,
                     ErrorDetail = results.Issue,
                     FreeSlotCount = null,
                     OdsCode = requestParameter.OdsCode,
                     SpineMessageId = spineMessage.SpineMessageId
-                });
+                };
             }
             else
             {
-                processedSlotEntrySummaryCount.Add(new SlotEntrySummaryCount
+                return new SlotEntrySummaryCount
                 {
                     ErrorCode = ErrorCode.None,
                     ErrorDetail = null,
                     FreeSlotCount = results.entry?.Count(x => x.resource.resourceType == ResourceTypes.Slot),
                     OdsCode = requestParameter.OdsCode,
                     SpineMessageId = spineMessage.SpineMessageId
-                });
+                };
             }
         }
 

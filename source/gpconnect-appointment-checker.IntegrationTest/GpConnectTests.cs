@@ -47,7 +47,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         public async void ExecuteRequestForCapabilityStatement(string bearerToken, string sspFrom, string sspTo, string sspHostname, bool useSSP, string providerOdsCode, string consumerOdsCode, string interactionId, int spineMessageTypeId, string baseAddress)
         {
             var requestParameters = CreateRequestParameters(bearerToken, sspFrom, sspTo, sspHostname, useSSP, providerOdsCode, consumerOdsCode, interactionId, spineMessageTypeId, baseAddress);
-            var result = _gpConnectQueryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+            var result = await _gpConnectQueryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
             Assert.IsType<CapabilityStatement>(result);
             Assert.Equal("CapabilityStatement", result.FirstOrDefault()?.CapabilityStatement.ResourceType);
             Assert.Equal("1.2.7", result.FirstOrDefault()?.CapabilityStatement.Version);
