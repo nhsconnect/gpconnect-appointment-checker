@@ -26,6 +26,7 @@ using Microsoft.Net.Http.Headers;
 using Organisation = gpconnect_appointment_checker.DTO.Response.Application.Organisation;
 using SearchResult = gpconnect_appointment_checker.DTO.Request.Application.SearchResult;
 using gpconnect_appointment_checker.DTO;
+using System.Threading;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -118,16 +119,16 @@ namespace gpconnect_appointment_checker.Pages
         }
 
         public async Task<IActionResult> OnPostSearchAsync()
-        {
+        {            
             if (ModelState.IsValid)
             {
                 ProviderOdsCode = CleansedProviderOdsCodeInput;
                 ConsumerOdsCode = CleansedConsumerOdsCodeInput;
 
                 _stopwatch.Start();
-                if (IsMultiSearch && ValidSearchCombination)
+                if (IsMultiSearch && ValidSearchCombination)         
                 {
-                    GetSearchResultsMulti();
+                    SearchResultsSummary = await GetSearchResultsMulti();
                 }
                 else if (!IsMultiSearch)
                 {
@@ -209,8 +210,9 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        private async Task GetSearchResultsMulti()
+        private async Task<List<SlotEntrySummary>> GetSearchResultsMulti()
         {
+            List<SlotEntrySummary> slotEntrySummary = new List<SlotEntrySummary>();
             try
             {
                 var providerOrganisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderODSCodeNotFound);
@@ -225,8 +227,8 @@ namespace gpconnect_appointment_checker.Pages
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                var slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
-                SearchResultsSummary = slotEntrySummary;
+                slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
+                //SearchResultsSummary = slotEntrySummary;
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
             catch (LdapException)
@@ -234,6 +236,7 @@ namespace gpconnect_appointment_checker.Pages
                 LdapErrorRaised = true;
                 _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
             }
+            return slotEntrySummary;
         }
 
         private async Task PopulateSearchResults(Spine providerGpConnectDetails, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails)
@@ -384,6 +387,7 @@ namespace gpconnect_appointment_checker.Pages
                             SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
                             SearchResultId = searchResult.SearchResultId,
+                            SearchGroupId = searchResultToAdd.SearchGroupId,
                             DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
                             DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
                             DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,

@@ -349,8 +349,8 @@ namespace gpconnect_appointment_checker.Console
 
                     _clientCertificate = pfxFormattedCertificate;
 
-                    ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificateChain;
-                    ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
+                    //ldapConnection.UserDefinedServerCertValidationDelegate += ValidateServerCertificateChain;
+                    //ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                 }
 
                 ldapConnection.Connect(_spineConfiguration.sds_hostname, _spineConfiguration.sds_port);

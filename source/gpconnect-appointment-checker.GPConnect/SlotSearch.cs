@@ -138,7 +138,6 @@ namespace gpconnect_appointment_checker.GPConnect
 
                     var client = _httpClientFactory.CreateClient("GpConnectClient");
 
-                    client.Timeout = new TimeSpan(0, 0, 30);
                     AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
                     _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
                     var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
@@ -248,13 +247,15 @@ namespace gpconnect_appointment_checker.GPConnect
                         case SearchType.Provider:
                             if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
-                                tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
+                                tasks.Add(Task.FromResult(PopulateResults(startDate, endDate, requestParameter, cancellationToken)));
+
+                                //tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
                             }
                             break;
                         case SearchType.Consumer:
                             if (organisationErrorCodeOrDetails.Where(x => x.consumerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
-                                tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
+                                tasks.Add(Task.FromResult(PopulateResults(startDate, endDate, requestParameter, cancellationToken)));
                             }
                             break;
                     }
@@ -275,7 +276,7 @@ namespace gpconnect_appointment_checker.GPConnect
             }
         }
 
-        private async Task<SlotEntrySummaryCount> PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, CancellationToken cancellationToken)
+        private SlotEntrySummaryCount PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
@@ -291,7 +292,6 @@ namespace gpconnect_appointment_checker.GPConnect
 
             var client = _httpClientFactory.CreateClient("GpConnectClient");
 
-            client.Timeout = new TimeSpan(0, 0, 30);
             AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
             _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
             var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");

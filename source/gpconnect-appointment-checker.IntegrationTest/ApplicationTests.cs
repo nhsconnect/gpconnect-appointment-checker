@@ -131,8 +131,8 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData("test@test.com", "Test User", 1, "A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021", "1 June 2021 13:17:18")]
-        public void AddAndFindSearchGroup(string emailAddress, string displayName, int organisationId, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        [InlineData("A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021", "1 June 2021 13:17:18")]
+        public void AddAndFindSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
         {
             var result = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
             Assert.IsType<SearchGroup>(result);

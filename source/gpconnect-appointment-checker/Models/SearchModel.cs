@@ -32,6 +32,8 @@ namespace gpconnect_appointment_checker.Pages
         [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ConsumerOdsCode { get; set; }
 
+        public bool DisplayMultiSearchHelpText => _multiSearchEnabled;
+
         public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;
         public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? 
             SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : 
@@ -60,6 +62,8 @@ namespace gpconnect_appointment_checker.Pages
         public bool ValidSearchCombination => ((!HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes) 
                                                || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 
                                                || (HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes));
+
+        public string MultipleSearchResultsLink { get; set; }
 
         public bool IsMultiSearch => HasMultipleProviderOdsCodes || HasMultipleConsumerOdsCodes;
 

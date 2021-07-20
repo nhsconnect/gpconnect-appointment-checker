@@ -14,8 +14,7 @@ namespace gpconnect_appointment_checker.GPConnect
 {
     public partial class TokenService : ITokenService
     {
-
-        private async Task<RequestParametersList> PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId)
+        private RequestParametersList PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId)
         {
             var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
             var tokenAudience = providerSpineMessage.Spine?.ssp_hostname;
@@ -51,7 +50,7 @@ namespace gpconnect_appointment_checker.GPConnect
             };
         }
 
-        private async Task<RequestParametersList> PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler)
+        private RequestParametersList PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler)
         {
             var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
             var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.ssp_hostname;
@@ -113,14 +112,14 @@ namespace gpconnect_appointment_checker.GPConnect
 
                     Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), providerSpineMessage =>
                     {
-                        tasks.Add(PopulateResultsProvider(providerSpineMessage, requestUri, providerOrganisationDetails, userGuid, tokenHandler, consumerOrganisationDetails, consumerSpineMessages, spineMessageType, spineMessageTypeId));
+                        tasks.Add(Task.FromResult(PopulateResultsProvider(providerSpineMessage, requestUri, providerOrganisationDetails, userGuid, tokenHandler, consumerOrganisationDetails, consumerSpineMessages, spineMessageType, spineMessageTypeId)));
                     });
                 }
                 else if (consumerSpineMessages.Count > providerSpineMessages.Count)
                 {
                     Parallel.ForEach(consumerSpineMessages, consumerSpineMessage =>
                     {
-                        tasks.Add(PopulateResultsConsumer(requestUri, providerSpineMessages, providerOrganisationDetails, spineMessageTypeId, consumerSpineMessage, spineMessageType, userGuid, tokenHandler));
+                        tasks.Add(Task.FromResult(PopulateResultsConsumer(requestUri, providerSpineMessages, providerOrganisationDetails, spineMessageTypeId, consumerSpineMessage, spineMessageType, userGuid, tokenHandler)));
                     });
                 }
                 var results = await Task.WhenAll(tasks);

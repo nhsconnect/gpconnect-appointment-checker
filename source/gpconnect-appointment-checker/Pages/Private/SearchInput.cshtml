@@ -34,7 +34,12 @@
             <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
             <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
+        @if (Model.DisplayMultiSearchHelpText)
+        {
+            <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
+        }
         <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
         <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+
     </div>
 </div>

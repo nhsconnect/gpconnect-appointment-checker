@@ -9,6 +9,7 @@
         public const string ISSUEWITHGPCONNECTCONSUMERLABEL = "Issue with GP Connect Consumer";
         public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL = "An error occured when sending a message to the provider system";
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
+        public const string MULTIPLECODEHINTTEXT = "Please be aware that the search may take a while if multiple codes have been entered.";
 
         public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
         public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";

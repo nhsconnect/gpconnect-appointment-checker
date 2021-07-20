@@ -1,6 +1,4 @@
-﻿using gpconnect_appointment_checker.Helpers.Enumerations;
-
-namespace gpconnect_appointment_checker.DTO.Response.GpConnect
+﻿namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
 
     public class SlotEntrySummary
@@ -12,6 +10,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string SearchSummaryDetail { get; set; }
         public string ProviderPublisher { get; set; }
         public int SearchResultId { get; set; }
+        public int SearchGroupId { get; set; }
         public bool DetailsEnabled { get; set; }
         public bool DisplayProvider { get; set; }
         public bool DisplayConsumer { get; set; }

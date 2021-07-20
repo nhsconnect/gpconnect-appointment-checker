@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-check
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Helpers", "gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.Console", "gpconnect-appointment-checker.Console\gpconnect-appointment-checker.Console.csproj", "{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Console", "gpconnect-appointment-checker.Console\gpconnect-appointment-checker.Console.csproj", "{849E7BA0-B85D-4FF8-AA9E-532CA73174F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

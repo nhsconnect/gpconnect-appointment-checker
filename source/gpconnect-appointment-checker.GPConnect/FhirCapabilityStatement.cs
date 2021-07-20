@@ -17,7 +17,7 @@ namespace gpconnect_appointment_checker.GPConnect
 {
     public partial class GpConnectQueryExecutionService
     {
-        private async Task<CapabilityStatementList> PopulateCapabilityStatementResults(RequestParametersList requestParameter, CancellationToken cancellationToken)
+        private CapabilityStatementList PopulateCapabilityStatementResults(RequestParametersList requestParameter, CancellationToken cancellationToken)
         {
             var spineMessageType = (_configurationService.GetSpineMessageTypes()).FirstOrDefault(x =>
                     x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectReadMetaData);
@@ -78,7 +78,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.BaseAddress != null), requestParameter =>
                 {
-                    tasks.Add(PopulateCapabilityStatementResults(requestParameter, cancellationToken));
+                    tasks.Add(Task.FromResult(PopulateCapabilityStatementResults(requestParameter, cancellationToken)));
                 });
 
                 var results = await Task.WhenAll(tasks);

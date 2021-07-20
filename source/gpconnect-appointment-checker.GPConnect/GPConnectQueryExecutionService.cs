@@ -24,12 +24,6 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly IConfigurationService _configurationService;
         private readonly IHttpClientFactory _httpClientFactory;
         private SpineMessage _spineMessage;
-        private SemaphoreSlim _semaphore;
-        private long _circuitStatus;
-        private const long OPEN = 0;
-        private const long TRIPPED = 1;
-        public string UNAVAILABLE = "Unavailable";
-        public const int MAXCONCURRENTREQUESTS = 20;
 
         public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService)
         {
@@ -38,11 +32,6 @@ namespace gpconnect_appointment_checker.GPConnect
             _logService = logService;
             _httpClientFactory = httpClientFactory;
             _auditService = auditService;
-
-            _semaphore = new SemaphoreSlim(MAXCONCURRENTREQUESTS);
-            _circuitStatus = OPEN;
-
-            ServicePointManager.DefaultConnectionLimit = MAXCONCURRENTREQUESTS;
         }
 
         public Task<List<CapabilityStatementList>> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)

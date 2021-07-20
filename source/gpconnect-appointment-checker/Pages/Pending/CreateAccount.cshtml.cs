@@ -46,7 +46,7 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSendFormAsync()
+        public IActionResult OnPostSendForm()
         {
             var emailSent = false;
             if (ModelState.IsValid)
