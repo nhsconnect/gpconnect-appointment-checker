@@ -10,22 +10,29 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorisedUserRequirement requirement)
         {
+            var authFilterContext = context.Resource as DefaultHttpContext;
+
             if (!string.IsNullOrEmpty(context.User.GetClaimValue("UserAccountStatus")))
             {
                 if (context.User.GetClaimValue("UserAccountStatus") == UserAccountStatus.Authorised.ToString())
                 {
                     context.Succeed(requirement);
                 }
+                else if (context.User.GetClaimValue("UserAccountStatus") == UserAccountStatus.Pending.ToString())
+                {
+                    authFilterContext.Response.Redirect("/PendingAccount");
+                    context.Succeed(requirement);
+                }
                 else
                 {
-                    var authFilterContext = context.Resource as DefaultHttpContext;
                     authFilterContext.Response.Redirect("/Index");
-                    context.Succeed(requirement);
+                    context.Fail();
                 }
             }
             else
-            {
-                context.Succeed(requirement);
+            {                
+                authFilterContext.Response.Redirect("/Index");
+                context.Fail();
             }
 
             return Task.CompletedTask;
