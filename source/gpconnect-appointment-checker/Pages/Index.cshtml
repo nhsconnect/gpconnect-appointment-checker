@@ -11,7 +11,7 @@
 }
 
 <div class="nhsuk-grid-row">
-    <div class="nhsuk-grid-column-two-thirds">
+    <div class="nhsuk-grid-column-full">
         <div class="nhsuk-warning-callout">
             @if (!userAuthenticated || (userAuthenticated && userAccountStatus == null))
             {
@@ -22,7 +22,7 @@
             }
             else
             {
-                <h3 class="nhsuk-warning-callout__label">@string.Format(SearchConstants.SIGNEDINTEXT, User.Identity.Name)</h3>
+                <h3 class="nhsuk-warning-callout__label">@Html.Raw(string.Format(SearchConstants.SIGNEDINTEXT, User.Identity.Name))</h3>
                 @if (userAuthenticated && userAccountStatus == UserAccountStatus.Authorised)
                 {
                     <div class="nhsuk-action-link">

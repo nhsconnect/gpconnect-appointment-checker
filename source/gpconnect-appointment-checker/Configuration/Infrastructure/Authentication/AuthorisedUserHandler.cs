@@ -30,9 +30,17 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 }
             }
             else
-            {                
-                authFilterContext.Response.Redirect("/Index");
-                context.Fail();
+            {
+                if (!context.User.Identity.IsAuthenticated)
+                {
+                    authFilterContext.Response.Redirect("/Index");
+                    context.Fail();
+                }
+                else
+                {
+                    authFilterContext.Response.Redirect("/Index");
+                    context.Succeed(requirement);
+                }
             }
 
             return Task.CompletedTask;

@@ -113,7 +113,7 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 UserEmailAddress = null;
             }
-            ModelState.Clear();
+            //ModelState.Clear();
             RefreshPage();
         }
 

@@ -11,27 +11,29 @@
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
         public const string MULTIPLECODEHINTTEXT = "Please be aware that the search may take a while if multiple codes have been entered.";
 
-        public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
+        public const string ACCESSLABEL = "Access to the GP Connect Appointment Checker";
         public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. Please sign in to use it.";
         public const string ACCESSTEXTREGISTERALT = "If you don't have an account, please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a>.";
+
+        public const string NOTREGISTEREDTEXT = "You are not registered to use the Appointment Checker.";
+        public const string NOTREGISTEREDLINKTEXT = "Please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a> for an account.";
         
         public const string CREATEACCOUNTINTERSTITIALLABEL = "Register to use the GP Connect Appointment Checker";
         public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
         public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or <a href=\"{0}\">Cancel</a> to return to the home page.";
 
         public const string CREATEACCOUNTCANCELTEXT = "If you do not wish to continue, please <a href=\"{0}\">" + CANCELTEXT + "</a> to return to the home page.";
-
+        
         public const string USERNAMELABEL = "User name";
         public const string JOBROLELABEL = "Job role";
         public const string ORGANISATIONLABEL = "Organisation (if different to the one shown above)";
         public const string ACCESSREQUESTREASONLABEL = "Reason for requesting access to the Appointment Checker.";
         public const string ACCESSREQUESTREASONHINTTEXT = "Please provide as much information as possible, this will allow your account to be created quickly. For example, \"I am responsible for setting up slots acrosss my PCN and want to check them.\"";
 
-        public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
+        public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as<div>{0}</div>";
         public const string RUNASEARCHTEXT = "Run a search";
-        public const string ALREADYHAVEANACCOUNTLABEL = "Account Found";
         public const string ALREADYHAVEANACCOUNTTEXT = "You already have an account and can use the Appointment Checker";
         public const string SEARCHTEXT = "Search";
         public const string ADMINTEXT = "Admin";
@@ -43,7 +45,6 @@
         public const string CANCELTEXT = "Cancel";
         public const string REGISTERTOUSETEXT = "Register to use the Appointment Checker";
 
-        public const string PENDINGACCOUNTLABEL = "Thank you&hellip;please wait";
         public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
                 
         public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
@@ -111,15 +112,18 @@
         public const string USEREMAILADDRESSVALIDERRORMESSAGE = "You must enter a valid nhs.net email address";
         public const string EMAILADDRESSREQUIREDERRORMESSAGE = "You must enter an nhs.net email address";
 
-        public const string NEWUSEREMAILADDRESS = "Authorise a new user. Enter an nhs.net email address";
+        public const string ADDNEWUSERTEXT = "Add a new user";
+        public const string NEWUSEREMAILADDRESS = ADDNEWUSERTEXT + ". Enter an nhs.net email address";
         public const string SAVENEWUSERBUTTONTEXT = "Save";
         public const string LOADREPORTBUTTONTEXT = "Load Report";
         public const string EXPORTREPORTBUTTONTEXT = "Export Report";
+        public const string USERLISTTEXT = "User list";
 
         public const string SUBMITBUTTONTEXT = "Submit";
         public const string CONTINUEBUTTONTEXT = "Continue";
         public const string CANCELBUTTONTEXT = "Cancel";
         public const string CLEARBUTTONTEXT = "Clear";
+        public const string REGISTERBUTTONTEXT = "Register";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";

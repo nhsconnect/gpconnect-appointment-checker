@@ -77,7 +77,7 @@ namespace gpconnect_appointment_checker.SDS
                 else
                 {
                     PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                    context.Properties.RedirectUri = "/CreateAccount";
+                    context.Properties.RedirectUri = "/NotRegistered";
                 }
             }
             return Task.CompletedTask;

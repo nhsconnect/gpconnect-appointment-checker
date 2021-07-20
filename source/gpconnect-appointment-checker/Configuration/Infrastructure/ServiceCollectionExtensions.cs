@@ -51,6 +51,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Private/SearchDetail", "/SearchDetail/{searchDetailId}");
                 options.Conventions.AddPageRoute("/Public/Error", "/Error");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
+                options.Conventions.AddPageRoute("/Public/NotRegistered", "/NotRegistered");
                 options.Conventions.AddPageRoute("/Public/Accessibility", "/Accessibility");
                 options.Conventions.AddPageRoute("/Public/PrivacyAndCookies", "/PrivacyAndCookies");
                 options.Conventions.AddPageRoute("/Public/TermsAndConditions", "/TermsAndConditions");
@@ -64,12 +65,15 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("CanBeAuthorisedOrNotAuthorisedUserStatus", policy => policy.Requirements.Add(new AuthorisedOrNotAuthorisedUserRequirement()));
                 options.AddPolicy("MustHaveAuthorisedUserStatus", policy => policy.Requirements.Add(new AuthorisedUserRequirement()));                
                 options.AddPolicy("MustHaveNotAuthorisedUserStatus", policy => policy.Requirements.Add(new NotAuthorisedUserRequirement()));
             });
+
+            services.AddSingleton<IAuthorizationHandler, AuthorisedOrNotAuthorisedUserHandler>();
             services.AddSingleton<IAuthorizationHandler, AuthorisedUserHandler>();
             services.AddSingleton<IAuthorizationHandler, NotAuthorisedUserHandler>();
-
+            
             services.AddAntiforgery(options => 
             { 
                 options.SuppressXFrameOptionsHeader = true;

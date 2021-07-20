@@ -8942,3 +8942,8 @@ b {
     background-color: #4c6272;
     color: #fff;
 }
+
+.nhsuk-table__cell--longtext {
+    word-break: break-all;
+}
+
