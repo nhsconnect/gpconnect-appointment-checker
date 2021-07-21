@@ -44,6 +44,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 options.Conventions.AuthorizeFolder("/Private", "MustHaveAuthorisedUserStatus");
                 options.Conventions.AuthorizeFolder("/Pending", "MustHaveNotAuthorisedUserStatus");
+                options.Conventions.AuthorizeFolder("/Private/Admin", "MustHaveAuthorisedAndIsAdminUserStatus");
                 options.Conventions.AllowAnonymousToFolder("/Public");
                 options.Conventions.AddPageRoute("/Private/Admin/Index", "/Admin");                
                 options.Conventions.AddPageRoute("/Private/Admin/Reports", "/Reports");
@@ -68,12 +69,14 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.AddPolicy("CanBeAuthorisedOrNotAuthorisedUserStatus", policy => policy.Requirements.Add(new AuthorisedOrNotAuthorisedUserRequirement()));
                 options.AddPolicy("MustHaveAuthorisedUserStatus", policy => policy.Requirements.Add(new AuthorisedUserRequirement()));                
                 options.AddPolicy("MustHaveNotAuthorisedUserStatus", policy => policy.Requirements.Add(new NotAuthorisedUserRequirement()));
+                options.AddPolicy("MustHaveAuthorisedAndIsAdminUserStatus", policy => policy.Requirements.Add(new AuthorisedAndIsAdminUserRequirement()));
             });
 
             services.AddSingleton<IAuthorizationHandler, AuthorisedOrNotAuthorisedUserHandler>();
             services.AddSingleton<IAuthorizationHandler, AuthorisedUserHandler>();
             services.AddSingleton<IAuthorizationHandler, NotAuthorisedUserHandler>();
-            
+            services.AddSingleton<IAuthorizationHandler, AuthorisedAndIsAdminUserHandler>();
+
             services.AddAntiforgery(options => 
             { 
                 options.SuppressXFrameOptionsHeader = true;

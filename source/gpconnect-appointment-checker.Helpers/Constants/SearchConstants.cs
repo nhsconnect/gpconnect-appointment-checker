@@ -32,7 +32,7 @@
         public const string ACCESSREQUESTREASONLABEL = "Reason for requesting access to the Appointment Checker.";
         public const string ACCESSREQUESTREASONHINTTEXT = "Please provide as much information as possible, this will allow your account to be created quickly. For example, \"I am responsible for setting up slots acrosss my PCN and want to check them.\"";
 
-        public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as<div>{0}</div>";
+        public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
         public const string RUNASEARCHTEXT = "Run a search";
         public const string ALREADYHAVEANACCOUNTTEXT = "You already have an account and can use the Appointment Checker";
         public const string SEARCHTEXT = "Search";
