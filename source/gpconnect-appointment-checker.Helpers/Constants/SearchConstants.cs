@@ -11,7 +11,7 @@
         public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
         public const string MULTIPLECODEHINTTEXT = "Please be aware that the search may take a while if multiple codes have been entered.";
 
-        public const string ACCESSLABEL = "Access to the GP Connect Appointment Checker";
+        public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
         public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
         public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
         public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. Please sign in to use it.";
@@ -20,7 +20,7 @@
         public const string NOTREGISTEREDTEXT = "You are not registered to use the Appointment Checker.";
         public const string NOTREGISTEREDLINKTEXT = "Please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a> for an account.";
         
-        public const string CREATEACCOUNTINTERSTITIALLABEL = "Register to use the GP Connect Appointment Checker";
+        public const string CREATEACCOUNTINTERSTITIALLABEL = "Register for GP Connect Appointment Checker";
         public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
         public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or <a href=\"{0}\">Cancel</a> to return to the home page.";
 

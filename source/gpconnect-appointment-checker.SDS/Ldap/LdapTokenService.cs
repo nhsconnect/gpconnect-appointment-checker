@@ -77,7 +77,7 @@ namespace gpconnect_appointment_checker.SDS
                 else
                 {
                     PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                    context.Properties.RedirectUri = "/NotRegistered";
+                    context.Properties.RedirectUri = GetAuthorisedRedirectUriForRegistration(context.Properties.RedirectUri);
                 }
             }
             return Task.CompletedTask;
@@ -86,6 +86,11 @@ namespace gpconnect_appointment_checker.SDS
         private string GetAuthorisedRedirectUri(string redirectUri)
         {
             return redirectUri == "/CreateAccount" ? "/AuthorisedAccountPresent" : "/Search";
+        }
+
+        private string GetAuthorisedRedirectUriForRegistration(string redirectUri)
+        {
+            return redirectUri == "/" ? "/NotRegistered" : "/CreateAccount";
         }
 
         private void PopulateAdditionalClaims(UserAccountStatus? userAccountStatus, DTO.Response.Application.User loggedOnUser, string emailAddress, TokenValidatedContext context, DTO.Response.Application.Organisation organisation, DTO.Response.Application.OrganisationList organisationDetails, List<string> odsCode)

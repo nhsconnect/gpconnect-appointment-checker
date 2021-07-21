@@ -248,8 +248,6 @@ namespace gpconnect_appointment_checker.GPConnect
                             if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
                                 tasks.Add(Task.FromResult(PopulateResults(startDate, endDate, requestParameter, cancellationToken)));
-
-                                //tasks.Add(PopulateResults(startDate, endDate, requestParameter, cancellationToken));
                             }
                             break;
                         case SearchType.Consumer:
@@ -278,8 +276,6 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private SlotEntrySummaryCount PopulateResults(DateTime startDate, DateTime endDate, RequestParametersList requestParameter, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"XXX START GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
-
             var spineMessageType = _configurationService.GetSpineMessageTypes().FirstOrDefault(x =>
                     x.SpineMessageTypeId == (int)SpineMessageTypes.GpConnectSearchFreeSlots);
             requestParameter.RequestParameters.SpineMessageTypeId =
@@ -300,11 +296,7 @@ namespace gpconnect_appointment_checker.GPConnect
             var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
             var response = client.Send(getRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-            _logger.LogInformation($"XXX SENDING REQUEST {uriBuilder.Uri} {DateTime.UtcNow:O}");
-
             var contents = response.Content.ReadAsStringAsync(cancellationToken).Result;
-
-            _logger.LogInformation($"XXX READING REQUEST {contents}");
 
             _spineMessage.ResponsePayload = contents;
             _spineMessage.ResponseStatus = response.StatusCode.ToString();
@@ -315,7 +307,6 @@ namespace gpconnect_appointment_checker.GPConnect
             var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
 
             var results = JsonConvert.DeserializeObject<Bundle>(contents);
-            _logger.LogInformation($"XXX FINISH GetFreeSlotsSummary {requestParameter.OdsCode} {DateTime.UtcNow:O}");
 
             return PopulateSlotEntrySummaryCount(requestParameter, spineMessage, results);
         }
