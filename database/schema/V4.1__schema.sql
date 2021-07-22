@@ -1,0 +1,1 @@
+update application.user set authorised_date=null, user_account_status_id=1 where user_account_status_id=3;
