@@ -39,15 +39,18 @@ begin
 		and uas2.user_account_status_id = _user_account_status_id	
 	into
 		_old_user_status, _new_user_status, _status_changed;	
-	
-	update application.user
-	set
-		user_account_status_id = _user_account_status_id,
-		authorised_date = case when _user_account_status_id = 2 then now() else null end
-	where
-		application.user.user_id = _user_id;
 
-	perform audit.add_entry(_user_id, _user_session_id, 10, _old_user_status, _new_user_status, null, null, null, _admin_user_id);
+	if(_status_changed)
+	begin	
+		update application.user
+		set
+			user_account_status_id = _user_account_status_id,
+			authorised_date = case when _user_account_status_id = 2 then now() else null end
+		where
+			application.user.user_id = _user_id;
+
+		perform audit.add_entry(_user_id, _user_session_id, 10, _old_user_status, _new_user_status, null, null, null, _admin_user_id);
+	end;
 
 	return query
 	select

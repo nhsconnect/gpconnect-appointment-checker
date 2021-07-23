@@ -8,6 +8,7 @@
         public string ConsumerLocationName { get; set; }
         public string ConsumerOdsCode { get; set; }
         public string SearchSummaryDetail { get; set; }
+        public string SearchSummaryAdditionalDetail { get; set; }
         public string ProviderPublisher { get; set; }
         public int SearchResultId { get; set; }
         public int SearchGroupId { get; set; }

@@ -228,7 +228,6 @@ namespace gpconnect_appointment_checker.Pages
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
                 slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
-                //SearchResultsSummary = slotEntrySummary;
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
             catch (LdapException)
@@ -345,7 +344,7 @@ namespace gpconnect_appointment_checker.Pages
                         {
                             var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[i], slotSearchSummaryList);
                             organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
-                            organisationErrorCodeOrDetailForCode.details = slotSearchErrorCodeOrDetail.Item2;
+                            organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
                             slotCount = slotSearchErrorCodeOrDetail.Item3;
                         }
                         else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
@@ -424,7 +423,7 @@ namespace gpconnect_appointment_checker.Pages
                         {
                             var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ConsumerOdsCodeAsList[i], slotSearchSummaryList);
                             organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
-                            organisationErrorCodeOrDetailForCode.details = slotSearchErrorCodeOrDetail.Item2;
+                            organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
                             slotCount = slotSearchErrorCodeOrDetail.Item3;
                         }
                         else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
@@ -477,13 +476,18 @@ namespace gpconnect_appointment_checker.Pages
             return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
         }
 
+        private string AppendAdditionalDetails(string item2, string additionalDetails)
+        {
+            return !string.IsNullOrEmpty(additionalDetails) ? $"{item2} ({additionalDetails})" : item2;
+        }
+
         private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)
         {
             var slotEntrySummary = slotEntrySummaries.FirstOrDefault(x => x.OdsCode == providerOdsCode);
             var errorSource = slotEntrySummary?.ErrorCode ?? ErrorCode.None;
             var detail = string.Empty;
 
-            if (errorSource == ErrorCode.None)
+            if (errorSource == ErrorCode.None || errorSource == ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement)
             {
                 if (slotEntrySummary != null && slotEntrySummary.FreeSlotCount.GetValueOrDefault() > 0)
                 {
@@ -539,6 +543,7 @@ namespace gpconnect_appointment_checker.Pages
 
             var errorSource = ErrorCode.None;
             var details = string.Empty;
+            var additionalDetails = string.Empty;
             Organisation providerOrganisation = null;
             Organisation consumerOrganisation = null;
             Spine providerSpine = null;
@@ -558,6 +563,11 @@ namespace gpconnect_appointment_checker.Pages
             {
                 consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
             }
+            else if(consumerErrorCode == ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement)
+            {
+                consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
+                additionalDetails = string.Format(consumerErrorCode.GetDescription(), consumerOdsCode);
+            }
             else
             {
                 errorSource = consumerErrorCode;
@@ -570,6 +580,7 @@ namespace gpconnect_appointment_checker.Pages
                 SuppliedConsumerOdsCode = consumerOdsCode,
                 errorSource = errorSource,
                 details = details,
+                additionalDetails = additionalDetails,
                 providerOrganisation = providerOrganisation,
                 consumerOrganisation = consumerOrganisation,
                 providerSpine = providerSpine

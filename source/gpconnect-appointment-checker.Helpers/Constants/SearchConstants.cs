@@ -115,15 +115,15 @@
         public const string ADDNEWUSERTEXT = "Add a new user";
         public const string NEWUSEREMAILADDRESS = ADDNEWUSERTEXT + ". Enter an nhs.net email address";
         public const string SAVENEWUSERBUTTONTEXT = "Save";
-        public const string LOADREPORTBUTTONTEXT = "Load Report";
-        public const string EXPORTREPORTBUTTONTEXT = "Export Report";
+        public const string LOADREPORTBUTTONTEXT = "Load report";
+        public const string EXPORTREPORTBUTTONTEXT = "Export report";
         public const string USERLISTTEXT = "User list";
 
         public const string SUBMITBUTTONTEXT = "Submit";
         public const string CONTINUEBUTTONTEXT = "Continue";
         public const string CANCELBUTTONTEXT = "Cancel";
         public const string CLEARBUTTONTEXT = "Clear";
-        public const string REGISTERBUTTONTEXT = "Register";
+        public const string REGISTERBUTTONTEXT = "Start registration";
 
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";

@@ -24,9 +24,11 @@ namespace gpconnect_appointment_checker.Pages
         public void OnGet()
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-            var exceptionHandlerPathFeature =
-                HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            _logger.LogError(exceptionHandlerPathFeature?.Error.InnerException, $"Error thrown at {exceptionHandlerPathFeature?.Path} - ");
+            var exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            if (exceptionHandlerPathFeature != null)
+            {
+                _logger.LogError(exceptionHandlerPathFeature.Error.InnerException, $"Error thrown at {exceptionHandlerPathFeature.Path}");
+            }
         }
     }
 }
