@@ -40,8 +40,7 @@ begin
 	into
 		_old_user_status, _new_user_status, _status_changed;	
 
-	if(_status_changed)
-	begin	
+	if _status_changed then		
 		update application.user
 		set
 			user_account_status_id = _user_account_status_id,
@@ -50,7 +49,7 @@ begin
 			application.user.user_id = _user_id;
 
 		perform audit.add_entry(_user_id, _user_session_id, 10, _old_user_status, _new_user_status, null, null, null, _admin_user_id);
-	end;
+	end if;
 
 	return query
 	select
