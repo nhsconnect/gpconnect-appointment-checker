@@ -204,25 +204,16 @@ namespace gpconnect_appointment_checker.DAL.Application
             return user;
         }
 
-        public List<User> SetUserStatus(int[] userId, int[] userAccountStatusId)
+        public User SetUserStatus(int userId, int userAccountStatusId)
         {
-            var userStatusUpdateList = new List<User>();
-            for (var i = 0; i < userId.Length; i++)
-            {
-                var functionName = "application.set_user_status";
-                var parameters = new DynamicParameters();
-                parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
-                parameters.Add("_user_id", userId[i]);
-                parameters.Add("_user_account_status_id", userAccountStatusId[i]);
-                parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
-                var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
-
-                if (user != null && user.StatusChanged)
-                {
-                    userStatusUpdateList.Add(user);                    
-                }
-            }
-            return userStatusUpdateList;
+            var functionName = "application.set_user_status";
+            var parameters = new DynamicParameters();
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_user_id", userId);
+            parameters.Add("_user_account_status_id", userAccountStatusId);
+            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
+            var user = _dataService.ExecuteFunction<User>(functionName, parameters).FirstOrDefault();
+            return user;
         }
 
         public void SetMultiSearch(int userId, bool multiSearchEnabled)

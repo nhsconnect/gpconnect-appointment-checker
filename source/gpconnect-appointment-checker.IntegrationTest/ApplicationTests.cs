@@ -233,15 +233,15 @@ namespace gpconnect_appointment_checker.IntegrationTest
             _applicationService.AddOrUpdateUser(userCreateAccount);
             var user = _applicationService.GetUser(emailAddress);
 
-            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.RequestDenied });
+            _applicationService.SetUserStatus(user.UserId, (int)UserAccountStatus.RequestDenied);
             user = _applicationService.GetUser(emailAddress);
             Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.RequestDenied);
 
-            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.Deauthorised });
+            _applicationService.SetUserStatus(user.UserId, (int)UserAccountStatus.Deauthorised);
             user = _applicationService.GetUser(emailAddress);
             Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.Deauthorised);
 
-            _applicationService.SetUserStatus(new int[] { user.UserId }, new int[] { (int)UserAccountStatus.Authorised });
+            _applicationService.SetUserStatus(user.UserId, (int)UserAccountStatus.Authorised);
             user = _applicationService.GetUser(emailAddress);
             Assert.True(user.UserAccountStatusId == (int)UserAccountStatus.Authorised);
         }

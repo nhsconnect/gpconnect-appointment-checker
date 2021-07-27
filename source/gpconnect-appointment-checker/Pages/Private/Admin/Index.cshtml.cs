@@ -62,11 +62,11 @@ namespace gpconnect_appointment_checker.Pages
             RefreshPage();
         }
 
-        public void OnPostSetUserStatuses(int[] UserId, int[] UserAccountStatusId)
+        public void OnPostSetUserAccountStatus(int accountstatususerid, int userselectedindex, int[] UserAccountStatusId)
         {
             ClearValidationState();
-            var users = _applicationService.SetUserStatus(UserId, UserAccountStatusId);
-            foreach (var user in users)
+            var user = _applicationService.SetUserStatus(accountstatususerid, UserAccountStatusId[userselectedindex]);
+            if (user.StatusChanged)
             {
                 _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
             }

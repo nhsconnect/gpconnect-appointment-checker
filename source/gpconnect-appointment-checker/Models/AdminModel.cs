@@ -16,6 +16,7 @@ namespace gpconnect_appointment_checker.Pages
         public string CleansedUserEmailAddress => UserEmailAddress.ToLower();
 
         public List<User> UserList { get; set; }
+
         [BindProperty]
         public string SortByColumn { get; set; }
 
@@ -28,12 +29,10 @@ namespace gpconnect_appointment_checker.Pages
         public string SelectedUserAccountStatusFilter { get; set; }
 
         [BindProperty]
-        public int[] UserAccountStatusId { get; set; }
+        public int UserAccountStatusId { get; set; }
 
         [BindProperty]
-        public int[] UserId { get; set; }
-
-         
+        public int UserId { get; set; }
 
         [BindProperty]
         public string EmailAddressSearchValue { get; set; }

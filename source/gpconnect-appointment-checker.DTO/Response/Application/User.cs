@@ -1,7 +1,4 @@
-﻿using gpconnect_appointment_checker.Helpers.Enumerations;
-using System;
-
-namespace gpconnect_appointment_checker.DTO.Response.Application
+﻿namespace gpconnect_appointment_checker.DTO.Response.Application
 {
     public class User
     {

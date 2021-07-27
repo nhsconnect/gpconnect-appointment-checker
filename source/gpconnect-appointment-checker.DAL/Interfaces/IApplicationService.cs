@@ -19,7 +19,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         List<DTO.Response.Application.User> GetUsers(SortBy sortBy, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null);
         List<DTO.Response.Application.User> GetAdminUsers();
         List<DTO.Response.Application.User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortBy);
-        List<User> SetUserStatus(int[] userId, int[] userAccountStatusId);
+        User SetUserStatus(int userId, int userAccountStatusId);
         void SetMultiSearch(int userId, bool multiSearchEnabled);
         User AddUser(string emailAddress);
         void UpdateUserTermsAndConditions(bool isAccepted);
