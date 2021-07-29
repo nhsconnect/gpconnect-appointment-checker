@@ -1,7 +1,8 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
 @{
     var britishZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
-    var currentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local, britishZone);
+    var currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local, britishZone);
+    var currentTimeZoneInfoUtc = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc, britishZone);
 }
 
 
@@ -9,7 +10,10 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-inset-text">
             <span class="nhsuk-u-visually-hidden">Information: </span>
-            <p>@Html.Raw(string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), currentDate.ToString("d MMM yyyy HH:mm:ss"), Model.SearchResultsCount))</p>
+            <p>@Html.Raw(string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), currentTimeZoneInfoLocal.ToString("d MMM yyyy HH:mm:ss"), Model.SearchResultsCount))</p>
         </div>
     </div>
 </div>
+
+<p>currentTimeZoneInfoLocal: @currentTimeZoneInfoLocal</p>
+<p>currentTimeZoneInfoUtc: @currentTimeZoneInfoUtc</p>
