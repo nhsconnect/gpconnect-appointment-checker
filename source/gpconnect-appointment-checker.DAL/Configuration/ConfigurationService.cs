@@ -34,5 +34,12 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             var result = _dataService.ExecuteFunction<DTO.Response.Configuration.SdsQuery>(functionName);
             return result;
         }
+
+        public List<DTO.Response.Configuration.OrganisationType> GetOrganisationTypes()
+        {
+            var functionName = "configuration.get_organisation_type";
+            var result = _dataService.ExecuteFunction<DTO.Response.Configuration.OrganisationType>(functionName);
+            return result;
+        }
     }
 }

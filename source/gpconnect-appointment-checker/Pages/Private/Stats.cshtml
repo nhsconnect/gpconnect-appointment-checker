@@ -1,0 +1,10 @@
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-inset-text">
+            <span class="nhsuk-u-visually-hidden">Information: </span>
+            <p>@Html.Raw(string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), DateTimeOffset.Now.ToString("d MMM yyyy HH:mm:ss"), Model.SearchResultsCount))</p>
+        </div>
+    </div>
+</div>

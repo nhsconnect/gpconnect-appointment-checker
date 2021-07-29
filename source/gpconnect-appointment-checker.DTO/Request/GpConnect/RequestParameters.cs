@@ -12,5 +12,6 @@
         public string InteractionId { get; set; }
         public int SpineMessageTypeId { get; set; }
         public int RequestTimeout { get; set; }
+        public string GPConnectConsumerOrganisationType { get; set; }
     }
 }

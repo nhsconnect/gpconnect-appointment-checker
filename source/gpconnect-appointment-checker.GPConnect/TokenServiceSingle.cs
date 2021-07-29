@@ -29,7 +29,7 @@ namespace gpconnect_appointment_checker.GPConnect
             _context = context;
         }
 
-        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails, int spineMessageTypeId)
+        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails, int spineMessageTypeId, string consumerOrganisationType = "")
         {
             try
             {
@@ -64,7 +64,8 @@ namespace gpconnect_appointment_checker.GPConnect
                     ConsumerODSCode = consumerOrganisationDetails.ODSCode,
                     ProviderODSCode = providerOrganisationDetails.ODSCode,
                     InteractionId = spineMessageType?.InteractionId,
-                    SpineMessageTypeId = spineMessageTypeId
+                    SpineMessageTypeId = spineMessageTypeId,
+                    GPConnectConsumerOrganisationType = consumerOrganisationType
                 };
                 return requestParameters;
             }

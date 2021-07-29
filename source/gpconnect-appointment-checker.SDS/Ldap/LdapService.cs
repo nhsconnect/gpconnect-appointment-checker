@@ -198,7 +198,6 @@ namespace gpconnect_appointment_checker.SDS
             {
                 odsCodesWithPartyKeys.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => !string.IsNullOrEmpty(x.PartyKey)).ForAll(odsCodeWithPartyKey =>
-                //Parallel.ForEach(odsCodesWithPartyKeys.Where(x => !string.IsNullOrEmpty(x.PartyKey)), new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCodeWithPartyKey) =>
                 {
                     var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
                     odsCodeWithPartyKey.Spine.asid = processedOrganisation?.asid;

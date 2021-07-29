@@ -53,7 +53,11 @@ namespace gpconnect_appointment_checker.GPConnect
             query.Add(Uri.EscapeDataString("_include:recurse"), "Location:managingOrganization");
             query.Add(Uri.EscapeDataString("start"), $"ge{startDate:yyyy-MM-dd}");
             query.Add(Uri.EscapeDataString("end"), $"le{endDate:yyyy-MM-dd}");
-            query.Add(Uri.EscapeDataString("searchFilter"), $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");            
+            query.Add(Uri.EscapeDataString("searchFilter"), $"https://fhir.nhs.uk/Id/ods-organization-code|{requestParameters.ConsumerODSCode}");
+            if (!string.IsNullOrEmpty(requestParameters.GPConnectConsumerOrganisationType))
+            { 
+                query.Add(Uri.EscapeDataString("searchFilter"), $"https://fhir.nhs.uk/STU3/CodeSystem/GPConnect-OrganisationType-1|{requestParameters.GPConnectConsumerOrganisationType}");
+            }
             uriBuilder.Query = query.ToString();
             return uriBuilder;
         }

@@ -12,6 +12,7 @@ namespace gpconnect_appointment_checker.Pages
     public partial class SearchModel
     {
         public List<SelectListItem> DateRanges => GetDateRanges();
+        public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes();
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
@@ -73,6 +74,9 @@ namespace gpconnect_appointment_checker.Pages
         public string SearchOnBehalfOfResultsText { get; set; }
         [BindProperty]
         public string SelectedDateRange { get; set; }
+
+        [BindProperty]
+        public string SelectedOrganisationType { get; set; }        
 
         [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
         public int SearchGroupId { get; set; }

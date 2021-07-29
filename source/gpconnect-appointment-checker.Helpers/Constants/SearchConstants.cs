@@ -158,6 +158,8 @@
         public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one consumer ODS code below.";
         public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one provider ODS code above.";
 
+        public const string SEARCHINPUTORGANISATIONTYPELABEL = "Select an organisation type";        
+
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
         public const string FREESLOTSFOUNDTEXT = "{0} free slots found";

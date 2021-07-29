@@ -34,6 +34,10 @@
             <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
             <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
         </div>
+        <div class="nhsuk-form-group">
+            <label class="nhsuk-label" for="@Model.SelectedOrganisationType">@SearchConstants.SEARCHINPUTORGANISATIONTYPELABEL</label>
+            <select asp-for="@Model.SelectedOrganisationType" asp-items="@Model.OrganisationTypes" class="nhsuk-select" id="@Model.SelectedOrganisationType"></select>
+        </div>
         @if (Model.DisplayMultiSearchHelpText)
         {
             <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
