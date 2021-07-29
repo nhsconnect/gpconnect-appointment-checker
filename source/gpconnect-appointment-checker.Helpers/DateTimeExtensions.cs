@@ -17,16 +17,17 @@ namespace gpconnect_appointment_checker.Helpers
 
         public static string TimeZoneConverter(this DateTime valueIn, string timeZoneId, string dateTimeFormat = "d MMM yyyy HH:mm:ss")
         {
-            DateTime currentTimeZoneInfoLocal = DateTime.Now;
-            TimeZoneInfo timeZoneInfo;
+            DateTime currentTimeZoneInfoLocal = valueIn;
+            TimeZoneInfo timeZoneInfo = TimeZoneInfo.Local;
             try
             {
-                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);                
             }
             catch (TimeZoneNotFoundException)
             {
-                timeZoneInfo = TimeZoneInfo.Local;
+            }
+            finally
+            {
                 currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(valueIn, TimeZoneInfo.Local, timeZoneInfo);
             }
             return currentTimeZoneInfoLocal.ToString(dateTimeFormat);
