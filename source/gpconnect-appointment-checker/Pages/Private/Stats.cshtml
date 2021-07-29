@@ -1,27 +1,11 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
-@{
-    //var britishZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
-
-
-    //var currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local, britishZone);
-
-    var timezones = TimeZoneInfo.GetSystemTimeZones();
-}
-
+@using gpconnect_appointment_checker.Helpers 
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-inset-text">
             <span class="nhsuk-u-visually-hidden">Information: </span>
-            <p>@Html.Raw(string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), DateTime.Now.ToString("d MMM yyyy HH:mm:ss"), Model.SearchResultsCount))</p>
+            <p>@Html.Raw(string.Format(SearchConstants.SEARCHSTATSTEXT, Model.SearchDuration.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"), Model.SearchResultsCount))</p>
         </div>
     </div>
 </div>
-
-@foreach (var timezone in timezones)
-{
-    <p>Display Name: @timezone.DisplayName</p>
-    <p>ID: @timezone.Id</p>
-}
-
-@*<p>currentTimeZoneInfoLocal: @currentTimeZoneInfoLocal</p>*@

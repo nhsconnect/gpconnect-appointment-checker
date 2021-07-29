@@ -14,5 +14,22 @@ namespace gpconnect_appointment_checker.Helpers
         {
             return valueIn.HasValue ? valueIn.Value.ToString(dateFormat) : string.Empty;
         }
+
+        public static string TimeZoneConverter(this DateTime valueIn, string timeZoneId, string dateTimeFormat = "d MMM yyyy HH:mm:ss")
+        {
+            DateTime currentTimeZoneInfoLocal = DateTime.Now;
+            TimeZoneInfo timeZoneInfo;
+            try
+            {
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                timeZoneInfo = TimeZoneInfo.Local;
+                currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(valueIn, TimeZoneInfo.Local, timeZoneInfo);
+            }
+            return currentTimeZoneInfoLocal.ToString(dateTimeFormat);
+        }
     }
 }
