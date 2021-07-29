@@ -1,8 +1,11 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
 @{
     var britishZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+
+
     var currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local, britishZone);
-    var currentTimeZoneInfoUtc = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc, britishZone);
+
+    var timezones = TimeZoneInfo.GetSystemTimeZones();
 }
 
 
@@ -15,5 +18,10 @@
     </div>
 </div>
 
+@foreach (var timezone in timezones)
+{
+    <p>Display Name: @timezone.DisplayName</p>
+    <p>ID: @timezone.Id</p>
+}
+
 <p>currentTimeZoneInfoLocal: @currentTimeZoneInfoLocal</p>
-<p>currentTimeZoneInfoUtc: @currentTimeZoneInfoUtc</p>
