@@ -80,23 +80,32 @@ namespace gpconnect_appointment_checker.Pages
             RefreshPage();
         }
 
+        public void OnPostSetOrgTypeSearch(int orgtypesearchstatususerid, bool orgtypesearchstatus)
+        {
+            ClearValidationState();
+            _applicationService.SetOrgTypeSearch(orgtypesearchstatususerid, orgtypesearchstatus);
+            RefreshPage();
+        }
+
         private void ClearValidationState()
         {
             ModelState.ClearValidationState("UserEmailAddress");
         }
 
-        public IActionResult OnPostRunSearch()
+        public IActionResult OnPostApplyFilter()
         {
             ClearValidationState();
-            var userList = _applicationService.FindUsers(SurnameSearchValue, EmailAddressSearchValue, OrganisationNameSearchValue, Enum.Parse<SortBy>(SortByColumn));
-            UserList = userList;
-            return Page();
-        }
-
-        public IActionResult OnPostFilterByStatus()
-        {
-            ClearValidationState();
-            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState), string.IsNullOrEmpty(SelectedUserAccountStatusFilter) ? null : Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter));
+            var userList = _applicationService.GetUsers(
+                SurnameSearchValue, 
+                EmailAddressSearchValue, 
+                OrganisationNameSearchValue, 
+                Enum.Parse<SortBy>(SortByColumn), 
+                Enum.Parse<SortDirection>(SortByState), 
+                string.IsNullOrEmpty(SelectedUserAccountStatusFilter) ? null : Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter),
+                string.IsNullOrEmpty(SelectedAccessLevelFilter) ? null : Enum.Parse<AccessLevel>(SelectedAccessLevelFilter),
+                string.IsNullOrEmpty(SelectedMultiSearchFilter) ? null : bool.Parse(SelectedMultiSearchFilter),
+                string.IsNullOrEmpty(SelectedOrgTypeSearchFilter) ? null : bool.Parse(SelectedOrgTypeSearchFilter)
+                );
             UserList = userList;
             return Page();
         }
@@ -113,7 +122,6 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 UserEmailAddress = null;
             }
-            //ModelState.Clear();
             RefreshPage();
         }
 
@@ -123,6 +131,10 @@ namespace gpconnect_appointment_checker.Pages
             SurnameSearchValue = null;
             EmailAddressSearchValue = null;
             OrganisationNameSearchValue = null;
+            SelectedAccessLevelFilter = null;
+            SelectedMultiSearchFilter = null;
+            SelectedOrgTypeSearchFilter = null;
+            SelectedUserAccountStatusFilter = null;
             ModelState.Clear();
             RefreshPage();
         }

@@ -18,7 +18,8 @@ returns table
 	last_logon_date timestamp,
 	multi_search_enabled boolean,
 	is_admin boolean,
-	is_new_user boolean
+	is_new_user boolean,
+	org_type_search_enabled boolean
 )
 as $$
 declare	_user_id integer;
@@ -43,7 +44,8 @@ begin
 			authorised_date,
 			last_logon_date,
 			multi_search_enabled,
-			is_admin
+			is_admin,
+			org_type_search_enabled
 		) 
 		values
 		(
@@ -54,6 +56,7 @@ begin
 			now(), 
 			now(),
 			null,
+			false,
 			false,
 			false
 		)
@@ -92,7 +95,8 @@ begin
 		u.last_logon_date,
 		u.multi_search_enabled,
 		u.is_admin,
-		_is_new_user
+		_is_new_user,
+		u.org_type_search_enabled
 	from application.user u
 	where u.user_id = _user_id;
 	

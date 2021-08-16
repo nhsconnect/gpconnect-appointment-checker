@@ -22,6 +22,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.AccessRequestCount).ToColumn("number_of_access_requests");
             Map(p => p.IsPastLastLogonThreshold).ToColumn("is_past_last_logon_threshold");
             Map(p => p.StatusChanged).ToColumn("status_changed");
+            Map(p => p.OrgTypeSearchEnabled).ToColumn("org_type_search_enabled");
         }
     }
 }

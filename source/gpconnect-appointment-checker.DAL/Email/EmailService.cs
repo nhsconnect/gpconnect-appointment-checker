@@ -119,11 +119,6 @@ namespace gpconnect_appointment_checker.DAL.Email
             }
         }
 
-        private void _smtpClient_SendCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private string PopulateDynamicFields(string bodyText)
         {
             bodyText = bodyText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));

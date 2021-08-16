@@ -27,6 +27,14 @@ namespace gpconnect_appointment_checker.Pages
         public string SortByDirectionIcon { get; set; }
         [BindProperty]
         public string SelectedUserAccountStatusFilter { get; set; }
+        [BindProperty]
+        public string SelectedAccessLevelFilter { get; set; }
+
+        [BindProperty]
+        public string SelectedOrgTypeSearchFilter { get; set; }
+
+        [BindProperty]
+        public string SelectedMultiSearchFilter { get; set; }
 
         [BindProperty]
         public int UserAccountStatusId { get; set; }

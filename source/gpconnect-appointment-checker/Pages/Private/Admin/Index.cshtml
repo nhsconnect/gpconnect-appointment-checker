@@ -61,11 +61,9 @@
                                 </button>
                             </th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
-                            <th role="columnheader" class="" scope="col">
-                                @SearchConstants.USERLISTRESULTSSTATUS
-                                @*<button type="submit" class="nhsuk-tag nhsuk-tag--green" asp-page-handler="SetUserStatuses">Update Statuses</button>*@
-                            </th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGTYPESEARCHENABLED</th>
                         </tr>
                     </thead>
                     <tbody class="nhsuk-table__body">
@@ -81,7 +79,14 @@
                             </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                            <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                            <td role="cell" class="" scope="nhsuk-table__cell">
+                                @Html.DropDownListFor(m => m.SelectedAccessLevelFilter,
+new SelectList(Enum.GetValues(typeof(AccessLevel)).Cast<AccessLevel>().Select(v => new SelectListItem
+{
+Text = v.ToString(),
+Value = v.ToString()
+}), "Value", "Text", Model.SelectedAccessLevelFilter), "", new { @class = "nhsuk-select" })
+                            </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">
                                 @Html.DropDownListFor(m => m.SelectedUserAccountStatusFilter,
 new SelectList(Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>().Select(v => new SelectListItem
@@ -90,11 +95,28 @@ Text = v.GetDescription(),
 Value = ((int)v).ToString()
 }), "Value", "Text", Model.SelectedUserAccountStatusFilter), "", new { @class = "nhsuk-select" })
                             </td>
-                            <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
+                            <td role="cell" class="" scope="nhsuk-table__cell">
+                                @Html.DropDownListFor(m => m.SelectedMultiSearchFilter,
+                                new List<SelectListItem>()
+                                {
+                                    new SelectListItem() { Text = string.Empty, Value = string.Empty },
+                                    new SelectListItem() { Text = true.BooleanToYesNo(), Value = true.ToString() },
+                                    new SelectListItem() { Text = false.BooleanToYesNo(), Value = false.ToString() }
+                                }, new { @class = "nhsuk-select" })
+                            </td>
+                            <td role="cell" class="" scope="nhsuk-table__cell">
+                                @Html.DropDownListFor(m => m.SelectedOrgTypeSearchFilter,
+                                new List<SelectListItem>()
+                                {
+                                    new SelectListItem() { Text = string.Empty, Value = string.Empty },
+                                    new SelectListItem() { Text = true.BooleanToYesNo(), Value = true.ToString() },
+                                    new SelectListItem() { Text = false.BooleanToYesNo(), Value = false.ToString() }
+                                }, new { @class = "nhsuk-select" })
+                            </td>
                         </tr>
                         <tr role="row">
                             <td role="cell" class="" scope="nhsuk-table__cell">
-                                <button class="nhsuk-button" asp-page-handler="RunSearch" type="submit">@SearchConstants.FINDBUTTONTEXT</button>
+                                <button class="nhsuk-button" asp-page-handler="ApplyFilter" type="submit">@SearchConstants.APPLYFILTERBUTTONTEXT</button>
                                 <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
                             </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
@@ -102,9 +124,7 @@ Value = ((int)v).ToString()
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
-                            <td role="cell" class="" scope="nhsuk-table__cell">
-                                <button class="nhsuk-button" asp-page-handler="FilterByStatus" type="submit">@SearchConstants.FILTERBYSTATUSBUTTONTEXT</button>
-                            </td>
+                            <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                         </tr>
                         @if (Model.UserList.Count > 0)
@@ -121,10 +141,12 @@ Value = ((int)v).ToString()
                                     <td role="cell" class="" scope="nhsuk-table__cell">
                                         <select id="UserAccountStatusId" name="UserAccountStatusId" class="nhsuk-select" asp-for="@Model.UserList[i].UserAccountStatusId" asp-items="Html.GetEnumSelectList<UserAccountStatus>()">
                                         </select>
-                                        <button type="submit" class="nhsuk-tag nhsuk-tag--green" 
-                                                asp-route-accountstatususerid="@Model.UserList[i].UserId" 
-                                                asp-route-userselectedindex="@i" 
-                                                asp-page-handler="SetUserAccountStatus">Update Status</button>
+                                        <button type="submit" class="nhsuk-tag nhsuk-tag--green"
+                                                asp-route-accountstatususerid="@Model.UserList[i].UserId"
+                                                asp-route-userselectedindex="@i"
+                                                asp-page-handler="SetUserAccountStatus">
+                                            Update Status
+                                        </button>
                                     </td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">
                                         @if (Model.UserList[i].MultiSearchEnabled)
@@ -136,15 +158,22 @@ Value = ((int)v).ToString()
                                             <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-multisearchstatususerid="@Model.UserList[i].UserId" asp-route-multisearchstatus="true" asp-page-handler="SetMultiSearch">@Model.UserList[i].MultiSearchEnabled.BooleanToYesNo()</button>
                                         }
                                     </td>
+                                    <td role="cell" class="" scope="nhsuk-table__cell">
+                                        @if (Model.UserList[i].OrgTypeSearchEnabled)
+                                        {
+                                            <button type="submit" class="nhsuk-tag nhsuk-tag--blue" asp-route-orgtypesearchstatususerid="@Model.UserList[i].UserId" asp-route-orgtypesearchstatus="false" asp-page-handler="SetOrgTypeSearch">@Model.UserList[i].OrgTypeSearchEnabled.BooleanToYesNo()</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="nhsuk-tag nhsuk-tag--pink" asp-route-orgtypesearchstatususerid="@Model.UserList[i].UserId" asp-route-orgtypesearchstatus="true" asp-page-handler="SetOrgTypeSearch">@Model.UserList[i].OrgTypeSearchEnabled.BooleanToYesNo()</button>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         }
-                        else
-                        {
-                            <tr role="row" scope="nhsuk-table__cell">
-                                <td role="cell" colspan="8" class="" scope="nhsuk-table__cell">No users found</td>
-                            </tr>
-                        }
+                        <tr role="row" scope="nhsuk-table__cell">
+                            <td role="cell" colspan="8" class="" scope="nhsuk-table__cell">@string.Format(SearchConstants.USERSFOUNDTEXT, Model.UserList.Count)</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -152,5 +181,11 @@ Value = ((int)v).ToString()
     </div>
     <input type="hidden" asp-for="SortByColumn" value="@Model.SortByColumn" />
     <input type="hidden" asp-for="SortByState" value="@Model.SortByState" />
+    <input type="hidden" asp-for="SurnameSearchValue" value="@Model.SurnameSearchValue" />
+    <input type="hidden" asp-for="EmailAddressSearchValue" value="@Model.EmailAddressSearchValue" />
+    <input type="hidden" asp-for="OrganisationNameSearchValue" value="@Model.OrganisationNameSearchValue" />
     <input type="hidden" asp-for="SelectedUserAccountStatusFilter" value="@Model.SelectedUserAccountStatusFilter" />
+    <input type="hidden" asp-for="SelectedAccessLevelFilter" value="@Model.SelectedAccessLevelFilter" />
+    <input type="hidden" asp-for="SelectedMultiSearchFilter" value="@Model.SelectedMultiSearchFilter" />
+    <input type="hidden" asp-for="SelectedOrgTypeSearchFilter" value="@Model.SelectedOrgTypeSearchFilter" />
 </form>

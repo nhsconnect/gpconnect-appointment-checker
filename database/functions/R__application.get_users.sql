@@ -15,7 +15,8 @@ returns table
 	multi_search_enabled boolean,
 	number_of_access_requests bigint,
 	is_past_last_logon_threshold boolean,
-	organisation_id integer
+	organisation_id integer,
+	org_type_search_enabled boolean
 )
 as $$
 declare last_logon_threshold_highlight timestamp with time zone;
@@ -40,7 +41,8 @@ begin
 		u.multi_search_enabled,
 		access_requests.access_requests_count,
 		u.last_logon_date <= last_logon_threshold_highlight AS is_past_last_logon_threshold,
-		u.organisation_id
+		u.organisation_id,
+		u.org_type_search_enabled
 	from application.user u
 	inner join application.organisation o on u.organisation_id = o.organisation_id	
 	left outer join 

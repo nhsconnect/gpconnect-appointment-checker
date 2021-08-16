@@ -15,7 +15,8 @@ returns table
 	organisation_id integer,
 	user_account_status_id integer,
 	multi_search_enabled boolean,
-	is_admin boolean
+	is_admin boolean,
+	org_type_search_enabled boolean
 )
 as $$
 declare
@@ -27,6 +28,7 @@ declare
 	_logon_date timestamp;
 	_multi_search_enabled boolean;
 	_is_admin boolean;
+	_org_type_search_enabled boolean;
 begin
 
 	--------------------------------------------
@@ -56,14 +58,16 @@ begin
 		u.display_name,
 		u.organisation_id,
 		u.multi_search_enabled,
-		u.is_admin
+		u.is_admin,
+		u.org_type_search_enabled
 	into
 		_user_id,
 		_user_account_status_id,
 		_existing_display_name,
 		_existing_organisation_id,
 		_multi_search_enabled,
-		_is_admin
+		_is_admin,
+		_org_type_search_enabled
 	from application.user u
 	where lower(u.email_address) = lower(_email_address);
 
@@ -79,7 +83,8 @@ begin
 			authorised_date,
 			last_logon_date,
 			multi_search_enabled,
-			is_admin
+			is_admin,
+			org_type_search_enabled
 		)
 		values
 		(
@@ -91,18 +96,21 @@ begin
 			null,
 			null,
 			false,
+			false,
 			false
 		)
 		returning
 			application.user.user_id, 
 			application.user.user_account_status_id,
 			application.user.is_admin,
-			application.user.multi_search_enabled
+			application.user.multi_search_enabled,
+			application.user.org_type_search_enabled
 		into 
 			_user_id,
 			_user_account_status_id,
 			_is_admin,
-			_multi_search_enabled;
+			_multi_search_enabled,
+			_org_type_search_enabled;
 
 	end if;
 
@@ -207,7 +215,8 @@ begin
 		u.organisation_id,
 		_user_account_status_id as user_account_status_id,
 		_multi_search_enabled as multi_search_enabled,
-		_is_admin as is_admin
+		_is_admin as is_admin,
+		_org_type_search_enabled as org_type_search_enabled
 	from application.user u
 	where u.user_id = _user_id;
 	

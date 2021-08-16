@@ -59,8 +59,8 @@
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
         public const string AUTHORISEBUTTONTEXT = "Authorise";
 
-        public const string FINDBUTTONTEXT = "Find";
-        public const string FILTERBYSTATUSBUTTONTEXT = "Status Filter";
+        //public const string FINDBUTTONTEXT = "Find";
+        public const string APPLYFILTERBUTTONTEXT = "Apply filters";
 
         public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
         public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
@@ -148,6 +148,7 @@
         public const string USERLISTRESULTSLASTLOGONDATE = "Last signed on";
         public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi Search?";
         public const string USERLISTRESULTSACCESSREQUESTCOUNT = "Number of access requests";
+        public const string USERLISTRESULTSORGTYPESEARCHENABLED = "Org Type Search?";
 
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";
@@ -163,5 +164,6 @@
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
         public const string FREESLOTSFOUNDTEXT = "{0} free slots found";
+        public const string USERSFOUNDTEXT = "{0} user(s) found";
     }
 }

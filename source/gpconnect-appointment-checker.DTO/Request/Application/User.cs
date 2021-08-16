@@ -9,5 +9,6 @@
         public bool IsAuthorised { get; set; }
         public bool IsAdmin { get; set; }
         public bool MultiSearchEnabled { get; set; }
+        public bool OrgTypeSearchEnabled { get; set; }
     }
 }

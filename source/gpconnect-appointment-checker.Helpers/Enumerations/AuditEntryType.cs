@@ -17,6 +17,7 @@
         NewUserAdded = 13,
         EmailSent = 14,
         MultiSlotSearch = 15,
-        UserCreateAccount = 16
+        UserCreateAccount = 16,
+        UserOrgTypeSearchEnabledStatusChanged = 17
     }
 }

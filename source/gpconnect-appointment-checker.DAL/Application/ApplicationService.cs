@@ -43,34 +43,45 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null)
+        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection)
         {
             var functionName = "application.get_users";
-            var result = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
-            if (userAccountStatusFilter != null)
-            {
-                result = result.Where(x => x.UserAccountStatusId == (int)userAccountStatusFilter.Value);
-            }
-            result = result.OrderBy($"{sortByColumn} {sortDirection}");
-            return result.ToList();
+            var filteredList = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
+            return filteredList.OrderBy($"{sortByColumn} {sortDirection}").ToList();
         }
 
-        public List<User> GetAdminUsers()
+        public List<User> GetUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null, AccessLevel? accessLevelFilter = null, bool? multiSearchFilter = null, bool? orgTypeSearchFilter = null)
         {
             var functionName = "application.get_users";
-            var result = _dataService.ExecuteFunction<User>(functionName).AsQueryable().Where(x => x.AccessLevel == AccessLevel.Admin.ToString());
-            return result.ToList();
+            var filteredList = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
+            filteredList = ApplyFilters(surname, emailAddress, organisationName, userAccountStatusFilter, accessLevelFilter, multiSearchFilter, orgTypeSearchFilter, filteredList);
+            return filteredList.OrderBy($"{sortByColumn} {sortDirection}").ToList();
         }
 
-        public List<User> FindUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn)
+        private static IQueryable<User> ApplyFilters(string surname, string emailAddress, string organisationName, UserAccountStatus? userAccountStatusFilter, AccessLevel? accessLevelFilter, bool? multiSearchFilter, bool? orgTypeSearchFilter, IQueryable<User> filteredList)
         {
-            var functionName = "application.get_users";
-            var result = _dataService.ExecuteFunction<User>(functionName);
-            var filteredList = result.AsQueryable();
             filteredList = !string.IsNullOrEmpty(surname) ? filteredList.Where(x => x.DisplayName.Contains(surname, StringComparison.OrdinalIgnoreCase)) : filteredList;
             filteredList = !string.IsNullOrEmpty(emailAddress) ? filteredList.Where(x => x.EmailAddress.Contains(emailAddress, StringComparison.OrdinalIgnoreCase)) : filteredList;
             filteredList = !string.IsNullOrEmpty(organisationName) ? filteredList.Where(x => x.OrganisationName.Contains(organisationName, StringComparison.OrdinalIgnoreCase)) : filteredList;
-            return filteredList.OrderBy(sortByColumn.ToString()).ToList();
+
+            if (userAccountStatusFilter != null)
+            {
+                filteredList = filteredList.Where(x => x.UserAccountStatusId == (int)userAccountStatusFilter.Value);
+            }
+            if (accessLevelFilter != null)
+            {
+                filteredList = filteredList.Where(x => Enum.Parse<AccessLevel>(x.AccessLevel) == accessLevelFilter);
+            }
+            if (multiSearchFilter != null)
+            {
+                filteredList = filteredList.Where(x => x.MultiSearchEnabled == multiSearchFilter.Value);
+            }
+            if (orgTypeSearchFilter != null)
+            {
+                filteredList = filteredList.Where(x => x.OrgTypeSearchEnabled == orgTypeSearchFilter.Value);
+            }
+
+            return filteredList;
         }
 
         public void SynchroniseOrganisation(Organisation organisation)
@@ -223,6 +234,17 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
             parameters.Add("_user_id", userId);
             parameters.Add("_multi_search_enabled", multiSearchEnabled);
+            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
+            _dataService.ExecuteFunction(functionName, parameters);
+        }
+
+        public void SetOrgTypeSearch(int userId, bool orgTypeSearchEnabled)
+        {
+            var functionName = "application.set_org_type_search";
+            var parameters = new DynamicParameters();
+            parameters.Add("_admin_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_user_id", userId);
+            parameters.Add("_org_type_search_enabled", orgTypeSearchEnabled);
             parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")));
             _dataService.ExecuteFunction(functionName, parameters);
         }

@@ -17,5 +17,6 @@
         public bool IsPastLastLogonThreshold { get; set; }
         public bool StatusChanged { get; set; }
         public int OrganisationId { get; set; }
+        public bool OrgTypeSearchEnabled { get; set; }
     }
 }

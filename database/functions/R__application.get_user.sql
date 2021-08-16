@@ -14,7 +14,8 @@ returns table
 	last_logon_date timestamp without time zone,
 	is_admin boolean,
 	multi_search_enabled boolean,
-	organisation_id integer
+	organisation_id integer,
+	org_type_search_enabled boolean
 )
 as $$
 begin			
@@ -28,7 +29,8 @@ begin
 		u.last_logon_date,
 		u.is_admin,
 		u.multi_search_enabled,
-		u.organisation_id
+		u.organisation_id,
+		u.org_type_search_enabled
 	from application.user u
 	inner join application.organisation o on u.organisation_id = o.organisation_id	
 	where u.email_address = _email_address;
