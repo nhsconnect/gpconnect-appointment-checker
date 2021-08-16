@@ -482,7 +482,7 @@ namespace gpconnect_appointment_checker.Pages
 
         private string AppendAdditionalDetails(string item2, string additionalDetails)
         {
-            return !string.IsNullOrEmpty(additionalDetails) ? $"{item2} ({additionalDetails})" : item2;
+            return !string.IsNullOrEmpty(additionalDetails) ? $"{item2}<div class=\"nhsuk-warning-message\"><p>{additionalDetails}</p></div>" : item2;
         }
 
         private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)

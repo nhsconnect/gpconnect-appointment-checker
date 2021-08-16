@@ -39,7 +39,7 @@
                 </div>
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
-                    <dd class="nhsuk-summary-list__value">@searchResult.SearchSummaryDetail</dd>
+                    <dd class="nhsuk-summary-list__value">@Html.Raw(searchResult.SearchSummaryDetail)</dd>
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {

@@ -4333,6 +4333,7 @@ b {
 /* ==========================================================================
    COMPONENTS/ #ERROR-MESSAGE
    ========================================================================== */
+
 .nhsuk-error-message {
     font-weight: 600;
     font-size: 16px;
@@ -8947,3 +8948,14 @@ b {
     word-break: break-all;
 }
 
+/* ==========================================================================
+   COMPONENTS/ #WARNING-MESSAGE
+   ========================================================================== */
+
+.nhsuk-warning-message {
+    font-weight: 600;
+    clear: both;
+    background-color: #ffeb3b;
+    display: block;
+    margin-top: 16px;
+}
