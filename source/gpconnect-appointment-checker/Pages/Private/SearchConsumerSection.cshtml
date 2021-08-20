@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
+@{
+    var consumerOdsCodeInvalid = Model.ModelState["ConsumerODSCode"]?.ValidationState == ModelValidationState.Invalid;
+    var consumerOrganisationTypeInvalid = Model.ModelState["SelectedOrganisationType"]?.ValidationState == ModelValidationState.Invalid;
+}
+
+<div class="nhsuk-card nhsuk-card--feature">
+    <div class="nhsuk-card__content nhsuk-card__content--feature">
+        <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
+            @SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT
+        </h2>        
+        <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error" : string.Empty)">
+            <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
+            @if (!string.IsNullOrEmpty(Model.ConsumerOdsCodeInputBoxHintText))
+            {
+                <div class="nhsuk-hint" id="input-consumerodscode-hint-text">
+                    @Html.Raw(string.Format(Model.ConsumerOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+                </div>
+            }
+            @if (consumerOdsCodeInvalid)
+            {
+                @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
+            }
+            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error" : string.Empty)" id="input-consumerodscode" asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
+        </div>
+
+        @if (Model.ConsumerOrgTypeSearchEnabled)
+        {
+            <div class="nhsuk-form-group @(consumerOrganisationTypeInvalid ? "nhsuk-form-group--error" : string.Empty)">
+                <label class="nhsuk-label" for="@Model.SelectedOrganisationType">@SearchConstants.SEARCHINPUTCONSUMERORGANISATIONTYPELABEL</label>
+                @if (consumerOrganisationTypeInvalid)
+                {
+                    @Html.ValidationMessageFor(m => m.SelectedOrganisationType, "", new { @class = "nhsuk-error-message" })
+                }
+                <select asp-for="@Model.SelectedOrganisationType" asp-items="@Model.OrganisationTypes" class="nhsuk-select @(consumerOrganisationTypeInvalid ? "nhsuk-select--error" : string.Empty)" id="@Model.SelectedOrganisationType" aria-describedby="input-consumerorganisationtype-hint-text"></select>
+            </div>
+        }
+    </div>
+</div>

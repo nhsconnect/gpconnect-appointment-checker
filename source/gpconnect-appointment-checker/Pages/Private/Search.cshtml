@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "/Search/{searchBy?}"
 @using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 
@@ -24,7 +24,7 @@
             {
                 <div class="nhsuk-grid-row">
                     <div class="nhsuk-grid-column-full">
-                        <button class="nhsuk-button" asp-page-handler="ExportReport" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.EXPORTREPORTBUTTONTEXT</button>
+                        <button class="nhsuk-button" asp-page-handler="ExportSearchGroupResults" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
                     </div>
                 </div>
                 <partial name="SearchResultsSummary" />

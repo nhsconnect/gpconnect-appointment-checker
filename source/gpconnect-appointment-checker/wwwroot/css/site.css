@@ -3440,6 +3440,202 @@ b {
 }
 
 /* ==========================================================================
+   COMPONENTS / #CARD
+   ========================================================================== */
+/**
+ * 1. Is needed for the :active top positioning.
+ * 2. Border is used to create a divider between the white content
+ *    box and an image.
+ * 3. Creates the 'pressed down' effect when clicked.
+ * 4. Removes padding-top from headings directly after the card group.
+ * 5. Includes the border width to achieve the correct left alignment.
+ * 6. Stops the heading from spanning the full width of the card.
+ * 7. Removes padding top for the feature heading positioning.
+ */
+.nhsuk-card {
+    margin-bottom: 40px;
+    background: #ffffff;
+    border: 1px solid #d8dde0;
+    position: relative;
+    /* [1] */
+    width: 100%;
+}
+
+@media (min-width: 40.0625em) {
+    .nhsuk-card {
+        margin-bottom: 48px;
+    }
+}
+
+.nhsuk-card__img {
+    border-bottom: 1px solid #f0f4f5;
+    /* [2] */
+    display: block;
+    width: 100%;
+}
+
+@media print {
+    .nhsuk-card__img {
+        display: none;
+    }
+}
+
+.nhsuk-card__content {
+    padding: 24px;
+    position: relative;
+}
+
+    .nhsuk-card__content > *:first-child {
+        margin-top: 0;
+    }
+
+    .nhsuk-card__content > *:last-child {
+        margin-bottom: 0;
+    }
+
+@media (min-width: 40.0625em) {
+    .nhsuk-card__content {
+        padding: 32px;
+    }
+}
+
+.nhsuk-card__heading,
+.nhsuk-card__metadata,
+.nhsuk-card__description {
+    margin-bottom: 16px;
+}
+
+/* Clickable card
+  ========================================================================== */
+.nhsuk-card--clickable {
+    border-bottom-width: 4px;
+}
+
+    .nhsuk-card--clickable:hover, .nhsuk-card--clickable:active {
+        cursor: pointer;
+    }
+
+        .nhsuk-card--clickable:hover .nhsuk-card__heading a,
+        .nhsuk-card--clickable:hover .nhsuk-card__link, .nhsuk-card--clickable:active .nhsuk-card__heading a,
+        .nhsuk-card--clickable:active .nhsuk-card__link {
+            color: #7C2855;
+            text-decoration: none;
+        }
+
+            .nhsuk-card--clickable:hover .nhsuk-card__heading a:focus,
+            .nhsuk-card--clickable:hover .nhsuk-card__link:focus, .nhsuk-card--clickable:active .nhsuk-card__heading a:focus,
+            .nhsuk-card--clickable:active .nhsuk-card__link:focus {
+                color: #212b32;
+            }
+
+    .nhsuk-card--clickable:hover {
+        border-color: #aeb7bd;
+    }
+
+    .nhsuk-card--clickable:active {
+        border-color: #aeb7bd;
+        bottom: -1px;
+        /* [3] */
+    }
+
+/* Card group
+  ========================================================================== */
+/**
+* Card group allows you to have a row of cards.
+*
+* Flexbox is used to make each card in a row the same height.
+*/
+.nhsuk-card-group {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+@media (max-width: 48.0525em) {
+    .nhsuk-card-group {
+        margin-bottom: 40px;
+    }
+}
+
+.nhsuk-card-group + h2,
+.nhsuk-card-group + .nhsuk-heading-l,
+.nhsuk-card-group + h3,
+.nhsuk-card-group + .nhsuk-heading-m {
+    padding-top: 0;
+    /* [4] */
+}
+
+.nhsuk-card-group__item {
+    display: flex;
+    list-style-type: none;
+    margin-bottom: 0;
+}
+
+@media (max-width: 48.0525em) {
+    .nhsuk-card-group__item {
+        flex: 0 0 100%;
+    }
+}
+
+.nhsuk-card-group__item .nhsuk-card {
+    margin-bottom: 32px;
+}
+
+@media (max-width: 48.0525em) {
+    .nhsuk-card-group__item .nhsuk-card {
+        margin-bottom: 16px;
+    }
+
+    .nhsuk-card-group__item:last-child .nhsuk-card {
+        margin-bottom: 0;
+    }
+}
+
+/* Card feature
+  ========================================================================== */
+.nhsuk-card--feature {
+    margin-top: 40px;
+}
+
+@media (min-width: 40.0625em) {
+    .nhsuk-card--feature {
+        margin-top: 48px;
+    }
+}
+
+.nhsuk-card__heading--feature {
+    background: #005eb8;
+    color: #ffffff;
+    display: inline-block;
+    left: -25px;
+    /* [5] */
+    margin-bottom: 8px;
+    margin-right: -24px;
+    /* [6] */
+    padding: 8px 24px;
+    position: relative;
+    top: -8px;
+}
+
+@media (min-width: 40.0625em) {
+    .nhsuk-card__heading--feature {
+        left: -33px;
+        /* [5] */
+        margin-right: -32px;
+        /* [6] */
+        padding: 8px 32px;
+        top: -16px;
+    }
+}
+
+.nhsuk-card__content--feature {
+    padding-top: 0 !important;
+    /* stylelint-disable-line declaration-no-important */
+    /* [7] */
+}
+
+/* ==========================================================================
    COMPONENTS / #CARE-CARD
    ========================================================================== */
 /**
@@ -3458,8 +3654,8 @@ b {
  * 7. Prevent additional padding on headings
  */
 .nhsuk-care-card {
-    margin-bottom: 40px;
-    margin-top: 40px;
+    margin-bottom: 20px;
+    margin-top: 20px;
     /* [1] */
     border: 1px solid transparent;
     /* [2] */
@@ -3467,13 +3663,8 @@ b {
 
 @media (min-width: 40.0625em) {
     .nhsuk-care-card {
-        margin-bottom: 48px;
-    }
-}
-
-@media (min-width: 40.0625em) {
-    .nhsuk-care-card {
-        margin-top: 48px;
+        margin-top: 24px;
+        margin-bottom: 24px;
     }
 }
 

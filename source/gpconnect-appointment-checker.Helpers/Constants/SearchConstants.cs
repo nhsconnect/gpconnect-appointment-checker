@@ -87,7 +87,8 @@
         public const string ISSUEWITHTIMEOUTTITLETEXT = "Issue with timeout";
         public const string ISSUEWITHTIMEOUTTEXT = "Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.";
         
-        public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}<br />{2} free slots found";
+        public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}";
+        public const string SEARCHSTATSCOUNTTEXT = "{0} free slot(s) found";
 
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";
@@ -95,6 +96,11 @@
 
         public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
         public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
+
+        public const string CONSUMERORGTYPENOTENTEREDERRORMESSAGE = "You have not selected a consumer organisation type. You must enter a consumer ODS code";
+        public const string CONSUMERODSCODENOTENTEREDERRORMESSAGE = "You have not entered a consumer ODS code. You must select a consumer organisation type";
+
+        public const string CONSUMERINPUTREQUIREDERRORMESSAGE = "You must enter a consumer ODS code OR select a consumer organisation type";
         public const string JOBROLEREQUIREDERRORMESSAGE = "You must enter a job role";
         public const string ORGANISATIONREQUIREDERRORMESSAGE = "You must enter an organisation";
         public const string ACCESSREQUESTREASONREQUIREDERRORMESSAGE = "You must enter a reason";
@@ -117,6 +123,7 @@
         public const string SAVENEWUSERBUTTONTEXT = "Save";
         public const string LOADREPORTBUTTONTEXT = "Load report";
         public const string EXPORTREPORTBUTTONTEXT = "Export report";
+        public const string EXPORTSEARCHRESULTSBUTTONTEXT = "Export results";
         public const string USERLISTTEXT = "User list";
 
         public const string SUBMITBUTTONTEXT = "Submit";
@@ -125,9 +132,13 @@
         public const string CLEARBUTTONTEXT = "Clear";
         public const string REGISTERBUTTONTEXT = "Start registration";
 
+        public const string SEARCHRESULTSSEARCHATHEADINGTEXT = "Search at";
+        public const string SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT = "Search on behalf of";
+
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
+        public const string SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT = "Organisation Type - {0}";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
         public const string SEARCHRESULTSNOADDRESSPROVIDEDTEXT = "(no address provided)";
@@ -150,20 +161,26 @@
         public const string USERLISTRESULTSACCESSREQUESTCOUNT = "Number of access requests";
         public const string USERLISTRESULTSORGTYPESEARCHENABLED = "Org Type Search?";
 
-        public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code (search at)";
-        public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code (search on behalf of)";
+        public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code";
+        public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code";
+        public const string SEARCHINPUTCONSUMERORGANISATIONTYPELABEL = "Select a consumer organisation type";
 
-        public const string SEARCHINPUTPROVIDERODSCODEMULTILABEL = "Enter one or more provider ODS codes (search at)";
-        public const string SEARCHINPUTCONSUMERODSCODEMULTILABEL = "Enter one or more consumer ODS codes (search on behalf of)";
+        public const string SEARCHINPUTPROVIDERODSCODEMULTILABEL = "Enter one or more provider ODS codes";
+        public const string SEARCHINPUTCONSUMERODSCODEMULTILABEL = "Enter one or more consumer ODS codes";
+        public const string SEARCHINPUTCONSUMERMULTILABEL = "Enter one or more consumer ODS codes, or select a consumer organisation type, or both";
 
-        public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one consumer ODS code below.";
-        public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma.<br/>If you enter more than one, you can only enter one provider ODS code above.";
+        public const string SEARCHBYCONSUMERODSCODETEXT = "Search by consumer ODS code";
+        public const string SEARCHBYCONSUMERORGANISATIONTYPETEXT = "Search by consumer organisation type";
 
-        public const string SEARCHINPUTORGANISATIONTYPELABEL = "Select an organisation type";        
+        public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one consumer ODS code in '" + SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT + "' below.";
+        public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one provider ODS code in '" + SEARCHRESULTSSEARCHATHEADINGTEXT + "' above.";
+
+        public const string SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT = "Enter a consumer ODS code, or select a consumer organisation type, or both";
+
+        public const string SEARCHINPUTCONSUMERORGANISATIONTYPEHINTTEXT = "Select a consumer organisation type or enter a consumer ODS code above, or both";
 
         public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
         public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
-        public const string FREESLOTSFOUNDTEXT = "{0} free slots found";
         public const string USERSFOUNDTEXT = "{0} user(s) found";
     }
 }

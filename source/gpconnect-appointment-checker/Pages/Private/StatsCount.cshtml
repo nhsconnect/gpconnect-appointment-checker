@@ -1,0 +1,7 @@
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers
+
+<div class="nhsuk-inset-text">
+    <span class="nhsuk-u-visually-hidden">Information: </span>
+    <p>@Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCount))</p>
+</div>

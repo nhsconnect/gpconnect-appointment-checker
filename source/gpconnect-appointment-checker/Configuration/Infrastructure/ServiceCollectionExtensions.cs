@@ -48,7 +48,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AllowAnonymousToFolder("/Public");
                 options.Conventions.AddPageRoute("/Private/Admin/Index", "/Admin");                
                 options.Conventions.AddPageRoute("/Private/Admin/Reports", "/Reports");
-                options.Conventions.AddPageRoute("/Private/Search", "/Search");                
+                options.Conventions.AddPageRoute("/Private/Search", "/Search");
                 options.Conventions.AddPageRoute("/Private/SearchDetail", "/SearchDetail/{searchDetailId}");
                 options.Conventions.AddPageRoute("/Public/Error", "/Error");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");

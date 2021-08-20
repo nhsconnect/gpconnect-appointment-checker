@@ -19,11 +19,19 @@
                 <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFTEXT</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
-            <div class="nhsuk-care-card__content"><p>@Model.SearchOnBehalfOfResultsText</p></div>
+            <div class="nhsuk-care-card__content">@Html.Raw(Model.SearchOnBehalfOfResultsText)</div>
         </div>
 
+        <partial name="StatsCount" />
+
         @if (Model.SearchResults?.Count > 0)
-        {
+        {            
+            <div class="nhsuk-grid-row">
+                <div class="nhsuk-grid-column-full">
+                    <button class="nhsuk-button" asp-page-handler="ExportSearchResults" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
+                </div>
+            </div>
+
             foreach (var locationGrouping in Model.SearchResults)
             {
                 var firstLocation = locationGrouping.FirstOrDefault();

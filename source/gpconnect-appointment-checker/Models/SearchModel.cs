@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class SearchModel
     {
-        public List<SelectListItem> DateRanges => GetDateRanges();
+        public IEnumerable<SelectListItem> DateRanges => GetDateRanges();
         public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes();
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
@@ -26,14 +27,17 @@ namespace gpconnect_appointment_checker.Pages
         [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ProviderOdsCode { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE)]
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("max_number_provider_codes_search", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE, 20)]
         [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ConsumerOdsCode { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string SelectedOrganisationType { get; set; }
+
         public bool DisplayMultiSearchHelpText => _multiSearchEnabled;
+        public bool ConsumerOrgTypeSearchEnabled => _orgTypeSearchEnabled;
 
         public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;
         public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? 
@@ -43,12 +47,39 @@ namespace gpconnect_appointment_checker.Pages
         public string ProviderOdsCodeInputBoxHintText => _multiSearchEnabled ?
             SearchConstants.SEARCHINPUTPROVIDERODSCODEHINTTEXT : string.Empty;
 
-        public string ConsumerOdsCodeInputBoxHintText => _multiSearchEnabled ?
-            SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT : string.Empty;
+        public string ConsumerOdsCodeInputBoxHintText => GetConsumerOdsCodeInputHelpText();
 
-        public string ConsumerOdsCodeInputBoxLabel => _multiSearchEnabled ? 
-            SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL : 
-            SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+        private string GetConsumerOdsCodeInputHelpText()
+        {
+            if(_multiSearchEnabled && _orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
+            }
+            if (_multiSearchEnabled && !_orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
+            }
+            if (!_multiSearchEnabled && _orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT;
+            }
+            return string.Empty;
+        }
+
+        public string ConsumerOdsCodeInputBoxLabel => GetConsumerOdsCodeInputBoxLabelText();
+
+        private string GetConsumerOdsCodeInputBoxLabelText()
+        {
+            if(_multiSearchEnabled && _orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTCONSUMERMULTILABEL;
+            }
+            if (_multiSearchEnabled && !_orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL;
+            }
+            return SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+        }
 
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         
@@ -58,7 +89,7 @@ namespace gpconnect_appointment_checker.Pages
         public bool HasMultipleConsumerOdsCodes => ConsumerOdsCodeAsList?.Count > 1;
 
         public string CleansedProviderOdsCodeInput => string.Join(" ", ProviderOdsCodeAsList).ToUpper();
-        public string CleansedConsumerOdsCodeInput => string.Join(" ", ConsumerOdsCodeAsList).ToUpper();
+        public string CleansedConsumerOdsCodeInput => ConsumerOdsCodeAsList?.Count > 0 ? string.Join(" ", ConsumerOdsCodeAsList).ToUpper() : string.Empty;
 
         public bool ValidSearchCombination => ((!HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes) 
                                                || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 
@@ -73,10 +104,7 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty]
         public string SearchOnBehalfOfResultsText { get; set; }
         [BindProperty]
-        public string SelectedDateRange { get; set; }
-
-        [BindProperty]
-        public string SelectedOrganisationType { get; set; }        
+        public string SelectedDateRange { get; set; }       
 
         [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
         public int SearchGroupId { get; set; }

@@ -2,42 +2,45 @@
 @using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
 @{
-    var consumerOdsCodeInvalid = Model.ModelState["ConsumerODSCode"]?.ValidationState == ModelValidationState.Invalid;
     var providerOdsCodeInvalid = Model.ModelState["ProviderODSCode"]?.ValidationState == ModelValidationState.Invalid;
 }
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
-        <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-providerodscode-hint-text">
-                @Html.Raw(string.Format(Model.ProviderOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+        <div class="nhsuk-card nhsuk-card--feature">
+            <div class="nhsuk-card__content nhsuk-card__content--feature">
+                <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
+                    @SearchConstants.SEARCHRESULTSSEARCHATHEADINGTEXT
+                </h2>
+                <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
+                    <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
+                    <div class="nhsuk-hint" id="input-providerodscode-hint-text">
+                        @Html.Raw(string.Format(Model.ProviderOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+                    </div>
+                    @if (providerOdsCodeInvalid)
+                    {
+                        @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
+                    }
+                    <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
+                </div>
             </div>
-            @if (providerOdsCodeInvalid)
-            {
-                @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
-            }
-            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="text" aria-describedby="input-providerodscode-hint-text">
         </div>
-        <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-            <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
-            <div class="nhsuk-hint" id="input-consumerodscode-hint-text">
-                @Html.Raw(string.Format(Model.ConsumerOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+
+        <partial name="SearchConsumerSection" />
+
+        <div class="nhsuk-card nhsuk-card--feature">
+            <div class="nhsuk-card__content nhsuk-card__content--feature">
+                <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
+                    @SearchConstants.SEARCHINPUTDATERANGELABEL
+                </h2>
+                <div class="nhsuk-form-group">
+                    <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
+                </div>
             </div>
-            @if (consumerOdsCodeInvalid)
-            {
-                @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
-            }
-            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-consumerodscode" no-validate asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
         </div>
-        <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="@Model.SelectedDateRange">@SearchConstants.SEARCHINPUTDATERANGELABEL</label>
-            <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
-        </div>
-        <div class="nhsuk-form-group">
-            <label class="nhsuk-label" for="@Model.SelectedOrganisationType">@SearchConstants.SEARCHINPUTORGANISATIONTYPELABEL</label>
-            <select asp-for="@Model.SelectedOrganisationType" asp-items="@Model.OrganisationTypes" class="nhsuk-select" id="@Model.SelectedOrganisationType"></select>
-        </div>
+
+        
+
         @if (Model.DisplayMultiSearchHelpText)
         {
             <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
