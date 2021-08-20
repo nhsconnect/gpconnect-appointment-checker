@@ -23,7 +23,7 @@
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
             }
-            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error" : string.Empty)" id="input-consumerodscode" asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="text" aria-describedby="input-consumerodscode-hint-text">
+            <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error" : string.Empty)" id="input-consumerodscode" asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="search" aria-describedby="input-consumerodscode-hint-text">
         </div>
 
         @if (Model.ConsumerOrgTypeSearchEnabled)

@@ -38,7 +38,7 @@ namespace gpconnect_appointment_checker.Helpers
             {
                 null => string.Empty,
                 "" => string.Empty,
-                _ => countValue + countValue == 1 ? input : input + "s"
+                _ => countValue == 1 ? string.Format(input, countValue, string.Empty) : string.Format(input, countValue, "s")
             };
 
         public static string AddressBuilder(List<string> addressLines, string postalCode)

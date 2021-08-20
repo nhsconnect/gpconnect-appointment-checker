@@ -62,7 +62,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             return spreadsheetDocument;
         }
 
-        private MemoryStream CreateReport(DataTable result)
+        public MemoryStream CreateReport(DataTable result)
         {
             var memoryStream = new MemoryStream();
             var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);

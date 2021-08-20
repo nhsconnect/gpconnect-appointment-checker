@@ -111,8 +111,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public FileStreamResult OnPostExportSearchResults()
         {
-            //var memoryStream = _reportingService.ExportReport(searchgroupid, ReportConstants.SLOTSUMMARYREPORTHEADING);
-            MemoryStream memoryStream = null;
+            var memoryStream = _reportingService.CreateReport(null);
             return GetFileStream(memoryStream);
         }
 
