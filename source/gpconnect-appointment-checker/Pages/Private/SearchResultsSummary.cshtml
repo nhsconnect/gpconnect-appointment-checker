@@ -37,6 +37,16 @@
                     </dd>
                     <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
                 </div>
+                @if (searchResult.DisplayConsumerOrganisationType)
+                {
+                <div class="nhsuk-summary-list__row">
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFCONSUMERORGTYPETEXT</dt>
+                    <dd class="nhsuk-summary-list__value">
+                        <span>@searchResult.ConsumerOrganisationType</span>
+                    </dd>
+                    <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
+                </div>
+                }
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
                     <dd class="nhsuk-summary-list__value">@Html.Raw(searchResult.SearchSummaryDetail)</dd>

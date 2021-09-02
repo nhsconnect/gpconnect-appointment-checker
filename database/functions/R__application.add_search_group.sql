@@ -7,7 +7,8 @@ create function application.add_search_group
 	_provider_ods_textbox varchar(200),
 	_search_date_range varchar(200),
 	_search_start_at timestamp,
-	_search_end_at timestamp
+	_search_end_at timestamp,
+	_consumer_organisation_type_dropdown varchar(50)
 )
 returns table
 (
@@ -17,7 +18,8 @@ returns table
 	provider_ods_textbox varchar(200),
 	selected_daterange varchar(200),
 	search_start_at timestamp,
-	search_end_at timestamp
+	search_end_at timestamp,
+	consumer_organisation_type_dropdown varchar(50)
 )
 as $$
 declare
@@ -30,7 +32,8 @@ begin
 		provider_ods_textbox,
 		selected_daterange,
 		search_start_at,
-		search_end_at
+		search_end_at,
+		consumer_organisation_type_dropdown
 	)
 	values
 	(
@@ -39,7 +42,8 @@ begin
 		_provider_ods_textbox,
 		_search_date_range,
 		_search_start_at,
-		_search_end_at
+		_search_end_at,
+		_consumer_organisation_type_dropdown
 	)
 	returning
 		application.search_group.search_group_id
@@ -54,7 +58,8 @@ begin
 		sg.provider_ods_textbox,
 		sg.selected_daterange,
 		sg.search_start_at,
-		sg.search_end_at
+		sg.search_end_at,
+		sg.consumer_organisation_type_dropdown
 	from 
 		application.search_group sg
 	where

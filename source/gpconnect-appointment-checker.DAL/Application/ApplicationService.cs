@@ -114,6 +114,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_search_date_range", searchGroup.SearchDateRange);
             parameters.Add("_search_start_at", searchGroup.SearchStartAt);
             parameters.Add("_search_end_at", DBNull.Value, DbType.DateTime);
+            parameters.Add("_consumer_organisation_type_dropdown", searchGroup.ConsumerOrganisationTypeDropdown);
             var result = _dataService.ExecuteFunction<SearchGroup>(functionName, parameters);
             return result.FirstOrDefault();
         }
@@ -129,6 +130,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_details", searchResult.Details);
             parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
             parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
+            parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
             var result = _dataService.ExecuteFunction<SearchResult>(functionName, parameters).FirstOrDefault();
 
             if (searchResult.SpineMessageId != null && result != null)
@@ -171,6 +173,7 @@ namespace gpconnect_appointment_checker.DAL.Application
                 ProviderOdsCode = a.ProviderOdsCode,
                 ConsumerLocationName = $"{a.ConsumerOrganisationName}, {StringExtensions.AddressBuilder(new List<string>(a.ConsumerAddressFields), a.ConsumerPostcode)}",
                 ConsumerOdsCode = a.ConsumerOdsCode,
+                ConsumerOrganisationType = a.ConsumerOrganisationType,
                 SearchSummaryDetail = a.Details,
                 ProviderPublisher = a.ProviderPublisher,
                 SearchResultId = a.SearchResultId,

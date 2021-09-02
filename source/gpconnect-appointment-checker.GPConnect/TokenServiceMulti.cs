@@ -14,7 +14,7 @@ namespace gpconnect_appointment_checker.GPConnect
 {
     public partial class TokenService : ITokenService
     {
-        private RequestParametersList PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId)
+        private RequestParametersList PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId, string consumerOrganisationType = "")
         {
             var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
             var tokenAudience = providerSpineMessage.Spine?.ssp_hostname;
@@ -39,7 +39,8 @@ namespace gpconnect_appointment_checker.GPConnect
                 ProviderODSCode = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation?.ODSCode,
                 ConsumerODSCode = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerSpineMessages.FirstOrDefault().OdsCode)?.Organisation?.ODSCode,
                 InteractionId = spineMessageType?.InteractionId,
-                SpineMessageTypeId = spineMessageTypeId
+                SpineMessageTypeId = spineMessageTypeId,
+                GPConnectConsumerOrganisationType = consumerOrganisationType
             };
 
             return new RequestParametersList
@@ -50,7 +51,7 @@ namespace gpconnect_appointment_checker.GPConnect
             };
         }
 
-        private RequestParametersList PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler)
+        private RequestParametersList PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler, string consumerOrganisationType = "")
         {
             var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
             var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.ssp_hostname;
@@ -73,9 +74,10 @@ namespace gpconnect_appointment_checker.GPConnect
                 UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
                 SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
                 ProviderODSCode = providerSpineMessages.FirstOrDefault()?.OdsCode,
-                ConsumerODSCode = consumerSpineMessage.OdsCode,
+                ConsumerODSCode = consumerSpineMessage?.OdsCode,
                 InteractionId = spineMessageType?.InteractionId,
-                SpineMessageTypeId = spineMessageTypeId
+                SpineMessageTypeId = spineMessageTypeId,
+                GPConnectConsumerOrganisationType = consumerOrganisationType
             };
 
             return new RequestParametersList
@@ -86,7 +88,7 @@ namespace gpconnect_appointment_checker.GPConnect
             };
         }
 
-        public async Task<List<RequestParametersList>> ConstructRequestParameters(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, List<SpineList> consumerSpineMessages, List<OrganisationList> consumerOrganisationDetails, int spineMessageTypeId)
+        public async Task<List<RequestParametersList>> ConstructRequestParameters(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, List<SpineList> consumerSpineMessages, List<OrganisationList> consumerOrganisationDetails, int spineMessageTypeId, string consumerOrganisationType = "")
         {
             try
             {
@@ -112,14 +114,14 @@ namespace gpconnect_appointment_checker.GPConnect
 
                     Parallel.ForEach(providerSpineMessages.Where(x => x.ProviderEnabledForGpConnectAppointmentManagement), providerSpineMessage =>
                     {
-                        tasks.Add(Task.FromResult(PopulateResultsProvider(providerSpineMessage, requestUri, providerOrganisationDetails, userGuid, tokenHandler, consumerOrganisationDetails, consumerSpineMessages, spineMessageType, spineMessageTypeId)));
+                        tasks.Add(Task.FromResult(PopulateResultsProvider(providerSpineMessage, requestUri, providerOrganisationDetails, userGuid, tokenHandler, consumerOrganisationDetails, consumerSpineMessages, spineMessageType, spineMessageTypeId, consumerOrganisationType)));
                     });
                 }
                 else if (consumerSpineMessages.Count > providerSpineMessages.Count)
                 {
                     Parallel.ForEach(consumerSpineMessages, consumerSpineMessage =>
                     {
-                        tasks.Add(Task.FromResult(PopulateResultsConsumer(requestUri, providerSpineMessages, providerOrganisationDetails, spineMessageTypeId, consumerSpineMessage, spineMessageType, userGuid, tokenHandler)));
+                        tasks.Add(Task.FromResult(PopulateResultsConsumer(requestUri, providerSpineMessages, providerOrganisationDetails, spineMessageTypeId, consumerSpineMessage, spineMessageType, userGuid, tokenHandler, consumerOrganisationType)));
                     });
                 }
                 var results = await Task.WhenAll(tasks);

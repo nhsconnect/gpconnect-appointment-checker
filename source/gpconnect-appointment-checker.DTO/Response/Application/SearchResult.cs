@@ -17,5 +17,6 @@
         public string ConsumerPostcode { get; set; }
         public string ProviderPublisher { get; set; }
         public double SearchDurationSeconds { get; set; }
+        public string ConsumerOrganisationType { get; set; }
     }
 }

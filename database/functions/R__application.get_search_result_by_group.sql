@@ -19,7 +19,8 @@ returns table
 	consumer_postcode varchar(200),
 	error_code integer,
 	details character varying(8000),
-	provider_publisher varchar(200)
+	provider_publisher varchar(200),
+	consumer_organisation_type character varying(100)
 )
 as $$
 begin
@@ -37,7 +38,8 @@ begin
 		consumer_organisation.postcode as consumer_postcode,
 		sr.error_code,
 		sr.details,
-		sr.provider_publisher
+		sr.provider_publisher,
+		sr.consumer_organisation_type
 	from
 		application.search_result sr
 		left outer join application.organisation provider_organisation on sr.provider_organisation_id = provider_organisation.organisation_id

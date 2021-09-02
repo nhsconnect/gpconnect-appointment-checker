@@ -59,10 +59,6 @@ namespace gpconnect_appointment_checker.Pages
             {
                 return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
             }
-            if (!_multiSearchEnabled && _orgTypeSearchEnabled)
-            {
-                return SearchConstants.SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT;
-            }
             return string.Empty;
         }
 
@@ -78,7 +74,15 @@ namespace gpconnect_appointment_checker.Pages
             {
                 return SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL;
             }
-            return SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+            if (!_multiSearchEnabled && _orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT;
+            }
+            if (!_multiSearchEnabled && !_orgTypeSearchEnabled)
+            {
+                return SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+            }
+            return string.Empty;
         }
 
         public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();

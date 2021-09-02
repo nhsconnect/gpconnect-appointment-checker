@@ -103,7 +103,9 @@ namespace gpconnect_appointment_checker.GPConnect
                                 }).OrderBy(z => z.LocationName)
                     .ThenBy(s => s.AppointmentDate)
                     .ThenBy(s => s.StartTime);
-                slotSimple.SlotEntrySimple.AddRange(slotList);                
+                slotSimple.SlotEntrySimple.AddRange(slotList);   
+                
+                //slotSimple.SlotEntrySimpleAsStream = JsonConvert.SerializeObject
 
                 return slotSimple;
             }

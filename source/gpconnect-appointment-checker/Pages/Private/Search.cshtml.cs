@@ -102,10 +102,12 @@ namespace gpconnect_appointment_checker.Pages
                 ProviderOdsCode = searchGroup.ProviderOdsTextbox;
                 ConsumerOdsCode = searchGroup.ConsumerOdsTextbox;
                 SelectedDateRange = searchGroup.SelectedDateRange;
+                SelectedOrganisationType = searchGroup.ConsumerOrganisationTypeDropdown;
                 PopulateSearchResultsForGroup(searchGroupId, userId);
             }
             ModelState.ClearValidationState("ProviderOdsCode");
             ModelState.ClearValidationState("ConsumerOdsCode");
+            ModelState.ClearValidationState("SelectedOrganisationType");
             return Page();
         }
 
@@ -276,7 +278,7 @@ namespace gpconnect_appointment_checker.Pages
 
                 providerGpConnectDetails = _ldapService.GetGpProviderAsIdByOdsCodeAndPartyKey(providerGpConnectDetails);
 
-                slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails);
+                slotEntrySummary = await PopulateSearchResultsMulti(providerGpConnectDetails, providerOrganisationDetails, consumerEnablement, consumerOrganisationDetails, SelectedOrganisationType);
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
             catch (LdapException)
@@ -339,7 +341,7 @@ namespace gpconnect_appointment_checker.Pages
         }
 
         private async Task<List<SlotEntrySummary>> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
-            List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
+            List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails, string consumerOrganisationType = "")
         {
             var searchGroup = new DTO.Request.Application.SearchGroup
             {
@@ -347,7 +349,8 @@ namespace gpconnect_appointment_checker.Pages
                 ProviderOdsTextbox = ProviderOdsCode,
                 ConsumerOdsTextbox = ConsumerOdsCode,
                 SearchDateRange = SelectedDateRange,
-                SearchStartAt = DateTime.UtcNow
+                SearchStartAt = DateTime.UtcNow,
+                ConsumerOrganisationTypeDropdown = SelectedOrganisationType
             };
             var createdSearchGroup = _applicationService.AddSearchGroup(searchGroup);
             SearchGroupId = createdSearchGroup.SearchGroupId;
@@ -355,7 +358,7 @@ namespace gpconnect_appointment_checker.Pages
             var slotEntrySummary = new List<SlotEntrySummary>();
 
             var requestParameters = await _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots);
+                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots, consumerOrganisationType);
             var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
             var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
@@ -367,10 +370,12 @@ namespace gpconnect_appointment_checker.Pages
 
             if (providerOdsCount > consumerOdsCount)
             {
+                var consumerCode = ConsumerOdsCodeAsList.Count == 0 ? null : ConsumerOdsCodeAsList[0];
+
                 for (var i = 0; i < providerOdsCount; i++)
                 {
                     _stopwatch.Start();
-                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], ConsumerOdsCodeAsList[0], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], consumerCode, providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
                     var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
@@ -409,7 +414,8 @@ namespace gpconnect_appointment_checker.Pages
                         {
                             SearchGroupId = createdSearchGroup.SearchGroupId,
                             ProviderCode = ProviderOdsCodeAsList[i],
-                            ConsumerCode = ConsumerOdsCodeAsList[0],
+                            ConsumerCode = consumerCode,
+                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
                             ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
                             Details = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
@@ -431,7 +437,8 @@ namespace gpconnect_appointment_checker.Pages
                             ProviderLocationName = $"{organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationName}, {StringExtensions.AddressBuilder(organisationErrorCodeOrDetailForCode.providerOrganisation?.PostalAddressFields.ToList(), organisationErrorCodeOrDetailForCode.providerOrganisation?.PostalCode)}",
                             ProviderOdsCode = ProviderOdsCodeAsList[i],
                             ConsumerLocationName = $"{organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationName}, {StringExtensions.AddressBuilder(organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalAddressFields.ToList(), organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalCode)}",
-                            ConsumerOdsCode = ConsumerOdsCodeAsList[0],
+                            ConsumerOdsCode = consumerCode,
+                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
                             SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
                             SearchResultId = searchResult.SearchResultId,
@@ -492,7 +499,8 @@ namespace gpconnect_appointment_checker.Pages
                             ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
                             Details = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
-                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
+                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds,
+                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
                         };
 
                         _stopwatch.Reset();
@@ -511,6 +519,7 @@ namespace gpconnect_appointment_checker.Pages
                             ProviderOdsCode = ProviderOdsCodeAsList[0],
                             ConsumerLocationName = $"{organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationName}, {StringExtensions.AddressBuilder(organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalAddressFields.ToList(), organisationErrorCodeOrDetailForCode.consumerOrganisation?.PostalCode)}",
                             ConsumerOdsCode = ConsumerOdsCodeAsList[i],
+                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
                             SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
                             SearchResultId = searchResult.SearchResultId,
@@ -540,7 +549,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 if (slotEntrySummary != null && slotEntrySummary.FreeSlotCount.GetValueOrDefault() > 0)
                 {
-                    detail = string.Format(SearchConstants.SEARCHSTATSCOUNTTEXT, slotEntrySummary.FreeSlotCount.GetValueOrDefault());
+                    detail = StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, slotEntrySummary.FreeSlotCount.GetValueOrDefault());
                 }
                 else
                 {
@@ -579,16 +588,20 @@ namespace gpconnect_appointment_checker.Pages
         }
 
         private OrganisationErrorCodeOrDetail GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
-            List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails)
+            List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails, string consumerOrganisationType = "")
         {
             var providerOrganisationLookupErrors = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-            var consumerOrganisationLookupErrors = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-
             var providerGpConnectDetailsErrors = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-            var consumerGpConnectDetailsErrors = consumerGpConnectDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-
             var providerErrorCode = providerOrganisationLookupErrors ?? providerGpConnectDetailsErrors ?? ErrorCode.None;
-            var consumerErrorCode = consumerOrganisationLookupErrors ?? consumerGpConnectDetailsErrors ?? ErrorCode.None;
+
+            var consumerErrorCode = ErrorCode.None;
+
+            if (!string.IsNullOrEmpty(consumerOdsCode))
+            {
+                var consumerOrganisationLookupErrors = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+                var consumerGpConnectDetailsErrors = consumerGpConnectDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+                consumerErrorCode = consumerOrganisationLookupErrors ?? consumerGpConnectDetailsErrors ?? ErrorCode.None;
+            }            
 
             var errorSource = ErrorCode.None;
             var details = string.Empty;

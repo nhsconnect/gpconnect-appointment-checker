@@ -13,6 +13,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
             Map(p => p.SelectedDateRange).ToColumn("selected_daterange");
             Map(p => p.SearchStartAt).ToColumn("search_start_at");
             Map(p => p.SearchEndAt).ToColumn("search_end_at");
+            Map(p => p.ConsumerOrganisationTypeDropdown).ToColumn("consumer_organisation_type_dropdown");
         }
     }
 }

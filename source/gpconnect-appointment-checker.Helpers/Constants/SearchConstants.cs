@@ -138,6 +138,7 @@
         public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
         public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
+        public const string SEARCHRESULTSSEARCHONBEHALFOFCONSUMERORGTYPETEXT = "Searching with organisation type:";
         public const string SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT = "Organisation Type - {0}";
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
