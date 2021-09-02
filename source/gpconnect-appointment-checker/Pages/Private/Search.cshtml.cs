@@ -272,6 +272,7 @@ namespace gpconnect_appointment_checker.Pages
                 _auditSearchParameters[0] = ConsumerOdsCode;
                 _auditSearchParameters[1] = ProviderOdsCode;
                 _auditSearchParameters[2] = SelectedDateRange;
+                _auditSearchParameters[3] = SelectedOrganisationType;
 
                 var providerGpConnectDetails = _ldapService.GetGpProviderEndpointAndPartyKeyByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
                 var consumerEnablement = _ldapService.GetGpConsumerAsIdByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
