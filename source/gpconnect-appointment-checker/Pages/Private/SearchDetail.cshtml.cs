@@ -60,24 +60,19 @@ namespace gpconnect_appointment_checker.Pages
                 SearchAtResultsText = $"{searchResult.ProviderOrganisationName} ({searchResult.ProviderOdsCode}) - {StringExtensions.AddressBuilder(searchResult.ProviderAddressFields.ToList(), searchResult.ProviderPostcode)}";
                 SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResult);
                 SearchResults = new List<List<SlotEntrySimple>>();
+                SearchResultsPast = new List<List<SlotEntrySimple>>();
                 SearchGroupId = searchResult.SearchGroupId;
                 SearchResultId = searchResult.SearchResultId;
                 ProviderPublisher = searchResult.ProviderPublisher;
                 SearchDuration = searchResult.SearchDurationSeconds;
 
                 var searchResults = _queryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchResult.ResponsePayload);
-                var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
-                    .Select(grp => grp.ToList()).ToList();
                 
-                SearchResultsCount = searchResults?.SlotEntrySimple.Count;
-                if (locationGrouping != null)
-                {
-                    SearchResults.AddRange(locationGrouping);
-                }
+                SearchResultsCount = searchResults?.SlotCount;
+                SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
+                SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
             }
         }
-
-
 
         private string GetSearchOnBehalfOfResultsText(SearchResult searchResult)
         {

@@ -3,5 +3,8 @@
 
 <div class="nhsuk-inset-text">
     <span class="nhsuk-u-visually-hidden">Information: </span>
-    <p>@Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCount))</p>
+    <p>
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCurrentCount))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, Model.SearchResultsPastCount))
+    </p>
 </div>

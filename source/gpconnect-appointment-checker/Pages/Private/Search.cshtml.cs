@@ -111,9 +111,11 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public FileStreamResult OnPostExportSearchResults()
+        public FileStreamResult OnPostExportSearchResults(int searchexportid)
         {
-            var memoryStream = _reportingService.CreateReport(null);
+            var userId = User.GetClaimValue("UserId").StringToInteger();
+            var dataTable = _applicationService.GetSearchExport(searchexportid, userId);
+            var memoryStream = _reportingService.CreateReport(dataTable);
             return GetFileStream(memoryStream);
         }
 
@@ -156,7 +158,7 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 _stopwatch.Stop();
                 SearchDuration = _stopwatch.Elapsed.TotalSeconds;
-                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsCount);
+                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
             }
 
             return Page();
@@ -301,42 +303,42 @@ namespace gpconnect_appointment_checker.Pages
             if (requestParameters != null)
             {
                 var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerGpConnectDetails.ssp_hostname);
-                CapabilityStatementOk = (capabilityStatement.Issue?.Count == 0 || capabilityStatement.Issue == null);
+                CapabilityStatementOk = capabilityStatement.CapabilityStatementNoIssues;
 
                 if (CapabilityStatementOk)
                 {
-                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname);
-                    SlotSearchOk = searchResults?.Issue == null;
+                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerGpConnectDetails.ssp_hostname, User.GetClaimValue("UserId").StringToInteger());
+
+                    SlotSearchOk = searchResults.SlotSearchNoIssues;
 
                     if (SlotSearchOk)
                     {
+                        SearchExportId = searchResults.SearchExportId;
                         SearchResults = new List<List<SlotEntrySimple>>();
-                        var locationGrouping = searchResults?.SlotEntrySimple.GroupBy(l => l.LocationName)
-                            .Select(grp => grp.ToList()).ToList();
-                        SearchResultsCount = searchResults?.SlotEntrySimple.Count;
+                        SearchResultsPast = new List<List<SlotEntrySimple>>();
 
-                        if (locationGrouping != null)
-                        {
-                            SearchResults.AddRange(locationGrouping);
-                        }
+                        SearchResultsTotalCount = searchResults.SlotCount;
+                        SearchResultsCurrentCount = searchResults.CurrentSlotCount;
+                        SearchResultsPastCount = searchResults.PastSlotCount;
+
+                        SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
+                        SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
                     }
                     else
                     {
-                        ProviderErrorDisplay = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-                        ProviderErrorCode = searchResults.Issue.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = StringExtensions.Coalesce(searchResults.Issue.FirstOrDefault()?.Diagnostics, searchResults.Issue.FirstOrDefault()?.Details.Text);
+                        ProviderErrorDisplay = searchResults.ProviderError;
+                        ProviderErrorCode = searchResults.ProviderErrorCode;
+                        ProviderErrorDiagnostics = searchResults.ProviderErrorDiagnostics;
                         _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
                     }
                 }
                 else
                 {
-                    if (capabilityStatement?.Issue != null)
-                    {
-                        ProviderErrorDisplay = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-                        ProviderErrorCode = capabilityStatement?.Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
-                        ProviderErrorDiagnostics = StringExtensions.Coalesce(capabilityStatement?.Issue?.FirstOrDefault()?.Diagnostics, capabilityStatement?.Issue.FirstOrDefault()?.Details.Text);
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
-                    }
+                    ProviderErrorDisplay = capabilityStatement.ProviderError;
+                    ProviderErrorCode = capabilityStatement.ProviderErrorCode;
+                    ProviderErrorDiagnostics = capabilityStatement.ProviderErrorDiagnostics;
+                    _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+
                 }
             }
         }
@@ -457,7 +459,7 @@ namespace gpconnect_appointment_checker.Pages
                 for (var i = 0; i < consumerOdsCount; i++)
                 {
                     _stopwatch.Start();
-                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
+                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
                     var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
@@ -497,11 +499,12 @@ namespace gpconnect_appointment_checker.Pages
                             SearchGroupId = createdSearchGroup.SearchGroupId,
                             ProviderCode = ProviderOdsCodeAsList[0],
                             ConsumerCode = ConsumerOdsCodeAsList[i],
+                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
                             ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
                             Details = organisationErrorCodeOrDetailForCode.details,
                             ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.product_name,
                             SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds,
-                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
+
                         };
 
                         _stopwatch.Reset();
@@ -602,7 +605,7 @@ namespace gpconnect_appointment_checker.Pages
                 var consumerOrganisationLookupErrors = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
                 var consumerGpConnectDetailsErrors = consumerGpConnectDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
                 consumerErrorCode = consumerOrganisationLookupErrors ?? consumerGpConnectDetailsErrors ?? ErrorCode.None;
-            }            
+            }
 
             var errorSource = ErrorCode.None;
             var details = string.Empty;

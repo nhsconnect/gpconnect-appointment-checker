@@ -11,10 +11,14 @@ namespace gpconnect_appointment_checker.GPConnect
     {
         private SlotSimple GetFreeSlotsFromDatabase(string responseStream)
         {
-            var slotSimple = new SlotSimple();
-            var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
+            var slotSimple = new SlotSimple()
+            {
+                CurrentSlotEntrySimple = new List<SlotEntrySimple>(),
+                PastSlotEntrySimple = new List<SlotEntrySimple>(),
+                Issue = new List<Issue>()
+            };
 
-            slotSimple.SlotEntrySimple = new List<SlotEntrySimple>();
+            var results = JsonConvert.DeserializeObject<Bundle>(responseStream);
 
             var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
             if (slotResources == null || slotResources?.Count == 0) return slotSimple;
@@ -49,7 +53,10 @@ namespace gpconnect_appointment_checker.GPConnect
                             }).OrderBy(z => z.LocationName)
                 .ThenBy(s => s.AppointmentDate)
                 .ThenBy(s => s.StartTime);
-            slotSimple.SlotEntrySimple.AddRange(slotList);
+
+            slotSimple.CurrentSlotEntrySimple.AddRange(slotList.Where(x => !x.SlotInPast));
+            slotSimple.PastSlotEntrySimple.AddRange(slotList.Where(x => x.SlotInPast));
+            
             return slotSimple;
         }
     }

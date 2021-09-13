@@ -62,6 +62,20 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             return spreadsheetDocument;
         }
 
+        public MemoryStream ExportReport(int spineMessageId)
+        {
+            var userId = _context.HttpContext.User.GetClaimValue("UserId", nullIfEmpty: true).StringToInteger();
+            var parameters = new Dictionary<string, int>
+            {
+                { "_user_id", userId },
+                { "_spine_message_id", spineMessageId }
+            };
+            var result = _dataService.ExecuteFunctionAndGetDataTable("application.get_spine_message_by_id", parameters);
+            _reportName = ReportConstants.SLOTSEARCHREPORTHEADING;
+            var spreadsheetDocument = CreateReport(result);
+            return spreadsheetDocument;
+        }
+
         public MemoryStream CreateReport(DataTable result)
         {
             var memoryStream = new MemoryStream();
@@ -96,7 +110,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
 
             BuildWorksheetHeader(sheetData);
             BuildHeaderRow(sheetData, result.Columns);
-            BuildDataRows(sheetData, result.DataSet);
+            BuildDataRows(sheetData, result.Rows);
 
             workbookPart.Workbook.Save();
             spreadsheetDocument.Close();
@@ -124,16 +138,19 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             return columns;
         }
 
-        private void BuildDataRows(SheetData sheetData, DataSet resultDataSet)
+        private void BuildDataRows(SheetData sheetData, DataRowCollection dataRowCollection)
         {
-            for (var i = 0; i < resultDataSet.Tables[0].Rows.Count; i++)
+            for (var i = 0; i < dataRowCollection.Count; i++)
             {
                 var row = new Row();
-                var dataRow = resultDataSet.Tables[0].Rows[i];
+                var dataRow = dataRowCollection[i];
 
                 for (var j = 0; j < dataRow.ItemArray.Length; j++)
                 {
-                    var cellValue = dataRow.ItemArray[j]?.ToString();
+                    var cellValue = dataRow.ItemArray[j]?.ToString();                  
+
+                    
+
                     var cell = new Cell
                     {
                         DataType = cellValue.GetCellDataType(),

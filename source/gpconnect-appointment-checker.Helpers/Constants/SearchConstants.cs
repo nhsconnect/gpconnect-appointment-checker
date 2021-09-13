@@ -89,6 +89,7 @@
         
         public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}";
         public const string SEARCHSTATSCOUNTTEXT = "{0} free slot{1} found";
+        public const string SEARCHSTATSPASTCOUNTTEXT = "<br/>{0} past slot{1} found";
 
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";
@@ -143,6 +144,7 @@
         public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
         public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
         public const string SEARCHRESULTSNOADDRESSPROVIDEDTEXT = "(no address provided)";
+        public const string SEARCHRESULTSPASTSLOTSTEXT = "Past Appointment Slots";
 
         public const string SEARCHRESULTSAPPOINTMENTDATECOLUMNHEADERTEXT = "Appointment date";
         public const string SEARCHRESULTSSESSIONNAMECOLUMNHEADERTEXT = "Session name";

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 
@@ -13,6 +15,8 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         User LogoffUser(DTO.Request.Application.User user);
         SearchGroup AddSearchGroup(DTO.Request.Application.SearchGroup searchGroup);
         SearchResult AddSearchResult(DTO.Request.Application.SearchResult searchResult);
+        SearchExport AddSearchExport(DTO.Request.Application.SearchExport searchExport);
+        DataTable GetSearchExport(int searchExportId, int userId);
         SearchGroup GetSearchGroup(int searchGroupId, int userId);
         SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);

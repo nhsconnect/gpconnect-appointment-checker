@@ -3,9 +3,9 @@ using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
@@ -16,6 +16,7 @@ namespace gpconnect_appointment_checker.Pages
         public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes();
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
+        public List<List<SlotEntrySimple>> SearchResultsPast { get; set; }
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 
         public int MaxNumberOfCodesForMultiSearch => GetMaxNumberOfCodesForMultiSearch();
@@ -113,6 +114,9 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
         public int SearchGroupId { get; set; }
 
+        [BindProperty(Name = "SearchExportId", SupportsGet = true)]
+        public int SearchExportId { get; set; }
+        
         public double SearchDuration { get; set; }
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;
@@ -126,7 +130,12 @@ namespace gpconnect_appointment_checker.Pages
         public string ProviderErrorDisplay { get; set; }
         public string ProviderErrorCode { get; set; }
         public string ProviderErrorDiagnostics { get; set; }
-        public int? SearchResultsCount { get; set; }
+        
+        public int SearchResultsTotalCount { get; set; }
+        public int SearchResultsCurrentCount { get; set; }
+        public int SearchResultsPastCount { get; set; }
+
+
         public bool LdapErrorRaised { get; set; }
         public string ProviderPublisher { get; set; }
     }

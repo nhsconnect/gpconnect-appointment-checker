@@ -7,7 +7,8 @@ namespace gpconnect_appointment_checker.Pages
     public partial class SearchDetailModel
     {
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
-        
+        public List<List<SlotEntrySimple>> SearchResultsPast { get; set; }
+
         [BindProperty]
         public string SearchAtResultsText { get; set; }
         [BindProperty]

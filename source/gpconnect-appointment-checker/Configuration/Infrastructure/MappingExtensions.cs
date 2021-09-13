@@ -20,6 +20,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 config.AddMap(new ReportingMap());
                 config.AddMap(new EmailTemplateMap());
                 config.AddMap(new OrganisationTypeMap());
+                config.AddMap(new SearchExportMap());
             });
         }
     }

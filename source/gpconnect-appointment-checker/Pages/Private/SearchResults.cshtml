@@ -24,66 +24,116 @@
 
         <partial name="StatsCount" />
 
-        @if (Model.SearchResults?.Count > 0)
-        {            
+        @if (Model.SearchResultsTotalCount > 0)
+        {
             <div class="nhsuk-grid-row">
                 <div class="nhsuk-grid-column-full">
-                    <button class="nhsuk-button" asp-page-handler="ExportSearchResults" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
+                    <button class="nhsuk-button" asp-page-handler="ExportSearchResults" asp-route-searchexportid="@Model.SearchExportId" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
                 </div>
             </div>
 
-            foreach (var locationGrouping in Model.SearchResults)
+            @if (Model.SearchResultsPastCount > 0)
             {
-                var firstLocation = locationGrouping.FirstOrDefault();
-                if (firstLocation != null)
-                {
-                    <h4>
-                        @firstLocation.LocationName<br />
-                        @if (!firstLocation.NoAddressProvided)
+                <details class="nhsuk-details nhsuk-expander">
+                    <summary class="nhsuk-details__summary">
+                        <span class="nhsuk-details__summary-text">@SearchConstants.SEARCHRESULTSPASTSLOTSTEXT</span>
+                    </summary>
+                    <div class="nhsuk-details__text">
+                        @foreach (var locationGrouping in Model.SearchResultsPast)
                         {
-                            @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
-                        }
-                        else
-                        {
-                            <em>@SearchConstants.SEARCHRESULTSNOADDRESSPROVIDEDTEXT</em>
-                        }
-                    </h4>
-                }
-                <div class="nhsuk-table__panel-with-heading-tab">
-                    <table role="table" class="nhsuk-table-responsive">
-                        <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">@SearchConstants.SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT</caption>
-                        <thead role="rowgroup" class="nhsuk-table__head">
-                            <tr role="row">
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSAPPOINTMENTDATECOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSESSIONNAMECOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSTARTTIMECOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSDURATIONCOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSSLOTTYPECOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSMODEOFAPPOINTMENTCOLUMNHEADERTEXT</th>
-                                <th role="columnheader" class="" scope="col">@SearchConstants.SEARCHRESULTSPRACTITIONERCOLUMNHEADERTEXT</th>
-                            </tr>
-                        </thead>
-                        <tbody class="nhsuk-table__body">
-                            @foreach (var t in locationGrouping)
+                            var firstLocation = locationGrouping.FirstOrDefault();
+
+                            @if (firstLocation != null)
                             {
-                                var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
-                                <tr role="row" class="nhsuk-table__row  @if (t.SlotInPast){ <text>nhsuk-row-warning</text> }">
-                                    <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
-                                    <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
-                                    <td role="cell" class="nhsuk-table__cell">@t.StartTime.DateFormatter("t")</td>
-                                    <td role="cell" class="nhsuk-table__cell">@t.Duration.UnitsFormatter("mins")</td>
-                                    <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
-                                    <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
-                                    <td role="cell" class="nhsuk-table__cell">
-                                        @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
-                                        <div>@t.PractitionerRole</div>
-                                        <div>@t.PractitionerGender.FirstCharToUpper()</div>
-                                    </td>
-                                </tr>
+                                <h4>
+                                    @firstLocation.LocationName<br />
+                                    @if (!firstLocation.NoAddressProvided)
+                                    {
+                                        @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
+                                    }
+                                    else
+                                    {
+                                        <em>@SearchConstants.SEARCHRESULTSNOADDRESSPROVIDEDTEXT</em>
+                                    }
+                                </h4>
                             }
-                        </tbody>
-                    </table>
-                </div>
+
+                            <div class="nhsuk-table__panel-with-heading-tab">
+                                <table role="table" class="nhsuk-table-responsive">
+                                    <partial name="SearchResultsTableHeader" />
+                                    <tbody class="nhsuk-table__body">
+                                        @foreach (var t in locationGrouping)
+                                        {
+                                            var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
+                                            <tr role="row" class="nhsuk-table__row">
+                                                <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
+                                                <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
+                                                <td role="cell" class="nhsuk-table__cell">@t.StartTime.DateFormatter("t")</td>
+                                                <td role="cell" class="nhsuk-table__cell">@t.Duration.UnitsFormatter("mins")</td>
+                                                <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
+                                                <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
+                                                <td role="cell" class="nhsuk-table__cell">
+                                                    @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
+                                                    <div>@t.PractitionerRole</div>
+                                                    <div>@t.PractitionerGender.FirstCharToUpper()</div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </details>
+            }
+
+            @if (Model.SearchResultsCurrentCount > 0)
+            {
+                foreach (var locationGrouping in Model.SearchResults)
+                {
+
+                    var firstLocation = locationGrouping.FirstOrDefault();
+                    if (firstLocation != null)
+                    {
+                        <h4>
+                            @firstLocation.LocationName<br />
+                            @if (!firstLocation.NoAddressProvided)
+                            {
+                                @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
+                            }
+                            else
+                            {
+                                <em>@SearchConstants.SEARCHRESULTSNOADDRESSPROVIDEDTEXT</em>
+                            }
+                        </h4>
+                    }
+
+                    <div class="nhsuk-table__panel-with-heading-tab">
+                        <table role="table" class="nhsuk-table-responsive">
+                            <partial name="SearchResultsTableHeader" />
+
+                            <tbody class="nhsuk-table__body">
+                                @foreach (var t in locationGrouping)
+                                {
+                                    var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
+                                    <tr role="row" class="nhsuk-table__row">
+                                        <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
+                                        <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
+                                        <td role="cell" class="nhsuk-table__cell">@t.StartTime.DateFormatter("t")</td>
+                                        <td role="cell" class="nhsuk-table__cell">@t.Duration.UnitsFormatter("mins")</td>
+                                        <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
+                                        <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
+                                        <td role="cell" class="nhsuk-table__cell">
+                                            @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
+                                            <div>@t.PractitionerRole</div>
+                                            <div>@t.PractitionerGender.FirstCharToUpper()</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             }
         }
         else

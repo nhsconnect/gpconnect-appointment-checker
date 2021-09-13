@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Data;
 using System.IO;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.Helpers
 {
@@ -29,6 +32,18 @@ namespace gpconnect_appointment_checker.Helpers
                     content = sr.ReadToEnd();
 
             return content;
+        }
+
+        public static string ConvertObjectToJsonData<T>(this T inputObject)
+        {
+            var json = JsonConvert.SerializeObject(inputObject);
+            return json;
+        }
+
+        public static DataTable ConvertJsonDataToDataTable(this string inputObject)
+        {
+            var dataTable = (DataTable)JsonConvert.DeserializeObject(inputObject, typeof(DataTable));
+            return dataTable;
         }
     }
 }

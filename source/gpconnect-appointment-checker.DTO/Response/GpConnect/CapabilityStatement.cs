@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using gpconnect_appointment_checker.Helpers;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
@@ -40,6 +42,12 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 
         [JsonProperty("issue")]
         public List<Issue> Issue { get; set; }
+
+        public bool CapabilityStatementNoIssues => Issue?.Count == 0 || Issue == null;
+
+        public string ProviderError => Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
+        public string ProviderErrorCode => Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+        public string ProviderErrorDiagnostics => StringExtensions.Coalesce(Issue?.FirstOrDefault()?.Diagnostics, Issue?.FirstOrDefault()?.Details.Text);
     }
 
     public class Contact

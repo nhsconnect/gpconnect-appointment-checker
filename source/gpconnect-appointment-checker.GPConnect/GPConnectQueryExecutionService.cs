@@ -1,5 +1,6 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO;
+using gpconnect_appointment_checker.DTO.Request.Application;
 using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
@@ -8,7 +9,6 @@ using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -22,13 +22,15 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly ILogService _logService;
         private readonly IAuditService _auditService;
         private readonly IConfigurationService _configurationService;
+        private readonly IApplicationService _applicationService;
         private readonly IHttpClientFactory _httpClientFactory;
         private SpineMessage _spineMessage;
 
-        public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService)
+        public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService, IApplicationService applicationService)
         {
             _logger = logger;
             _configurationService = configurationService;
+            _applicationService = applicationService;
             _logService = logService;
             _httpClientFactory = httpClientFactory;
             _auditService = auditService;
@@ -50,25 +52,25 @@ namespace gpconnect_appointment_checker.GPConnect
             return capabilityStatement;
         }
 
-        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+        public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int userId)
         {
             _spineMessage = new SpineMessage();
             var freeSlots = await GetFreeSlots(requestParameters, startDate, endDate, baseAddress);
-            return freeSlots;
-        }
 
-        public List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameterList, DateTime startDate, DateTime endDate)
-        {
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            _spineMessage = new SpineMessage();
-            var freeSlots = GetFreeSlots(requestParameterList, startDate, endDate, token);
+            var searchExport = new SearchExport
+            {
+                SearchExportData = freeSlots.ExportStreamData,
+                UserId = userId
+            };
+
+            var searchExportInstance = _applicationService.AddSearchExport(searchExport);
+            freeSlots.SearchExportId = searchExportInstance.SearchExportId;
             return freeSlots;
         }
 
         public SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream)
         {
-            var freeSlots = GetFreeSlotsFromDatabase(responseStream);
+            var freeSlots = GetFreeSlotsFromDatabase(responseStream);            
             return freeSlots;
         }
 

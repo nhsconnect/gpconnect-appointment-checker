@@ -11,9 +11,8 @@ namespace gpconnect_appointment_checker.GPConnect.Interfaces
 {
     public interface IGpConnectQueryExecutionService
     {
-        Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress);
+        Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int userId);
         SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream);
-        List<SlotSimple> ExecuteFreeSlotSearch(List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate);
         Task<List<SlotEntrySummaryCount>> ExecuteFreeSlotSearchSummary(List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetail, List<RequestParametersList> requestParameters, DateTime startDate, DateTime endDate, SearchType searchType);
         Task<List<CapabilityStatementList>> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameters);
         Task<CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress);
