@@ -88,8 +88,9 @@
         public const string ISSUEWITHTIMEOUTTEXT = "Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.";
         
         public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}";
-        public const string SEARCHSTATSCOUNTTEXT = "{0} free slot{1} found";
-        public const string SEARCHSTATSPASTCOUNTTEXT = "<br/>{0} past slot{1} found";
+
+        public const string SEARCHSTATSCOUNTTEXT = "<div class=\"nhsuk-hint\">{0} free slot{1} found</div>";
+        public const string SEARCHSTATSPASTCOUNTTEXT = "<div class=\"nhsuk-hint\">{0} past slot{1} found</div>";
 
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";

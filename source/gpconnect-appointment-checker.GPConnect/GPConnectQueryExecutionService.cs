@@ -68,9 +68,17 @@ namespace gpconnect_appointment_checker.GPConnect
             return freeSlots;
         }
 
-        public SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream)
+        public SlotSimple ExecuteFreeSlotSearchFromDatabase(string responseStream, int userId)
         {
-            var freeSlots = GetFreeSlotsFromDatabase(responseStream);            
+            var freeSlots = GetFreeSlotsFromDatabase(responseStream);
+            var searchExport = new SearchExport
+            {
+                SearchExportData = freeSlots.ExportStreamData,
+                UserId = userId
+            };
+
+            var searchExportInstance = _applicationService.AddSearchExport(searchExport);
+            freeSlots.SearchExportId = searchExportInstance.SearchExportId;
             return freeSlots;
         }
 

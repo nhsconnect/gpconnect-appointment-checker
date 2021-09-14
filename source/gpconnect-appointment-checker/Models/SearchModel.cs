@@ -10,13 +10,11 @@ using System.Linq;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public partial class SearchModel
+    public partial class SearchModel : SearchBaseModel
     {
         public IEnumerable<SelectListItem> DateRanges => GetDateRanges();
         public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes();
 
-        public List<List<SlotEntrySimple>> SearchResults { get; set; }
-        public List<List<SlotEntrySimple>> SearchResultsPast { get; set; }
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 
         public int MaxNumberOfCodesForMultiSearch => GetMaxNumberOfCodesForMultiSearch();
@@ -105,19 +103,8 @@ namespace gpconnect_appointment_checker.Pages
         public bool IsMultiSearch => HasMultipleProviderOdsCodes || HasMultipleConsumerOdsCodes;
 
         [BindProperty]
-        public string SearchAtResultsText { get; set; }
-        [BindProperty]
-        public string SearchOnBehalfOfResultsText { get; set; }
-        [BindProperty]
         public string SelectedDateRange { get; set; }       
 
-        [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
-        public int SearchGroupId { get; set; }
-
-        [BindProperty(Name = "SearchExportId", SupportsGet = true)]
-        public int SearchExportId { get; set; }
-        
-        public double SearchDuration { get; set; }
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;
 
@@ -131,12 +118,6 @@ namespace gpconnect_appointment_checker.Pages
         public string ProviderErrorCode { get; set; }
         public string ProviderErrorDiagnostics { get; set; }
         
-        public int SearchResultsTotalCount { get; set; }
-        public int SearchResultsCurrentCount { get; set; }
-        public int SearchResultsPastCount { get; set; }
-
-
         public bool LdapErrorRaised { get; set; }
-        public string ProviderPublisher { get; set; }
     }
 }

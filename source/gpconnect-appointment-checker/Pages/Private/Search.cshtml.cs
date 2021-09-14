@@ -11,7 +11,6 @@ using gpconnect_appointment_checker.Helpers.Enumerations;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,16 +21,14 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Net.Http.Headers;
 using Organisation = gpconnect_appointment_checker.DTO.Response.Application.Organisation;
 using SearchResult = gpconnect_appointment_checker.DTO.Request.Application.SearchResult;
 using gpconnect_appointment_checker.DTO;
 using System.Text;
-using System.IO;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public partial class SearchModel : PageModel
+    public partial class SearchModel : SearchBaseModel
     {
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -51,7 +48,7 @@ namespace gpconnect_appointment_checker.Pages
         protected bool _orgTypeSearchEnabled;
         protected List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(applicationService, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -113,24 +110,13 @@ namespace gpconnect_appointment_checker.Pages
 
         public FileStreamResult OnPostExportSearchResults(int searchexportid)
         {
-            var userId = User.GetClaimValue("UserId").StringToInteger();
-            var dataTable = _applicationService.GetSearchExport(searchexportid, userId);
-            var memoryStream = _reportingService.CreateReport(dataTable);
-            return GetFileStream(memoryStream);
+            return ExportSearchResults(searchexportid);
         }
 
         public FileStreamResult OnPostExportSearchGroupResults(int searchgroupid)
         {
             var memoryStream = _reportingService.ExportReport(searchgroupid, ReportConstants.SLOTSUMMARYREPORTHEADING);
             return GetFileStream(memoryStream);
-        }
-
-        private static FileStreamResult GetFileStream(MemoryStream memoryStream, string fileName = null)
-        {
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            {
-                FileDownloadName = fileName ?? $"{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
-            };
         }
 
         private void PopulateSearchResultsForGroup(int searchGroupId, int userId)

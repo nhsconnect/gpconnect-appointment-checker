@@ -1,10 +1,10 @@
 ﻿@page
 @using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers
 @model SearchDetailModel
 
-<a class="nhsuk-button" href="/Search?SearchGroupId=@Model.SearchGroupId&Handler=SearchByGroup">@SearchConstants.BACKTORESULTSSUMMARYLABEL</a>
-@if (Model.SearchResults != null)
-{
+<form method="post" id="search-detail-form">
+    <a class="nhsuk-button" href="/Search?SearchGroupId=@Model.SearchGroupId&Handler=SearchByGroup">@SearchConstants.BACKTORESULTSSUMMARYLABEL</a>
     <partial name="SearchDetailResults" />
     <partial name="SearchDetailStats" />
-}
+</form>

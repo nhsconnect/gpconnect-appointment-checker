@@ -49,5 +49,17 @@ begin
 		) sg 
 		on sr.search_group_id = sg.search_group_id
 	);
+
+	delete from 
+		application.search_export where search_export_id in 
+	(
+		select 
+			search_export_id 
+		from 
+			application.search_export
+		where 
+			created_date < (now() - (interval '1' day * _log_retention_days))
+	);
+
 end;
 $$ language plpgsql;

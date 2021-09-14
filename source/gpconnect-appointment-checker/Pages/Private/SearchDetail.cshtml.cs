@@ -8,7 +8,6 @@ using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ using System.Text;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public partial class SearchDetailModel : PageModel
+    public partial class SearchDetailModel : SearchBaseModel
     {
         protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
@@ -27,9 +26,10 @@ namespace gpconnect_appointment_checker.Pages
         protected ITokenService _tokenService;
         protected IGpConnectQueryExecutionService _queryExecutionService;
         protected IAuditService _auditService;
+        protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, ILoggerManager loggerManager = null)
+        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(applicationService, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -39,6 +39,7 @@ namespace gpconnect_appointment_checker.Pages
             _queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
             _auditService = auditService;
+            _reportingService = reportingService;
             if (null != loggerManager)
             {
                 _loggerManager = loggerManager;
@@ -59,19 +60,30 @@ namespace gpconnect_appointment_checker.Pages
             {
                 SearchAtResultsText = $"{searchResult.ProviderOrganisationName} ({searchResult.ProviderOdsCode}) - {StringExtensions.AddressBuilder(searchResult.ProviderAddressFields.ToList(), searchResult.ProviderPostcode)}";
                 SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResult);
+
+                var searchResults = _queryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchResult.ResponsePayload, userId);
+
+                SearchExportId = searchResults.SearchExportId;
                 SearchResults = new List<List<SlotEntrySimple>>();
                 SearchResultsPast = new List<List<SlotEntrySimple>>();
+
                 SearchGroupId = searchResult.SearchGroupId;
                 SearchResultId = searchResult.SearchResultId;
                 ProviderPublisher = searchResult.ProviderPublisher;
                 SearchDuration = searchResult.SearchDurationSeconds;
 
-                var searchResults = _queryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchResult.ResponsePayload);
-                
-                SearchResultsCount = searchResults?.SlotCount;
+                SearchResultsTotalCount = searchResults.SlotCount;
+                SearchResultsCurrentCount = searchResults.CurrentSlotCount;
+                SearchResultsPastCount = searchResults.PastSlotCount;
+
                 SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
                 SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
             }
+        }
+
+        public FileStreamResult OnPostExportSearchResults(int searchexportid)
+        {
+            return ExportSearchResults(searchexportid);
         }
 
         private string GetSearchOnBehalfOfResultsText(SearchResult searchResult)

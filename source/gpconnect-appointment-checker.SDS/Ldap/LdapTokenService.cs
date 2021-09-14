@@ -51,34 +51,43 @@ namespace gpconnect_appointment_checker.SDS
             if (organisationDetails != null)
             {
                 var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
-                var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
-                var user = _applicationService.GetUser(emailAddress);
 
-                if (user != null)
-                {
-                    switch ((UserAccountStatus)user.UserAccountStatusId)
+                if (organisation != null)
+                { 
+                    var emailAddress = StringExtensions.Coalesce(context.Principal.GetClaimValue("Email"), context.Principal.GetClaimValue("Email Address"));
+                    var user = _applicationService.GetUser(emailAddress);
+
+                    if (user != null)
                     {
-                        case UserAccountStatus.Authorised:
-                            var loggedOnUser = LogonAuthorisedUser(emailAddress, context, organisation);
-                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
-                            break;
-                        case UserAccountStatus.Pending:
-                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = "/PendingAccount";
-                            break;
-                        case UserAccountStatus.Deauthorised:
-                        case UserAccountStatus.RequestDenied:
-                            PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                            context.Properties.RedirectUri = "/SubmitUserForm";
-                            break;
+                        switch ((UserAccountStatus)user.UserAccountStatusId)
+                        {
+                            case UserAccountStatus.Authorised:
+                                var loggedOnUser = LogonAuthorisedUser(emailAddress, context, organisation);
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
+                                context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
+                                break;
+                            case UserAccountStatus.Pending:
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                                context.Properties.RedirectUri = "/PendingAccount";
+                                break;
+                            case UserAccountStatus.Deauthorised:
+                            case UserAccountStatus.RequestDenied:
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                                context.Properties.RedirectUri = "/SubmitUserForm";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                        context.Properties.RedirectUri = GetAuthorisedRedirectUriForRegistration(context.Properties.RedirectUri);
                     }
                 }
                 else
                 {
-                    PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
-                    context.Properties.RedirectUri = GetAuthorisedRedirectUriForRegistration(context.Properties.RedirectUri);
+                    context.Properties.RedirectUri = "/";
                 }
+
             }
             return Task.CompletedTask;
         }

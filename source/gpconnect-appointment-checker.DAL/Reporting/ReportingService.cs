@@ -76,7 +76,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             return spreadsheetDocument;
         }
 
-        public MemoryStream CreateReport(DataTable result)
+        public MemoryStream CreateReport(DataTable result, string reportName = "")
         {
             var memoryStream = new MemoryStream();
             var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
@@ -97,6 +97,8 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             workSheet.Append(sheetData);
 
             worksheetPart.Worksheet = workSheet;
+
+            _reportName = StringExtensions.Coalesce(_reportName, reportName);
 
             var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
             var sheet = new Sheet
@@ -147,10 +149,7 @@ namespace gpconnect_appointment_checker.DAL.Reporting
 
                 for (var j = 0; j < dataRow.ItemArray.Length; j++)
                 {
-                    var cellValue = dataRow.ItemArray[j]?.ToString();                  
-
-                    
-
+                    var cellValue = dataRow.ItemArray[j]?.ToString();
                     var cell = new Cell
                     {
                         DataType = cellValue.GetCellDataType(),
