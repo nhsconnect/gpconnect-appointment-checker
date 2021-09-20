@@ -29,7 +29,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(applicationService, reportingService)
+        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(contextAccessor, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -83,7 +83,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public FileStreamResult OnPostExportSearchResults(int searchexportid)
         {
-            return ExportSearchResults(searchexportid);
+            var exportTable = _applicationService.GetSearchExport(searchexportid, _userId);
+            return ExportResult(exportTable);
         }
 
         private string GetSearchOnBehalfOfResultsText(SearchResult searchResult)

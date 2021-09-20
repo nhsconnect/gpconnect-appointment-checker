@@ -59,7 +59,6 @@
         public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
         public const string AUTHORISEBUTTONTEXT = "Authorise";
 
-        //public const string FINDBUTTONTEXT = "Find";
         public const string APPLYFILTERBUTTONTEXT = "Apply filters";
 
         public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
@@ -89,8 +88,8 @@
         
         public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}";
 
-        public const string SEARCHSTATSCOUNTTEXT = "<div class=\"nhsuk-hint\">{0} free slot{1} found</div>";
-        public const string SEARCHSTATSPASTCOUNTTEXT = "<div class=\"nhsuk-hint\">{0} past slot{1} found</div>";
+        public const string SEARCHSTATSCOUNTTEXT = "{0} free slot{1} found";
+        public const string SEARCHSTATSPASTCOUNTTEXT = "{0} past slot{1} found";
 
         public const string SEARCHDETAILSBUTTONTEXT = "Details";
         public const string SEARCHDETAILSLABEL = "Details:";

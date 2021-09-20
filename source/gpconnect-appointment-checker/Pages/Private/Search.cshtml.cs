@@ -30,8 +30,8 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class SearchModel : SearchBaseModel
     {
-        protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
+        protected IConfiguration _configuration;
         protected ILogger<SearchModel> _logger;
         protected ILdapService _ldapService;
         protected IApplicationService _applicationService;
@@ -44,11 +44,9 @@ namespace gpconnect_appointment_checker.Pages
         protected Stopwatch _stopwatch = new Stopwatch();
         protected List<string> _auditSearchParameters = new List<string>(new[] { "", "", "", "" });
         protected List<string> _auditSearchIssues = new List<string>();
-        protected bool _multiSearchEnabled;
-        protected bool _orgTypeSearchEnabled;
         protected List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(applicationService, reportingService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(contextAccessor, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -63,12 +61,6 @@ namespace gpconnect_appointment_checker.Pages
             if (null != loggerManager)
             {
                 _loggerManager = loggerManager;
-            }
-
-            if (_contextAccessor.HttpContext != null)
-            {
-                _multiSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
-                _orgTypeSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("OrgTypeSearchEnabled").StringToBoolean(false);
             }
         }
 
@@ -92,15 +84,14 @@ namespace gpconnect_appointment_checker.Pages
 
         public IActionResult OnGetSearchByGroup(int searchGroupId)
         {
-            var userId = User.GetClaimValue("UserId").StringToInteger();
-            var searchGroup = _applicationService.GetSearchGroup(searchGroupId, userId);
+            var searchGroup = _applicationService.GetSearchGroup(searchGroupId, _userId);
             if (searchGroup != null)
             {
                 ProviderOdsCode = searchGroup.ProviderOdsTextbox;
                 ConsumerOdsCode = searchGroup.ConsumerOdsTextbox;
                 SelectedDateRange = searchGroup.SelectedDateRange;
                 SelectedOrganisationType = searchGroup.ConsumerOrganisationTypeDropdown;
-                PopulateSearchResultsForGroup(searchGroupId, userId);
+                PopulateSearchResultsForGroup(searchGroupId);
             }
             ModelState.ClearValidationState("ProviderOdsCode");
             ModelState.ClearValidationState("ConsumerOdsCode");
@@ -110,18 +101,19 @@ namespace gpconnect_appointment_checker.Pages
 
         public FileStreamResult OnPostExportSearchResults(int searchexportid)
         {
-            return ExportSearchResults(searchexportid);
+            var exportTable = _applicationService.GetSearchExport(searchexportid, _userId);
+            return ExportResult(exportTable);
         }
 
         public FileStreamResult OnPostExportSearchGroupResults(int searchgroupid)
         {
-            var memoryStream = _reportingService.ExportReport(searchgroupid, ReportConstants.SLOTSUMMARYREPORTHEADING);
-            return GetFileStream(memoryStream);
+            var exportTable = _applicationService.GetSearchGroupExport(searchgroupid, _userId);
+            return ExportResult(exportTable);
         }
 
-        private void PopulateSearchResultsForGroup(int searchGroupId, int userId)
+        private void PopulateSearchResultsForGroup(int searchGroupId)
         {
-            var searchResultsForGroup = _applicationService.GetSearchResultByGroup(searchGroupId, userId);
+            var searchResultsForGroup = _applicationService.GetSearchResultByGroup(searchGroupId, _userId);
             SearchResultsSummary = searchResultsForGroup;
         }
 

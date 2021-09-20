@@ -9,7 +9,6 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
     {
         DataTable GetReport(string functionName);
         MemoryStream ExportReport(string functionName, string reportName);
-        MemoryStream ExportReport(int searchGroupId, string reportName);
         MemoryStream ExportReport(int spineMessageId);
         MemoryStream CreateReport(DataTable result, string reportName = "");
         List<Report> GetReports();

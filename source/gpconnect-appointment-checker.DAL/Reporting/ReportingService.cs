@@ -48,19 +48,19 @@ namespace gpconnect_appointment_checker.DAL.Reporting
             return spreadsheetDocument;
         }
 
-        public MemoryStream ExportReport(int searchGroupId, string reportName)
-        {
-            var userId = _context.HttpContext.User.GetClaimValue("UserId", nullIfEmpty: true).StringToInteger();
-            var parameters = new Dictionary<string, int>
-            {
-                { "_user_id", userId },
-                { "_search_group_id", searchGroupId }
-            };
-            var result = _dataService.ExecuteFunctionAndGetDataTable("application.get_search_result_by_group", parameters);
-            _reportName = reportName;
-            var spreadsheetDocument = CreateReport(result);
-            return spreadsheetDocument;
-        }
+        //public MemoryStream ExportReport(int searchGroupId, string reportName)
+        //{
+        //    var userId = _context.HttpContext.User.GetClaimValue("UserId", nullIfEmpty: true).StringToInteger();
+        //    var parameters = new Dictionary<string, int>
+        //    {
+        //        { "_user_id", userId },
+        //        { "_search_group_id", searchGroupId }
+        //    };
+        //    var result = _dataService.ExecuteFunctionAndGetDataTable("application.get_search_result_by_group", parameters);
+        //    _reportName = reportName;
+        //    var spreadsheetDocument = CreateReport(result);
+        //    return spreadsheetDocument;
+        //}
 
         public MemoryStream ExportReport(int spineMessageId)
         {

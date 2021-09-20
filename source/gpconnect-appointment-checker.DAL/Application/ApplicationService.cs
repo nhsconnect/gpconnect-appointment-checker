@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 
@@ -159,6 +158,17 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_user_id", userId);
             var result = _dataService.ExecuteFunction<SearchExport>(functionName, parameters).FirstOrDefault();
             return result.SearchExportData.ConvertJsonDataToDataTable();
+        }
+
+        public DataTable GetSearchGroupExport(int searchGroupId, int userId)
+        {
+            var functionName = "application.get_search_result_by_group";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_group_id", searchGroupId);
+            parameters.Add("_user_id", userId);
+            var result = _dataService.ExecuteFunction<SearchGroupExport>(functionName, parameters);
+            var json = result.ConvertObjectToJsonData();
+            return json.ConvertJsonDataToDataTable();
         }
 
         public SearchGroup GetSearchGroup(int searchGroupId, int userId)

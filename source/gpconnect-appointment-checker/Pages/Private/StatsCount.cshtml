@@ -2,7 +2,7 @@
 @using gpconnect_appointment_checker.Helpers
 
 <div class="nhsuk-inset-text">
-    <span class="nhsuk-u-visually-hidden">Information: </span>
-    @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCurrentCount))
-    @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, Model.SearchResultsPastCount))
+    <span class="nhsuk-u-visually-hidden">Information: </span>    
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
 </div>

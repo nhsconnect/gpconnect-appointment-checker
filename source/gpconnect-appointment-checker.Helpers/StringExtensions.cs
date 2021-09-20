@@ -34,13 +34,13 @@ namespace gpconnect_appointment_checker.Helpers
             return string.Join(", ", strings.Where(s => !string.IsNullOrEmpty(s)));
         }
 
-        public static string Pluraliser(this string input, int countValue) =>
-            input switch
+        public static string Pluraliser(this string input, int countValue, string startTag = "", string endTag = "") =>
+            startTag + input switch
             {
                 null => string.Empty,
                 "" => string.Empty,
                 _ => countValue == 1 ? string.Format(input, countValue, string.Empty) : countValue == 0 ? string.Empty : string.Format(input, countValue, "s")
-            };
+            } + endTag;
 
         public static string AddressBuilder(List<string> addressLines, string postalCode)
         {

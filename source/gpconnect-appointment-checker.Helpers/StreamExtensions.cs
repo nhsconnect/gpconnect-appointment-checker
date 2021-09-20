@@ -39,7 +39,7 @@ namespace gpconnect_appointment_checker.Helpers
             var json = JsonConvert.SerializeObject(inputObject);
             return json;
         }
-
+        
         public static DataTable ConvertJsonDataToDataTable(this string inputObject)
         {
             var dataTable = (DataTable)JsonConvert.DeserializeObject(inputObject, typeof(DataTable));

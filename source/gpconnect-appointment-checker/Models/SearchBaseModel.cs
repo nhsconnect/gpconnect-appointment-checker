@@ -2,24 +2,37 @@
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 
 namespace gpconnect_appointment_checker.Pages
 {
     public class SearchBaseModel : PageModel
     {
-        private readonly IApplicationService _applicationService;
         private readonly IReportingService _reportingService;
+        private readonly IHttpContextAccessor _contextAccessor;
+        protected readonly int _userId;
+        protected readonly bool _multiSearchEnabled;
+        protected readonly bool _orgTypeSearchEnabled;
 
-        public SearchBaseModel(IApplicationService applicationService, IReportingService reportingService)
+        public SearchBaseModel(IHttpContextAccessor contextAccessor, IReportingService reportingService)
         {
-            _applicationService = applicationService;
             _reportingService = reportingService;
+            _contextAccessor = contextAccessor;
+
+            if (_contextAccessor.HttpContext != null)
+            {
+                _userId = _contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger();
+                _multiSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
+                _orgTypeSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("OrgTypeSearchEnabled").StringToBoolean(false);
+            }
+
         }
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }
@@ -46,10 +59,8 @@ namespace gpconnect_appointment_checker.Pages
 
         public string ProviderPublisher { get; set; }
 
-        protected FileStreamResult ExportSearchResults(int searchexportid)
+        protected FileStreamResult ExportResult(DataTable dataTable)
         {
-            var userId = User.GetClaimValue("UserId").StringToInteger();
-            var dataTable = _applicationService.GetSearchExport(searchexportid, userId);
             var memoryStream = _reportingService.CreateReport(dataTable, ReportConstants.SLOTSEARCHREPORTHEADING);
             return GetFileStream(memoryStream);
         }
