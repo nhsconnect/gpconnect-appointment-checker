@@ -4,16 +4,12 @@ using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Net.Http.Headers;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public class SearchBaseModel : PageModel
+    public class SearchBaseModel : BaseModel
     {
         private readonly IReportingService _reportingService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -63,14 +59,6 @@ namespace gpconnect_appointment_checker.Pages
         {
             var memoryStream = _reportingService.CreateReport(dataTable, ReportConstants.SLOTSEARCHREPORTHEADING);
             return GetFileStream(memoryStream);
-        }
-
-        protected static FileStreamResult GetFileStream(MemoryStream memoryStream, string fileName = null)
-        {
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            {
-                FileDownloadName = fileName ?? $"{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
-            };
         }
     }
 }

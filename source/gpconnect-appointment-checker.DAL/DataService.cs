@@ -3,11 +3,10 @@ using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using NpgsqlTypes;
 
 namespace gpconnect_appointment_checker.DAL
 {
@@ -27,7 +26,7 @@ namespace gpconnect_appointment_checker.DAL
             try
             {
                 using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var results = (connection.Query<T>(functionName, null, commandType: System.Data.CommandType.StoredProcedure)).AsList();
+                var results = (connection.Query<T>(functionName, null, commandType: CommandType.StoredProcedure)).AsList();
                 return results;
             }
             catch (Exception exc)
@@ -107,7 +106,7 @@ namespace gpconnect_appointment_checker.DAL
             try
             {
                 using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var results = (connection.Query<T>(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure)).AsList();
+                var results = (connection.Query<T>(functionName, parameters, commandType: CommandType.StoredProcedure)).AsList();
                 return results;
             }
             catch (Exception exc)
@@ -122,7 +121,7 @@ namespace gpconnect_appointment_checker.DAL
             try
             {
                 using NpgsqlConnection connection = new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
-                var rowsInserted = connection.Execute(functionName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+                var rowsInserted = connection.Execute(functionName, parameters, commandType: CommandType.StoredProcedure);
                 return rowsInserted;
             }
             catch (Exception exc)
