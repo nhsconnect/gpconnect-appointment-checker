@@ -29,7 +29,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(contextAccessor, reportingService)
+        public SearchDetailModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;

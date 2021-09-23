@@ -16,7 +16,7 @@
             @if (!string.IsNullOrEmpty(Model.ConsumerOdsCodeInputBoxHintText))
             {
                 <div class="nhsuk-hint" id="input-consumerodscode-hint-text">
-                    @Html.Raw(string.Format(Model.ConsumerOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
+                    @Html.Raw(string.Format(Model.ConsumerOdsCodeInputBoxHintText, Model.MaxNumberConsumerCodesSearch))
                 </div>
             }
             @if (consumerOdsCodeInvalid)

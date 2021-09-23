@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -7,34 +6,36 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
 {
     public class MaximumNumberOfCodesAttribute : ValidationAttribute
     {
-        public string _configurationSetting { get; }
         public string _customErrorMessage { get; }
         public string _multiSearchErrorMessage { get; }
-        public int _defaultValue { get; }
-        private IConfiguration _configuration { get; set; }
         private IHttpContextAccessor _httpContextAccessor { get; set; }
+        private string _dependentProperty;
 
-        public MaximumNumberOfCodesAttribute(string configurationSetting, string customErrorMessage, string multiSearchErrorMessage, int defaultValue)
+        public MaximumNumberOfCodesAttribute(string dependentProperty, string customErrorMessage, string multiSearchErrorMessage)
         {
-            _configurationSetting = configurationSetting;
+            _dependentProperty = dependentProperty;
             _customErrorMessage = customErrorMessage;
             _multiSearchErrorMessage = multiSearchErrorMessage;
-            _defaultValue = defaultValue;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            _configuration = (IConfiguration)validationContext.GetService(typeof(IConfiguration));
             _httpContextAccessor = (IHttpContextAccessor)validationContext.GetService(typeof(IHttpContextAccessor));
             var multiSearchEnabled = _httpContextAccessor?.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
-            var maximumNumberOfCodesSetting = !multiSearchEnabled.GetValueOrDefault() ? 1 : _configuration[$"General:{_configurationSetting}"].StringToInteger(_defaultValue);
+            var propertyTestedInfo = validationContext.ObjectType.GetProperty(this._dependentProperty);
+            if (propertyTestedInfo == null)
+            {
+                return new ValidationResult($"Unknown Property {_dependentProperty}");
+            }
 
             if (!string.IsNullOrEmpty(value?.ToString()))
             {
+                var propertyTestedValue = propertyTestedInfo.GetValue(validationContext.ObjectInstance, null);
+
                 var valueElements = value.ToString()?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray().Length;
-                if (valueElements > maximumNumberOfCodesSetting)
+                if (valueElements > (int)propertyTestedValue)
                 {
-                    var validationErrorMessage = multiSearchEnabled.GetValueOrDefault() ? string.Format(_customErrorMessage, maximumNumberOfCodesSetting) : _multiSearchErrorMessage;
+                    var validationErrorMessage = multiSearchEnabled.GetValueOrDefault() ? string.Format(_customErrorMessage, (int)propertyTestedValue) : _multiSearchErrorMessage;
                     return new ValidationResult(validationErrorMessage);
                 }
             }

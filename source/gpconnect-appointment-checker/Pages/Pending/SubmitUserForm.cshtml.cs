@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public class SubmitUserFormModel : PageModel
+    public class SubmitUserFormModel : BaseModel
     {
-        public SubmitUserFormModel()
+        public SubmitUserFormModel(IConfiguration configuration) : base(configuration)
         {
         }
 

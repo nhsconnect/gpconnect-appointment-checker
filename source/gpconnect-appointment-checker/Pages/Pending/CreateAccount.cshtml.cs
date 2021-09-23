@@ -5,25 +5,21 @@ using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public partial class CreateAccountModel : PageModel
+    public partial class CreateAccountModel : BaseModel
     {
         protected ILogger<CreateAccountModel> _logger;
-        protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
         protected IApplicationService _applicationService;
         protected IEmailService _emailService;
         protected readonly ILoggerManager _loggerManager;
 
-        public CreateAccountModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IApplicationService applicationService, IEmailService emailService, ILoggerManager loggerManager = null)
+        public CreateAccountModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IApplicationService applicationService, IEmailService emailService, ILoggerManager loggerManager = null) : base(configuration)
         {
-            _configuration = configuration;
             _contextAccessor = contextAccessor;
             _applicationService = applicationService;
             _emailService = emailService;
@@ -67,7 +63,7 @@ namespace gpconnect_appointment_checker.Pages
                     emailSent = _emailService.SendUserCreateAccountEmail(createdUser, userCreateAccount);                    
                 }
 
-                TempData["EmailAddressManual"] = _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty);
+                TempData["EmailAddressManual"] = GetAccessEmailAddress;
                 TempData["EmailSent"] = emailSent;
 
                 return Redirect("/Pending/Index");

@@ -1,15 +1,12 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using Microsoft.Extensions.Configuration;
 namespace gpconnect_appointment_checker.Pages
 {
-    public class PendingAccountModel : PageModel
+    public class PendingAccountModel : BaseModel
     {
-        public PendingAccountModel()
-        {
-        }
+        public PendingAccountModel(IConfiguration configuration) : base(configuration) { }
 
         public void OnGet()
-        {            
+        { 
         }
     }
 }

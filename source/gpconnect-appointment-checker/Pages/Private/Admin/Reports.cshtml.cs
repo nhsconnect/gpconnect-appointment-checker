@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public ReportsModel(ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null)
+        public ReportsModel(IConfiguration configuration, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration)
         {
             _logger = logger;
             _reportingService = reportingService;
@@ -24,10 +25,6 @@ namespace gpconnect_appointment_checker.Pages
             {
                 _loggerManager = loggerManager;
             }
-        }
-
-        public void OnGet()
-        {
         }
 
         public void OnPostLoadReport()

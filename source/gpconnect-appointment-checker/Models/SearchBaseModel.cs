@@ -4,6 +4,7 @@ using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Data;
 
@@ -17,7 +18,7 @@ namespace gpconnect_appointment_checker.Pages
         protected readonly bool _multiSearchEnabled;
         protected readonly bool _orgTypeSearchEnabled;
 
-        public SearchBaseModel(IHttpContextAccessor contextAccessor, IReportingService reportingService)
+        public SearchBaseModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration)
         {
             _reportingService = reportingService;
             _contextAccessor = contextAccessor;

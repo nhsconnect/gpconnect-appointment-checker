@@ -1,16 +1,15 @@
 ﻿@page
 @model AccessibilityModel
-@addTagHelper *, gpconnect-appointment-checker
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-two-thirds">
         <h1>Accessibility Statement</h1>
-        <p class="nhsuk-lede-text">We aim to make the GP Connect Appointment Checker as accessible and easy to use as possible, for all our users.</p>
+        <p class="nhsuk-lede-text">We aim to make the @Model.ApplicationName as accessible and easy to use as possible, for all our users.</p>
     </div>
     <div class="nhsuk-grid-column-two-thirds">
-        <p>We’ve designed the application to meet the Web Content Accessibility Guidelines to level AA, and in some cases to level AAA.</p>
+        <p>We've designed the application to meet the Web Content Accessibility Guidelines to level AA, and in some cases to level AAA.</p>
         <h2>How to contact us</h2>
-        <p>If you have any questions about accessibility, please email us at <a href="mailto:@Html.Raw(Model.GetAccessEmailAddress)">@Model.GetAccessEmailAddress</a></p>
+        <p>If you have any questions about accessibility, please email us at @Model.GetAccessEmailAddressTag</p>
     </div>
 
     <div class="nhsuk-grid-column-full">

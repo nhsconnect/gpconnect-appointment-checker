@@ -1,31 +1,10 @@
-﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
-@using gpconnect_appointment_checker.Helpers.Constants
+﻿@using gpconnect_appointment_checker.Helpers.Constants
 @model SearchModel
-@{
-    var providerOdsCodeInvalid = Model.ModelState["ProviderODSCode"]?.ValidationState == ModelValidationState.Invalid;
-}
+
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
-        <div class="nhsuk-card nhsuk-card--feature">
-            <div class="nhsuk-card__content nhsuk-card__content--feature">
-                <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
-                    @SearchConstants.SEARCHRESULTSSEARCHATHEADINGTEXT
-                </h2>
-                <div class="nhsuk-form-group @(providerOdsCodeInvalid ? "nhsuk-form-group--error": string.Empty)">
-                    <label class="nhsuk-label" for="input-providerodscode">@Model.ProviderOdsCodeInputBoxLabel</label>
-                    <div class="nhsuk-hint" id="input-providerodscode-hint-text">
-                        @Html.Raw(string.Format(Model.ProviderOdsCodeInputBoxHintText, Model.MaxNumberOfCodesForMultiSearch))
-                    </div>
-                    @if (providerOdsCodeInvalid)
-                    {
-                        @Html.ValidationMessageFor(m => m.ProviderOdsCode, "", new { @class = "nhsuk-error-message" })
-                    }
-                    <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(providerOdsCodeInvalid ? "nhsuk-input--error": string.Empty)" id="input-providerodscode" no-validate asp-for="@Model.ProviderOdsCode" name="providerodscode" value="@Model.ProviderOdsCode" type="search" aria-describedby="input-providerodscode-hint-text">
-                </div>
-            </div>
-        </div>
-
+        <partial name="SearchProviderSection" />
         <partial name="SearchConsumerSection" />
 
         <div class="nhsuk-card nhsuk-card--feature">
@@ -39,14 +18,11 @@
             </div>
         </div>
 
-        
-
         @if (Model.DisplayMultiSearchHelpText)
         {
             <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
         }
         <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
         <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
-
     </div>
 </div>

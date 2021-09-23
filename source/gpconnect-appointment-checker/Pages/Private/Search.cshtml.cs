@@ -31,7 +31,6 @@ namespace gpconnect_appointment_checker.Pages
     public partial class SearchModel : SearchBaseModel
     {
         protected IHttpContextAccessor _contextAccessor;
-        protected IConfiguration _configuration;
         protected ILogger<SearchModel> _logger;
         protected ILdapService _ldapService;
         protected IApplicationService _applicationService;
@@ -46,9 +45,8 @@ namespace gpconnect_appointment_checker.Pages
         protected List<string> _auditSearchIssues = new List<string>();
         protected List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(contextAccessor, reportingService)
+        public SearchModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ILdapService ldapService, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
-            _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _ldapService = ldapService;
@@ -631,19 +629,12 @@ namespace gpconnect_appointment_checker.Pages
             };
         }
 
-        private int GetMaxNumberOfCodesForMultiSearch()
-        {
-            var maxNumberOfCodesForMultiSearch = _configuration["General:max_number_provider_codes_search"].StringToInteger(20);
-            return maxNumberOfCodesForMultiSearch;
-        }
-
         private IEnumerable<SelectListItem> GetDateRanges()
         {
-            var weeksToGet = _configuration["General:max_num_weeks_search"].StringToInteger(12);
             var dateRange = new List<SelectListItem>();
             var firstDayOfCurrentWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
 
-            for (var i = 0; i < weeksToGet; i++)
+            for (var i = 0; i < MaxNumberWeeksSearch; i++)
             {
                 var week = new SelectListItem
                 {

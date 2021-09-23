@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public class CreateAccountInterstitialModel : PageModel
+    public class CreateAccountInterstitialModel : BaseModel
     {
-        public CreateAccountInterstitialModel()
+        public CreateAccountInterstitialModel(IConfiguration configuration) : base(configuration)
         {            
         }
 

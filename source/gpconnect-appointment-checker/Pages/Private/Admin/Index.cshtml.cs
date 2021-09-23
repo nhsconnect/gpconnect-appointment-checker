@@ -3,16 +3,14 @@ using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public partial class AdminModel : PageModel
+    public partial class AdminModel : BaseModel
     {
-        protected IConfiguration _configuration;
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<AdminModel> _logger;
         protected IApplicationService _applicationService;
@@ -20,9 +18,8 @@ namespace gpconnect_appointment_checker.Pages
         protected IAuditService _auditService;
         protected readonly ILoggerManager _loggerManager;
 
-        public AdminModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<AdminModel> logger, IApplicationService applicationService, IAuditService auditService, IEmailService emailService, ILoggerManager loggerManager = null)
+        public AdminModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<AdminModel> logger, IApplicationService applicationService, IAuditService auditService, IEmailService emailService, ILoggerManager loggerManager = null) : base(configuration)
         {
-            _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _applicationService = applicationService;
