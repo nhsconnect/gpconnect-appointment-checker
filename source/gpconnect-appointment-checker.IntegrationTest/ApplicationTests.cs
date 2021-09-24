@@ -131,36 +131,34 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData("A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021", "1 June 2021 13:17:18")]
-        public void AddAndFindSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        [InlineData("A20047, A87456", "B72524, B27193", "1-June-2021:8-June-2021")]
+        public void AddAndFindSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput)
         {
-            var result = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
+            var result = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput);
             Assert.IsType<SearchGroup>(result);
             Assert.NotNull(result);
             Assert.Equal(result.ProviderOdsTextbox, providerOdsCodeInput);
             Assert.Equal(result.ConsumerOdsTextbox, consumerOdsCodeInput);
             Assert.Equal(result.SelectedDateRange, searchDateRangeInput);
-            Assert.Equal(result.SearchStartAt, DateTime.Parse(searchStartAt));
             Assert.True(result.SearchGroupId > 0);
         }
 
-        private SearchGroup AddSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        private SearchGroup AddSearchGroup(string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput)
         {
             return _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
             {
                 ConsumerOdsTextbox = consumerOdsCodeInput,
                 ProviderOdsTextbox = providerOdsCodeInput,
                 SearchDateRange = searchDateRangeInput,
-                SearchStartAt = DateTime.Parse(searchStartAt),
                 UserSessionId = _user.UserSessionId
             });
         }
 
         [Theory]
-        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
-        public void AddAndFindSearchResult(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021")]
+        public void AddAndFindSearchResult(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput)
         {
-            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
+            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput);
 
             var searchResult = new DTO.Request.Application.SearchResult
             {
@@ -193,10 +191,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021", "12 April 2021 18:38:28")]
-        public void GetSearchResultByGroup(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput, string searchStartAt)
+        [InlineData("A37353", "B27181", 1, "Search details here", "EMIS", 0.237, "A37247, A99176", "C28888", "9-June-2021:16-June-2021")]
+        public void GetSearchResultByGroup(string providerCode, string consumerCode, int errorCode, string details, string providerPublisher, double searchDurationSeconds, string consumerOdsCodeInput, string providerOdsCodeInput, string searchDateRangeInput)
         {
-            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput, searchStartAt);
+            var searchGroup = AddSearchGroup(consumerOdsCodeInput, providerOdsCodeInput, searchDateRangeInput);
             var searchResult = new DTO.Request.Application.SearchResult
             {
                 SearchGroupId = searchGroup.SearchGroupId,

@@ -1,5 +1,6 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.Helpers.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -18,6 +19,7 @@ namespace gpconnect_appointment_checker.DAL.Interfaces
         DataTable GetSearchGroupExport(int searchGroupId, int userId);
         DataTable GetSearchExport(int searchExportId, int userId);
         SearchGroup GetSearchGroup(int searchGroupId, int userId);
+        void UpdateSearchGroup(int searchGroupId);
         SearchResult GetSearchResult(int searchResultId, int userId);
         List<DTO.Response.GpConnect.SlotEntrySummary> GetSearchResultByGroup(int searchGroupId, int userId);
         List<User> GetUsers(string surname, string emailAddress, string organisationName, SortBy sortBy, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null, AccessLevel? accessLevelFilter = null, bool? multiSearchFilter = null, bool? orgTypeSearchFilter = null);

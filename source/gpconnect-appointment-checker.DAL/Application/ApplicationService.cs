@@ -112,12 +112,21 @@ namespace gpconnect_appointment_checker.DAL.Application
             parameters.Add("_consumer_ods_textbox", searchGroup.ConsumerOdsTextbox);
             parameters.Add("_provider_ods_textbox", searchGroup.ProviderOdsTextbox);
             parameters.Add("_search_date_range", searchGroup.SearchDateRange);
-            parameters.Add("_search_start_at", searchGroup.SearchStartAt);
-            parameters.Add("_search_end_at", DBNull.Value, DbType.DateTime);
+            parameters.Add("_search_start_at", DateTime.UtcNow);
             parameters.Add("_consumer_organisation_type_dropdown", searchGroup.ConsumerOrganisationTypeDropdown);
             var result = _dataService.ExecuteFunction<SearchGroup>(functionName, parameters);
             return result.FirstOrDefault();
         }
+
+        public void UpdateSearchGroup(int searchGroupId)
+        {
+            var functionName = "application.update_search_group";
+            var parameters = new DynamicParameters();
+            parameters.Add("_search_group_id", searchGroupId);
+            parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")));
+            parameters.Add("_search_end_at", DateTime.UtcNow);
+            _dataService.ExecuteFunction(functionName, parameters);
+        }        
 
         public SearchResult AddSearchResult(DTO.Request.Application.SearchResult searchResult)
         {

@@ -322,16 +322,15 @@ namespace gpconnect_appointment_checker.Pages
         private async Task<List<SlotEntrySummary>> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails, string consumerOrganisationType = "")
         {
-            var searchGroup = new DTO.Request.Application.SearchGroup
+            var createdSearchGroup = _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
             {
                 UserSessionId = User.GetClaimValue("UserSessionId").StringToInteger(),
                 ProviderOdsTextbox = ProviderOdsCode,
                 ConsumerOdsTextbox = ConsumerOdsCode,
                 SearchDateRange = SelectedDateRange,
-                SearchStartAt = DateTime.UtcNow,
                 ConsumerOrganisationTypeDropdown = SelectedOrganisationType
-            };
-            var createdSearchGroup = _applicationService.AddSearchGroup(searchGroup);
+            });
+
             SearchGroupId = createdSearchGroup.SearchGroupId;
 
             var slotEntrySummary = new List<SlotEntrySummary>();
@@ -511,6 +510,9 @@ namespace gpconnect_appointment_checker.Pages
                     }
                 }
             }
+
+            _applicationService.UpdateSearchGroup(SearchGroupId);
+
             return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
         }
 
