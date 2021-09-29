@@ -50,8 +50,6 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 var responseStream = await response.Content.ReadAsStringAsync();
 
-                responseStream = FileHelper.ReadFileContents("feed.json");
-
                 _spineMessage.ResponsePayload = responseStream;
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
                 _spineMessage.RequestPayload = getRequest.ToString();
