@@ -5,6 +5,7 @@ using gpconnect_appointment_checker.DTO.Request.GpConnect;
 using gpconnect_appointment_checker.DTO.Request.Logging;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
+using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,6 +26,7 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly IApplicationService _applicationService;
         private readonly IHttpClientFactory _httpClientFactory;
         private SpineMessage _spineMessage;
+        private readonly DateTime _currentDateTime = DateTime.Now.TimeZoneConverter();
 
         public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IConfigurationService configurationService, ILogService logService, IHttpClientFactory httpClientFactory, IAuditService auditService, IApplicationService applicationService)
         {

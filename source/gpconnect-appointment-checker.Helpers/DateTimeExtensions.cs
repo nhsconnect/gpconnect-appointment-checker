@@ -32,5 +32,23 @@ namespace gpconnect_appointment_checker.Helpers
             }
             return currentTimeZoneInfoLocal.ToString(dateTimeFormat);
         }
+
+        public static DateTime TimeZoneConverter(this DateTime valueIn, string timeZoneId = "Europe/London")
+        {
+            DateTime currentTimeZoneInfoLocal = valueIn;
+            TimeZoneInfo timeZoneInfo = TimeZoneInfo.Local;
+            try
+            {
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+            finally
+            {
+                currentTimeZoneInfoLocal = TimeZoneInfo.ConvertTime(valueIn, TimeZoneInfo.Local, timeZoneInfo);
+            }
+            return currentTimeZoneInfoLocal;
+        }
     }
 }

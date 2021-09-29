@@ -50,6 +50,8 @@ namespace gpconnect_appointment_checker.GPConnect
 
                 var responseStream = await response.Content.ReadAsStringAsync();
 
+                responseStream = FileHelper.ReadFileContents("feed.json");
+
                 _spineMessage.ResponsePayload = responseStream;
                 _spineMessage.ResponseStatus = response.StatusCode.ToString();
                 _spineMessage.RequestPayload = getRequest.ToString();
@@ -103,7 +105,8 @@ namespace gpconnect_appointment_checker.GPConnect
                                     LocationCity = location?.address?.city,
                                     LocationCountry = location?.address?.country,
                                     LocationDistrict = location?.address?.district,
-                                    LocationPostalCode = location?.address?.postalCode
+                                    LocationPostalCode = location?.address?.postalCode,
+                                    SlotInPast = slot.resource.start.GetValueOrDefault().DateTime <= _currentDateTime
                                 }).OrderBy(z => z.LocationName)
                     .ThenBy(s => s.AppointmentDate)
                     .ThenBy(s => s.StartTime);

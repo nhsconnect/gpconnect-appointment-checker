@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
+
     public class SlotEntrySimple
     {
         [JsonProperty("Appointment Date")]
@@ -44,9 +45,9 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string LocationPostalCode { get; set; }
         [JsonProperty("Location Country")]
         public string LocationCountry { get; set; }
-
+        
         [IgnoreDataMember]
-        public bool SlotInPast => AppointmentDate <= DateTime.UtcNow && StartTime < DateTime.UtcNow;
+        public bool SlotInPast { get; set; }
 
         [IgnoreDataMember]
         public bool NoAddressProvided => (LocationAddressLines == null || LocationAddressLines?.Count == 0)
