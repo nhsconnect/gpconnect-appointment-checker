@@ -14,10 +14,10 @@ as $$
 begin
 	return query
 	select
-		b.search_count_month,
-		b.search_count_year,
-		a.single_search_count,
-		b.multiple_search_count
+		a.search_count_month,
+		a.search_count_year,
+		coalesce(a.single_search_count, 0),
+		coalesce(b.multiple_search_count, 0)
 	from 
 	(
 		select 
@@ -31,7 +31,7 @@ begin
 			and search_result_id is null
 		group by 
 			1,2
-	) a inner join 
+	) a left outer join
 	(
 		select 
 			date_part('month', logged_date)::integer search_count_month, 
@@ -47,8 +47,8 @@ begin
 		group by 
 			1,2
 	) b on a.search_count_month = b.search_count_month
-	and a.search_count_year = b.search_count_year
-	order by 
-		2, 1 desc;
+	and a.search_count_year = b.search_count_year	
+	order by
+		2 desc, 1 desc;
 end;
 $$ language plpgsql;
