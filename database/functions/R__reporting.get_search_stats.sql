@@ -7,46 +7,48 @@ returns table
 (
     "Month" integer,
     "Year" integer,
-    "Single Search Count" integer,
-    "Multi Search Count" integer
+    "Single Search Count" bigint,
+    "Multi Search Count" bigint
 )
 as $$
 begin
 	return query
-select
-	multi_search_count_month,
-	multi_search_count_year,
-	single_search_count,
-	multi_search_count
-from
-(
-	select 
-		date_part('month', logged_date)::integer as single_search_count_month, 
-		date_part('year', logged_date)::integer as single_search_count_year, 
-			count(*)::integer as single_search_count
+	select
+		b.search_count_month,
+		b.search_count_year,
+		a.single_search_count,
+		b.multiple_search_count
+	from 
+	(
+		select 
+			date_part('month', logged_date)::integer search_count_month, 
+			date_part('year', logged_date)::integer search_count_year,
+			count(*) single_search_count
 		from
-			logging.spine_message 
+			logging.spine_message	
 		where
 			spine_message_type_id = 3 
 			and search_result_id is null
 		group by 
-			date_part('month', logged_date),
-			date_part('year', logged_date)) a
-		left outer join 
-		(
+			1,2
+	) a inner join 
+	(
 		select 
-			date_part('month', search_start_at)::integer as multi_search_count_month, 
-			date_part('year', search_start_at)::integer as multi_search_count_year,
-			count(*)::integer as multi_search_count
-		from 
-			application.search_group
+			date_part('month', logged_date)::integer search_count_month, 
+			date_part('year', logged_date)::integer search_count_year,
+			count(*) multiple_search_count
+		from
+			logging.spine_message sm
+			inner join application.search_result sr on sm.search_result_id = sr.search_result_id
+			inner join application.search_group sg on sr.search_group_id = sg.search_group_id
+		where
+			sm.spine_message_type_id = 3 
+			and sm.search_result_id is not null
 		group by 
-			date_part('month', search_start_at),
-			date_part('year', search_start_at)
-) b on a.single_search_count_month = b.multi_search_count_month
-	and a.single_search_count_year = b.multi_search_count_year
-order by 
-	multi_search_count_month desc, 
-	multi_search_count_year desc;
+			1,2
+	) b on a.search_count_month = b.search_count_month
+	and a.search_count_year = b.search_count_year
+	order by 
+		2, 1 desc;
 end;
 $$ language plpgsql;
