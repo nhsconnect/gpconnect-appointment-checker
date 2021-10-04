@@ -45,7 +45,11 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         public string LocationPostalCode { get; set; }
         [JsonProperty("Location Country")]
         public string LocationCountry { get; set; }
-        
+
+        [IgnoreDataMember]
+        public List<string> PractitionerDetails { get; set; }
+        public string PractitionerName => StringExtensions.PractitionerBuilder(PractitionerDetails, PractitionerFamilyName, PractitionerGivenName, PractitionerPrefix);
+
         [IgnoreDataMember]
         public bool SlotInPast { get; set; }
 

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace gpconnect_appointment_checker.Helpers
 {
@@ -27,6 +26,15 @@ namespace gpconnect_appointment_checker.Helpers
             addressLines.Add(postalCode);
             addressLines.Add(country);
             return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s)));
+        }
+
+        public static string PractitionerBuilder(List<string> practitionerDetails, string familyName, string givenName, string prefix)
+        {
+            practitionerDetails ??= new List<string>();
+            if (!string.IsNullOrEmpty(familyName)) { practitionerDetails.Add($"{familyName.ToUpper()},"); }
+            if (!string.IsNullOrEmpty(givenName)) { practitionerDetails.Add($"{givenName}"); }
+            if (!string.IsNullOrEmpty(prefix)) { practitionerDetails.Add($"({prefix})"); }
+            return string.Join(" ", practitionerDetails);
         }
 
         public static string FlattenStrings(params string[] strings)

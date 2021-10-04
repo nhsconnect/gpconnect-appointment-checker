@@ -65,7 +65,6 @@
                                     <tbody class="nhsuk-table__body">
                                         @foreach (var t in locationGrouping)
                                         {
-                                            var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
                                             <tr role="row" class="nhsuk-table__row">
                                                 <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
                                                 <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
@@ -74,7 +73,7 @@
                                                 <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
                                                 <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
                                                 <td role="cell" class="nhsuk-table__cell">
-                                                    @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
+                                                    @t.PractitionerName
                                                     <div>@t.PractitionerRole</div>
                                                     <div>@t.PractitionerGender.FirstCharToUpper()</div>
                                                 </td>
@@ -113,7 +112,6 @@
                             <tbody class="nhsuk-table__body">
                                 @foreach (var t in locationGrouping)
                                 {
-                                    var practitionerPrefix = !string.IsNullOrEmpty(t.PractitionerPrefix) ? $"({t.PractitionerPrefix})" : string.Empty;
                                     <tr role="row" class="nhsuk-table__row">
                                         <td role="cell" class="nhsuk-table__cell">@t.AppointmentDate.DateFormatter("ddd dd MMM yyyy")</td>
                                         <td role="cell" class="nhsuk-table__cell">@t.SessionName</td>
@@ -122,7 +120,7 @@
                                         <td role="cell" class="nhsuk-table__cell">@t.SlotType</td>
                                         <td role="cell" class="nhsuk-table__cell">@t.DeliveryChannel</td>
                                         <td role="cell" class="nhsuk-table__cell">
-                                            @t.PractitionerFamilyName.ToUpper(),&nbsp;@t.PractitionerGivenName&nbsp;@practitionerPrefix
+                                            @t.PractitionerName
                                             <div>@t.PractitionerRole</div>
                                             <div>@t.PractitionerGender.FirstCharToUpper()</div>
                                         </td>

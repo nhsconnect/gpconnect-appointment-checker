@@ -15,12 +15,16 @@ namespace gpconnect_appointment_checker.GPConnect
             var schedule = GetSchedule(reference, scheduleResources);
             var schedulePractitioner = schedule?.resource.actor?.FirstOrDefault(x => x.reference.Contains("Practitioner/"));
             var practitionerRootEntry = practitionerResources?.FirstOrDefault(x => schedulePractitioner?.reference == $"Practitioner/{x.resource.id}")?.resource;
-            var practitioner = new Practitioner
+            if (practitionerRootEntry != null)
             {
-                gender = practitionerRootEntry?.gender,
-                name = JsonConvert.DeserializeObject<List<PractitionerName>>(practitionerRootEntry?.name.ToString())
-            };
-            return practitioner;
+                var practitioner = new Practitioner
+                {
+                    gender = practitionerRootEntry?.gender,
+                    name = JsonConvert.DeserializeObject<List<PractitionerName>>(practitionerRootEntry?.name.ToString())
+                };
+                return practitioner;
+            }
+            return null;
         }
 
         protected static Location GetLocation(string reference, List<RootEntry> scheduleResources, List<RootEntry> locationResources)
