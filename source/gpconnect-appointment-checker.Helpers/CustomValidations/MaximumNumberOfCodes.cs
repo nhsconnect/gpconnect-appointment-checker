@@ -21,7 +21,7 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             _httpContextAccessor = (IHttpContextAccessor)validationContext.GetService(typeof(IHttpContextAccessor));
-            var multiSearchEnabled = _httpContextAccessor?.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
+            var multiSearchEnabled = (_httpContextAccessor?.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false)).GetValueOrDefault();
             var propertyTestedInfo = validationContext.ObjectType.GetProperty(this._dependentProperty);
             if (propertyTestedInfo == null)
             {
@@ -33,9 +33,15 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
                 var propertyTestedValue = propertyTestedInfo.GetValue(validationContext.ObjectInstance, null);
 
                 var valueElements = value.ToString()?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray().Length;
+
+                if(!multiSearchEnabled && valueElements > 1)
+                {
+                    return new ValidationResult(_multiSearchErrorMessage);
+                }
+
                 if (valueElements > (int)propertyTestedValue)
                 {
-                    var validationErrorMessage = multiSearchEnabled.GetValueOrDefault() ? string.Format(_customErrorMessage, (int)propertyTestedValue) : _multiSearchErrorMessage;
+                    var validationErrorMessage = multiSearchEnabled ? string.Format(_customErrorMessage, (int)propertyTestedValue) : _multiSearchErrorMessage;
                     return new ValidationResult(validationErrorMessage);
                 }
             }
