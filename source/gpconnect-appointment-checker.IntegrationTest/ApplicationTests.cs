@@ -71,13 +71,13 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData(SortBy.EmailAddress, SortDirection.ASC)]
-        [InlineData(SortBy.AccessRequestCount, SortDirection.ASC)]
-        [InlineData(SortBy.LastLogonDate, SortDirection.ASC)]
-        [InlineData(SortBy.EmailAddress, SortDirection.DESC)]
-        [InlineData(SortBy.AccessRequestCount, SortDirection.DESC)]
-        [InlineData(SortBy.LastLogonDate, SortDirection.DESC)]
-        public void UsersFound(SortBy sortBy, SortDirection sortDirection)
+        [InlineData("EmailAddress", "ASC")]
+        [InlineData("AccessRequestCount", "ASC")]
+        [InlineData("LastLogonDate", "ASC")]
+        [InlineData("EmailAddress", "DESC")]
+        [InlineData("AccessRequestCount", "DESC")]
+        [InlineData("LastLogonDate", "DESC")]
+        public void UsersFound(string sortBy, string sortDirection)
         {
             var result = _applicationService.GetUsers(sortBy, sortDirection);
             Assert.IsType<List<User>>(result);
@@ -93,39 +93,39 @@ namespace gpconnect_appointment_checker.IntegrationTest
         }
 
         [Theory]
-        [InlineData("@nhs.net", SortBy.EmailAddress, SortDirection.ASC)]
-        public void UsersFoundByEmailAddress(string emailAddress, SortBy sortBy, SortDirection sortDirection)
+        [InlineData("@nhs.net", "EmailAddress", "ASC")]
+        public void UsersFoundByEmailAddress(string emailAddress, string sortBy, string sortDirection)
         {
-            var result = _applicationService.GetUsers(null, emailAddress, null, sortBy, sortDirection);
+            var result = _applicationService.GetUsers(null, emailAddress, null, sortBy, sortDirection, null, null, null, null);
             Assert.IsType<List<User>>(result);
             Assert.True(result.Count > 0);
             Assert.Contains(result, x => x.EmailAddress.Contains(emailAddress));
         }
 
         [Theory]
-        [InlineData("@gmail.com", SortBy.EmailAddress, SortDirection.ASC)]
-        public void UsersNotFoundByEmailAddress(string emailAddress, SortBy sortBy, SortDirection sortDirection)
+        [InlineData("@gmail.com", "EmailAddress", "ASC")]
+        public void UsersNotFoundByEmailAddress(string emailAddress, string sortBy, string sortDirection)
         {
-            var result = _applicationService.GetUsers(null, emailAddress, null, sortBy, sortDirection);
+            var result = _applicationService.GetUsers(null, emailAddress, null, sortBy, sortDirection, null, null, null, null);
             Assert.IsType<List<User>>(result);
             Assert.True(result.Count == 0);
         }
 
         [Theory]
-        [InlineData("HEALTH AND SOCIAL CARE INFORMATION CENTRE", SortBy.EmailAddress, SortDirection.ASC)]
-        public void UsersFoundByOrganisationName(string organisationName, SortBy sortBy, SortDirection sortDirection)
+        [InlineData("HEALTH AND SOCIAL CARE INFORMATION CENTRE", "EmailAddress", "ASC")]
+        public void UsersFoundByOrganisationName(string organisationName, string sortBy, string sortDirection)
         {
-            var result = _applicationService.GetUsers(null, null, null, sortBy, sortDirection);
+            var result = _applicationService.GetUsers(null, null, organisationName, sortBy, sortDirection, null, null, null, null);
             Assert.IsType<List<User>>(result);
             Assert.True(result.Count > 0);
             Assert.Contains(result, x => x.OrganisationName.Contains(organisationName));
         }
 
         [Theory]
-        [InlineData("Gmail", SortBy.EmailAddress, SortDirection.ASC)]
-        public void UsersNotFoundByOrganisationName(string organisationName, SortBy sortBy, SortDirection sortDirection)
+        [InlineData("MICROSOFT", "EmailAddress", "ASC")]
+        public void UsersNotFoundByOrganisationName(string organisationName, string sortBy, string sortDirection)
         {
-            var result = _applicationService.GetUsers(null, null, organisationName, sortBy, sortDirection);
+            var result = _applicationService.GetUsers(null, null, organisationName, sortBy, sortDirection, null, null, null, null);
             Assert.IsType<List<User>>(result);
             Assert.True(result.Count == 0);
         }
@@ -303,7 +303,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         private User AddUserDetailsToContext(HttpContextAccessor httpContextAccessor)
         {
-            var adminUser = _applicationService.GetUsers(null, null, null, SortBy.EmailAddress, SortDirection.ASC, UserAccountStatus.Authorised, AccessLevel.Admin).FirstOrDefault();
+            var adminUser = _applicationService.GetUsers(null, null, null, "EmailAddress", "ASC", "Authorised", "Admin", null, null).FirstOrDefault();
 
             var logOnUser = new DTO.Request.Application.User
             {

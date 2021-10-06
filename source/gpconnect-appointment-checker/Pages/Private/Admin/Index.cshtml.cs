@@ -63,10 +63,7 @@ namespace gpconnect_appointment_checker.Pages
         {
             ClearValidationState();
             var user = _applicationService.SetUserStatus(accountstatususerid, UserAccountStatusId[userselectedindex]);
-            if (user.StatusChanged)
-            {
-                _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
-            }
+            _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress, user.StatusChanged);
             RefreshPage();
         }
 
@@ -89,22 +86,10 @@ namespace gpconnect_appointment_checker.Pages
             ModelState.ClearValidationState("UserEmailAddress");
         }
 
-        public IActionResult OnPostApplyFilter()
+        public void OnPostApplyFilter()
         {
             ClearValidationState();
-            var userList = _applicationService.GetUsers(
-                SurnameSearchValue, 
-                EmailAddressSearchValue, 
-                OrganisationNameSearchValue, 
-                Enum.Parse<SortBy>(SortByColumn), 
-                Enum.Parse<SortDirection>(SortByState), 
-                string.IsNullOrEmpty(SelectedUserAccountStatusFilter) ? null : Enum.Parse<UserAccountStatus>(SelectedUserAccountStatusFilter),
-                string.IsNullOrEmpty(SelectedAccessLevelFilter) ? null : Enum.Parse<AccessLevel>(SelectedAccessLevelFilter),
-                string.IsNullOrEmpty(SelectedMultiSearchFilter) ? null : bool.Parse(SelectedMultiSearchFilter),
-                string.IsNullOrEmpty(SelectedOrgTypeSearchFilter) ? null : bool.Parse(SelectedOrgTypeSearchFilter)
-                );
-            UserList = userList;
-            return Page();
+            RefreshPage();
         }
 
         public void OnPostSaveNewUser()
@@ -115,7 +100,7 @@ namespace gpconnect_appointment_checker.Pages
                 var user = _applicationService.AddUser(UserEmailAddress);
                 if (user != null && user.IsNewUser)
                 {
-                    _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress);
+                    _emailService.SendUserStatusEmail(user.UserId, user.UserAccountStatusId, user.EmailAddress, true);
                 }
                 UserEmailAddress = null;
             }
@@ -138,7 +123,15 @@ namespace gpconnect_appointment_checker.Pages
 
         private IActionResult RefreshPage()
         {
-            var userList = _applicationService.GetUsers(Enum.Parse<SortBy>(SortByColumn), Enum.Parse<SortDirection>(SortByState));
+            var userList = _applicationService.GetUsers(SurnameSearchValue,
+                EmailAddressSearchValue,
+                OrganisationNameSearchValue,
+                SortByColumn,
+                SortByState,
+                SelectedUserAccountStatusFilter,
+                SelectedAccessLevelFilter,
+                SelectedMultiSearchFilter,
+                SelectedOrgTypeSearchFilter);
             UserList = userList;
             return Page();
         }

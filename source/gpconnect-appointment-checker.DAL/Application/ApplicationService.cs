@@ -43,22 +43,22 @@ namespace gpconnect_appointment_checker.DAL.Application
             return result.FirstOrDefault();
         }
 
-        public List<User> GetUsers(SortBy sortByColumn, SortDirection sortDirection)
+        public List<User> GetUsers(string sortByColumn, string sortDirection)
         {
             var functionName = "application.get_users";
             var filteredList = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
-            return filteredList.OrderBy($"{sortByColumn} {sortDirection}").ToList();
+            return filteredList.OrderBy($"{Enum.Parse<SortBy>(sortByColumn)} {Enum.Parse<SortDirection>(sortDirection)}").ToList();
         }
 
-        public List<User> GetUsers(string surname, string emailAddress, string organisationName, SortBy sortByColumn, SortDirection sortDirection, UserAccountStatus? userAccountStatusFilter = null, AccessLevel? accessLevelFilter = null, bool? multiSearchFilter = null, bool? orgTypeSearchFilter = null)
+        public List<User> GetUsers(string surname, string emailAddress, string organisationName, string sortByColumn, string sortDirection, string userAccountStatusFilter, string accessLevelFilter, string multiSearchFilter, string orgTypeSearchFilter)
         {
             var functionName = "application.get_users";
             var filteredList = _dataService.ExecuteFunction<User>(functionName).AsQueryable();
             filteredList = ApplyFilters(surname, emailAddress, organisationName, userAccountStatusFilter, accessLevelFilter, multiSearchFilter, orgTypeSearchFilter, filteredList);
-            return filteredList.OrderBy($"{sortByColumn} {sortDirection}").ToList();
+            return filteredList.OrderBy($"{Enum.Parse<SortBy>(sortByColumn)} {Enum.Parse<SortDirection>(sortDirection)}").ToList();
         }
 
-        private static IQueryable<User> ApplyFilters(string surname, string emailAddress, string organisationName, UserAccountStatus? userAccountStatusFilter, AccessLevel? accessLevelFilter, bool? multiSearchFilter, bool? orgTypeSearchFilter, IQueryable<User> filteredList)
+        private static IQueryable<User> ApplyFilters(string surname, string emailAddress, string organisationName, string userAccountStatusFilter, string accessLevelFilter, string multiSearchFilter, string orgTypeSearchFilter, IQueryable<User> filteredList)
         {
             filteredList = !string.IsNullOrEmpty(surname) ? filteredList.Where(x => x.DisplayName.Contains(surname, StringComparison.OrdinalIgnoreCase)) : filteredList;
             filteredList = !string.IsNullOrEmpty(emailAddress) ? filteredList.Where(x => x.EmailAddress.Contains(emailAddress, StringComparison.OrdinalIgnoreCase)) : filteredList;
@@ -66,19 +66,19 @@ namespace gpconnect_appointment_checker.DAL.Application
 
             if (userAccountStatusFilter != null)
             {
-                filteredList = filteredList.Where(x => x.UserAccountStatusId == (int)userAccountStatusFilter.Value);
+                filteredList = filteredList.Where(x => x.UserAccountStatusId == (int)Enum.Parse<UserAccountStatus>(userAccountStatusFilter));
             }
             if (accessLevelFilter != null)
             {
-                filteredList = filteredList.Where(x => Enum.Parse<AccessLevel>(x.AccessLevel) == accessLevelFilter);
+                filteredList = filteredList.Where(x => Enum.Parse<AccessLevel>(x.AccessLevel) == Enum.Parse<AccessLevel>(accessLevelFilter));
             }
             if (multiSearchFilter != null)
             {
-                filteredList = filteredList.Where(x => x.MultiSearchEnabled == multiSearchFilter.Value);
+                filteredList = filteredList.Where(x => x.MultiSearchEnabled == bool.Parse(multiSearchFilter));
             }
             if (orgTypeSearchFilter != null)
             {
-                filteredList = filteredList.Where(x => x.OrgTypeSearchEnabled == orgTypeSearchFilter.Value);
+                filteredList = filteredList.Where(x => x.OrgTypeSearchEnabled == bool.Parse(orgTypeSearchFilter));
             }
 
             return filteredList;
