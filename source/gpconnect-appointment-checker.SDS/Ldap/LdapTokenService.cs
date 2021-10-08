@@ -46,12 +46,11 @@ namespace gpconnect_appointment_checker.SDS
         private Task PerformRedirectionBasedOnStatus(TokenValidatedContext context)
         {
             var odsCode = new List<string> { context.Principal.GetClaimValue("ODS") };
-
             var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode, ErrorCode.ProviderODSCodeNotFound).FirstOrDefault();
 
-            if (organisationDetails != null && organisationDetails.ErrorCode == ErrorCode.None)
-            {                
-                var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation?.ODSCode);
+            if (organisationDetails != null)
+            {
+                var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
 
                 if (organisation != null)
                 { 
@@ -89,10 +88,6 @@ namespace gpconnect_appointment_checker.SDS
                     context.Properties.RedirectUri = "/";
                 }
 
-            }
-            else
-            {
-                _logger.LogError($"The ODS code {odsCode} is not recognised so the organisation details could not be retrieved.");
             }
             return Task.CompletedTask;
         }
