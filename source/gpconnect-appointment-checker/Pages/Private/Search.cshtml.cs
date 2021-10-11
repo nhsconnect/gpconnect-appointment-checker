@@ -349,6 +349,7 @@ namespace gpconnect_appointment_checker.Pages
             if (providerOdsCount > consumerOdsCount)
             {
                 var consumerCode = ConsumerOdsCodeAsList.Count == 0 ? null : ConsumerOdsCodeAsList[0];
+                var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
 
                 for (var i = 0; i < providerOdsCount; i++)
                 {
@@ -356,7 +357,6 @@ namespace gpconnect_appointment_checker.Pages
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], consumerCode, providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
                     organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
-                    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
                     var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
                     capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
                 }
@@ -435,12 +435,12 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     _stopwatch.Start();
                     var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
-                    organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
-
-                    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
-                    var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
-                    capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
+                    organisationErrorCodeOrDetail.Add(errorCodeOrDetail);                    
                 }
+
+                var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+                var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
+                capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
 
                 var slotCount = 0;
 
