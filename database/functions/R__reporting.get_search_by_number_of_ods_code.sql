@@ -52,7 +52,7 @@ begin
 			coalesce(array_length(string_to_array(sg.consumer_ods_textbox, ' '), 1), 0),
 			count(*),
 			to_char(extract(second from avg(a.max_logged_date - sg.search_start_at)), 'FM9990.99"s"'),
-			to_char(extract(second from avg(a.max_logged_date - sg.search_start_at)) / count(*), 'FM9990.99"s"')
+			to_char(extract(second from avg(a.max_logged_date - sg.search_start_at)) / greatest(array_length(string_to_array(sg.provider_ods_textbox, ' '), 1), coalesce(array_length(string_to_array(sg.consumer_ods_textbox, ' '), 1), 0)), 'FM9990.99"s"')
 		from
 			application.search_group sg
 			left outer join
