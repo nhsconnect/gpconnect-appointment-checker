@@ -63,7 +63,6 @@ values
 );
 
 alter table configuration.spine add spine_fhir_api_key varchar(100) null;
-update configuration.spine set spine_fhir_api_fqdn = 'https://test.com';
 
 update application.email_template set body='A new user create account form has been posted with the following details:
 
