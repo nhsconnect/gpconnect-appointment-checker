@@ -40,9 +40,6 @@ namespace gpconnect_appointment_checker.Pages
         public int UserAccountStatusId { get; set; }
 
         [BindProperty]
-        public int UserId { get; set; }
-
-        [BindProperty]
         public string EmailAddressSearchValue { get; set; }
         [BindProperty]
         public string SurnameSearchValue { get; set; }

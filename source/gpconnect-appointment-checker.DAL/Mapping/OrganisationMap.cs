@@ -8,7 +8,7 @@ namespace gpconnect_appointment_checker.DAL.Mapping
         public OrganisationMap()
         {
             Map(p => p.OrganisationId).ToColumn("organisation_id");
-            Map(p => p.ODSCode).ToColumn("ods_code");
+            Map(p => p.OdsCode).ToColumn("ods_code");
             Map(p => p.OrganisationTypeCode).ToColumn("organisation_type_name");
             Map(p => p.OrganisationName).ToColumn("organisation_name");
             Map(p => p.PostalAddress).ToColumn("address_line_1");

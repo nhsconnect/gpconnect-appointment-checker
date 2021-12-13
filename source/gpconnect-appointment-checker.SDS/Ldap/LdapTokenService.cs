@@ -1,16 +1,12 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Enumerations;
 using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using gpconnect_appointment_checker.Helpers.Enumerations;
 using User = gpconnect_appointment_checker.DTO.Request.Application.User;
 
 namespace gpconnect_appointment_checker.SDS
@@ -18,14 +14,14 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapTokenService : ILdapTokenService
     {
         private readonly ILogger<LdapTokenService> _logger;
-        private readonly ILdapService _ldapService;
+        private readonly ISdsQueryExecutionBase _sdsQueryExecutionBase;
         private readonly IApplicationService _applicationService;
 
-        public LdapTokenService(IServiceProvider serviceProvider)
+        public LdapTokenService(ILogger<LdapTokenService> logger, ISdsQueryExecutionBase sdsQueryExecutionBase, IApplicationService applicationService)
         {
-            _ldapService = serviceProvider.GetRequiredService<ILdapService>();
-            _logger = serviceProvider.GetService<ILogger<LdapTokenService>>() ?? NullLogger<LdapTokenService>.Instance;
-            _applicationService = serviceProvider.GetRequiredService<IApplicationService>();
+            _sdsQueryExecutionBase = sdsQueryExecutionBase;
+            _applicationService = applicationService;
+            _logger = logger;
         }
 
         public Task ExecutionTokenValidation(TokenValidatedContext context)
@@ -45,12 +41,12 @@ namespace gpconnect_appointment_checker.SDS
 
         private Task PerformRedirectionBasedOnStatus(TokenValidatedContext context)
         {
-            var odsCode = new List<string> { context.Principal.GetClaimValue("ODS") };
-            var organisationDetails = _ldapService.GetOrganisationDetailsByOdsCode(odsCode, ErrorCode.ProviderODSCodeNotFound).FirstOrDefault();
+            var odsCode = context.Principal.GetClaimValue("ODS");
+            var organisationDetails = _sdsQueryExecutionBase.GetOrganisationDetailsByOdsCode(odsCode).Result;
 
             if (organisationDetails != null)
             {
-                var organisation = _applicationService.GetOrganisation(organisationDetails.Organisation.ODSCode);
+                var organisation = _applicationService.GetOrganisation(organisationDetails.OdsCode);
 
                 if (organisation != null)
                 { 
@@ -63,23 +59,23 @@ namespace gpconnect_appointment_checker.SDS
                         {
                             case UserAccountStatus.Authorised:
                                 var loggedOnUser = LogonAuthorisedUser(emailAddress, context, organisation);
-                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation, organisationDetails, odsCode);
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation);
                                 context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
                                 break;
                             case UserAccountStatus.Pending:
-                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation);
                                 context.Properties.RedirectUri = "/PendingAccount";
                                 break;
                             case UserAccountStatus.Deauthorised:
                             case UserAccountStatus.RequestDenied:
-                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                                PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, null, emailAddress, context, organisation);
                                 context.Properties.RedirectUri = "/SubmitUserForm";
                                 break;
                         }
                     }
                     else
                     {
-                        PopulateAdditionalClaims(null, null, emailAddress, context, organisation, organisationDetails, odsCode);
+                        PopulateAdditionalClaims(null, null, emailAddress, context, organisation);
                         context.Properties.RedirectUri = GetAuthorisedRedirectUriForRegistration(context.Properties.RedirectUri);
                     }
                 }
@@ -102,14 +98,14 @@ namespace gpconnect_appointment_checker.SDS
             return redirectUri == "/" ? "/NotRegistered" : "/CreateAccount";
         }
 
-        private void PopulateAdditionalClaims(UserAccountStatus? userAccountStatus, DTO.Response.Application.User loggedOnUser, string emailAddress, TokenValidatedContext context, DTO.Response.Application.Organisation organisation, DTO.Response.Application.OrganisationList organisationDetails, List<string> odsCode)
-        {
+        private void PopulateAdditionalClaims(UserAccountStatus? userAccountStatus, DTO.Response.Application.User loggedOnUser, string emailAddress, TokenValidatedContext context, DTO.Response.Application.Organisation organisation)
+        { 
             if (context.Principal.Identity is ClaimsIdentity identity)
             {
                 identity.AddOrReplaceClaimValue("Email", emailAddress);
-                identity.AddClaim(new Claim("OrganisationName", organisationDetails.Organisation.OrganisationName));
+                identity.AddClaim(new Claim("OrganisationName", organisation.OrganisationName));
                 identity.AddClaim(new Claim("OrganisationId", organisation.OrganisationId.ToString()));
-                identity.AddClaim(new Claim("ProviderODSCode", odsCode[0]));
+                identity.AddClaim(new Claim("ProviderODSCode", organisation.OrganisationName));
                 if (userAccountStatus != null)
                 {
                     identity.AddClaim(new Claim("UserAccountStatus", userAccountStatus.ToString()));

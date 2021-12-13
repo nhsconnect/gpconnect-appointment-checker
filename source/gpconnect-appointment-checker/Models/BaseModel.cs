@@ -1,35 +1,48 @@
 ﻿using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Enumerations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.IO;
 
 namespace gpconnect_appointment_checker.Pages
 {
-    public class BaseModel : PageModel
+    public abstract class BaseModel : PageModel
     {
-        private readonly IConfiguration _configuration;
-        public string GetAccessEmailAddress { get; set; }
-        public string GetAccessEmailAddressTag => $"<a href=\"mailto:{GetAccessEmailAddress}\">{GetAccessEmailAddress}</a>";
-        public int MaxNumberConsumerCodesSearch { get; }
-        public int MaxNumberProviderCodesSearch { get; }
-        public int MaxNumberWeeksSearch { get; }
-        public string LastUpdated => $"{DateTime.UtcNow:MMMM yyyy}";
-        public string ApplicationName { get; set; }
+        private readonly IOptionsMonitor<DTO.Response.Configuration.General> _generalOptionsDelegate;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public BaseModel(IConfiguration configuration)
+        protected BaseModel(IOptionsMonitor<DTO.Response.Configuration.General> generalOptionsDelegate, IHttpContextAccessor contextAccessor)
         {
-            _configuration = configuration;
-            if(_configuration != null)
+            _generalOptionsDelegate = generalOptionsDelegate;
+            _contextAccessor = contextAccessor;
+        }
+
+
+        public string GetAccessEmailAddress => _generalOptionsDelegate.CurrentValue.GetAccessEmailAddress;
+        public string GetAccessEmailAddressLink => $"<a href=\"mailto:{_generalOptionsDelegate.CurrentValue.GetAccessEmailAddress}\">{_generalOptionsDelegate.CurrentValue.GetAccessEmailAddress}</a>";
+        public int MaxNumberProviderCodesSearch => _generalOptionsDelegate.CurrentValue.MaxNumberProviderCodesSearch;
+        public int MaxNumberConsumerCodesSearch => _generalOptionsDelegate.CurrentValue.MaxNumberConsumerCodesSearch;
+        public int MaxNumberWeeksSearch => _generalOptionsDelegate.CurrentValue.MaxNumWeeksSearch;
+        public string LastUpdated => $"{DateTime.UtcNow:MMMM yyyy}";
+        public string ApplicationName => _generalOptionsDelegate.CurrentValue.ProductName;
+        public bool MultiSearchEnabled => _contextAccessor.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
+        public bool OrgTypeSearchEnabled => _contextAccessor.HttpContext.User.GetClaimValue("OrgTypeSearchEnabled").StringToBoolean(false);
+        public bool UserIsAdmin => _contextAccessor.HttpContext.User.GetClaimValue("IsAdmin").StringToBoolean(false);
+        public int UserId => _contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger();
+        public bool NoUserPresent => UserId == 0;
+        public UserAccountStatus UserAccountStatus => GetUserAccountStatus(_contextAccessor.HttpContext.User.GetClaimValue<UserAccountStatus>("UserAccountStatus"));
+
+        private UserAccountStatus GetUserAccountStatus(UserAccountStatus? userAccountStatus)
+        {
+            if (userAccountStatus.HasValue)
             {
-                GetAccessEmailAddress = _configuration["General:get_access_email_address"];
-                MaxNumberProviderCodesSearch = _configuration["General:max_number_provider_codes_search"].StringToInteger(20);
-                MaxNumberConsumerCodesSearch = _configuration["General:max_number_consumer_codes_search"].StringToInteger(20);
-                MaxNumberWeeksSearch = _configuration["General:max_num_weeks_search"].StringToInteger(12);
-                ApplicationName = _configuration["General:product_name"];
+                return userAccountStatus.Value;
             }
+            return UserAccountStatus.Unknown;
         }
 
         protected static FileStreamResult GetFileStream(MemoryStream memoryStream, string fileName = null)

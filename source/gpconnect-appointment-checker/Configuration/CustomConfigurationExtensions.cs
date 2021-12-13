@@ -1,11 +1,11 @@
 ﻿using Dapper;
+using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace gpconnect_appointment_checker.Configuration
 {
@@ -53,6 +53,8 @@ namespace gpconnect_appointment_checker.Configuration
 
         public override void Load()
         {
+            MappingExtensions.ConfigureMappingServices();
+
             LoadConfiguration<Spine>("SELECT * FROM configuration.get_spine_configuration()", "Spine");
             LoadConfiguration<General>("SELECT * FROM configuration.get_general_configuration()", "General");
             LoadConfiguration<Sso>("SELECT * FROM configuration.get_sso_configuration()", "SingleSignOn");
@@ -62,7 +64,7 @@ namespace gpconnect_appointment_checker.Configuration
         private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class
         {
             using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
-            var result = connection.Query<T>(query).FirstOrDefault();
+            var result = connection.QueryFirstOrDefault<T>(query);
             var json = JsonConvert.SerializeObject(result);
             var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 

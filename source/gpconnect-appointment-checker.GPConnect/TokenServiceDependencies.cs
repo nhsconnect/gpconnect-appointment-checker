@@ -62,20 +62,17 @@ namespace gpconnect_appointment_checker.GPConnect
         protected void AddRequestingOrganisationClaim(Organisation organisationDetails,
             SecurityTokenDescriptor tokenDescriptor)
         {
-            var odsCode = _configuration.GetSection("Spine:ods_code").Value;
-            var organisationName = _configuration.GetSection("Spine:organisation_name").Value;
-
             tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
             {
                 resourceType = "Organization",
-                name = organisationName,
+                name = _spineOptionsDelegate.CurrentValue.OrganisationName,
                 identifier = new List<Identifier>
                 {
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
-                        value = odsCode
-                    }
+                        value = _spineOptionsDelegate.CurrentValue.OdsCode
+        }
                 }
             });
         }
@@ -85,8 +82,8 @@ namespace gpconnect_appointment_checker.GPConnect
             tokenDescriptor.Claims.Add("requesting_device", new RequestingDevice
             {
                 resourceType = "Device",
-                model = _configuration.GetSection("General:product_name").Value,
-                version = _configuration.GetSection("General:product_version").Value,
+                model = _generalOptionsDelegate.CurrentValue.ProductName,
+                version = _generalOptionsDelegate.CurrentValue.ProductVersion,
                 identifier = new List<Identifier>
                 {
                     new Identifier

@@ -49,7 +49,7 @@
                                     @firstLocation.LocationName<br />
                                     @if (!firstLocation.NoAddressProvided)
                                     {
-                                        @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
+                                        @firstLocation.LocationAddressLinesAsString
                                     }
                                     else
                                     {
@@ -99,7 +99,7 @@
                             @firstLocation.LocationName<br />
                             @if (!firstLocation.NoAddressProvided)
                             {
-                                @StringExtensions.AddressBuilder(firstLocation.LocationAddressLines, firstLocation.LocationDistrict, firstLocation.LocationCity, firstLocation.LocationPostalCode, firstLocation.LocationCountry)
+                                @firstLocation.LocationAddressLinesAsString
                             }
                             else
                             {

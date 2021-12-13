@@ -73,7 +73,7 @@ namespace gpconnect_appointment_checker.Console
 
             for (var i = 0; i < providerOrganisationResults.Count; i++)
             {
-                System.Console.WriteLine($"[{i + 1}] {providerOrganisationResults[i]?.ODSCode} {providerOrganisationResults[i]?.OrganisationTypeCode} {providerOrganisationResults[i]?.OrganisationName} {providerOrganisationResults[i]?.PostalAddress} {providerOrganisationResults[i]?.PostalCode}");
+                System.Console.WriteLine($"[{i + 1}] {providerOrganisationResults[i]?.OdsCode} {providerOrganisationResults[i]?.OrganisationTypeCode} {providerOrganisationResults[i]?.OrganisationName} {providerOrganisationResults[i]?.PostalAddress} {providerOrganisationResults[i]?.PostalCode}");
             }
 
             System.Console.WriteLine("Consumer Organisation Details");
@@ -81,7 +81,7 @@ namespace gpconnect_appointment_checker.Console
 
             for (var i = 0; i < consumerOrganisationResults.Count; i++)
             {
-                System.Console.WriteLine($"[{i + 1}] {consumerOrganisationResults[i]?.ODSCode} {consumerOrganisationResults[i]?.OrganisationTypeCode} {consumerOrganisationResults[i]?.OrganisationName} {consumerOrganisationResults[i]?.PostalAddress} {consumerOrganisationResults[i]?.PostalCode}");
+                System.Console.WriteLine($"[{i + 1}] {consumerOrganisationResults[i]?.OdsCode} {consumerOrganisationResults[i]?.OrganisationTypeCode} {consumerOrganisationResults[i]?.OrganisationName} {consumerOrganisationResults[i]?.PostalAddress} {consumerOrganisationResults[i]?.PostalCode}");
             }
 
             System.Console.WriteLine("Provider Endpoint Details");
@@ -89,7 +89,7 @@ namespace gpconnect_appointment_checker.Console
 
             for (var i = 0; i < providerEndpointResults.Count; i++)
             {
-                System.Console.WriteLine($"[{i + 1}] {providerEndpointResults[i]?.asid} {providerEndpointResults[i]?.ssp_hostname}");
+                System.Console.WriteLine($"[{i + 1}] {providerEndpointResults[i]?.AsId} {providerEndpointResults[i]?.SspHostname}");
             }
 
             System.Console.WriteLine("Consumer Endpoint Details");
@@ -97,7 +97,7 @@ namespace gpconnect_appointment_checker.Console
 
             for (var i = 0; i < consumerEndpointResults.Count; i++)
             {
-                System.Console.WriteLine($"[{i + 1}] {consumerEndpointResults[i]?.asid} {consumerEndpointResults[i]?.ssp_hostname}");
+                System.Console.WriteLine($"[{i + 1}] {consumerEndpointResults[i]?.AsId} {consumerEndpointResults[i]?.SspHostname}");
             }
 
             System.Console.WriteLine("Capability Statement Details");
@@ -140,10 +140,10 @@ namespace gpconnect_appointment_checker.Console
             var providerGpConnectDetails = RunLdapQuery<Spine>(odsCode, "GetGpProviderEndpointAndPartyKeyByOdsCode");
             var consumerGpConnectDetails = RunLdapQuery<Spine>(odsCode, "GetGpProviderEndpointAndPartyKeyByOdsCode");
 
-            var providerAsId = RunLdapQuery<Spine>(odsCode, "GetGpProviderAsIdByOdsCodeAndPartyKey", providerGpConnectDetails?.party_key);
+            var providerAsId = RunLdapQuery<Spine>(odsCode, "GetGpProviderAsIdByOdsCodeAndPartyKey", providerGpConnectDetails?.PartyKey);
             if (providerAsId != null)
             {
-                providerGpConnectDetails.asid = providerAsId.asid;
+                providerGpConnectDetails.AsId = providerAsId.AsId;
                 result = ExecuteApiCall(providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails);
             }
             return result;
@@ -158,7 +158,7 @@ namespace gpconnect_appointment_checker.Console
             };
 
             var tokenIssuer = "ldap.gov.uk";
-            var tokenAudience = providerGpConnectDetails.ssp_hostname;
+            var tokenAudience = providerGpConnectDetails.EndpointAddress;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -174,11 +174,11 @@ namespace gpconnect_appointment_checker.Console
             {
                 BearerToken = tokenString,
                 SspFrom = "100000000001",
-                SspTo = providerGpConnectDetails.asid,
+                SspTo = providerGpConnectDetails.AsId,
                 UseSSP = false,
-                SspHostname = providerGpConnectDetails.ssp_hostname,
-                ConsumerODSCode = consumerOrganisationDetails.ODSCode,
-                ProviderODSCode = providerOrganisationDetails.ODSCode,
+                SspHostname = providerGpConnectDetails.SspHostname,
+                ConsumerODSCode = consumerOrganisationDetails.OdsCode,
+                ProviderODSCode = providerOrganisationDetails.OdsCode,
                 InteractionId = "urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",
                 SpineMessageTypeId = 2
             };
@@ -192,7 +192,7 @@ namespace gpconnect_appointment_checker.Console
                 using var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{AddSecureSpineProxy(providerGpConnectDetails.ssp_hostname, requestParameters)}/metadata")
+                    RequestUri = new Uri($"{AddSecureSpineProxy(providerGpConnectDetails.SspHostname, requestParameters)}/metadata")
                 };
 
                 var response = client.SendAsync(request).Result;
@@ -215,7 +215,7 @@ namespace gpconnect_appointment_checker.Console
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
-                        value = organisationDetails.ODSCode
+                        value = organisationDetails.OdsCode
                     }
                 }
             });
@@ -330,16 +330,16 @@ namespace gpconnect_appointment_checker.Console
 
             using (var ldapConnection = new LdapConnection
             {
-                SecureSocketLayer = _spineConfiguration.sds_use_ldaps,
-                ConnectionTimeout = _spineConfiguration.timeout_seconds * 1000
+                SecureSocketLayer = _spineConfiguration.SdsUseLdaps,
+                ConnectionTimeout = _spineConfiguration.TimeoutMilliseconds
             })
             {
-                if (_spineConfiguration.sds_use_mutualauth)
+                if (_spineConfiguration.SdsUseMutualAuth)
                 {
                     System.Console.WriteLine("Using Mutual Auth");
 
-                    var clientCertData = CertificateHelper.ExtractCertInstances(_spineConfiguration.client_cert);
-                    var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_spineConfiguration.client_private_key);
+                    var clientCertData = CertificateHelper.ExtractCertInstances(_spineConfiguration.ClientCert);
+                    var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_spineConfiguration.ClientPrivateKey);
                     var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
 
                     var privateKey = RSA.Create();
@@ -353,7 +353,7 @@ namespace gpconnect_appointment_checker.Console
                     //ldapConnection.UserDefinedClientCertSelectionDelegate += SelectLocalCertificate;
                 }
 
-                ldapConnection.Connect(_spineConfiguration.sds_hostname, _spineConfiguration.sds_port);
+                ldapConnection.Connect(_spineConfiguration.SdsHostname, _spineConfiguration.SdsPort);
                 ldapConnection.Bind(string.Empty, string.Empty);
 
                 var searchResults = RunSearch(ldapConnection, query, odsCode, partyKey);
@@ -376,7 +376,7 @@ namespace gpconnect_appointment_checker.Console
                 return true;
             System.Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
 
-            var serverCert = _spineConfiguration.server_ca_certchain;
+            var serverCert = _spineConfiguration.ServerCACertChain;
             var serverCertData = CertificateHelper.ExtractCertInstances(serverCert);
             var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
             var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
@@ -466,20 +466,20 @@ namespace gpconnect_appointment_checker.Console
                 {
                     result = new SpineConfiguration
                     {
-                        use_ssp = reader.GetBoolean("use_ssp"),
-                        ssp_hostname = reader.GetNullableString("ssp_hostname"),
-                        sds_hostname = reader.GetString("sds_hostname"),
-                        sds_port = reader.GetInt32("sds_port"),
-                        sds_use_ldaps = reader.GetBoolean("sds_use_ldaps"),
-                        party_key = reader.GetString("party_key"),
-                        asid = reader.GetString("asid"),
-                        organisation_id = reader.GetInt32("organisation_id"),
-                        timeout_seconds = reader.GetInt32("timeout_seconds"),
-                        client_cert = reader.GetNullableString("client_cert"),
-                        client_private_key = reader.GetNullableString("client_private_key"),
-                        server_ca_certchain = reader.GetNullableString("server_ca_certchain"),
-                        sds_use_mutualauth = reader.GetBoolean("sds_use_mutualauth"),
-                        spine_fqdn = reader.GetString("spine_fqdn")
+                        UseSSP = reader.GetBoolean("use_ssp"),
+                        SspHostname = reader.GetNullableString("ssp_hostname"),
+                        SdsHostname = reader.GetString("sds_hostname"),
+                        SdsPort = reader.GetInt32("sds_port"),
+                        SdsUseLdaps = reader.GetBoolean("sds_use_ldaps"),
+                        PartyKey = reader.GetString("party_key"),
+                        AsId = reader.GetString("asid"),
+                        OrganisationId = reader.GetInt32("organisation_id"),
+                        TimeoutSeconds = reader.GetInt32("timeout_seconds"),
+                        ClientCert = reader.GetNullableString("client_cert"),
+                        ClientPrivateKey = reader.GetNullableString("client_private_key"),
+                        ServerCACertChain = reader.GetNullableString("server_ca_certchain"),
+                        SdsUseMutualAuth = reader.GetBoolean("sds_use_mutualauth"),
+                        SpineFqdn = reader.GetString("spine_fqdn")
                     };
                 }
 
@@ -510,19 +510,32 @@ namespace gpconnect_appointment_checker.Console
 
     internal class SpineConfiguration
     {
-        public bool use_ssp { get; set; }
-        public string ssp_hostname { get; set; }
-        public string sds_hostname { get; set; }
-        public int sds_port { get; set; }
-        public bool sds_use_ldaps { get; set; }
-        public int organisation_id { get; set; }
-        public string party_key { get; set; }
-        public string asid { get; set; }
-        public int timeout_seconds { get; set; }
-        public string client_cert { get; set; }
-        public string client_private_key { get; set; }
-        public string server_ca_certchain { get; set; }
-        public string spine_fqdn { get; set; }
-        public bool sds_use_mutualauth { get; set; }
+        public bool UseSSP { get; set; }
+        public string SspHostname { get; set; }
+        public string EndpointAddress { get; set; }
+        public string SdsHostname { get; set; }
+        public string ClientCert { get; set; }
+        public string ClientPrivateKey { get; set; }
+        public string ServerCACertChain { get; set; }
+        public int SdsPort { get; set; }
+        public bool SdsUseLdaps { get; set; }
+        public bool SdsUseMutualAuth { get; set; }
+        public int OrganisationId { get; set; }
+        public string OdsCode { get; set; }
+        public string ManufacturingOrganisationOdsCode { get; set; }
+        public string OrganisationName { get; set; }
+        public string PartyKey { get; set; }
+        public string AsId { get; set; }
+        public string SspFrom { get; set; }
+        public bool HasAsId => !string.IsNullOrEmpty(AsId);
+        public int TimeoutSeconds { get; set; }
+        public int TimeoutMilliseconds => TimeoutSeconds * 1000;
+        public string SpineFqdn { get; set; }
+        public string SdsTlsVersion { get; set; }
+        public string ProductName { get; set; }
+        public bool SdsUseFhirApi { get; set; }
+        public string SpineFhirApiSystemsRegisterFqdn { get; set; }
+        public string SpineFhirApiDirectoryServicesFqdn { get; set; }
+        public string SpineFhirApiKey { get; set; }
     }
 }

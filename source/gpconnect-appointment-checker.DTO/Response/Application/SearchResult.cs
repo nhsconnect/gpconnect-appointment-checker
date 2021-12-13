@@ -1,4 +1,8 @@
-﻿namespace gpconnect_appointment_checker.DTO.Response.Application
+﻿using gpconnect_appointment_checker.Helpers.Constants;
+using System.Linq;
+using System.Text;
+
+namespace gpconnect_appointment_checker.DTO.Response.Application
 {
     public class SearchResult
     {
@@ -18,5 +22,23 @@
         public string ProviderPublisher { get; set; }
         public double SearchDurationSeconds { get; set; }
         public string ConsumerOrganisationType { get; set; }
+
+        public string SearchAtResults => $"{ProviderOrganisationName} ({ProviderOdsCode}) - {Helpers.AddressBuilder.GetAddress(ProviderAddressFields.ToList(), ProviderPostcode)}";
+        public string SearchOnBehalfOfResults => GetSearchOnBehalfOfResults();
+
+        private string GetSearchOnBehalfOfResults()
+        {
+            var searchOnBehalfOfResultsText = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(ConsumerOrganisationName))
+            {
+                searchOnBehalfOfResultsText.Append($"{ConsumerOrganisationName} ({ConsumerOdsCode}) - {Helpers.AddressBuilder.GetAddress(ConsumerAddressFields.ToList(), ConsumerPostcode)}");
+            }
+            if (!string.IsNullOrEmpty(ConsumerOrganisationType))
+            {
+                searchOnBehalfOfResultsText.Append($"<p>{string.Format(SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT, ConsumerOrganisationType)}</p>");
+            }
+            return searchOnBehalfOfResultsText.ToString();
+        }
     }
 }

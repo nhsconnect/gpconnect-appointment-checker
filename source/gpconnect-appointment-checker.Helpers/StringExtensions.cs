@@ -18,24 +18,12 @@ namespace gpconnect_appointment_checker.Helpers
             return strings.FirstOrDefault(s => !string.IsNullOrEmpty(s));
         }
 
-        public static string AddressBuilder(List<string> addressLines, string district, string city, string postalCode, string country)
-        {
-            addressLines ??= new List<string>();
-            addressLines.Add(district);
-            addressLines.Add(city);
-            addressLines.Add(postalCode);
-            addressLines.Add(country);
-            return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s)));
-        }
-
-        public static string PractitionerBuilder(List<string> practitionerDetails, string familyName, string givenName, string prefix)
-        {
-            practitionerDetails ??= new List<string>();
-            if (!string.IsNullOrEmpty(familyName)) { practitionerDetails.Add($"{familyName.ToUpper()},"); }
-            if (!string.IsNullOrEmpty(givenName)) { practitionerDetails.Add($"{givenName}"); }
-            if (!string.IsNullOrEmpty(prefix)) { practitionerDetails.Add($"({prefix})"); }
-            return string.Join(" ", practitionerDetails);
-        }
+        public static string SearchAndReplace(this string input, Dictionary<string, string> replacementValues) =>
+            input switch
+            {
+                null or "" => string.Empty,
+                _ => replacementValues.Aggregate(input, (current, value) => current.Replace(value.Key, value.Value))
+            };
 
         public static string FlattenStrings(params string[] strings)
         {
@@ -49,16 +37,5 @@ namespace gpconnect_appointment_checker.Helpers
                 "" => string.Empty,
                 _ => countValue == 1 ? string.Format(input, countValue, string.Empty) : countValue == 0 ? string.Empty : string.Format(input, countValue, "s")
             } + endTag;
-
-        public static string AddressBuilder(List<string> addressLines, string postalCode)
-        {
-            if (addressLines != null && !string.IsNullOrEmpty(postalCode))
-            {
-                addressLines ??= new List<string>();
-                addressLines.Add(postalCode);
-                return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s.Trim())));
-            }
-            return string.Empty;
-        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.DTO.Response.Application
 {
@@ -7,7 +8,7 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
         public int OrganisationId { get; set; }
 
         [JsonProperty("nhsIDCode")]
-        public string ODSCode { get; set; }
+        public string OdsCode { get; set; }
 
         [JsonProperty("o")]
         public string OrganisationName { get; set; }
@@ -22,5 +23,9 @@ namespace gpconnect_appointment_checker.DTO.Response.Application
 
         [JsonProperty("nhsOrgTypeCode")]
         public string OrganisationTypeCode { get; set; }
+
+        public string FormattedOrganisationDetails => $"{OrganisationName} ({OdsCode}) - {Helpers.AddressBuilder.GetAddress(PostalAddressFields.ToList(), PostalCode)}";
+
+        public string OrganisationLocation => $"{OrganisationName}, {Helpers.AddressBuilder.GetAddress(PostalAddressFields.ToList(), PostalCode)}";
     }
 }

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
-using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -84,8 +84,18 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
             });
-            HttpClientExtensions.AddHttpClientServices(services, configuration, env);
-            SmtpClientExtensions.AddSmtpClientServices(services, configuration);
+
+            services.Configure<Sso>(configuration.GetSection("SingleSignOn"));
+            services.Configure<General>(configuration.GetSection("General"));
+            services.Configure<Spine>(configuration.GetSection("Spine"));
+            services.Configure<Email>(configuration.GetSection("Email"));
+
+            var httpClientExtensions = new HttpClientExtensions(configuration);
+            httpClientExtensions.AddHttpClientServices(services, env);
+
+            var smtpClientExtensions = new SmtpClientExtensions(configuration);
+            smtpClientExtensions.AddSmtpClientServices(services);
+
             return services;
         }
     }

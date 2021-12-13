@@ -1,6 +1,7 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace gpconnect_appointment_checker.DAL.Configuration
 {
@@ -28,11 +29,18 @@ namespace gpconnect_appointment_checker.DAL.Configuration
             return result;
         }
 
-        public List<DTO.Response.Configuration.SdsQuery> GetSdsQueryConfiguration()
+        public DTO.Response.Configuration.SdsQuery GetSdsQueryConfiguration(string queryName)
         {
             var functionName = "configuration.get_sds_queries";
             var result = _dataService.ExecuteFunction<DTO.Response.Configuration.SdsQuery>(functionName);
-            return result;
+            return result.FirstOrDefault(x => x.QueryName == queryName);
+        }
+
+        public DTO.Response.Configuration.FhirApiQuery GetFhirApiQueryConfiguration(string queryName)
+        {
+            var functionName = "configuration.get_fhir_api_queries";
+            var result = _dataService.ExecuteFunction<DTO.Response.Configuration.FhirApiQuery>(functionName);
+            return result.FirstOrDefault(x => x.QueryName == queryName);
         }
 
         public List<DTO.Response.Configuration.OrganisationType> GetOrganisationTypes()

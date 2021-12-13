@@ -1,41 +1,34 @@
-﻿using System;
-using System.Net;
+﻿using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Mail;
-using gpconnect_appointment_checker.Helpers;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
-    public static class SmtpClientExtensions
+    public class SmtpClientExtensions
     {
-        public static void AddSmtpClientServices(IServiceCollection services, IConfiguration configuration)
+        public Email _emailConfig { get; private set; }
+
+        public SmtpClientExtensions(IConfiguration config)
         {
-            ServicePointManager.SecurityProtocol = GetSecurityProtocol(configuration);
+            _emailConfig = config.GetSection("Email").Get<Email>();
+        }
+
+        public void AddSmtpClientServices(IServiceCollection services)
+        {
             services.AddScoped(serviceProvider => new SmtpClient
             {
-                Host = configuration.GetSection("Email:host_name").Value,
-                Port = configuration.GetSection("Email:port").Value.StringToInteger(),
+                Host = _emailConfig.HostName,
+                Port = _emailConfig.Port,
                 DeliveryFormat = SmtpDeliveryFormat.SevenBit,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 EnableSsl = true,
-                Credentials = GetCredentials(configuration)
+                Credentials = new System.Net.NetworkCredential
+                {
+                    UserName = _emailConfig.UserName,
+                    Password = _emailConfig.Password
+                }
             });
-        }
-
-        private static SecurityProtocolType GetSecurityProtocol(IConfiguration configuration)
-        {
-            var encryptionMethod = configuration.GetSection("Email:encryption").GetConfigurationString("Tls12", false);
-            return Enum.Parse<SecurityProtocolType>(encryptionMethod);
-        }
-
-        private static ICredentialsByHost GetCredentials(IConfiguration configuration)
-        {
-            return new NetworkCredential
-            {
-                UserName = configuration.GetSection("Email:user_name").GetConfigurationString(null, true),
-                Password = configuration.GetSection("Email:password").GetConfigurationString(null, true)
-            };
         }
     }
 }

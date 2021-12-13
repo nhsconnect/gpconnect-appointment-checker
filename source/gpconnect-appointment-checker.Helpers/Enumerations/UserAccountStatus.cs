@@ -4,6 +4,8 @@ namespace gpconnect_appointment_checker.Helpers.Enumerations
 {
     public enum UserAccountStatus : ushort
     {
+        [Description("Unknown")]
+        Unknown = 0,
         [Description("Pending")] 
         Pending = 1,
         [Description("Authorised")]

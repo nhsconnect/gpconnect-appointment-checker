@@ -1,5 +1,5 @@
-﻿using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.SDS;
+﻿using gpconnect_appointment_checker.DTO.Response.Configuration;
+using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -10,15 +10,22 @@ using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
-    public static class AuthenticationExtensions
+    public class AuthenticationExtensions
     {
-        public static void ConfigureAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+        public Sso _ssoConfig { get; private set; }
+
+        public AuthenticationExtensions(IConfiguration config)
+        {
+            _ssoConfig = config.GetSection("SingleSignOn").Get<Sso>();
+        }
+
+        public void ConfigureAuthenticationServices(IServiceCollection services)
         {
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = configuration.GetSection("SingleSignOn:auth_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
-                options.DefaultSignInScheme = configuration.GetSection("SingleSignOn:auth_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
-                options.DefaultChallengeScheme = configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
+                options.DefaultAuthenticateScheme = _ssoConfig.AuthScheme;
+                options.DefaultSignInScheme = _ssoConfig.AuthScheme;
+                options.DefaultChallengeScheme = _ssoConfig.ChallengeScheme;
             }).AddCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -30,13 +37,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             })
             .AddOpenIdConnect(
-                configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
-                displayName: configuration.GetSection("SingleSignOn:challenge_scheme").GetConfigurationString(throwExceptionIfEmpty: true),
+                _ssoConfig.ChallengeScheme,
+                displayName: _ssoConfig.ChallengeScheme,
                 options =>
                 {
-                    options.SignInScheme = configuration.GetSection("SingleSignOn:auth_scheme").GetConfigurationString(throwExceptionIfEmpty: true);
-                    options.Authority = configuration.GetSection("SingleSignOn:auth_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
-                    options.MetadataAddress = configuration.GetSection("SingleSignOn:metadata_endpoint").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.SignInScheme = _ssoConfig.AuthScheme;
+                    options.Authority = _ssoConfig.AuthEndpoint;
+                    options.MetadataAddress = _ssoConfig.MetadataEndpoint;
                     options.MaxAge = TimeSpan.FromMinutes(30);
                     options.SaveTokens = true;
                     options.Scope.Clear();
@@ -45,10 +52,10 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                     options.Scope.Add("email");
                     options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
-                    options.ClientId = configuration.GetSection("SingleSignOn:client_id").GetConfigurationString(throwExceptionIfEmpty: true);
-                    options.ClientSecret = configuration.GetSection("SingleSignOn:client_secret").GetConfigurationString(throwExceptionIfEmpty: true);
-                    options.CallbackPath = configuration.GetSection("SingleSignOn:callback_path").GetConfigurationString(throwExceptionIfEmpty: true);
-                    options.SignedOutCallbackPath = configuration.GetSection("SingleSignOn:signed_out_callback_path").GetConfigurationString(throwExceptionIfEmpty: true);
+                    options.ClientId = _ssoConfig.ClientId;
+                    options.ClientSecret = _ssoConfig.ClientSecret;
+                    options.CallbackPath = _ssoConfig.CallbackPath;
+                    options.SignedOutCallbackPath = _ssoConfig.SignedOutCallbackPath;
 
                     options.Events = new OpenIdConnectEvents
                     {
@@ -60,7 +67,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                         },
                         OnTokenValidated = context =>
                         {
-                            var ldapTokenService = new LdapTokenService(services.BuildServiceProvider());
+                            var ldapTokenService = context.HttpContext.RequestServices.GetRequiredService<ILdapTokenService>();
                             var tokenValidation = ldapTokenService.ExecutionTokenValidation(context);
                             return tokenValidation;
                         },

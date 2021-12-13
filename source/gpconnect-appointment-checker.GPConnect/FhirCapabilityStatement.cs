@@ -37,7 +37,7 @@ namespace gpconnect_appointment_checker.GPConnect
             using var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/metadata")
+                RequestUri = new Uri($"{requestParameter.RequestParameters.EndpointAddressWithSpineSecureProxy}/metadata")
             };
 
             using var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -76,7 +76,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     }));
                 });
 
-                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.BaseAddress != null), requestParameter =>
+                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null), requestParameter =>
                 {
                     tasks.Add(Task.FromResult(PopulateCapabilityStatementResults(requestParameter, cancellationToken)));
                 });
@@ -110,7 +110,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
 
                 getRequest.Method = HttpMethod.Get;
-                getRequest.RequestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/metadata");
+                getRequest.RequestUri = new Uri($"{requestParameters.EndpointAddressWithSpineSecureProxy}/metadata");
 
                 _spineMessage.RequestPayload = getRequest.ToString();
 
