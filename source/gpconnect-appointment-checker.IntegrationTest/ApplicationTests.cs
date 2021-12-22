@@ -54,7 +54,7 @@ namespace gpconnect_appointment_checker.IntegrationTest
         {
             var result = _applicationService.GetOrganisation(odsCode);
             Assert.IsType<Organisation>(result);
-            Assert.Equal(odsCode, result.ODSCode);
+            Assert.Equal(odsCode, result.OdsCode);
             Assert.Equal(organisationTypeCode, result.OrganisationTypeCode);
             Assert.Equal(organisationName, result.OrganisationName);
             Assert.Equal(postalCode, result.PostalCode);

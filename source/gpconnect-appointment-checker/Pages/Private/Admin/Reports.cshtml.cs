@@ -1,10 +1,12 @@
 ﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
+using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public ReportsModel(IConfiguration configuration, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration)
+        public ReportsModel(IOptionsMonitor<General> configuration, IHttpContextAccessor contextAccessor, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _logger = logger;
             _reportingService = reportingService;

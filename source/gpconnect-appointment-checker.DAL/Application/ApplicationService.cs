@@ -90,7 +90,7 @@ namespace gpconnect_appointment_checker.DAL.Application
             {
                 var functionName = "application.synchronise_organisation";
                 var parameters = new DynamicParameters();
-                parameters.Add("_ods_code", organisation.ODSCode);
+                parameters.Add("_ods_code", organisation.OdsCode);
                 parameters.Add("_organisation_type_name", organisation.OrganisationTypeCode);
                 parameters.Add("_organisation_name", organisation.OrganisationName);
                 parameters.Add("_address_line_1", organisation.PostalAddressFields[0]);
@@ -209,9 +209,9 @@ namespace gpconnect_appointment_checker.DAL.Application
             var searchResultByGroup = _dataService.ExecuteFunction<SearchResultByGroup>(functionName, parameters);
             var slotEntrySummaryList = searchResultByGroup.Select(a => new SlotEntrySummary
             {
-                ProviderLocationName = $"{a.ProviderOrganisationName}, {StringExtensions.AddressBuilder(new List<string>(a.ProviderAddressFields), a.ProviderPostcode)}",
+                ProviderLocationName = a.ProviderLocation,
                 ProviderOdsCode = a.ProviderOdsCode,
-                ConsumerLocationName = $"{a.ConsumerOrganisationName}, {StringExtensions.AddressBuilder(new List<string>(a.ConsumerAddressFields), a.ConsumerPostcode)}",
+                ConsumerLocationName = a.ConsumerLocation,
                 ConsumerOdsCode = a.ConsumerOdsCode,
                 ConsumerOrganisationType = a.ConsumerOrganisationType,
                 SearchSummaryDetail = a.Details,

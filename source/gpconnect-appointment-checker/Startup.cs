@@ -1,3 +1,4 @@
+using Autofac;
 using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
 using gpconnect_appointment_checker.DAL;
@@ -30,11 +31,19 @@ namespace gpconnect_appointment_checker
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions(); 
             services.AddHttpContextAccessor();
-            services.ConfigureAuthenticationServices(Configuration);
+
+            var authenticationExtensions = new AuthenticationExtensions(Configuration);
+            authenticationExtensions.ConfigureAuthenticationServices(services);
+
             services.ConfigureApplicationServices(Configuration, WebHostEnvironment);
             services.ConfigureLoggingServices(Configuration);
-            MappingExtensions.ConfigureMappingServices();
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterModule(new ContainerModule());
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAuditService auditService, IApplicationService applicationService)

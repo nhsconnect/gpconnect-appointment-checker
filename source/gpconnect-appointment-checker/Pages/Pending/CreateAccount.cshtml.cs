@@ -1,12 +1,14 @@
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Application;
+using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -18,7 +20,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IEmailService _emailService;
         protected readonly ILoggerManager _loggerManager;
 
-        public CreateAccountModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IApplicationService applicationService, IEmailService emailService, ILoggerManager loggerManager = null) : base(configuration)
+        public CreateAccountModel(IOptionsMonitor<General> configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IApplicationService applicationService, IEmailService emailService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _contextAccessor = contextAccessor;
             _applicationService = applicationService;

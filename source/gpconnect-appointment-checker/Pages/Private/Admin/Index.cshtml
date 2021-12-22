@@ -89,7 +89,7 @@ Value = v.ToString()
                             </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">
                                 @Html.DropDownListFor(m => m.SelectedUserAccountStatusFilter,
-new SelectList(Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>().Select(v => new SelectListItem
+new SelectList(Enum.GetValues(typeof(UserAccountStatus)).Cast<UserAccountStatus>().Where(x => x != UserAccountStatus.Unknown).Select(v => new SelectListItem
 {
 Text = v.GetDescription(),
 Value = ((int)v).ToString()

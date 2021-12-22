@@ -4,6 +4,8 @@
     {
         SpineLdapQuery = 1,
         GpConnectReadMetaData = 2,
-        GpConnectSearchFreeSlots = 3
+        GpConnectSearchFreeSlots = 3,
+        SpineFhirApiSDSQuery = 4,
+        SpineFhirApiOrganisationQuery = 5
     }
 }

@@ -101,20 +101,5 @@ namespace gpconnect_appointment_checker.GPConnect
             client.DefaultRequestHeaders.Add("Ssp-TraceID", Guid.NewGuid().ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestParameters.BearerToken);
         }
-
-        private string AddSecureSpineProxy(RequestParametersList requestParametersList)
-        {
-            return requestParametersList.RequestParameters.UseSSP ? AddScheme(requestParametersList.RequestParameters.SspHostname) + "/" + requestParametersList.BaseAddress : requestParametersList.BaseAddress;
-        }
-
-        private string AddSecureSpineProxy(string baseAddress, RequestParameters requestParameters)
-        {
-            return requestParameters.UseSSP ? AddScheme(requestParameters.SspHostname) + "/" + baseAddress : baseAddress;
-        }
-
-        private string AddScheme(string sspHostname)
-        {
-            return !sspHostname.StartsWith("https://") ? "https://" + sspHostname : sspHostname;
-        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace gpconnect_appointment_checker.DTO.Response.Application
+﻿using System.Collections.Generic;
+
+namespace gpconnect_appointment_checker.DTO.Response.Application
 {
     public class SearchResultByGroup
     {
@@ -18,5 +20,8 @@
         public string Details { get; set; }
         public string ProviderPublisher { get; set; }
         public string ConsumerOrganisationType { get; set; }
+
+        public string ProviderLocation => $"{ProviderOrganisationName}, {Helpers.AddressBuilder.GetAddress(new List<string>(ProviderAddressFields), ProviderPostcode)}";
+        public string ConsumerLocation => $"{ConsumerOrganisationName}, {Helpers.AddressBuilder.GetAddress(new List<string>(ConsumerAddressFields), ConsumerPostcode)}";
     }
 }

@@ -21,7 +21,11 @@ returns table
     server_ca_certchain varchar(8000),
     sds_use_mutualauth boolean,
     spine_fqdn varchar(100),
-    sds_tls_version varchar(10)
+    sds_tls_version varchar(10),
+    sds_use_fhir_api boolean,
+    spine_fhir_api_directory_services_fqdn varchar(100),
+    spine_fhir_api_systems_register_fqdn varchar(100),
+    spine_fhir_api_key varchar(100)
 )
 as $$
 begin
@@ -44,9 +48,12 @@ begin
 	    s.server_ca_certchain,
 	    s.sds_use_mutualauth,
 	    s.spine_fqdn,
-	    s.sds_tls_version
+	    s.sds_tls_version,
+	    s.sds_use_fhir_api,
+	    s.spine_fhir_api_directory_services_fqdn,
+	    s.spine_fhir_api_systems_register_fqdn,
+	    s.spine_fhir_api_key
 	from configuration.spine s
-	inner join application.organisation o on s.organisation_id = o.organisation_id;
-	
+	inner join application.organisation o on s.organisation_id = o.organisation_id;	
 end;
 $$ language plpgsql;

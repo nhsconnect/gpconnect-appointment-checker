@@ -1,38 +1,29 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Logging;
+using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.SDS.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Novell.Directory.Ldap;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Security;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Authentication;
 
 namespace gpconnect_appointment_checker.SDS
 {
-    public class SDSQueryExecutionService : ISDSQueryExecutionService
+    public class LdapRequestExecution : SdsQueryExecutionBase, ILdapRequestExecution
     {
-        private static ILogger<SDSQueryExecutionService> _logger;
+        private static ILogger<LdapRequestExecution> _logger;
         private readonly ILogService _logService;
-        private static IConfiguration _configuration;
-        private readonly IHttpContextAccessor _context;
-        private static X509Certificate _clientCertificate;
         private static bool _haveLoggedTlsVersion = false;
 
-        public SDSQueryExecutionService(ILogger<SDSQueryExecutionService> logger, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
+        public LdapRequestExecution(ILogger<LdapRequestExecution> logger, ILogService logService, IOptionsMonitor<Spine> spineOptionsDelegate) : base(logger, null, null, spineOptionsDelegate)
         {
             _logger = logger;
-            _configuration = configuration;
             _logService = logService;
-            _context = context;
         }
 
         public T ExecuteLdapQuery<T>(string searchBase, string filter, string[] attributes) where T : class
@@ -49,15 +40,12 @@ namespace gpconnect_appointment_checker.SDS
                 };
 
                 var results = new Dictionary<string, object>();
-                var useLdaps = bool.Parse(_configuration.GetSection("Spine:sds_use_ldaps").Value);
-                var useSdsMutualAuth = bool.Parse(_configuration.GetSection("Spine:sds_use_mutualauth").Value);
 
                 var ldapConnectionOptions = new LdapConnectionOptions();
 
-                if (useLdaps)
+                if (_spineOptionsDelegate.CurrentValue.SdsUseLdaps)
                 {
-                    var sslProtocol = ParseTlsVersion(_configuration.GetSection("Spine:sds_tls_version").Value);
-                    ldapConnectionOptions.ConfigureSslProtocols(sslProtocol);
+                    ldapConnectionOptions.ConfigureSslProtocols(SecurityHelper.ParseTlsVersion(_spineOptionsDelegate.CurrentValue.SdsTlsVersion));
                     ldapConnectionOptions.UseSsl();
                     ldapConnectionOptions.ConfigureLocalCertificateSelectionCallback(SelectLocalCertificate);
                     ldapConnectionOptions.ConfigureRemoteCertificateValidationCallback(ValidateServerCertificate);
@@ -65,31 +53,12 @@ namespace gpconnect_appointment_checker.SDS
 
                 using (var ldapConnection = new LdapConnection(ldapConnectionOptions)
                 {
-                    ConnectionTimeout = int.Parse(_configuration.GetSection("Spine:timeout_seconds").Value) * 1000
+                    ConnectionTimeout = _spineOptionsDelegate.CurrentValue.TimeoutMilliseconds
                 })
                 {
-                    if (useSdsMutualAuth)
-                    {
-                        var clientCert = _configuration.GetSection("spine:client_cert").GetConfigurationString();
-                        var serverCert = _configuration.GetSection("spine:server_ca_certchain").GetConfigurationString();
-                        var clientPrivateKey = _configuration.GetSection("spine:client_private_key").GetConfigurationString();
-
-                        var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
-                        var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
-                        var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
-
-                        var privateKey = RSA.Create();
-                        privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
-                        var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
-                        var pfxFormattedCertificate = new X509Certificate(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
-
-                        _clientCertificate = pfxFormattedCertificate;
-                    }
-
-                    var hostName = _configuration.GetSection("Spine:sds_hostname").Value;
-                    var hostPort = int.Parse(_configuration.GetSection("Spine:sds_port").Value);
-
-                    ldapConnection.Connect(hostName, hostPort);
+                    SetupMutualAuth();
+                    
+                    ldapConnection.Connect(_spineOptionsDelegate.CurrentValue.SdsHostname, _spineOptionsDelegate.CurrentValue.SdsPort);
                     ldapConnection.Bind(string.Empty, string.Empty);
 
                     LogTlsVersionOnStartup(ldapConnection);
@@ -134,23 +103,6 @@ namespace gpconnect_appointment_checker.SDS
             }
         }
 
-        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            if (sslPolicyErrors == SslPolicyErrors.None)
-                return true;
-
-            if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)  // skip this for now; logged as ticket to sort
-                return true;
-
-            _logger.LogError($"An error has occurred while attempting to validate the LDAP server certificate: {sslPolicyErrors}");
-            return true;
-        }
-
-        private static X509Certificate SelectLocalCertificate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
-        {
-            return _clientCertificate;
-        }
-
         private static void LogTlsVersionOnStartup(LdapConnection ldapConnection)
         {
             if (_haveLoggedTlsVersion)
@@ -188,19 +140,6 @@ namespace gpconnect_appointment_checker.SDS
             {
                 _logger.LogError(e, "Error getting LDAP TLS version");
                 return "Error getting LDAP TLS version";
-            }
-        }
-
-        private static SslProtocols ParseTlsVersion(string tlsVersion)
-        {
-            switch (tlsVersion)
-            {
-                case "1.2":
-                    return SslProtocols.Tls12;
-                case "1.3":
-                    return SslProtocols.Tls13;
-                default:
-                    return SslProtocols.None;
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.Helpers;
+﻿using gpconnect_appointment_checker.DTO.Response.Configuration;
+using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,41 +13,42 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
-    public static class HttpClientExtensions
+    public class HttpClientExtensions
     {
-        public static void AddHttpClientServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+        public Spine _spineConfig { get; private set; }
+
+        public HttpClientExtensions(IConfiguration config)
+        {
+            _spineConfig = config.GetSection("Spine").Get<Spine>();
+        }
+
+        public void AddHttpClientServices(IServiceCollection services, IWebHostEnvironment env)
         {
             services.AddHttpClient("GpConnectClient", options =>
             {
-                options.Timeout = new TimeSpan(0, 0, 0, int.Parse(configuration.GetSection("spine:timeout_seconds").GetConfigurationString("30")));
+                options.Timeout = new TimeSpan(0, 0, 0, _spineConfig.TimeoutSeconds);
                 options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
                 options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(configuration, env));
+            }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(env));
         }
 
-        private static HttpMessageHandler CreateHttpMessageHandler(IConfiguration configuration, IWebHostEnvironment env)
+        private HttpMessageHandler CreateHttpMessageHandler(IWebHostEnvironment env)
         {
-            var clientCert = configuration.GetSection("spine:client_cert").GetConfigurationString();
-            var serverCert = configuration.GetSection("spine:server_ca_certchain").GetConfigurationString();
-            var clientPrivateKey = configuration.GetSection("spine:client_private_key").GetConfigurationString();
-
             var httpClientHandler = new HttpClientHandler();
 
-            if (bool.Parse(configuration.GetSection("spine:use_ssp").GetConfigurationString("false")) &&
-                !string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientPrivateKey) &&
-                !string.IsNullOrEmpty(configuration.GetSection("spine:nhsMHSEndPoint").GetConfigurationString()))
+            if (_spineConfig.UseSSP)
             {
                 httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 
-                var clientCertData = CertificateHelper.ExtractCertInstances(clientCert);
-                var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(clientPrivateKey);
+                var clientCertData = CertificateHelper.ExtractCertInstances(_spineConfig.ClientCert);
+                var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_spineConfig.ClientPrivateKey);
                 var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
                 var privateKey = RSA.Create();
                 privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                 var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                 var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
-                var serverCertData = CertificateHelper.ExtractCertInstances(serverCert);
+                var serverCertData = CertificateHelper.ExtractCertInstances(_spineConfig.ServerCACertChain);
                 var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
                 var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
 

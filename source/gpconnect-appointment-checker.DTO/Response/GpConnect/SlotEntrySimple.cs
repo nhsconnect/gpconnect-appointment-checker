@@ -1,12 +1,10 @@
-﻿using gpconnect_appointment_checker.Helpers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 {
-
     public class SlotEntrySimple
     {
         [JsonProperty("Appointment Date")]
@@ -36,7 +34,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
         [IgnoreDataMember]
         public List<string> LocationAddressLines { get; set; }
         [JsonProperty("Location Address")]
-        public string LocationAddressLinesAsString => StringExtensions.AddressBuilder(LocationAddressLines, LocationDistrict, LocationCity, LocationPostalCode, LocationCountry);
+        public string LocationAddressLinesAsString { get; set; }
         [JsonProperty("Location City")]
         public string LocationCity { get; set; }
         [JsonProperty("Location District")]
@@ -48,7 +46,7 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
 
         [IgnoreDataMember]
         public List<string> PractitionerDetails { get; set; }
-        public string PractitionerName => StringExtensions.PractitionerBuilder(PractitionerDetails, PractitionerFamilyName, PractitionerGivenName, PractitionerPrefix);
+        public string PractitionerName => PractitionerBuilder(PractitionerDetails, PractitionerFamilyName, PractitionerGivenName, PractitionerPrefix);
 
         [IgnoreDataMember]
         public bool SlotInPast { get; set; }
@@ -60,5 +58,13 @@ namespace gpconnect_appointment_checker.DTO.Response.GpConnect
                                          string.IsNullOrEmpty(LocationPostalCode) &&
                                          string.IsNullOrEmpty(LocationCountry);
 
+        private static string PractitionerBuilder(List<string> practitionerDetails, string familyName, string givenName, string prefix)
+        {
+            practitionerDetails ??= new List<string>();
+            if (!string.IsNullOrEmpty(familyName)) { practitionerDetails.Add($"{familyName.ToUpper()},"); }
+            if (!string.IsNullOrEmpty(givenName)) { practitionerDetails.Add($"{givenName}"); }
+            if (!string.IsNullOrEmpty(prefix)) { practitionerDetails.Add($"({prefix})"); }
+            return string.Join(" ", practitionerDetails);
+        }
     }
 }

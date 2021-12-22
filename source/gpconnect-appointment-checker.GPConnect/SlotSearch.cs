@@ -40,7 +40,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 client.Timeout = new TimeSpan(0, 0, 30);
                 AddRequiredRequestHeaders(requestParameters, client);
                 _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-                var requestUri = new Uri($"{AddSecureSpineProxy(baseAddress, requestParameters)}/Slot");
+                var requestUri = new Uri($"{requestParameters.EndpointAddressWithSpineSecureProxy}/Slot");
                 var uriBuilder = AddQueryParameters(requestParameters, startDate, endDate, requestUri);
 
                 getRequest.Method = HttpMethod.Get;
@@ -141,24 +141,24 @@ namespace gpconnect_appointment_checker.GPConnect
                     }));
                 });
 
-                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null), requestParameter =>
+                Parallel.ForEach(requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null), requestParameter =>
                 {
                     switch (searchType)
                     {
                         case SearchType.Provider:
-                            if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
+                            if (organisationErrorCodeOrDetails.Where(x => x.providerOrganisation?.OdsCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
                                 tasks.Add(Task.FromResult(PopulateResults(startDate, endDate, requestParameter, cancellationToken)));
                             }
                             break;
                         case SearchType.Consumer:
-                            if (organisationErrorCodeOrDetails.Where(x => x.consumerOrganisation?.ODSCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
+                            if (organisationErrorCodeOrDetails.Where(x => x.consumerOrganisation?.OdsCode == requestParameter?.OdsCode)?.FirstOrDefault()?.errorSource == ErrorCode.None)
                             {
                                 tasks.Add(Task.FromResult(PopulateResults(startDate, endDate, requestParameter, cancellationToken)));
                             }
                             break;
                     }
-                });
+                }); ;
 
                 var processedSlotEntrySummaryCount = await Task.WhenAll(tasks);
                 return processedSlotEntrySummaryCount.ToList();
@@ -190,7 +190,7 @@ namespace gpconnect_appointment_checker.GPConnect
 
             AddRequiredRequestHeaders(requestParameter.RequestParameters, client);
             _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
-            var requestUri = new Uri($"{AddSecureSpineProxy(requestParameter)}/Slot");
+            var requestUri = new Uri($"{requestParameter.RequestParameters.EndpointAddressWithSpineSecureProxy}/Slot");
             var uriBuilder = AddQueryParameters(requestParameter.RequestParameters, startDate, endDate, requestUri);
 
             var getRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);

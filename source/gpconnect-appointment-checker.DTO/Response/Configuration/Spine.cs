@@ -1,30 +1,33 @@
-﻿using Newtonsoft.Json;
-
-namespace gpconnect_appointment_checker.DTO.Response.Configuration
+﻿namespace gpconnect_appointment_checker.DTO.Response.Configuration
 {
     public class Spine
     {
-        public bool use_ssp { get; set; }
-        [JsonProperty("nhsMHSEndPoint")]
-        public string ssp_hostname { get; set; }
-        public string sds_hostname { get; set; }
-        public string client_cert { get; set; }
-        public string client_private_key { get; set; }
-        public string server_ca_certchain { get; set; }
-        public int sds_port { get; set; }
-        public bool sds_use_ldaps { get; set; }
-        public bool sds_use_mutualauth { get; set; }
-        public int organisation_id { get; set; }
-        public string ods_code { get; set; }
-        public string organisation_name { get; set; }
-        [JsonProperty("nhsMHSPartyKey")]
-        public string party_key { get; set; }
-        [JsonProperty("uniqueIdentifier")]
-        public string asid { get; set; }
-        public int timeout_seconds { get; set; }
-        public string spine_fqdn { get; set; }
-        public string sds_tls_version { get; set; }
-        [JsonProperty("nhsProductName")]
-        public string product_name { get; set; }
+        public bool UseSSP { get; set; }
+        public string SspHostname { get; set; }
+        public string EndpointAddress { get; set; }
+        public string SdsHostname { get; set; }
+        public string ClientCert { get; set; }
+        public string ClientPrivateKey { get; set; }
+        public string ServerCACertChain { get; set; }
+        public int SdsPort { get; set; }
+        public bool SdsUseLdaps { get; set; }
+        public bool SdsUseMutualAuth { get; set; }
+        public int OrganisationId { get; set; }
+        public string OdsCode { get; set; }
+        public string ManufacturingOrganisationOdsCode { get; set; }
+        public string OrganisationName { get; set; }
+        public string PartyKey { get; set; }
+        public string AsId { get; set; }
+        public string SspFrom { get; set; }
+        public bool HasAsId => !string.IsNullOrEmpty(AsId);
+        public int TimeoutSeconds { get; set; }
+        public int TimeoutMilliseconds => TimeoutSeconds * 1000;
+        public string SpineFqdn { get; set; }
+        public string SdsTlsVersion { get; set; }
+        public string ProductName { get; set; }
+        public bool SdsUseFhirApi { get; set; }
+        public string SpineFhirApiSystemsRegisterFqdn { get; set; }
+        public string SpineFhirApiDirectoryServicesFqdn { get; set; }
+        public string SpineFhirApiKey { get; set; }
     }
 }

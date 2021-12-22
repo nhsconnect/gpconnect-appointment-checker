@@ -4,8 +4,8 @@ using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -17,19 +17,21 @@ namespace gpconnect_appointment_checker.GPConnect
         private readonly ILogger<TokenService> _logger;
         private readonly ILogService _logService;
         private readonly IConfigurationService _configurationService;
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _context;
+        private readonly IOptionsMonitor<General> _generalOptionsDelegate;
+        private readonly IOptionsMonitor<Spine> _spineOptionsDelegate;
 
-        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService, IConfiguration configuration, IHttpContextAccessor context)
+        public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, ILogService logService, IHttpContextAccessor context, IOptionsMonitor<General> generalOptionsDelegate, IOptionsMonitor<Spine> spineOptionsDelegate)
         {
             _logger = logger;
             _configurationService = configurationService;
             _logService = logService;
-            _configuration = configuration;
             _context = context;
+            _generalOptionsDelegate = generalOptionsDelegate;
+            _spineOptionsDelegate = spineOptionsDelegate;
         }
 
-        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineMessage, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails, int spineMessageTypeId, string consumerOrganisationType = "")
+        public RequestParameters ConstructRequestParameters(Uri requestUri, Spine providerSpineDetails, Organisation providerOrganisationDetails, Spine consumerEnablement, Organisation consumerOrganisationDetails, int spineMessageTypeId, string consumerOrganisationType = "")
         {
             try
             {
@@ -41,8 +43,8 @@ namespace gpconnect_appointment_checker.GPConnect
                     SetDefaultTimesOnTokenCreation = false
                 };
 
-                var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
-                var tokenAudience = providerSpineMessage.ssp_hostname;
+                var tokenIssuer = _spineOptionsDelegate.CurrentValue.SpineFqdn;
+                var tokenAudience = providerSpineDetails.EndpointAddress;
                 var tokenIssuedAt = DateTimeOffset.Now;
                 var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -57,15 +59,16 @@ namespace gpconnect_appointment_checker.GPConnect
                 var requestParameters = new RequestParameters
                 {
                     BearerToken = tokenString,
-                    SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
-                    SspTo = providerSpineMessage.asid,
-                    UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
-                    SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
-                    ConsumerODSCode = consumerOrganisationDetails?.ODSCode,
-                    ProviderODSCode = providerOrganisationDetails.ODSCode,
+                    SspFrom = _spineOptionsDelegate.CurrentValue.AsId,
+                    SspTo = providerSpineDetails.AsId,
+                    UseSSP = _spineOptionsDelegate.CurrentValue.UseSSP,
+                    EndpointAddress = providerSpineDetails.EndpointAddress,
+                    ConsumerODSCode = consumerOrganisationDetails?.OdsCode,
+                    ProviderODSCode = providerOrganisationDetails.OdsCode,
                     InteractionId = spineMessageType?.InteractionId,
                     SpineMessageTypeId = spineMessageTypeId,
-                    GPConnectConsumerOrganisationType = consumerOrganisationType
+                    GPConnectConsumerOrganisationType = consumerOrganisationType,
+                    SspHostname = _spineOptionsDelegate.CurrentValue.SspHostname
                 };
                 return requestParameters;
             }

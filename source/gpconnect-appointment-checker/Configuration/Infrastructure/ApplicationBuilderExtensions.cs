@@ -13,7 +13,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void ConfigureApplicationBuilderServices(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseExceptionHandler("/Error");
+            app.UseExceptionHandler("/Error");
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {

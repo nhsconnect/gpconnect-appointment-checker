@@ -2,9 +2,11 @@ using gpconnect_appointment_checker.DAL;
 using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.SDS;
+using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Novell.Directory.Ldap;
 using System;
@@ -17,17 +19,20 @@ namespace gpconnect_appointment_checker.IntegrationTest
 {
     public class SdsTests
     {
-        private readonly SDSQueryExecutionService _sdsQueryExecutionService;
+        private readonly SdsQueryExecutionBase _sdsQueryExecutionBase;
         private readonly DataService _dataService;
 
         public SdsTests()
         {
             var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
-            var mockLogger = new Mock<ILogger<SDSQueryExecutionService>>();
+            var mockLogger = new Mock<ILogger<SdsQueryExecutionBase>>();
             var mockLogService = new Mock<ILogService>();
+            var mockLdapService = new Mock<ILdapService>();
+            var mockFhirApiService = new Mock<IFhirApiService>();
             var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
 
             var mockConfiguration = new Mock<IConfiguration>();
+            var mockSpineOptionsConfiguration = new Mock<IOptionsMonitor<Spine>>();
             var mockConfigurationSectionUseLdaps = new Mock<IConfigurationSection>();
             var mockConfigurationSectionTimeout = new Mock<IConfigurationSection>();
             var mockConfigurationSectionHost = new Mock<IConfigurationSection>();
@@ -44,47 +49,8 @@ namespace gpconnect_appointment_checker.IntegrationTest
             SetupConfiguration(mockConfigurationSectionUseLdaps, mockConfigurationSectionTimeout, mockConfigurationSectionHost, mockConfigurationSectionPort, mockConfiguration);
             SetupContext(mockHttpContextAccessor);
 
-            _sdsQueryExecutionService = new SDSQueryExecutionService(mockLogger.Object, mockLogService.Object, mockConfiguration.Object, mockHttpContextAccessor.Object);
-        }
-
-        [Theory]
-        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=A20047)")]
-        public void ExecuteValidQuery(string searchBase, string filter)
-        {
-            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null);
-            Assert.NotEmpty(results);
-        }
-
-        [Theory]
-        [InlineData("ou=organisations, o=nhs", "(17256)")]
-        [InlineData("ou=organisations, o=nhs", "(A20047)")]
-        [InlineData("ou=organisations, o=nhs", "(*)")]
-        public void ExecuteFilterExceptionQuery(string searchBase, string filter)
-        {
-            Assert.Throws<LdapLocalException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null));
-        }
-
-        [Theory]
-        [InlineData("ou=organisations, o=nhs", "(uniqueidentifier=XYZ72615)")]
-        [InlineData("ou=organisations, o=nhs", "(nonexistentfilter=ABC123)")]
-        public void ExecuteEmptyQuery(string searchBase, string filter)
-        {
-            var results = _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null);
-            Assert.Null(results);
-        }
-
-        [Theory]
-        [InlineData("ou=organisations", "")]
-        [InlineData("ou=fakeou", "")]
-        [InlineData("ou=organisations, o=fakeobject", "")]
-        [InlineData("", "")]
-        [InlineData("o=nhs", "")]
-        [InlineData("", "(uniqueidentifier=A20047)")]
-        [InlineData("ou=organisations, o=nhs", "")]
-        public void ExecuteExceptionQuery(string searchBase, string filter)
-        {
-            Assert.Throws<LdapException>(() => _sdsQueryExecutionService.ExecuteLdapQuery<Dictionary<string, object>>(searchBase, filter, null));
-        }
+            _sdsQueryExecutionBase = new SdsQueryExecutionBase(mockLogger.Object, mockLdapService.Object, mockFhirApiService.Object, mockSpineOptionsConfiguration.Object); ;
+        }       
 
         private static void SetupContext(Mock<IHttpContextAccessor> mockHttpContextAccessor)
         {
@@ -109,10 +75,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
         {
             var configuration = _dataService.ExecuteFunction<Spine>("configuration.get_spine_configuration").FirstOrDefault();
 
-            mockConfigurationSectionUseLdaps.Setup(a => a.Value).Returns(configuration.sds_use_ldaps.ToString());
-            mockConfigurationSectionTimeout.Setup(a => a.Value).Returns(configuration.timeout_seconds.ToString());
-            mockConfigurationSectionHost.Setup(a => a.Value).Returns(configuration.sds_hostname.ToString());
-            mockConfigurationSectionPort.Setup(a => a.Value).Returns(configuration.sds_port.ToString());
+            mockConfigurationSectionUseLdaps.Setup(a => a.Value).Returns(configuration.SdsUseLdaps.ToString());
+            mockConfigurationSectionTimeout.Setup(a => a.Value).Returns(configuration.TimeoutSeconds.ToString());
+            mockConfigurationSectionHost.Setup(a => a.Value).Returns(configuration.SdsHostname.ToString());
+            mockConfigurationSectionPort.Setup(a => a.Value).Returns(configuration.SdsPort.ToString());
 
             mockConfiguration.Setup(a => a.GetSection("Spine:sds_use_ldaps")).Returns(mockConfigurationSectionUseLdaps.Object);
             mockConfiguration.Setup(a => a.GetSection("Spine:timeout_seconds")).Returns(mockConfigurationSectionTimeout.Object);

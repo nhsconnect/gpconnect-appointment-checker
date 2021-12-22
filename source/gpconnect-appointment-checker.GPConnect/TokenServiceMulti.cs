@@ -16,8 +16,8 @@ namespace gpconnect_appointment_checker.GPConnect
     {
         private RequestParametersList PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId, string consumerOrganisationType = "")
         {
-            var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
-            var tokenAudience = providerSpineMessage.Spine?.ssp_hostname;
+            var tokenIssuer = _spineOptionsDelegate.CurrentValue.SpineFqdn;
+            var tokenAudience = providerSpineMessage.Spine?.SspHostname;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -32,29 +32,29 @@ namespace gpconnect_appointment_checker.GPConnect
             var requestParameters = new RequestParameters
             {
                 BearerToken = tokenString,
-                SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
-                SspTo = providerSpineMessage.Spine.asid,
-                UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
-                SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
-                ProviderODSCode = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation?.ODSCode,
-                ConsumerODSCode = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerSpineMessages.FirstOrDefault().OdsCode)?.Organisation?.ODSCode,
+                SspFrom = _spineOptionsDelegate.CurrentValue.AsId,
+                SspTo = providerSpineMessage.Spine.AsId,
+                UseSSP = _spineOptionsDelegate.CurrentValue.UseSSP,
+                SspHostname = _spineOptionsDelegate.CurrentValue.SspHostname,
+                ProviderODSCode = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerSpineMessage.OdsCode)?.Organisation?.OdsCode,
+                ConsumerODSCode = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerSpineMessages.FirstOrDefault().OdsCode)?.Organisation?.OdsCode,
                 InteractionId = spineMessageType?.InteractionId,
                 SpineMessageTypeId = spineMessageTypeId,
-                GPConnectConsumerOrganisationType = consumerOrganisationType
+                GPConnectConsumerOrganisationType = consumerOrganisationType,
+                EndpointAddress = providerSpineMessage.Spine.EndpointAddress
             };
 
             return new RequestParametersList
             {
                 RequestParameters = requestParameters,
-                BaseAddress = providerSpineMessage.Spine?.ssp_hostname,
                 OdsCode = providerSpineMessage.OdsCode
             };
         }
 
         private RequestParametersList PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler, string consumerOrganisationType = "")
         {
-            var tokenIssuer = _configuration.GetSection("Spine:spine_fqdn").Value;
-            var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.ssp_hostname;
+            var tokenIssuer = _spineOptionsDelegate.CurrentValue.SpineFqdn;
+            var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.SspHostname;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -69,21 +69,21 @@ namespace gpconnect_appointment_checker.GPConnect
             var requestParameters = new RequestParameters
             {
                 BearerToken = tokenString,
-                SspFrom = _configuration.GetSection("Spine:uniqueIdentifier").Value,
-                SspTo = providerSpineMessages.FirstOrDefault()?.Spine?.asid,
-                UseSSP = bool.Parse(_configuration.GetSection("Spine:use_ssp").Value),
-                SspHostname = _configuration.GetSection("Spine:nhsMHSEndPoint").Value,
+                SspFrom = _spineOptionsDelegate.CurrentValue.AsId,
+                SspTo = providerSpineMessages.FirstOrDefault()?.Spine?.AsId,
+                UseSSP = _spineOptionsDelegate.CurrentValue.UseSSP,
+                SspHostname = _spineOptionsDelegate.CurrentValue.SspHostname,
                 ProviderODSCode = providerSpineMessages.FirstOrDefault()?.OdsCode,
                 ConsumerODSCode = consumerSpineMessage?.OdsCode,
                 InteractionId = spineMessageType?.InteractionId,
                 SpineMessageTypeId = spineMessageTypeId,
-                GPConnectConsumerOrganisationType = consumerOrganisationType
+                GPConnectConsumerOrganisationType = consumerOrganisationType,
+                EndpointAddress = providerSpineMessages.FirstOrDefault()?.Spine?.EndpointAddress
             };
 
             return new RequestParametersList
             {
                 RequestParameters = requestParameters,
-                BaseAddress = providerSpineMessages.FirstOrDefault()?.Spine?.ssp_hostname,
                 OdsCode = consumerSpineMessage.OdsCode
             };
         }

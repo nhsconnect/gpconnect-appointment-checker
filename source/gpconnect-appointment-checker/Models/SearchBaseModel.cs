@@ -1,10 +1,9 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Data;
 
@@ -13,23 +12,10 @@ namespace gpconnect_appointment_checker.Pages
     public class SearchBaseModel : BaseModel
     {
         private readonly IReportingService _reportingService;
-        private readonly IHttpContextAccessor _contextAccessor;
-        protected readonly int _userId;
-        protected readonly bool _multiSearchEnabled;
-        protected readonly bool _orgTypeSearchEnabled;
 
-        public SearchBaseModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration)
+        public SearchBaseModel(IOptionsMonitor<DTO.Response.Configuration.General> configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration, contextAccessor)
         {
             _reportingService = reportingService;
-            _contextAccessor = contextAccessor;
-
-            if (_contextAccessor.HttpContext != null)
-            {
-                _userId = _contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger();
-                _multiSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false);
-                _orgTypeSearchEnabled = _contextAccessor.HttpContext.User.GetClaimValue("OrgTypeSearchEnabled").StringToBoolean(false);
-            }
-
         }
 
         public List<List<SlotEntrySimple>> SearchResults { get; set; }

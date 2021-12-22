@@ -9,7 +9,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
         {
             FluentMapper.Initialize(config =>
             {
+                config.AddMap(new SpineConfigurationMap());
+                config.AddMap(new SsoConfigurationMap());
+                config.AddMap(new EmailConfigurationMap());
+                config.AddMap(new GeneralConfigurationMap());
+                
                 config.AddMap(new SdsQueryMap());
+                config.AddMap(new FhirApiQueryMap());
                 config.AddMap(new SpineMessageTypeMap());
                 config.AddMap(new UserMap());
                 config.AddMap(new OrganisationMap());

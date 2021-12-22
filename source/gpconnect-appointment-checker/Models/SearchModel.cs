@@ -32,26 +32,26 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(SupportsGet = true)]
         public string SelectedOrganisationType { get; set; }
 
-        public bool DisplayMultiSearchHelpText => _multiSearchEnabled;
-        public bool ConsumerOrgTypeSearchEnabled => _orgTypeSearchEnabled;
+        public bool DisplayMultiSearchHelpText => MultiSearchEnabled;
+        public bool ConsumerOrgTypeSearchEnabled => OrgTypeSearchEnabled;
 
-        public int SearchInputBoxLength => _multiSearchEnabled ? 100 : 10;
-        public string ProviderOdsCodeInputBoxLabel => _multiSearchEnabled ? 
+        public int SearchInputBoxLength => MultiSearchEnabled ? 100 : 10;
+        public string ProviderOdsCodeInputBoxLabel => MultiSearchEnabled ? 
             SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : 
             SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL;
 
-        public string ProviderOdsCodeInputBoxHintText => _multiSearchEnabled ?
+        public string ProviderOdsCodeInputBoxHintText => MultiSearchEnabled ?
             SearchConstants.SEARCHINPUTPROVIDERODSCODEHINTTEXT : string.Empty;
 
         public string ConsumerOdsCodeInputBoxHintText => GetConsumerOdsCodeInputHelpText();
 
         private string GetConsumerOdsCodeInputHelpText()
         {
-            if(_multiSearchEnabled && _orgTypeSearchEnabled)
+            if(MultiSearchEnabled && OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
             }
-            if (_multiSearchEnabled && !_orgTypeSearchEnabled)
+            if (MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
             }
@@ -62,19 +62,19 @@ namespace gpconnect_appointment_checker.Pages
 
         private string GetConsumerOdsCodeInputBoxLabelText()
         {
-            if(_multiSearchEnabled && _orgTypeSearchEnabled)
+            if(MultiSearchEnabled && OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTCONSUMERMULTILABEL;
             }
-            if (_multiSearchEnabled && !_orgTypeSearchEnabled)
+            if (MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL;
             }
-            if (!_multiSearchEnabled && _orgTypeSearchEnabled)
+            if (!MultiSearchEnabled && OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT;
             }
-            if (!_multiSearchEnabled && !_orgTypeSearchEnabled)
+            if (!MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
                 return SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
             }

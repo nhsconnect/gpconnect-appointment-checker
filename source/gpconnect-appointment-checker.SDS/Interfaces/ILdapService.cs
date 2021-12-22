@@ -8,9 +8,11 @@ namespace gpconnect_appointment_checker.SDS.Interfaces
     public interface ILdapService
     {
         List<OrganisationList> GetOrganisationDetailsByOdsCode(List<string> odsCode, ErrorCode errorCodeToRaise);
+        Organisation GetOrganisationDetailsByOdsCode(string odsCode);
+
         List<SpineList> GetGpProviderEndpointAndPartyKeyByOdsCode(List<string> odsCode, ErrorCode errorCodeToRaise);
         List<SpineList> GetGpProviderAsIdByOdsCodeAndPartyKey(List<SpineList> odsCodeWithPartyKey);
-        Organisation GetOrganisationDetailsByOdsCode(string odsCode);
+        
         Spine GetGpProviderEndpointAndPartyKeyByOdsCode(string odsCode);
         Spine GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey);
         Spine GetGpConsumerAsIdByOdsCode(string odsCode);

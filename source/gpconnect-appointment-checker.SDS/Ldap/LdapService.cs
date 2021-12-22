@@ -8,6 +8,7 @@ using Novell.Directory.Ldap;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,14 +18,14 @@ namespace gpconnect_appointment_checker.SDS
     public class LdapService : ILdapService
     {
         private readonly ILogger<LdapService> _logger;
-        private readonly ISDSQueryExecutionService _sdsQueryExecutionService;
+        private readonly ILdapRequestExecution _ldapRequestExecution;
         private readonly IConfigurationService _configurationService;
         private readonly IApplicationService _applicationService;
 
-        public LdapService(ILogger<LdapService> logger, ISDSQueryExecutionService sdsQueryExecutionService, IConfigurationService configurationService, IApplicationService applicationService)
+        public LdapService(ILogger<LdapService> logger, ILdapRequestExecution ldapRequestExecution, IConfigurationService configurationService, IApplicationService applicationService)
         {
             _logger = logger;
-            _sdsQueryExecutionService = sdsQueryExecutionService;
+            _ldapRequestExecution = ldapRequestExecution;
             _configurationService = configurationService;
             _applicationService = applicationService;
         }
@@ -37,12 +38,14 @@ namespace gpconnect_appointment_checker.SDS
                 var processedCodes = new ConcurrentBag<OrganisationList>();
                 Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
-                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    var stopwatch = Stopwatch.StartNew();
+                    var processedOrganisation = _ldapRequestExecution.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new OrganisationList
                     {
                         OdsCode = odsCode,
                         Organisation = processedOrganisation,
-                        ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None
+                        ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None,
+                        TimeTakenInSeconds = stopwatch.Elapsed.TotalSeconds
                     });
                     _applicationService.SynchroniseOrganisation(processedOrganisation);
                 });
@@ -63,7 +66,7 @@ namespace gpconnect_appointment_checker.SDS
         public Organisation GetOrganisationDetailsByOdsCode(string odsCode)
         {
             var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetOrganisationDetailsByOdsCode);
-            var organisation = _sdsQueryExecutionService.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+            var organisation = _ldapRequestExecution.ExecuteLdapQuery<Organisation>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
             _applicationService.SynchroniseOrganisation(organisation);
             return organisation;
         }
@@ -74,8 +77,16 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderEndpointAndPartyKeyByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
-                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                return result;
+                var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+
+                var spine = response != null ? new Spine
+                {
+                    EndpointAddress = response.EndpointAddress,
+                    AsId = response.AsId,
+                    PartyKey = response.PartyKey
+                } : null;
+
+                return spine;
             }
             catch (LdapException ldapException)
             {
@@ -95,8 +106,16 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpProviderAsIdByOdsCodeAndPartyKey);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)).Replace("{partyKey}", Regex.Escape(partyKey));
-                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                return result;
+                var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+
+                var spine = response != null ? new Spine
+                {
+                    AsId = response.AsId,
+                    PartyKey = response.PartyKey,
+                    ProductName = response.ProductName
+                } : null;
+
+                return spine;
             }
             catch (LdapException ldapException)
             {
@@ -116,8 +135,15 @@ namespace gpconnect_appointment_checker.SDS
             {
                 var sdsQuery = GetSdsQueryByName(Constants.LdapQuery.GetGpConsumerAsIdByOdsCode);
                 var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
-                var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-                return result;
+                var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+                var spine = response != null ? new Spine
+                {
+                    EndpointAddress = response.EndpointAddress,
+                    AsId = response.AsId,
+                    PartyKey = response.PartyKey
+                } : null;
+
+                return spine;
             }
             catch (LdapException ldapException)
             {
@@ -139,13 +165,20 @@ namespace gpconnect_appointment_checker.SDS
                 var processedCodes = new ConcurrentBag<SpineList>();
                 Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
-                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    var stopwatch = Stopwatch.StartNew();
+                    var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new SpineList
                     {
                         OdsCode = odsCode,
-                        PartyKey = processedOrganisation?.party_key,
-                        Spine = processedOrganisation,
-                        ErrorCode = processedOrganisation == null ? errorCodeToRaise : ErrorCode.None
+                        PartyKey = response?.PartyKey,
+                        Spine = response != null ? new Spine()
+                        {
+                            EndpointAddress = response.EndpointAddress,
+                            AsId = response.AsId,
+                            PartyKey = response.PartyKey
+                        } : null,
+                        ErrorCode = response == null ? errorCodeToRaise : ErrorCode.None,
+                        TimeTakenInSeconds = stopwatch.Elapsed.TotalSeconds
                     });
                 });
                 return processedCodes.ToList();
@@ -170,11 +203,19 @@ namespace gpconnect_appointment_checker.SDS
                 var processedCodes = new ConcurrentBag<SpineList>();
                 Parallel.ForEach(odsCodes, new ParallelOptions { MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0)) }, (odsCode) =>
                 {
-                    var result = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
+                    var stopwatch = Stopwatch.StartNew();
+                    var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode)), sdsQuery.QueryAttributesAsArray);
                     processedCodes.Add(new SpineList
                     {
                         OdsCode = odsCode,
-                        ErrorCode = result == null ? errorCodeToRaise : ErrorCode.None
+                        Spine = response != null ? new Spine
+                        {
+                            EndpointAddress = response.EndpointAddress,
+                            AsId = response.AsId,
+                            PartyKey = response.PartyKey
+                        } : null,
+                        ErrorCode = response == null ? errorCodeToRaise : ErrorCode.None,
+                        TimeTakenInSeconds = stopwatch.Elapsed.TotalSeconds
                     });
                 });
                 return processedCodes.ToList();
@@ -199,12 +240,17 @@ namespace gpconnect_appointment_checker.SDS
                 odsCodesWithPartyKeys.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                     .Where(x => !string.IsNullOrEmpty(x.PartyKey)).ForAll(odsCodeWithPartyKey =>
                 {
-                    var processedOrganisation = _sdsQueryExecutionService.ExecuteLdapQuery<Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
-                    odsCodeWithPartyKey.Spine.asid = processedOrganisation?.asid;
-                    odsCodeWithPartyKey.Spine.product_name = processedOrganisation?.product_name;
-                    odsCodeWithPartyKey.ErrorCode = processedOrganisation?.asid == null
+                    var stopwatch = Stopwatch.StartNew();
+                    var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCodeWithPartyKey.OdsCode)).Replace("{partyKey}", Regex.Escape(odsCodeWithPartyKey.PartyKey)), sdsQuery.QueryAttributesAsArray);
+
+                    odsCodeWithPartyKey.Spine.AsId = response?.AsId;
+                    odsCodeWithPartyKey.Spine.ProductName = response?.ProductName;
+                    //odsCodeWithPartyKey.Spine.EndpointAddress = response?.EndpointAddress;
+                    odsCodeWithPartyKey.Spine.PartyKey = response?.PartyKey;
+                    odsCodeWithPartyKey.ErrorCode = response?.AsId == null
                         ? ErrorCode.ProviderASIDCodeNotFound
                         : ErrorCode.None;
+                    odsCodeWithPartyKey.TimeTakenInSeconds = stopwatch.Elapsed.TotalSeconds + odsCodeWithPartyKey.TimeTakenInSeconds;
                 });
                 return odsCodesWithPartyKeys;
             }
@@ -224,8 +270,8 @@ namespace gpconnect_appointment_checker.SDS
         {
             try
             {
-                var sdsQueryList = _configurationService.GetSdsQueryConfiguration();
-                return sdsQueryList.FirstOrDefault(x => x.QueryName == queryName);
+                var sdsQuery = _configurationService.GetSdsQueryConfiguration(queryName);
+                return sdsQuery;
             }
             catch (LdapException ldapException)
             {
