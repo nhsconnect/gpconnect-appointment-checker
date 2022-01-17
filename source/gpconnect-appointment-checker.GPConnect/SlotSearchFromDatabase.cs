@@ -46,6 +46,7 @@ namespace gpconnect_appointment_checker.GPConnect
                                 PractitionerGender = practitioner?.gender,
                                 LocationName = location?.name,
                                 LocationAddressLines = location?.address?.line,
+                                LocationAddressLinesAsString = AddressBuilder.GetFullAddress(location?.address?.line, location?.address?.district, location?.address?.city, location?.address?.postalCode, location?.address?.country),
                                 LocationCity = location?.address?.city,
                                 LocationCountry = location?.address?.country,
                                 LocationDistrict = location?.address?.district,

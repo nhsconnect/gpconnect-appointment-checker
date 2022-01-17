@@ -73,7 +73,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     slotSimple.Issue = results.Issue;
                     return slotSimple;
                 }
-                
+
                 var slotResources = results.entry?.Where(x => x.resource.resourceType == ResourceTypes.Slot).ToList();
                 if (slotResources == null || slotResources?.Count == 0) return slotSimple;
 
@@ -100,6 +100,7 @@ namespace gpconnect_appointment_checker.GPConnect
                                     PractitionerGender = practitioner?.gender,
                                     LocationName = location?.name,
                                     LocationAddressLines = location?.address?.line,
+                                    LocationAddressLinesAsString = AddressBuilder.GetFullAddress(location?.address?.line, location?.address?.district, location?.address?.city, location?.address?.postalCode, location?.address?.country),
                                     LocationCity = location?.address?.city,
                                     LocationCountry = location?.address?.country,
                                     LocationDistrict = location?.address?.district,
@@ -110,7 +111,7 @@ namespace gpconnect_appointment_checker.GPConnect
                     .ThenBy(s => s.StartTime);
 
                 slotSimple.CurrentSlotEntrySimple.AddRange(slotList.Where(x => !x.SlotInPast));
-                slotSimple.PastSlotEntrySimple.AddRange(slotList.Where(x => x.SlotInPast));                
+                slotSimple.PastSlotEntrySimple.AddRange(slotList.Where(x => x.SlotInPast));
 
                 return slotSimple;
             }

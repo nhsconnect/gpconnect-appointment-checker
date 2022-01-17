@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using gpconnect_appointment_checker.Helpers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
