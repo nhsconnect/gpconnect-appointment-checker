@@ -17,7 +17,7 @@ namespace gpconnect_appointment_checker.GPConnect
         private RequestParametersList PopulateResultsProvider(SpineList providerSpineMessage, Uri requestUri, List<OrganisationList> providerOrganisationDetails, string userGuid, JwtSecurityTokenHandler tokenHandler, List<OrganisationList> consumerOrganisationDetails, List<SpineList> consumerSpineMessages, SpineMessageType spineMessageType, int spineMessageTypeId, string consumerOrganisationType = "")
         {
             var tokenIssuer = _spineOptionsDelegate.CurrentValue.SpineFqdn;
-            var tokenAudience = providerSpineMessage.Spine?.SspHostname;
+            var tokenAudience = providerSpineMessage.Spine?.EndpointAddress;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
@@ -54,7 +54,7 @@ namespace gpconnect_appointment_checker.GPConnect
         private RequestParametersList PopulateResultsConsumer(Uri requestUri, List<SpineList> providerSpineMessages, List<OrganisationList> providerOrganisationDetails, int spineMessageTypeId, SpineList consumerSpineMessage, SpineMessageType spineMessageType, string userGuid, JwtSecurityTokenHandler tokenHandler, string consumerOrganisationType = "")
         {
             var tokenIssuer = _spineOptionsDelegate.CurrentValue.SpineFqdn;
-            var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.SspHostname;
+            var tokenAudience = providerSpineMessages.FirstOrDefault()?.Spine?.EndpointAddress;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
