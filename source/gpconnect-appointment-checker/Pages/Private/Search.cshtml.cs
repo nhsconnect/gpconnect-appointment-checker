@@ -373,7 +373,7 @@ namespace gpconnect_appointment_checker.Pages
                             var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[i], slotSearchSummaryList);
                             organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
                             organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
-                            slotCount = slotSearchErrorCodeOrDetail.Item3;
+                            slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
                         }
                         else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
                         {
@@ -454,7 +454,7 @@ namespace gpconnect_appointment_checker.Pages
                             var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ConsumerOdsCodeAsList[i], slotSearchSummaryList);
                             organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
                             organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
-                            slotCount = slotSearchErrorCodeOrDetail.Item3;
+                            slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
                         }
                         else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
                         {
@@ -517,7 +517,7 @@ namespace gpconnect_appointment_checker.Pages
             return !string.IsNullOrEmpty(additionalDetails) ? $"{item2}<div class=\"nhsuk-warning-message\"><p>{additionalDetails}</p></div>" : item2;
         }
 
-        private (ErrorCode, string, int) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)
+        private (ErrorCode, string, int?) GetSlotSearchErrorCodeOrDetail(string providerOdsCode, List<SlotEntrySummaryCount> slotEntrySummaries)
         {
             var slotEntrySummary = slotEntrySummaries.FirstOrDefault(x => x.OdsCode == providerOdsCode);
             var errorSource = slotEntrySummary?.ErrorCode ?? ErrorCode.None;
@@ -541,7 +541,7 @@ namespace gpconnect_appointment_checker.Pages
                 var slotEntrySummaryIssueDiagnostics = StringExtensions.Coalesce(slotEntrySummary?.ErrorDetail.FirstOrDefault()?.Diagnostics, slotEntrySummary?.ErrorDetail.FirstOrDefault()?.Details.Text);
                 detail = StringExtensions.FlattenStrings(slotEntrySummaryIssueDetail, slotEntrySummaryIssueCode, slotEntrySummaryIssueDiagnostics);
             }
-            return (errorSource, detail, slotEntrySummary.FreeSlotCount.GetValueOrDefault());
+            return (errorSource, detail, slotEntrySummary?.FreeSlotCount);
         }
 
         private CapabilityStatementErrorCodeOrDetail GetCapabilityStatementErrorCodeOrDetail(string providerOdsCode, List<CapabilityStatementList> providerCapabilityStatements)
