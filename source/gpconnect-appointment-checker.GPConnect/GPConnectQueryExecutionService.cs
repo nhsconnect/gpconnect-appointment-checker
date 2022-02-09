@@ -40,6 +40,8 @@ namespace gpconnect_appointment_checker.GPConnect
 
         public Task<List<CapabilityStatementList>> ExecuteFhirCapabilityStatement(List<RequestParametersList> requestParameterList)
         {
+            _logger.LogInformation("Executing ExecuteFhirCapabilityStatement");
+
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             _spineMessage = new SpineMessage();

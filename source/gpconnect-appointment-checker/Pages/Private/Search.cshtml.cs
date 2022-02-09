@@ -253,6 +253,8 @@ namespace gpconnect_appointment_checker.Pages
                 var providerSpineDetails = await _sdsQueryExecutionBase.GetProviderDetails(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
                 var consumerSpineDetails = await _sdsQueryExecutionBase.GetConsumerDetails(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
 
+                _logger.LogInformation("About to execute PopulateSearchResultsMulti");
+
                 slotEntrySummary = await PopulateSearchResultsMulti(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
                 _searchResultsSummaryDataTable = slotEntrySummary;
             }
@@ -327,6 +329,8 @@ namespace gpconnect_appointment_checker.Pages
                 ConsumerOrganisationTypeDropdown = SelectedOrganisationType
             });
 
+            _logger.LogInformation("Executing PopulateSearchResultsMulti - generating Request Parameters");
+
             SearchGroupId = createdSearchGroup.SearchGroupId;
 
             var slotEntrySummary = new List<SlotEntrySummary>();
@@ -344,6 +348,8 @@ namespace gpconnect_appointment_checker.Pages
 
             if (providerOdsCount > consumerOdsCount)
             {
+                _logger.LogInformation("Executing PopulateSearchResultsMulti - Getting capability statement list");
+
                 var consumerCode = ConsumerOdsCodeAsList.Count == 0 ? null : ConsumerOdsCodeAsList[0];
                 var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
 
