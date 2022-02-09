@@ -541,6 +541,20 @@ namespace gpconnect_appointment_checker.Pages
                 var slotEntrySummaryIssueDiagnostics = StringExtensions.Coalesce(slotEntrySummary?.ErrorDetail.FirstOrDefault()?.Diagnostics, slotEntrySummary?.ErrorDetail.FirstOrDefault()?.Details.Text);
                 detail = StringExtensions.FlattenStrings(slotEntrySummaryIssueDetail, slotEntrySummaryIssueCode, slotEntrySummaryIssueDiagnostics);
             }
+
+            if (slotEntrySummary != null)
+            {
+                _logger.LogInformation(errorSource.ToString());
+                _logger.LogInformation(detail);
+                _logger.LogInformation(slotEntrySummary.ErrorCode.ToString());
+                _logger.LogInformation(slotEntrySummary.FreeSlotCount.ToString());
+            }
+            else
+            {
+                _logger.LogWarning("slotEntrySummary is null");
+                _logger.LogWarning(errorSource.ToString());
+            }
+
             return (errorSource, detail, slotEntrySummary?.FreeSlotCount);
         }
 
