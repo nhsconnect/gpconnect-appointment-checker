@@ -97,6 +97,12 @@ namespace gpconnect_appointment_checker.GPConnect
 
         private static void AddRequiredRequestHeaders(RequestParameters requestParameters, HttpClient client)
         {
+            client.DefaultRequestHeaders.Remove("Ssp-From");
+            client.DefaultRequestHeaders.Remove("Ssp-To");
+            client.DefaultRequestHeaders.Remove("Ssp-InteractionID");
+            client.DefaultRequestHeaders.Remove("Ssp-TraceID");
+            client.DefaultRequestHeaders.Remove("Bearer");
+
             client.DefaultRequestHeaders.Add("Ssp-From", requestParameters.SspFrom);
             client.DefaultRequestHeaders.Add("Ssp-To", requestParameters.SspTo);
             client.DefaultRequestHeaders.Add("Ssp-InteractionID", requestParameters.InteractionId);
