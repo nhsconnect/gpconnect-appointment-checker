@@ -138,11 +138,11 @@ namespace gpconnect_appointment_checker.GPConnect
                         SpineMessageId = null
                     }).ToArray();
 
+                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null);
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
-                var semaphore = new SemaphoreSlim(requestParameterList.Count, requestParameterList.Count);
+                var semaphore = new SemaphoreSlim(requestList.Count(), requestList.Count() + 1);
 
-                var tasks = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null)
-                    .Select(requestParameter => ProcessResults(organisationErrorCodeOrDetails, searchType, startDate, endDate, requestParameter, semaphore, client, cancellationToken));                    
+                var tasks = requestList.Select(requestParameter => ProcessResults(organisationErrorCodeOrDetails, searchType, startDate, endDate, requestParameter, semaphore, client, cancellationToken));                    
 
                 var processedSlotEntrySummaryCount = await Task.WhenAll(tasks);
                 return emptyRequestParameters.Concat(processedSlotEntrySummaryCount).ToList();

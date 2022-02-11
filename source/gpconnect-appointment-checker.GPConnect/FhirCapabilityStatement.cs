@@ -28,11 +28,12 @@ namespace gpconnect_appointment_checker.GPConnect
                         ErrorCode = ErrorCode.CapabilityStatementNotFound
                     }).ToArray();
 
-                var client = _httpClientFactory.CreateClient("GpConnectClient");
-                var semaphore = new SemaphoreSlim(requestParameterList.Count, requestParameterList.Count);
+                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null);
 
-                var tasks = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null)
-                    .Select(requestParameter => PopulateCapabilityStatementResults(requestParameter, semaphore, client, cancellationToken));
+                var client = _httpClientFactory.CreateClient("GpConnectClient");
+                var semaphore = new SemaphoreSlim(requestList.Count(), requestList.Count() + 1);
+
+                var tasks = requestList.Select(requestParameter => PopulateCapabilityStatementResults(requestParameter, semaphore, client, cancellationToken));
 
                 var results = await Task.WhenAll(tasks);
                 return emptyRequestParameters.Concat(results).ToList();
