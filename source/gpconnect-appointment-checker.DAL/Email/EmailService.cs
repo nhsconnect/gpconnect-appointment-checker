@@ -1,11 +1,12 @@
 ﻿using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO.Request.Audit;
 using gpconnect_appointment_checker.DTO.Response.Application;
+using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,16 +20,18 @@ namespace gpconnect_appointment_checker.DAL.Email
         private readonly ILogger<EmailService> _logger;
         private readonly IAuditService _auditService;
         private readonly IDataService _dataService;
-        private readonly IConfiguration _configuration;
+        private readonly IOptionsMonitor<General> _generalOptionsDelegate;
+        private readonly IOptionsMonitor<DTO.Response.Configuration.Email> _emailOptionsDelegate;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly SmtpClient _smtpClient;
         private readonly Lazy<List<EmailTemplate>> _emailTemplates;
 
-        public EmailService(SmtpClient smtpClient, IConfiguration configuration, ILogger<EmailService> logger, IAuditService auditService, IHttpContextAccessor contextAccessor, IDataService dataService)
+        public EmailService(SmtpClient smtpClient, IOptionsMonitor<General> generalOptionsDelegate, IOptionsMonitor<DTO.Response.Configuration.Email> emailOptionsDelegate, ILogger<EmailService> logger, IAuditService auditService, IHttpContextAccessor contextAccessor, IDataService dataService)
         {
             _logger = logger;
             _auditService = auditService;
-            _configuration = configuration;
+            _generalOptionsDelegate = generalOptionsDelegate;
+            _emailOptionsDelegate = emailOptionsDelegate;
             _smtpClient = smtpClient;
             _contextAccessor = contextAccessor;
             _dataService = dataService;
@@ -76,8 +79,8 @@ namespace gpconnect_appointment_checker.DAL.Email
         {
             if (string.IsNullOrEmpty(recipient)) throw new ArgumentNullException(nameof(recipient));
             if (emailTemplate == null) throw new ArgumentNullException(nameof(emailTemplate));
-            var sender = _configuration.GetSection("Email:sender_address").GetConfigurationString(null, true);
-            var displayName = _configuration.GetSection("General:product_name").GetConfigurationString(sender);
+            var sender = StringExtensions.Coalesce(_emailOptionsDelegate.CurrentValue.SenderAddress, _emailOptionsDelegate.CurrentValue.UserName);
+            var displayName = StringExtensions.Coalesce(_generalOptionsDelegate.CurrentValue.ProductName, sender);
             try
             {
                 var body = PopulateDynamicFields(emailTemplate.Body);
@@ -124,7 +127,7 @@ namespace gpconnect_appointment_checker.DAL.Email
 
         private string PopulateDynamicFields(string bodyText)
         {
-            bodyText = bodyText.Replace("<address>", _configuration.GetSection("General:get_access_email_address").GetConfigurationString(string.Empty));
+            bodyText = bodyText.Replace("<address>", _generalOptionsDelegate.CurrentValue.GetAccessEmailAddress);
             bodyText = bodyText.Replace("<url>", _contextAccessor.HttpContext.GetBaseSiteUrl());
             return bodyText;
         }
@@ -134,7 +137,7 @@ namespace gpconnect_appointment_checker.DAL.Email
             var auditEntry = new Entry
             {    
                 UserId = userId,
-                Item1 = _configuration.GetSection("Email:sender_address").GetConfigurationString(),
+                Item1 = StringExtensions.Coalesce(_emailOptionsDelegate.CurrentValue.SenderAddress, _emailOptionsDelegate.CurrentValue.UserName),
                 Item2 = recipient,
                 Details = details,
                 EntryTypeId = (int)AuditEntryType.EmailSent
