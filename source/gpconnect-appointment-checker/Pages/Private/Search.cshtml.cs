@@ -118,7 +118,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<IActionResult> OnPostSearchAsync()
         {
-            CheckConsumerInputs();
+            CheckInputs();
             if (ModelState.IsValid)
             {
                 ProviderOdsCode = CleansedProviderOdsCodeInput;
@@ -141,16 +141,20 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        private void CheckConsumerInputs()
+        private void CheckInputs()
         {
-            if (OrgTypeSearchEnabled && string.IsNullOrEmpty(ConsumerOdsCode) && string.IsNullOrEmpty(SelectedOrganisationType))
+            if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) && string.IsNullOrEmpty(SelectedOrganisationType))
             {
                 ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODENOTENTEREDERRORMESSAGE);
                 ModelState.AddModelError("SelectedOrganisationType", SearchConstants.CONSUMERORGTYPENOTENTEREDERRORMESSAGE);
             }
-            if (!OrgTypeSearchEnabled && string.IsNullOrEmpty(ConsumerOdsCode))
+            if (!OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0))
             {
                 ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE);
+            }
+            if ((string.IsNullOrEmpty(ProviderOdsCode) || ProviderOdsCodeAsList?.Count == 0))
+            {
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE);
             }
         }
 
