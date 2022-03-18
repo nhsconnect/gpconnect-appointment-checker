@@ -6,6 +6,7 @@
 {
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
+            <a id="@searchResult.SearchResultId"></a>
             <dl class="nhsuk-summary-list nhsuk-summary-list--no-border @searchResult.DisplayClass">
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</dt>
@@ -53,7 +54,7 @@
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {
-                            <a id="@searchResult.SearchResultId" class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SEARCHDETAILSBUTTONTEXT</a>
+                            <a class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SEARCHDETAILSBUTTONTEXT</a>
                         }
                         else
                         {
