@@ -10,6 +10,7 @@
 
     <title>GP Connect Appointment Checker</title>
     <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://nhsuk.github.io/nhsuk-frontend/assets/nhsuk.js" defer></script>
     <meta property="og:url" content="">
     <meta property="og:title" content="GP Connect Appointment Checker">
     <meta property="og:description" content="GP Connect Appointment Checker">
@@ -34,6 +35,11 @@
                     </svg>
                     <span class="nhsuk-header__service-name">GP Connect Appointment Checker</span>
                 </a>
+            </div>            
+            <div class="nhsuk-header__content" id="content-header">
+                <div class="nhsuk-header__menu nhsuk-header__menu--only">
+                    <button class="nhsuk-header__menu-toggle" id="toggle-menu" aria-controls="header-navigation" aria-expanded="false">Menu</button>
+                </div>
             </div>
             <div class="nhsuk-header__content" id="content-header">
                 <partial name="Private/Logout" model="new LogoutModel()" />
@@ -49,4 +55,3 @@
     <partial name="Public/Footer" />
 </body>
 </html>
-
