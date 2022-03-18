@@ -53,7 +53,7 @@
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {
-                            <a class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SEARCHDETAILSBUTTONTEXT</a>
+                            <a id="@searchResult.SearchResultId" class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SEARCHDETAILSBUTTONTEXT</a>
                         }
                         else
                         {
