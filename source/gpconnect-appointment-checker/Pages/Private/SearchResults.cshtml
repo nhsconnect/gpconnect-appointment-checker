@@ -37,6 +37,14 @@
                 <details class="nhsuk-details nhsuk-expander">
                     <summary class="nhsuk-details__summary">
                         <span class="nhsuk-details__summary-text">@SearchConstants.SEARCHRESULTSPASTSLOTSTEXT</span>
+                        <div class="nhsuk-inset-text nhsuk-details">
+                            <span class="nhsuk-u-visually-hidden">Past Slots: </span>
+                            <p>
+                                These slots are for the current week, but they started before the current time and day.<br />
+                                For technical reasons, only EMIS and Vision systems past slots can be displayed.<br />
+                                These slots are not visible to end users, and cannot be booked into.
+                            </p>
+                        </div>
                     </summary>
                     <div class="nhsuk-details__text">
                         @foreach (var locationGrouping in Model.SearchResultsPast)
