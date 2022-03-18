@@ -1,23 +1,16 @@
-﻿<h3>Standard Version</h3>
-<h3>Search at</h3>
+﻿<h3>Search at</h3>
 <p><strong>Provider ODS code:</strong> enter the ODS code of the service whose appointment configuration you want to check.</p>
 <h3>Search on behalf of</h3>
-<div class="nhsuk-do-dont-list">
-    <h3 class="nhsuk-do-dont-list__label">If you do NOT have permission to search by organisation type</h3>
-    <ul class="nhsuk-list">
-        <li><strong>Consumer ODS code:</strong> enter the ODS code of a service which will be looking for free slots at the Provider.</li>
-    </ul>
-</div>
-<div class="nhsuk-do-dont-list">
-    <h3 class="nhsuk-do-dont-list__label">If you have permission to search by organisation type</h3>
-    <ul class="nhsuk-list">
-        <li><strong>Consumer ODS code:</strong> enter the ODS code of a service which will be looking for free slots at the Provider. This may be left blank if a Consumer organisation type (see below) is selected.</li>
-        <li><strong>Consumer organisation type:</strong> select an organisation type from the drop-down list, to return slots which have been restricted to this type of consumer, or which have not been restricted by type of consumer.  Leave the field blank to return slots which have not been restricted by the provider to any type or consumer. In this case, a consumer ODS code must be entered.</li>
-        <li>Either a consumer ODS code must be entered or an organisation type must be selected, or both.</li>
-    </ul>
-</div>
-<p><strong>Date range:</strong> select a week (Monday – Sunday) from the drop-down list, that you want to run the search for.</p>
-<p>Depending on the system in use at the Provider service, the results of the search may include free slots which are in the past. In this case, these slots will be visible by clicking on the 'Past Appointment Slots' expander.</p>
-<p>Otherwise, only free slots in the future (after the current date and current time) will be included. For example, if you run the checker on Friday, only slots for Friday (after the current time), Saturday and Sunday will be included.</p>
-<p>Press the 'Search for free slots' button to run the search.</p>
-<p>Click on the green 'Export results' button to export to an Excel spreadsheet.</p>
+
+@if (!Model.OrgTypeSearchEnabled)
+{
+    <p><strong>Consumer ODS code:</strong> enter the ODS code of a service which will be looking for free slots at the Provider.</p>
+}
+else
+{
+    <p><strong>Consumer ODS code:</strong> enter the ODS code of a service which will be looking for free slots at the Provider. This may be left blank if a Consumer organisation type (see below) is selected.</p>
+    <p><strong>Consumer organisation type:</strong> select an organisation type from the drop-down list, to return slots which have been restricted to this type of consumer, or which have not been restricted by type of consumer. Leave the field blank to return slots which have not been restricted by the provider to any type or consumer. In this case, a consumer ODS code must be entered.</p>
+    <p>Either a consumer ODS code must be entered or an organisation type must be selected, or both.</p>
+}
+
+<partial name="Public/Help/DateRange" />
