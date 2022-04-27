@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
 {
@@ -77,6 +78,10 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             services.AddSingleton<IAuthorizationHandler, NotAuthorisedUserHandler>();
             services.AddSingleton<IAuthorizationHandler, AuthorisedAndIsAdminUserHandler>();
 
+            services.AddDataProtection()
+                .SetApplicationName("GpConnectAppointmentChecker")
+                .DisableAutomaticKeyGeneration();
+
             services.AddAntiforgery(options => 
             { 
                 options.SuppressXFrameOptionsHeader = true;
@@ -85,6 +90,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Cookie.SameSite = SameSiteMode.None;
             });
 
+            
             services.Configure<Sso>(configuration.GetSection("SingleSignOn"));
             services.Configure<General>(configuration.GetSection("General"));
             services.Configure<Spine>(configuration.GetSection("Spine"));
