@@ -44,6 +44,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     NoCache = true
                 };
                 context.Response.Headers.Add("Pragma", "no-cache");
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
 
                 await next();
             });
