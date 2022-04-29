@@ -20,14 +20,14 @@ namespace gpconnect_appointment_checker.Pages
             _contextAccessor = contextAccessor;
         }
 
-        public int StatusCode { get; set; }
+        public int ResponseStatusCode { get; set; }
         public string ReasonPhrase { get; set; }
 
         public void OnGet(int statusCode)
         {
-            StatusCode = statusCode;
+            ResponseStatusCode = statusCode;
             ReasonPhrase = ReasonPhrases.GetReasonPhrase(statusCode);
-            _logger.LogError($"Status code {StatusCode} thrown. Reason phrase is {ReasonPhrase}");
+            _logger.LogError($"Status code {ResponseStatusCode} thrown. Reason phrase is {ReasonPhrase}");
         }
     }
 }
