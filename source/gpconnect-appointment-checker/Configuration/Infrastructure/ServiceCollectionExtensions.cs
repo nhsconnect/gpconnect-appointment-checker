@@ -52,6 +52,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Conventions.AddPageRoute("/Private/Search", "/Search");
                 options.Conventions.AddPageRoute("/Private/SearchDetail", "/SearchDetail/{searchDetailId}");
                 options.Conventions.AddPageRoute("/Public/Error", "/Error");
+                options.Conventions.AddPageRoute("/Public/StatusCode", "/StatusCode/{statusCode?}");
                 options.Conventions.AddPageRoute("/Public/AccessDenied", "/AccessDenied");
                 options.Conventions.AddPageRoute("/Public/NotRegistered", "/NotRegistered");
                 options.Conventions.AddPageRoute("/Public/Accessibility", "/Accessibility");

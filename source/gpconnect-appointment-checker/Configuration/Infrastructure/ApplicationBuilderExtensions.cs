@@ -33,8 +33,11 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             });
             app.UseSession();
             app.UseCookiePolicy();
+            
             app.UseRouting();
-            app.UseResponseCaching();
+            app.UseStatusCodePagesWithRedirects("~/StatusCode/{0}");
+            
+            app.UseResponseCaching();            
 
             app.Use(async (context, next) =>
             {

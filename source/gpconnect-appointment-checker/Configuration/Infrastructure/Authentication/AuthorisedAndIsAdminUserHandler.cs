@@ -20,14 +20,15 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 }
                 else
                 {
-                    authFilterContext.Response.Redirect("/Index");
-                    context.Succeed(requirement);
+
+                    authFilterContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                    context.Fail();
                 }
             }
             else
             {
-                authFilterContext.Response.Redirect("/Index");
-                context.Succeed(requirement);
+                authFilterContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                context.Fail();
             }
 
             return Task.CompletedTask;

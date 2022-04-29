@@ -79,6 +79,7 @@
         public const string ISSUEWITHLDAPTEXT = "The SDS server is currently unavailable. Please try your search again.";
 
         public const string ERRORHEADERTITLETEXT = "Error in GP Connect Appointment Checker";
+        public const string STATUSCODEERRORTITLETEXT = "Status Code Error in GP Connect Appointment Checker";
         public const string ERRORTEXT = "Sorry, but it looks like an error has occurred in the application. The error has been logged and will be investigated.";
         public const string RETURNTOHOMEPAGETEXT = "Please click here to return to the Home page.";
         public const string RETURNTOSEARCHPAGETEXT = "Please click here to return to the Search page.";
