@@ -105,9 +105,10 @@ namespace gpconnect_appointment_checker.IntegrationTest
 
         public DataServiceGetConfigurationDataTests()
         {
+            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
             var mockLoggerDataService = new Mock<ILogger<DataService>>();
             var mockConfSection = new Mock<IConfigurationSection>();
-            mockConfSection.SetupGet(m => m[It.Is<string>(s => s == "DefaultConnection")]).Returns("Server=localhost;Port=5432;Database=GpConnectAppointmentChecker;User Id=postgres;Password=hYrfbq74%Na$xFIe!QRA;");
+            mockConfSection.SetupGet(m => m[It.Is<string>(s => s == "DefaultConnection")]).Returns(connectionString);
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(a => a.GetSection(It.Is<string>(s => s == "ConnectionStrings"))).Returns(mockConfSection.Object);
             _dataService = new DataService(mockConfiguration.Object, mockLoggerDataService.Object);
