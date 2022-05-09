@@ -33,11 +33,11 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             });
             app.UseSession();
             app.UseCookiePolicy();
-            
-            app.UseRouting();
-            app.UseStatusCodePagesWithRedirects("~/StatusCode/{0}");
-            
-            app.UseResponseCaching();            
+
+            app.UseStatusCodePagesWithRedirects("/StatusCode/{0}");
+            app.UseRouting();            
+
+            app.UseResponseCaching();
 
             app.Use(async (context, next) =>
             {
@@ -46,10 +46,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     NoStore = true,
                     NoCache = true
                 };
-                context.Response.Headers.Add("Pragma", "no-cache");
-                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
-
-                await next();
+                AddResponseHeaders(context);
+                await next(context);
             });
 
             app.UseResponseCompression();
@@ -61,7 +59,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapControllers(); 
+                endpoints.MapControllers();
                 endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.HEALTHCHECKERPATH, new HealthCheckOptions()
                 {
                     ResultStatusCodes =
@@ -72,6 +70,18 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     AllowCachingResponses = false
                 });
             });
+        }
+
+        private static void AddResponseHeaders(HttpContext context)
+        {
+            if (!context.Response.Headers.ContainsKey("Pragma"))
+            {
+                context.Response.Headers.Add("Pragma", "no-cache");
+            }
+            if (!context.Response.Headers.ContainsKey("X-Frame-Options"))
+            {
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 }
                 else
                 {
-
                     authFilterContext.Response.StatusCode = StatusCodes.Status404NotFound;
                     context.Fail();
                 }
