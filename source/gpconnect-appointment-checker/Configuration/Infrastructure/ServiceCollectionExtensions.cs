@@ -80,8 +80,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             services.AddSingleton<IAuthorizationHandler, AuthorisedAndIsAdminUserHandler>();
 
             services.AddDataProtection()
-                .SetApplicationName("GpConnectAppointmentChecker")
-                .DisableAutomaticKeyGeneration();
+                .SetApplicationName("GpConnectAppointmentChecker");
 
             services.AddAntiforgery(options => 
             { 
