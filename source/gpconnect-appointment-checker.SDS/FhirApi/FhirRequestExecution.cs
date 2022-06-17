@@ -57,7 +57,7 @@ namespace gpconnect_appointment_checker.SDS
                 spineMessage.ResponseHeaders = response.Headers.ToString();
 
                 sw.Stop();
-                spineMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
+                spineMessage.RoundTripTimeMs = sw.Elapsed.TotalMilliseconds;
                 var savedSpineMessage = _logService.AddSpineMessageLog(spineMessage);
 
                 if (response.IsSuccessStatusCode)

@@ -56,7 +56,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
 
                 stopWatch.Stop();
-                _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
                 var slotSimple = new SlotSimple()
@@ -138,11 +138,11 @@ namespace gpconnect_appointment_checker.GPConnect
                         SpineMessageId = null
                     }).ToArray();
 
-                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null);
+                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null).Where(x => x != null);
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
                 var semaphore = new SemaphoreSlim(requestList.Count(), requestList.Count() + 1);
 
-                var tasks = requestList.Select(requestParameter => ProcessResults(organisationErrorCodeOrDetails, searchType, startDate, endDate, requestParameter, semaphore, client, cancellationToken));                    
+                var tasks = requestList.Select(requestParameter => ProcessResults(organisationErrorCodeOrDetails, searchType, startDate, endDate, requestParameter, semaphore, client, cancellationToken)).Where(t => t != null);
 
                 var processedSlotEntrySummaryCount = await Task.WhenAll(tasks);
                 return emptyRequestParameters.Concat(processedSlotEntrySummaryCount).ToList();
@@ -214,7 +214,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RequestPayload = request.ToString();
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
                 stopWatch.Stop();
-                _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
                 var spineMessage = _logService.AddSpineMessageLog(_spineMessage);
 
                 var results = JsonConvert.DeserializeObject<Bundle>(contents);

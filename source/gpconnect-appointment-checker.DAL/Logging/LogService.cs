@@ -69,7 +69,7 @@ namespace gpconnect_appointment_checker.DAL.Logging
             parameters.Add("_response_status", spineMessage.ResponseStatus);
             parameters.Add("_response_headers", spineMessage.ResponseHeaders);
             parameters.Add("_response_payload", spineMessage.ResponsePayload ?? string.Empty);
-            parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs, DbType.Int32);
+            parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs, DbType.Double);
             if (spineMessage.SearchResultId > 0)
             {
                 parameters.Add("_search_result_id", spineMessage.SearchResultId);

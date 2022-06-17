@@ -1,0 +1,1 @@
+alter table logging.spine_message alter column roundtriptime_ms type double precision;

@@ -5,7 +5,6 @@ using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,12 +27,12 @@ namespace gpconnect_appointment_checker.GPConnect
                         ErrorCode = ErrorCode.CapabilityStatementNotFound
                     }).ToArray();
 
-                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null);
+                var requestList = requestParameterList.Where(x => x.RequestParameters != null && x.RequestParameters.EndpointAddress != null).Where(x => x != null);
 
                 var client = _httpClientFactory.CreateClient("GpConnectClient");
                 var semaphore = new SemaphoreSlim(requestList.Count(), requestList.Count() + 1);
 
-                var tasks = requestList.Select(requestParameter => PopulateCapabilityStatementResults(requestParameter, semaphore, client, cancellationToken));
+                var tasks = requestList.Select(requestParameter => PopulateCapabilityStatementResults(requestParameter, semaphore, client, cancellationToken)).Where(x => x != null);
 
                 var results = await Task.WhenAll(tasks);
                 return emptyRequestParameters.Concat(results).ToList();
@@ -79,7 +78,7 @@ namespace gpconnect_appointment_checker.GPConnect
                 _spineMessage.RequestPayload = request.ToString();
                 _spineMessage.ResponseHeaders = response.Headers.ToString();
                 stopWatch.Stop();
-                _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
 
                 var capabilityStatement = JsonConvert.DeserializeObject<CapabilityStatement>(contents);
@@ -138,7 +137,7 @@ namespace gpconnect_appointment_checker.GPConnect
             finally
             {
                 stopWatch.Stop();
-                _spineMessage.RoundTripTimeMs = stopWatch.ElapsedMilliseconds;
+                _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
                 _logService.AddSpineMessageLog(_spineMessage);
             }
         }

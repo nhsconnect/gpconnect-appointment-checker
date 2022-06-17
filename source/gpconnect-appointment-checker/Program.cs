@@ -1,5 +1,6 @@
 using Autofac.Extensions.DependencyInjection;
 using gpconnect_appointment_checker.Configuration;
+using gpconnect_appointment_checker.DAL;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -43,7 +44,7 @@ namespace gpconnect_appointment_checker
             var configuration = builder.Build();            
             builder.AddConfiguration(options =>
             {
-                options.ConnectionString = configuration.GetConnectionString("DefaultConnection");
+                options.ConnectionString = configuration.GetConnectionString(ConnectionStrings.DefaultConnection);
             });
         }
     }

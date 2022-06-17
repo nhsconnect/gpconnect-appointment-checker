@@ -12,7 +12,7 @@ namespace gpconnect_appointment_checker.DTO.Request.Logging
         public string ResponseHeaders { get; set; }
         public string ResponsePayload { get; set; }
         public DateTime LoggedDate => DateTime.UtcNow;
-        public long RoundTripTimeMs { get; set; }
+        public double RoundTripTimeMs { get; set; }
         public int SearchResultId { get; set; }
     }
 }

@@ -86,7 +86,7 @@ namespace gpconnect_appointment_checker.SDS
                     result = JsonConvert.DeserializeObject<T>(jsonDictionary);
                 }
                 logMessage.ResponsePayload = jsonDictionary;
-                logMessage.RoundTripTimeMs = sw.ElapsedMilliseconds;
+                logMessage.RoundTripTimeMs = sw.Elapsed.TotalMilliseconds;
                 _logService.AddSpineMessageLog(logMessage);
                 return result;
 

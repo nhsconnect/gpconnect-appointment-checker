@@ -10,7 +10,7 @@ create function logging.log_spine_message
     _response_status varchar(100),
     _response_headers text,
     _response_payload text,
-    _roundtriptime_ms integer,
+    _roundtriptime_ms double precision,
     _search_result_id integer
 )
 returns table
@@ -25,7 +25,7 @@ returns table
 	response_headers text,
 	response_payload text,
 	logged_date timestamp without time zone,
-	roundtriptime_ms bigint,
+	roundtriptime_ms double precision,
 	search_result_id integer
 )
 as $$

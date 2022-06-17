@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.Helpers;
+﻿using gpconnect_appointment_checker.DAL;
+using gpconnect_appointment_checker.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             var databaseTarget = new DatabaseTarget
             {
                 Name = "Database",
-                ConnectionString = configuration.GetConnectionString("DefaultConnection"),
+                ConnectionString = configuration.GetConnectionString(ConnectionStrings.DefaultConnection),
                 CommandType = CommandType.StoredProcedure,
                 CommandText = "logging.log_error",
                 DBProvider = "Npgsql.NpgsqlConnection, Npgsql"
