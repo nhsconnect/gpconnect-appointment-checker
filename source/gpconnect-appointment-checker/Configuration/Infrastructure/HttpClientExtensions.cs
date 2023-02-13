@@ -29,12 +29,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 options.Timeout = new TimeSpan(0, 0, 0, _spineConfig.TimeoutSeconds);
                 options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
                 options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(env));
+            }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(env)).SetHandlerLifetime(System.Threading.Timeout.InfiniteTimeSpan);
         }
 
         private HttpMessageHandler CreateHttpMessageHandler(IWebHostEnvironment env)
         {
-            var httpClientHandler = new HttpClientHandler();
+            var httpClientHandler = new HttpClientHandler() { MaxConnectionsPerServer = 1 };
 
             if (_spineConfig.UseSSP)
             {
