@@ -1,5 +1,5 @@
-FROM postgres:11.9
-RUN apt-get update && apt-get -y install postgresql-11-cron
+FROM postgres:12.11
+RUN apt-get update && apt-get -y install postgresql-12-cron
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 ARG BUILD_TAG
