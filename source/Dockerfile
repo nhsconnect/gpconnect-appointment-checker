@@ -1,5 +1,5 @@
 FROM postgres:12.14
-RUN apt-get update && apt-get install -y -no-install-recommends \
+RUN apt-get update && apt-get install -y \
     postgresql-12-cron \
     apt-utils
 
