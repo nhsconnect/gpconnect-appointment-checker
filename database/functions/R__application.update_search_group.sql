@@ -4,7 +4,7 @@ create function application.update_search_group
 (
 	_search_group_id integer,
 	_user_id integer,
-	_search_end_at timestamp
+	_search_end_at timestamp with time zone
 )
 returns void 
 as $$

@@ -3,11 +3,11 @@ drop function if exists application.add_search_group;
 create function application.add_search_group
 (
 	_user_session_id integer,
-	_consumer_ods_textbox varchar(200),
-	_provider_ods_textbox varchar(200),
-	_search_date_range varchar(200),
+	_consumer_ods_textbox text,
+	_provider_ods_textbox text,
+	_search_date_range text,
 	_search_start_at timestamp,
-	_consumer_organisation_type_dropdown varchar(50)
+	_consumer_organisation_type_dropdown text
 )
 returns table
 (
