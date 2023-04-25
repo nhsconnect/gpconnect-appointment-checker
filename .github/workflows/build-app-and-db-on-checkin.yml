@@ -40,7 +40,7 @@ jobs:
       - name: Build dotnet api solution
         run: dotnet build modules/api/gpconnect-appointment-checker.api.sln
 
-        - name: Build dotnet end user solution
+      - name: Build dotnet end user solution
         run: dotnet build modules/end-user/gpconnect-appointment-checker.sln
 
       - name: Check Postgres running
