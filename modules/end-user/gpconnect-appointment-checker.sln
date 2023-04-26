@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker", "src\gpconnect-appointment-checker\gpconnect-appointment-checker.csproj", "{299D7E01-5B75-4934-AE9E-260DD25BA417}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.SDS", "src\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj", "{4FEEF429-1CC0-473B-ADAC-78C7AD899400}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.GPConnect", "src\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj", "{B83450E1-34BB-490F-9F80-9EB32D23326A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.DTO", "src\gpconnect-appointment-checker.DTO\gpconnect-appointment-checker.DTO.csproj", "{07753BB6-A591-4B92-BAD0-6467C8F241D4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-appointment-checker.Helpers", "src\gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj", "{1004E112-CEEB-45C8-85F5-B37140AEED88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{299D7E01-5B75-4934-AE9E-260DD25BA417}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FEEF429-1CC0-473B-ADAC-78C7AD899400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FEEF429-1CC0-473B-ADAC-78C7AD899400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FEEF429-1CC0-473B-ADAC-78C7AD899400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FEEF429-1CC0-473B-ADAC-78C7AD899400}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83450E1-34BB-490F-9F80-9EB32D23326A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83450E1-34BB-490F-9F80-9EB32D23326A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83450E1-34BB-490F-9F80-9EB32D23326A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83450E1-34BB-490F-9F80-9EB32D23326A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07753BB6-A591-4B92-BAD0-6467C8F241D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07753BB6-A591-4B92-BAD0-6467C8F241D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07753BB6-A591-4B92-BAD0-6467C8F241D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07753BB6-A591-4B92-BAD0-6467C8F241D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1004E112-CEEB-45C8-85F5-B37140AEED88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BEBFC7C8-20FC-4579-AA46-11B54CBDE77F}
+	EndGlobalSection
+EndGlobal

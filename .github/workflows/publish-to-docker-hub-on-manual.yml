@@ -14,13 +14,22 @@ jobs:
         run: echo ${{ env.BUILD_TAG }}
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: Push application image to docker hub
+      - name: Push api application image to docker hub
         uses: docker/build-push-action@v1
         with:
-          path: source
+          path: modules/api
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-          repository: nhsgpconnect/gpconnect-appointment-checker-application
+          repository: nhsgpconnect/gpconnect-appointment-checker-api-application
+          build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
+          tag_with_ref: true
+      - name: Push end user application image to docker hub
+        uses: docker/build-push-action@v1
+        with:
+          path: modules/end-user
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          repository: nhsgpconnect/gpconnect-appointment-checker-end-user-application
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
       - name: Push database image to docker hub
