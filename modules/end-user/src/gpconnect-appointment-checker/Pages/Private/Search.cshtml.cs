@@ -1,6 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.DAL.Interfaces;
 using gpconnect_appointment_checker.DTO;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
@@ -27,6 +27,7 @@ using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices
 using ITokenService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.ITokenService;
 using Organisation = gpconnect_appointment_checker.DTO.Response.Application.Organisation;
 using SearchResult = gpconnect_appointment_checker.DTO.Request.Application.SearchResult;
+using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -38,7 +39,6 @@ namespace gpconnect_appointment_checker.Pages
         private readonly ITokenService _tokenService;
         private readonly ISpineService _spineService;
         private readonly IGpConnectQueryExecutionService _queryExecutionService;
-        private readonly IAuditService _auditService;
         private readonly IReportingService _reportingService;
         private readonly IConfigurationService _configurationService;
         private readonly ILoggerManager _loggerManager;
@@ -47,14 +47,13 @@ namespace gpconnect_appointment_checker.Pages
         private readonly List<string> _auditSearchIssues = new List<string>();
         private readonly List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IAuditService auditService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _contextAccessor = contextAccessor;
             _logger = logger;
             _tokenService = tokenService;
             _queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
-            _auditService = auditService;
             _reportingService = reportingService;
             _configurationService = configurationService;
             if (null != loggerManager)
@@ -81,9 +80,9 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public IActionResult OnGetSearchByGroup(int searchGroupId)
+        public async Task<IActionResult> OnGetSearchByGroup(int searchGroupId)
         {
-            var searchGroup = _applicationService.GetSearchGroup(searchGroupId, UserId);
+            var searchGroup = await _applicationService.GetSearchGroup(searchGroupId, UserId);
             if (searchGroup != null)
             {
                 ProviderOdsCode = searchGroup.ProviderOdsTextbox;
@@ -98,21 +97,23 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public FileStreamResult OnPostExportSearchResults(int searchexportid)
+        public async Task<FileStreamResult> OnPostExportSearchResults(int searchexportid)
         {
-            var exportTable = _applicationService.GetSearchExport(searchexportid, UserId);
-            return ExportResult(exportTable);
+            var exportTable = await _applicationService.GetSearchExport(searchexportid, UserId);
+            //return ExportResult(exportTable);
+            return null;
         }
 
-        public FileStreamResult OnPostExportSearchGroupResults(int searchgroupid)
+        public async Task<FileStreamResult> OnPostExportSearchGroupResults(int searchgroupid)
         {
-            var exportTable = _applicationService.GetSearchGroupExport(searchgroupid, UserId);
-            return ExportResult(exportTable);
+            var exportTable = await _applicationService.GetSearchGroupExport(searchgroupid, UserId);
+            //return ExportResult(exportTable);
+            return null;
         }
 
-        private void PopulateSearchResultsForGroup(int searchGroupId)
+        private async Task PopulateSearchResultsForGroup(int searchGroupId)
         {
-            var searchResultsForGroup = _applicationService.GetSearchResultByGroup(searchGroupId, UserId);
+            var searchResultsForGroup = await _applicationService.GetSearchResultByGroup(searchGroupId, UserId);
             SearchResultsSummary = searchResultsForGroup;
         }
 
@@ -244,280 +245,282 @@ namespace gpconnect_appointment_checker.Pages
         private async Task<List<SlotEntrySummary>> GetSearchResultsMulti()
         {
             List<SlotEntrySummary> slotEntrySummary = new List<SlotEntrySummary>();
-            try
-            {
-                var providerOrganisationDetails = await _sdsQueryExecutionBase.GetOrganisationDetailsByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderODSCodeNotFound);
-                var consumerOrganisationDetails = await _sdsQueryExecutionBase.GetOrganisationDetailsByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerODSCodeNotFound);
+            //try
+            //{
+            //    var providerOrganisationDetails = await _sdsQueryExecutionBase.GetOrganisationDetailsByOdsCode(ProviderOdsCodeAsList, ErrorCode.ProviderODSCodeNotFound);
+            //    var consumerOrganisationDetails = await _sdsQueryExecutionBase.GetOrganisationDetailsByOdsCode(ConsumerOdsCodeAsList, ErrorCode.ConsumerODSCodeNotFound);
 
-                _auditSearchParameters[0] = ConsumerOdsCode;
-                _auditSearchParameters[1] = ProviderOdsCode;
-                _auditSearchParameters[2] = SelectedDateRange;
-                _auditSearchParameters[3] = SelectedOrganisationType;
+            //    _auditSearchParameters[0] = ConsumerOdsCode;
+            //    _auditSearchParameters[1] = ProviderOdsCode;
+            //    _auditSearchParameters[2] = SelectedDateRange;
+            //    _auditSearchParameters[3] = SelectedOrganisationType;
 
-                var providerSpineDetails = await _sdsQueryExecutionBase.GetProviderDetails(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
-                var consumerSpineDetails = await _sdsQueryExecutionBase.GetConsumerDetails(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
+            //    var providerSpineDetails = await _sdsQueryExecutionBase.GetProviderDetails(ProviderOdsCodeAsList, ErrorCode.ProviderNotEnabledForGpConnectAppointmentManagement);
+            //    var consumerSpineDetails = await _sdsQueryExecutionBase.GetConsumerDetails(ConsumerOdsCodeAsList, ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement);
 
-                _logger.LogInformation("About to execute PopulateSearchResultsMulti");
+            //    _logger.LogInformation("About to execute PopulateSearchResultsMulti");
 
-                slotEntrySummary = await PopulateSearchResultsMulti(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
-                _searchResultsSummaryDataTable = slotEntrySummary;
-            }
-            catch (LdapException)
-            {
-                LdapErrorRaised = true;
-                _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
-            }
+            //    slotEntrySummary = await PopulateSearchResultsMulti(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
+            //    _searchResultsSummaryDataTable = slotEntrySummary;
+            //}
+            //catch (LdapException)
+            //{
+            //    LdapErrorRaised = true;
+            //    _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
+            //}
             return slotEntrySummary;
         }
 
         private async Task PopulateSearchResults(GpConnect.AppointmentChecker.Models.Spine providerSpineDetails, GpConnect.AppointmentChecker.Models.OrganisationSpine providerOrganisationDetails, GpConnect.AppointmentChecker.Models.Spine consumerEnablement, GpConnect.AppointmentChecker.Models.OrganisationSpine consumerOrganisationDetails, string consumerOrganisationType = "")
         {
-            var requestParameters = _tokenService.ConstructRequestParameters(
-                _contextAccessor.HttpContext.GetAbsoluteUri(), providerSpineDetails, providerOrganisationDetails,
-                consumerEnablement, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots, consumerOrganisationType);
-            var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
-            var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
-            if (requestParameters != null)
-            {
-                var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
-                CapabilityStatementOk = capabilityStatement.CapabilityStatementNoIssues;
 
-                if (CapabilityStatementOk)
-                {
-                    var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerSpineDetails.SspHostname, User.GetClaimValue("UserId").StringToInteger());
+            //var requestParameters = _tokenService.ConstructRequestParameters(
+            //    _contextAccessor.HttpContext.GetAbsoluteUri(), providerSpineDetails, providerOrganisationDetails,
+            //    consumerEnablement, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots, consumerOrganisationType);
+            //var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+            //var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
-                    SlotSearchOk = searchResults.SlotSearchNoIssues;
+            //if (requestParameters != null)
+            //{
+            //    var capabilityStatement = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
+            //    CapabilityStatementOk = capabilityStatement.CapabilityStatementNoIssues;
 
-                    if (SlotSearchOk)
-                    {
-                        SearchExportId = searchResults.SearchExportId;
-                        SearchResults = new List<List<SlotEntrySimple>>();
-                        SearchResultsPast = new List<List<SlotEntrySimple>>();
+            //    if (CapabilityStatementOk)
+            //    {
+            //        var searchResults = await _queryExecutionService.ExecuteFreeSlotSearch(requestParameters, startDate, endDate, providerSpineDetails.SspHostname, User.GetClaimValue("UserId").StringToInteger());
 
-                        SearchResultsTotalCount = searchResults.SlotCount;
-                        SearchResultsCurrentCount = searchResults.CurrentSlotCount;
-                        SearchResultsPastCount = searchResults.PastSlotCount;
+            //        SlotSearchOk = searchResults.SlotSearchNoIssues;
 
-                        SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
-                        SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
-                    }
-                    else
-                    {
-                        ProviderErrorDisplay = searchResults.ProviderError;
-                        ProviderErrorCode = searchResults.ProviderErrorCode;
-                        ProviderErrorDiagnostics = searchResults.ProviderErrorDiagnostics;
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
-                    }
-                }
-                else
-                {
-                    ProviderErrorDisplay = capabilityStatement.ProviderError;
-                    ProviderErrorCode = capabilityStatement.ProviderErrorCode;
-                    ProviderErrorDiagnostics = capabilityStatement.ProviderErrorDiagnostics;
-                    _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+            //        if (SlotSearchOk)
+            //        {
+            //            SearchExportId = searchResults.SearchExportId;
+            //            SearchResults = new List<List<SlotEntrySimple>>();
+            //            SearchResultsPast = new List<List<SlotEntrySimple>>();
 
-                }
-            }
+            //            SearchResultsTotalCount = searchResults.SlotCount;
+            //            SearchResultsCurrentCount = searchResults.CurrentSlotCount;
+            //            SearchResultsPastCount = searchResults.PastSlotCount;
+
+            //            SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
+            //            SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
+            //        }
+            //        else
+            //        {
+            //            ProviderErrorDisplay = searchResults.ProviderError;
+            //            ProviderErrorCode = searchResults.ProviderErrorCode;
+            //            ProviderErrorDiagnostics = searchResults.ProviderErrorDiagnostics;
+            //            _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+            //        }
+            //    }
+            //    else
+            //    {
+            //        ProviderErrorDisplay = capabilityStatement.ProviderError;
+            //        ProviderErrorCode = capabilityStatement.ProviderErrorCode;
+            //        ProviderErrorDiagnostics = capabilityStatement.ProviderErrorDiagnostics;
+            //        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, ProviderErrorDisplay, ProviderErrorCode));
+
+            //    }
+            //}
         }
 
         private async Task<List<SlotEntrySummary>> PopulateSearchResultsMulti(List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails, string consumerOrganisationType = "")
         {
-            var createdSearchGroup = _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
-            {
-                UserSessionId = User.GetClaimValue("UserSessionId").StringToInteger(),
-                ProviderOdsTextbox = ProviderOdsCode,
-                ConsumerOdsTextbox = ConsumerOdsCode,
-                SearchDateRange = SelectedDateRange,
-                ConsumerOrganisationTypeDropdown = SelectedOrganisationType
-            });
+            //var createdSearchGroup = _applicationService.AddSearchGroup(new DTO.Request.Application.SearchGroup
+            //{
+            //    UserSessionId = User.GetClaimValue("UserSessionId").StringToInteger(),
+            //    ProviderOdsTextbox = ProviderOdsCode,
+            //    ConsumerOdsTextbox = ConsumerOdsCode,
+            //    SearchDateRange = SelectedDateRange,
+            //    ConsumerOrganisationTypeDropdown = SelectedOrganisationType
+            //});
 
-            _logger.LogInformation("Executing PopulateSearchResultsMulti - generating Request Parameters");
+            //_logger.LogInformation("Executing PopulateSearchResultsMulti - generating Request Parameters");
 
-            SearchGroupId = createdSearchGroup.SearchGroupId;
+            //SearchGroupId = createdSearchGroup.SearchGroupId;
 
             var slotEntrySummary = new List<SlotEntrySummary>();
 
-            var requestParameters = await _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
-                consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots, consumerOrganisationType);
-            var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
-            var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
+            //var requestParameters = await _tokenService.ConstructRequestParameters(_contextAccessor.HttpContext.GetAbsoluteUri(), providerGpConnectDetails, providerOrganisationDetails,
+            //    consumerGpConnectDetails, consumerOrganisationDetails, (int)SpineMessageTypes.GpConnectSearchFreeSlots, consumerOrganisationType);
+            //var startDate = Convert.ToDateTime(SelectedDateRange.Split(":")[0]);
+            //var endDate = Convert.ToDateTime(SelectedDateRange.Split(":")[1]);
 
-            var providerOdsCount = ProviderOdsCodeAsList.Count;
-            var consumerOdsCount = ConsumerOdsCodeAsList.Count;
-            List<SlotEntrySummaryCount> slotSearchSummaryList = new List<SlotEntrySummaryCount>();
-            List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetail = new List<OrganisationErrorCodeOrDetail>();
-            List<CapabilityStatementErrorCodeOrDetail> capabilityStatementErrorCodeOrDetail = new List<CapabilityStatementErrorCodeOrDetail>();
+            //var providerOdsCount = ProviderOdsCodeAsList.Count;
+            //var consumerOdsCount = ConsumerOdsCodeAsList.Count;
+            //List<SlotEntrySummaryCount> slotSearchSummaryList = new List<SlotEntrySummaryCount>();
+            //List<OrganisationErrorCodeOrDetail> organisationErrorCodeOrDetail = new List<OrganisationErrorCodeOrDetail>();
+            //List<CapabilityStatementErrorCodeOrDetail> capabilityStatementErrorCodeOrDetail = new List<CapabilityStatementErrorCodeOrDetail>();
 
-            if (providerOdsCount > consumerOdsCount)
-            {
-                _logger.LogInformation("Executing PopulateSearchResultsMulti - Getting capability statement list");
+            //if (providerOdsCount > consumerOdsCount)
+            //{
+            //    _logger.LogInformation("Executing PopulateSearchResultsMulti - Getting capability statement list");
 
-                var consumerCode = ConsumerOdsCodeAsList.Count == 0 ? null : ConsumerOdsCodeAsList[0];
-                var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+            //    var consumerCode = ConsumerOdsCodeAsList.Count == 0 ? null : ConsumerOdsCodeAsList[0];
+            //    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
 
-                for (var i = 0; i < providerOdsCount; i++)
-                {
-                    _stopwatch.Start();
-                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], consumerCode, providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
-                    organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
+            //    for (var i = 0; i < providerOdsCount; i++)
+            //    {
+            //        _stopwatch.Start();
+            //        var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[i], consumerCode, providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
+            //        organisationErrorCodeOrDetail.Add(errorCodeOrDetail);
 
-                    var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
-                    capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
-                }
+            //        var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[i], capabilityStatementList);
+            //        capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
+            //    }
 
-                var slotCount = 0;
+            //    var slotCount = 0;
 
-                if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
-                {
-                    slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Provider);
+            //    if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
+            //    {
+            //        slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Provider);
 
-                    for (var i = 0; i < providerOdsCount; i++)
-                    {
-                        var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
-                        var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
+            //        for (var i = 0; i < providerOdsCount; i++)
+            //        {
+            //            var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
+            //            var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedProviderOdsCode == ProviderOdsCodeAsList[i]);
 
-                        if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
-                        {
-                            var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[i], slotSearchSummaryList);
-                            organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
-                            organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
-                            slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
-                        }
-                        else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
-                        {
-                            organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
-                            organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
-                            slotCount = 0;
-                        }
+            //            if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
+            //            {
+            //                var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ProviderOdsCodeAsList[i], slotSearchSummaryList);
+            //                organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
+            //                organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
+            //                slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
+            //            }
+            //            else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
+            //            {
+            //                organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
+            //                organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
+            //                slotCount = 0;
+            //            }
 
-                        _stopwatch.Stop();
+            //            _stopwatch.Stop();
 
-                        var searchResultToAdd = new SearchResult
-                        {
-                            SearchGroupId = createdSearchGroup.SearchGroupId,
-                            ProviderCode = ProviderOdsCodeAsList[i],
-                            ConsumerCode = consumerCode,
-                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
-                            ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
-                            Details = organisationErrorCodeOrDetailForCode.details,
-                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
-                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
-                        };
+            //            var searchResultToAdd = new SearchResult
+            //            {
+            //                SearchGroupId = createdSearchGroup.SearchGroupId,
+            //                ProviderCode = ProviderOdsCodeAsList[i],
+            //                ConsumerCode = consumerCode,
+            //                ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
+            //                ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
+            //                Details = organisationErrorCodeOrDetailForCode.details,
+            //                ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
+            //                SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds
+            //            };
 
-                        _stopwatch.Reset();
+            //            _stopwatch.Reset();
 
-                        if (slotSearchSummaryList != null)
-                        {
-                            var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i])?.SpineMessageId;
-                            searchResultToAdd.SpineMessageId = spineMessageId;
-                        }
+            //            if (slotSearchSummaryList != null)
+            //            {
+            //                var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ProviderOdsCodeAsList[i])?.SpineMessageId;
+            //                searchResultToAdd.SpineMessageId = spineMessageId;
+            //            }
 
-                        var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+            //            var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
-                        slotEntrySummary.Add(new SlotEntrySummary
-                        {
-                            ProviderLocationName = organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationLocation,
-                            ProviderOdsCode = ProviderOdsCodeAsList[i],
-                            ConsumerLocationName = organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationLocation,
-                            ConsumerOdsCode = consumerCode,
-                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
-                            SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
-                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
-                            SearchResultId = searchResult.SearchResultId,
-                            SearchGroupId = searchResultToAdd.SearchGroupId,
-                            DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
-                            DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
-                            DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
-                            DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
-                        });
-                    }
-                }
-            }
-            else if (consumerOdsCount > providerOdsCount)
-            {
-                for (var i = 0; i < consumerOdsCount; i++)
-                {
-                    _stopwatch.Start();
-                    var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
-                    organisationErrorCodeOrDetail.Add(errorCodeOrDetail);                    
-                }
+            //            slotEntrySummary.Add(new SlotEntrySummary
+            //            {
+            //                ProviderLocationName = organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationLocation,
+            //                ProviderOdsCode = ProviderOdsCodeAsList[i],
+            //                ConsumerLocationName = organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationLocation,
+            //                ConsumerOdsCode = consumerCode,
+            //                ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
+            //                SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
+            //                ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
+            //                SearchResultId = searchResult.SearchResultId,
+            //                SearchGroupId = searchResultToAdd.SearchGroupId,
+            //                DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
+            //                DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
+            //                DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
+            //                DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
+            //            });
+            //        }
+            //    }
+            //}
+            //else if (consumerOdsCount > providerOdsCount)
+            //{
+            //    for (var i = 0; i < consumerOdsCount; i++)
+            //    {
+            //        _stopwatch.Start();
+            //        var errorCodeOrDetail = GetOrganisationErrorCodeOrDetail(ProviderOdsCodeAsList[0], ConsumerOdsCodeAsList[i], providerGpConnectDetails, providerOrganisationDetails, consumerGpConnectDetails, consumerOrganisationDetails, consumerOrganisationType);
+            //        organisationErrorCodeOrDetail.Add(errorCodeOrDetail);                    
+            //    }
 
-                var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
-                var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
-                capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
+            //    var capabilityStatementList = await _queryExecutionService.ExecuteFhirCapabilityStatement(requestParameters);
+            //    var capabilityStatementResult = GetCapabilityStatementErrorCodeOrDetail(ProviderOdsCodeAsList[0], capabilityStatementList);
+            //    capabilityStatementErrorCodeOrDetail.Add(capabilityStatementResult);
 
-                var slotCount = 0;
+            //    var slotCount = 0;
 
-                if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
-                {
-                    slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Consumer);
+            //    if (requestParameters != null && organisationErrorCodeOrDetail != null && capabilityStatementErrorCodeOrDetail != null)
+            //    {
+            //        slotSearchSummaryList = await _queryExecutionService.ExecuteFreeSlotSearchSummary(organisationErrorCodeOrDetail, requestParameters, startDate, endDate, SearchType.Consumer);
 
-                    for (var i = 0; i < consumerOdsCount; i++)
-                    {
-                        var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
-                        var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
+            //        for (var i = 0; i < consumerOdsCount; i++)
+            //        {
+            //            var organisationErrorCodeOrDetailForCode = organisationErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
+            //            var capabilityStatementErrorCodeOrDetailForCode = capabilityStatementErrorCodeOrDetail.FirstOrDefault(x => x.SuppliedConsumerOdsCode == ConsumerOdsCodeAsList[i]);
 
-                        if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
-                        {
-                            var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ConsumerOdsCodeAsList[i], slotSearchSummaryList);
-                            organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
-                            organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
-                            slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
-                        }
-                        else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
-                        {
-                            organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
-                            organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
-                            slotCount = 0;
-                        }
+            //            if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None)
+            //            {
+            //                var slotSearchErrorCodeOrDetail = GetSlotSearchErrorCodeOrDetail(ConsumerOdsCodeAsList[i], slotSearchSummaryList);
+            //                organisationErrorCodeOrDetailForCode.errorSource = slotSearchErrorCodeOrDetail.Item1;
+            //                organisationErrorCodeOrDetailForCode.details = AppendAdditionalDetails(slotSearchErrorCodeOrDetail.Item2, organisationErrorCodeOrDetailForCode.additionalDetails);
+            //                slotCount = slotSearchErrorCodeOrDetail.Item3.GetValueOrDefault();
+            //            }
+            //            else if (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && capabilityStatementErrorCodeOrDetailForCode.errorSource != ErrorCode.None)
+            //            {
+            //                organisationErrorCodeOrDetailForCode.errorSource = capabilityStatementErrorCodeOrDetailForCode.errorSource;
+            //                organisationErrorCodeOrDetailForCode.details = capabilityStatementErrorCodeOrDetailForCode.details;
+            //                slotCount = 0;
+            //            }
 
-                        _stopwatch.Stop();
+            //            _stopwatch.Stop();
 
-                        var searchResultToAdd = new SearchResult
-                        {
-                            SearchGroupId = createdSearchGroup.SearchGroupId,
-                            ProviderCode = ProviderOdsCodeAsList[0],
-                            ConsumerCode = ConsumerOdsCodeAsList[i],
-                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
-                            ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
-                            Details = organisationErrorCodeOrDetailForCode.details,
-                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
-                            SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds,
+            //            var searchResultToAdd = new SearchResult
+            //            {
+            //                SearchGroupId = createdSearchGroup.SearchGroupId,
+            //                ProviderCode = ProviderOdsCodeAsList[0],
+            //                ConsumerCode = ConsumerOdsCodeAsList[i],
+            //                ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
+            //                ErrorCode = (int)organisationErrorCodeOrDetailForCode.errorSource,
+            //                Details = organisationErrorCodeOrDetailForCode.details,
+            //                ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
+            //                SearchDurationSeconds = _stopwatch.Elapsed.TotalSeconds,
 
-                        };
+            //            };
 
-                        _stopwatch.Reset();
+            //            _stopwatch.Reset();
 
-                        if (slotSearchSummaryList != null)
-                        {
-                            var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ConsumerOdsCodeAsList[i])?.SpineMessageId;
-                            searchResultToAdd.SpineMessageId = spineMessageId;
-                        }
+            //            if (slotSearchSummaryList != null)
+            //            {
+            //                var spineMessageId = slotSearchSummaryList.FirstOrDefault(x => x.OdsCode == ConsumerOdsCodeAsList[i])?.SpineMessageId;
+            //                searchResultToAdd.SpineMessageId = spineMessageId;
+            //            }
 
-                        var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
+            //            var searchResult = _applicationService.AddSearchResult(searchResultToAdd);
 
-                        slotEntrySummary.Add(new SlotEntrySummary
-                        {
-                            ProviderLocationName = organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationLocation,
-                            ProviderOdsCode = ProviderOdsCodeAsList[0],
-                            ConsumerLocationName = organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationLocation,
-                            ConsumerOdsCode = ConsumerOdsCodeAsList[i],
-                            ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
-                            SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
-                            ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
-                            SearchResultId = searchResult.SearchResultId,
-                            DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
-                            DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
-                            DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
-                            DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
-                        });
-                    }
-                }
-            }
+            //            slotEntrySummary.Add(new SlotEntrySummary
+            //            {
+            //                ProviderLocationName = organisationErrorCodeOrDetailForCode.providerOrganisation?.OrganisationLocation,
+            //                ProviderOdsCode = ProviderOdsCodeAsList[0],
+            //                ConsumerLocationName = organisationErrorCodeOrDetailForCode.consumerOrganisation?.OrganisationLocation,
+            //                ConsumerOdsCode = ConsumerOdsCodeAsList[i],
+            //                ConsumerOrganisationType = OrganisationTypes.FirstOrDefault(x => x.Value == consumerOrganisationType).Text,
+            //                SearchSummaryDetail = organisationErrorCodeOrDetailForCode.details,
+            //                ProviderPublisher = organisationErrorCodeOrDetailForCode.providerSpine?.ProductName,
+            //                SearchResultId = searchResult.SearchResultId,
+            //                DetailsEnabled = (organisationErrorCodeOrDetailForCode.errorSource == ErrorCode.None && slotCount > 0),
+            //                DisplayProvider = organisationErrorCodeOrDetailForCode.providerOrganisation != null,
+            //                DisplayConsumer = organisationErrorCodeOrDetailForCode.consumerOrganisation != null,
+            //                DisplayClass = (organisationErrorCodeOrDetailForCode.errorSource != ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
+            //            });
+            //        }
+            //    }
+            //}
 
-            _applicationService.UpdateSearchGroup(SearchGroupId);
+            //_applicationService.UpdateSearchGroup(SearchGroupId);
 
             return slotEntrySummary.OrderBy(x => x.SearchResultId).ToList();
         }
@@ -592,62 +595,62 @@ namespace gpconnect_appointment_checker.Pages
         private OrganisationErrorCodeOrDetail GetOrganisationErrorCodeOrDetail(string providerOdsCode, string consumerOdsCode, List<SpineList> providerGpConnectDetails, List<OrganisationList> providerOrganisationDetails,
             List<SpineList> consumerGpConnectDetails, List<OrganisationList> consumerOrganisationDetails, string consumerOrganisationType = "")
         {
-            var providerOrganisationLookupErrors = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-            var providerGpConnectDetailsErrors = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-            var providerErrorCode = providerOrganisationLookupErrors ?? providerGpConnectDetailsErrors ?? ErrorCode.None;
+            //var providerOrganisationLookupErrors = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+            //var providerGpConnectDetailsErrors = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+            //var providerErrorCode = providerOrganisationLookupErrors ?? providerGpConnectDetailsErrors ?? ErrorCode.None;
 
-            var consumerErrorCode = ErrorCode.None;
+            //var consumerErrorCode = ErrorCode.None;
 
-            if (!string.IsNullOrEmpty(consumerOdsCode))
-            {
-                var consumerOrganisationLookupErrors = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-                var consumerGpConnectDetailsErrors = consumerGpConnectDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
-                consumerErrorCode = consumerOrganisationLookupErrors ?? consumerGpConnectDetailsErrors ?? ErrorCode.None;
-            }
+            //if (!string.IsNullOrEmpty(consumerOdsCode))
+            //{
+            //    var consumerOrganisationLookupErrors = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+            //    var consumerGpConnectDetailsErrors = consumerGpConnectDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode && x.ErrorCode != ErrorCode.None)?.ErrorCode;
+            //    consumerErrorCode = consumerOrganisationLookupErrors ?? consumerGpConnectDetailsErrors ?? ErrorCode.None;
+            //}
 
-            var errorSource = ErrorCode.None;
-            var details = string.Empty;
-            var additionalDetails = string.Empty;
-            Organisation providerOrganisation = null;
-            Organisation consumerOrganisation = null;
-            Spine providerSpine = null;
+            //var errorSource = ErrorCode.None;
+            //var details = string.Empty;
+            //var additionalDetails = string.Empty;
+            //Organisation providerOrganisation = null;
+            //Organisation consumerOrganisation = null;
+            //Spine providerSpine = null;
 
-            if (providerErrorCode == ErrorCode.None)
-            {
-                providerOrganisation = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Organisation;
-                providerSpine = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Spine;
-            }
-            else
-            {
-                errorSource = providerErrorCode;
-                details = string.Format(errorSource.GetDescription(), providerOdsCode);
-            }
+            //if (providerErrorCode == ErrorCode.None)
+            //{
+            //    providerOrganisation = providerOrganisationDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Organisation;
+            //    providerSpine = providerGpConnectDetails.FirstOrDefault(x => x.OdsCode == providerOdsCode)?.Spine;
+            //}
+            //else
+            //{
+            //    errorSource = providerErrorCode;
+            //    details = string.Format(errorSource.GetDescription(), providerOdsCode);
+            //}
 
-            if (consumerErrorCode == ErrorCode.None)
-            {
-                consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
-            }
-            else if (consumerErrorCode == ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement)
-            {
-                consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
-                additionalDetails = string.Format(consumerErrorCode.GetDescription(), consumerOdsCode);
-            }
-            else
-            {
-                errorSource = consumerErrorCode;
-                details = string.Format(errorSource.GetDescription(), consumerOdsCode);
-            }
+            //if (consumerErrorCode == ErrorCode.None)
+            //{
+            //    consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
+            //}
+            //else if (consumerErrorCode == ErrorCode.ConsumerNotEnabledForGpConnectAppointmentManagement)
+            //{
+            //    consumerOrganisation = consumerOrganisationDetails.FirstOrDefault(x => x.OdsCode == consumerOdsCode)?.Organisation;
+            //    additionalDetails = string.Format(consumerErrorCode.GetDescription(), consumerOdsCode);
+            //}
+            //else
+            //{
+            //    errorSource = consumerErrorCode;
+            //    details = string.Format(errorSource.GetDescription(), consumerOdsCode);
+            //}
 
             return new OrganisationErrorCodeOrDetail
             {
-                SuppliedProviderOdsCode = providerOdsCode,
-                SuppliedConsumerOdsCode = consumerOdsCode,
-                errorSource = errorSource,
-                details = details,
-                additionalDetails = additionalDetails,
-                providerOrganisation = providerOrganisation,
-                consumerOrganisation = consumerOrganisation,
-                providerSpine = providerSpine
+                //SuppliedProviderOdsCode = providerOdsCode,
+                //SuppliedConsumerOdsCode = consumerOdsCode,
+                //errorSource = errorSource,
+                //details = details,
+                //additionalDetails = additionalDetails,
+                //providerOrganisation = providerOrganisation,
+                //consumerOrganisation = consumerOrganisation,
+                //providerSpine = providerSpine
             };
         }
 
@@ -669,9 +672,9 @@ namespace gpconnect_appointment_checker.Pages
             return dateRange;
         }
 
-        private IEnumerable<SelectListItem> GetOrganisationTypes()
+        private async Task<IEnumerable<SelectListItem>> GetOrganisationTypes()
         {
-            var organisationTypes = _configurationService.GetOrganisationTypes();
+            var organisationTypes = await _configurationService.GetOrganisationTypes();
             var options = organisationTypes.Select(ot => new SelectListItem()
             {
                 Text = ot.OrganisationTypeDescription,

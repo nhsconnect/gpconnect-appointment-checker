@@ -14,6 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\gpconnect-appointment-checker.DTO\gpconnect-appointment-checker.DTO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="bundledst.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

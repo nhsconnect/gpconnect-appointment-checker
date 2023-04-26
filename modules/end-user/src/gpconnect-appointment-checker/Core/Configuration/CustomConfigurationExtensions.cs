@@ -1,9 +1,7 @@
-﻿using Dapper;
-using gpconnect_appointment_checker.Configuration.Infrastructure;
+﻿using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Npgsql;
 using System;
 using System.Collections.Generic;
 
@@ -63,15 +61,15 @@ namespace gpconnect_appointment_checker.Configuration
 
         private void LoadConfiguration<T>(string query, string configurationPrefix) where T : class
         {
-            using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
-            var result = connection.QueryFirstOrDefault<T>(query);
-            var json = JsonConvert.SerializeObject(result);
-            var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            //using NpgsqlConnection connection = new NpgsqlConnection(Source.ConnectionString);
+            //var result = connection.QueryFirstOrDefault<T>(query);
+            //var json = JsonConvert.SerializeObject(result);
+            //var configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
-            foreach (var configEntry in configuration)
-            {
-                Set($"{configurationPrefix}:{configEntry.Key}", configEntry.Value ?? string.Empty);
-            }
+            //foreach (var configEntry in configuration)
+            //{
+            //    Set($"{configurationPrefix}:{configEntry.Key}", configEntry.Value ?? string.Empty);
+            //}
         }
     }
 }

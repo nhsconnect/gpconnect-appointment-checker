@@ -1,6 +1,7 @@
 using GpConnect.AppointmentChecker.Core.Config;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers;

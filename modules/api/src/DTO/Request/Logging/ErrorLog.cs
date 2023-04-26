@@ -2,6 +2,9 @@
 
 public class ErrorLog
 {
+    public int UserId { get; set; } = 0;
+    public int UserSessionId { get; set; } = 0;
+
     public string Application { get; set; }
     public DateTime Logged { get; set; }
     public string Level { get; set; }

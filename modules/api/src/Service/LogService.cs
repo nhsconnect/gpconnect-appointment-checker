@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
-using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using System.Data;
 
@@ -9,12 +9,10 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 public class LogService : ILogService
 {
     private readonly IDataService _dataService;
-    private readonly IHttpContextAccessor _context;
 
-    public LogService(IDataService dataService, IHttpContextAccessor context)
+    public LogService(IDataService dataService)
     {
         _dataService = dataService;
-        _context = context;
     }
 
     public async Task AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
@@ -24,17 +22,17 @@ public class LogService : ILogService
         parameters.Add("_application", errorLog.Application);
         parameters.Add("_logged", errorLog.Logged);
         parameters.Add("_level", errorLog.Level);
-        if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
+        if (errorLog.UserId > 0)
         {
-            parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+            parameters.Add("_user_id", errorLog.UserId, DbType.Int32);
         }
         else
         {
             parameters.Add("_user_id", DBNull.Value, DbType.Int32);
         }
-        if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+        if (errorLog.UserSessionId > 0)
         {
-            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            parameters.Add("_user_session_id", errorLog.UserSessionId, DbType.Int32);
         }
         else
         {
@@ -47,13 +45,13 @@ public class LogService : ILogService
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 
-    public async Task<DTO.Response.Logging.SpineMessage> AddSpineMessageLog(DTO.Request.Logging.SpineMessage spineMessage)
+    public async Task<DTO.Response.Logging.SpineMessage> AddSpineMessageLog(SpineMessage spineMessage)
     {
         var functionName = "logging.log_spine_message";
         var parameters = new DynamicParameters();
-        if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+        if (spineMessage.UserSessionId > 0)
         {
-            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            parameters.Add("_user_session_id", spineMessage.UserSessionId, DbType.Int32);
         }
         else
         {
@@ -89,21 +87,21 @@ public class LogService : ILogService
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 
-    public async Task AddWebRequestLog(DTO.Request.Logging.WebRequest webRequest)
+    public async Task AddWebRequestLog(WebRequest webRequest)
     {
         var functionName = "logging.log_web_request";
         var parameters = new DynamicParameters();
-        if (_context.HttpContext?.User?.GetClaimValue("UserId", nullIfEmpty: true) != null)
+        if (webRequest.UserId > 0)
         {
-            parameters.Add("_user_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserId")), DbType.Int32);
+            parameters.Add("_user_id", webRequest.UserId, DbType.Int32);
         }
         else
         {
             parameters.Add("_user_id", DBNull.Value, DbType.Int32);
         }
-        if (_context.HttpContext?.User?.GetClaimValue("UserSessionId", nullIfEmpty: true) != null)
+        if (webRequest.UserSessionId > 0)
         {
-            parameters.Add("_user_session_id", Convert.ToInt32(_context.HttpContext?.User?.GetClaimValue("UserSessionId")), DbType.Int32);
+            parameters.Add("_user_session_id", webRequest.UserSessionId, DbType.Int32);
         }
         else
         {

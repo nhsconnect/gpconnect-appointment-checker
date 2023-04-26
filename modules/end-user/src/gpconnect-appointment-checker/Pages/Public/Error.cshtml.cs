@@ -1,4 +1,3 @@
-using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         protected ILogger<ErrorModel> _logger;
 
-        public ErrorModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<ErrorModel> logger, ILdapService ldapService)
+        public ErrorModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<ErrorModel> logger)
         {
             _logger = logger;
         }

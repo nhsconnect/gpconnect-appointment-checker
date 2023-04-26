@@ -2,6 +2,8 @@
 
 public class SpineMessage
 {
+    public int UserSessionId { get; set; } = 0;
+
     public int SpineMessageTypeId { get; set; }
     public string Command { get; set; }
     public string RequestHeaders { get; set; }

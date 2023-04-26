@@ -1,5 +1,5 @@
-﻿using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.DAL.Interfaces;
+﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -29,38 +30,48 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        public void OnPostLoadReport()
+        public async Task OnGet()
         {
-            if (ModelState.IsValid)
-            {
-                var report = _reportingService.GetReport(SelectedReport);
-                ReportData = report;
-            }
+            await RefreshPage();
         }
 
-        public FileStreamResult OnPostExportReport()
+        private async Task<IActionResult> RefreshPage()
         {
-            if (ModelState.IsValid)
-            {
-                var reportName = ReportsList.FirstOrDefault(x => x.Value == SelectedReport)?.Text;
-                var memoryStream = _reportingService.ExportReport(SelectedReport, reportName);
-                return GetFileStream(memoryStream, $"{SelectedReport}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx");
-            }
-            return null;
-        }
-
-        private List<SelectListItem> GetReportsList()
-        {
-            var reportList = new List<SelectListItem>
+            var reportsList = new List<SelectListItem>
             {
                 new SelectListItem(ReportConstants.SLOTSUMMARYREPORTDEFAULT, String.Empty)
             };
-            reportList.AddRange(_reportingService.GetReports().Select(r => new SelectListItem
+            
+            var reports = await _reportingService.GetReports();
+
+            reportsList.AddRange(reports.Select(r => new SelectListItem
             {
                 Text = r.ReportName,
                 Value = r.FunctionName
             }).ToList());
-            return reportList;
+
+            ReportsList = reportsList;
+            return Page();
+        }
+
+        public async Task OnPostLoadReport()
+        {
+            if (ModelState.IsValid)
+            {
+                var report = await _reportingService.GetReport(SelectedReport);
+                //ReportData = report;
+            }
+        }
+
+        public async Task<FileStreamResult> OnPostExportReport()
+        {
+            if (ModelState.IsValid)
+            {
+                var reportName = ReportsList.FirstOrDefault(x => x.Value == SelectedReport)?.Text;
+                var memoryStream = await _reportingService.ExportReport(SelectedReport, reportName);
+                //return GetFileStream(memoryStream, $"{SelectedReport}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx");
+            }
+            return null;
         }
     }
 }

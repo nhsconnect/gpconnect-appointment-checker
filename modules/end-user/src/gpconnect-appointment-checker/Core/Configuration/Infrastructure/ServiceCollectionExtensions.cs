@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using static GpConnect.AppointmentChecker.Core.HttpClientServices.ApplicationService;
+using static GpConnect.AppointmentChecker.Core.HttpClientServices.ConfigurationService;
+using static GpConnect.AppointmentChecker.Core.HttpClientServices.LogService;
 using static GpConnect.AppointmentChecker.Core.HttpClientServices.NotificationService;
 using static GpConnect.AppointmentChecker.Core.HttpClientServices.SpineService;
 using static GpConnect.AppointmentChecker.Core.HttpClientServices.UserService;
@@ -42,6 +44,8 @@ public static class ServiceCollectionExtensions
         services.Configure<ApplicationServiceConfig>(configuration.GetSection("ApplicationApi"));
         services.Configure<NotificationServiceConfig>(configuration.GetSection("NotificationApi"));
         services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
+        services.Configure<LogServiceConfig>(configuration.GetSection("LogApi"));
+        services.Configure<ConfigurationServiceConfig>(configuration.GetSection("ConfigurationApi"));
 
         services.AddHsts(options =>
         {

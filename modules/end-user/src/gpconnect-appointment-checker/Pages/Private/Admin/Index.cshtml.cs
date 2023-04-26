@@ -1,7 +1,6 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using GpConnect.AppointmentChecker.Core.Config;
+﻿using GpConnect.AppointmentChecker.Core.Config;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
@@ -55,25 +54,25 @@ namespace gpconnect_appointment_checker.Pages
         public async Task OnPostSetUserAccountStatus(int accountstatususerid, int userselectedindex, int[] UserAccountStatusId)
         {
             ClearValidationState();
-            var user = await _userService.SetUserStatus(accountstatususerid, UserAccountStatusId[userselectedindex]);
+            await _userService.SetUserStatus(accountstatususerid, UserAccountStatusId[userselectedindex]);
 
-            switch(UserAccountStatusId[userselectedindex])
-            {
-                case (int)UserAccountStatus.Deauthorised:
-                    await _notificationService.PostNotificationAsync(new NotificationDetails
-                    {
-                        EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
-                        TemplateId = _notificationConfig.Value.AccountDeactivatedTemplateId
-                    });
-                    break;
-                case (int)UserAccountStatus.Authorised:
-                    await _notificationService.PostNotificationAsync(new NotificationDetails
-                    {
-                        EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
-                        TemplateId = _notificationConfig.Value.NewAccountCreatedTemplateId
-                    });
-                    break;
-            }            
+            //switch(UserAccountStatusId[userselectedindex])
+            //{
+            //    case (int)UserAccountStatus.Deauthorised:
+            //        await _notificationService.PostNotificationAsync(new NotificationDetails
+            //        {
+            //            EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
+            //            TemplateId = _notificationConfig.Value.AccountDeactivatedTemplateId
+            //        });
+            //        break;
+            //    case (int)UserAccountStatus.Authorised:
+            //        await _notificationService.PostNotificationAsync(new NotificationDetails
+            //        {
+            //            EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
+            //            TemplateId = _notificationConfig.Value.NewAccountCreatedTemplateId
+            //        });
+            //        break;
+            //}            
 
             await RefreshPage();
         }

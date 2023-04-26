@@ -1,18 +1,18 @@
-﻿using gpconnect_appointment_checker.DTO.Response.GpConnect;
-using gpconnect_appointment_checker.Helpers.Constants;
+﻿using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
 {
     public partial class SearchModel : SearchBaseModel
     {
         public IEnumerable<SelectListItem> DateRanges => GetDateRanges();
-        public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes();
+        public IEnumerable<SelectListItem> OrganisationTypes { get; set; }
 
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 

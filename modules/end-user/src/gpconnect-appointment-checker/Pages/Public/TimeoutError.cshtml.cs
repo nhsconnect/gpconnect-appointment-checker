@@ -1,4 +1,3 @@
-using gpconnect_appointment_checker.SDS.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         protected ILogger<TimeoutErrorModel> _logger;
 
-        public TimeoutErrorModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<TimeoutErrorModel> logger, ILdapService ldapService)
+        public TimeoutErrorModel(IConfiguration configuration, IHttpContextAccessor contextAccessor, ILogger<TimeoutErrorModel> logger)
         {
             _logger = logger;
         }

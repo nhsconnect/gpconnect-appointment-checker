@@ -1,6 +1,4 @@
-﻿using gpconnect_appointment_checker.DAL.Interfaces;
-using gpconnect_appointment_checker.DTO.Request.Logging;
-using gpconnect_appointment_checker.Helpers;
+﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
@@ -9,13 +7,15 @@ namespace gpconnect_appointment_checker.Configuration
     public class RequestLoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogService _logService;
 
-        public RequestLoggingMiddleware(RequestDelegate next)
+        public RequestLoggingMiddleware(RequestDelegate next, ILogService logService)
         {
             _next = next;
+            _logService = logService;
         }
 
-        public async Task Invoke(HttpContext context, ILogService logService)
+        public async Task Invoke(HttpContext context)
         {
             try
             {
@@ -23,24 +23,8 @@ namespace gpconnect_appointment_checker.Configuration
             }
             finally
             {
-                var url = context.Request?.Path.Value;
-                if (!url.Contains(Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
-                {
-                    logService.AddWebRequestLog(new WebRequest
-                    {
-                        CreatedBy = context.User?.GetClaimValue("DisplayName"),
-                        Url = url,
-                        Description = "",
-                        Ip = context.Connection?.LocalIpAddress.ToString(),
-                        Server = context.Request?.Host.Host,
-                        SessionId = context.GetSessionId(),
-                        ReferrerUrl = context.Request?.Headers["Referer"].ToString(),
-                        ResponseCode = context.Response.StatusCode,
-                        UserAgent = context.Request?.Headers["User-Agent"].ToString()
-                    });
-                }
+                await _logService.AddWebRequest();
             }
         }
     }
-
 }
