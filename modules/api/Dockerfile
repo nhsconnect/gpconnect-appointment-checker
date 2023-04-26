@@ -1,3 +1,16 @@
+FROM postgres:12.14
+RUN apt-get update && apt-get install -y \
+    postgresql-12-cron \
+    apt-utils
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+ARG BUILD_TAG
+ENV BUILD_TAG=$BUILD_TAG
+RUN apt-get update && apt-get install -y libldap-2.4-2
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 WORKDIR /src
