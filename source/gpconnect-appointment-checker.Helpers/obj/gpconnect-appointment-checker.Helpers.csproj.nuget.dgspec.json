@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/gpconnect-appointment-checker.Helpers.csproj": {}
+  },
+  "projects": {
+    "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/gpconnect-appointment-checker.Helpers.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/gpconnect-appointment-checker.Helpers.csproj",
+        "projectName": "gpconnect-appointment-checker.Helpers",
+        "projectPath": "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/gpconnect-appointment-checker.Helpers.csproj",
+        "packagesPath": "/Users/martin/.nuget/packages/",
+        "outputPath": "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/martin/.config/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "DocumentFormat.OpenXml": {
+              "target": "Package",
+              "version": "[2.12.3, )"
+            },
+            "Microsoft.AspNetCore.Authorization": {
+              "target": "Package",
+              "version": "[5.0.4, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.102/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

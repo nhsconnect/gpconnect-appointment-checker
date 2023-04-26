@@ -1,0 +1,15 @@
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/gpconnect-appointment-checker.DTO.deps.json
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/gpconnect-appointment-checker.DTO.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/ref/gpconnect-appointment-checker.DTO.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/gpconnect-appointment-checker.DTO.pdb
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/gpconnect-appointment-checker.Helpers.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/bin/Debug/net5.0/gpconnect-appointment-checker.Helpers.pdb
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.csproj.AssemblyReference.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.GeneratedMSBuildEditorConfig.editorconfig
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.AssemblyInfoInputs.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.AssemblyInfo.cs
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.csproj.CoreCompileInputs.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.csproj.CopyComplete
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/ref/gpconnect-appointment-checker.DTO.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/obj/Debug/net5.0/gpconnect-appointment-checker.DTO.pdb

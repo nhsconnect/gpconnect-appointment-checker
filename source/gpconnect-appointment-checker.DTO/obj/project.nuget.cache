@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "dgSpecHash": "gad0e1WW3tzS7GXyqsa6HAy/OCCAoVk3zZZC00KhaQRvbj5jR+yHyrWo6bGLjGSYci8RFQHV8e8FxBx/T6pg/Q==",
+  "success": true,
+  "projectFilePath": "/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.DTO/gpconnect-appointment-checker.DTO.csproj",
+  "expectedPackageFiles": [
+    "/Users/martin/.nuget/packages/documentformat.openxml/2.12.3/documentformat.openxml.2.12.3.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.authorization/5.0.4/microsoft.aspnetcore.authorization.5.0.4.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.http.abstractions/2.2.0/microsoft.aspnetcore.http.abstractions.2.2.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.http.features/2.2.0/microsoft.aspnetcore.http.features.2.2.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.metadata/5.0.4/microsoft.aspnetcore.metadata.5.0.4.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.mvc.abstractions/2.2.0/microsoft.aspnetcore.mvc.abstractions.2.2.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.aspnetcore.routing.abstractions/2.2.0/microsoft.aspnetcore.routing.abstractions.2.2.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.extensions.configuration.abstractions/5.0.0/microsoft.extensions.configuration.abstractions.5.0.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/5.0.0/microsoft.extensions.dependencyinjection.abstractions.5.0.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.extensions.logging.abstractions/5.0.0/microsoft.extensions.logging.abstractions.5.0.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.extensions.options/5.0.0/microsoft.extensions.options.5.0.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.extensions.primitives/5.0.0/microsoft.extensions.primitives.5.0.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/microsoft.net.http.headers/2.2.0/microsoft.net.http.headers.2.2.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
+    "/Users/martin/.nuget/packages/system.buffers/4.5.0/system.buffers.4.5.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/system.io.packaging/4.7.0/system.io.packaging.4.7.0.nupkg.sha512",
+    "/Users/martin/.nuget/packages/system.text.encodings.web/4.5.0/system.text.encodings.web.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
