@@ -2,5 +2,5 @@
 
 public static class ConnectionStrings
 {
-    public static string DefaultConnection { get; } = "ApptCheckerConnection";
+    public static string DefaultConnection { get; } = "DefaultConnection";
 }

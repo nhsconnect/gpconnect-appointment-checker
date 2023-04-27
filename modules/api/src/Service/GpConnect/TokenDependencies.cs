@@ -3,6 +3,7 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
+using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,11 +15,13 @@ public class TokenDependencies : ITokenDependencies
 {
     private readonly IOptions<Spine> _spineOptionsDelegate;
     private readonly IOptions<General> _generalOptionsDelegate;
+    private readonly IUserService _userService;
 
-    public TokenDependencies(IOptions<Spine> spineOptionsDelegate, IOptions<General> generalOptionsDelegate)
+    public TokenDependencies(IOptions<Spine> spineOptionsDelegate, IOptions<General> generalOptionsDelegate, IUserService userService)
     {
         _spineOptionsDelegate = spineOptionsDelegate;
         _generalOptionsDelegate = generalOptionsDelegate;
+        _userService = userService;
     }
 
     public void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor)
@@ -74,8 +77,9 @@ public class TokenDependencies : ITokenDependencies
         return tokenDescriptor;
     }
 
-    public void AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, User user, string Sid)
+    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, int userId, string Sid)
     {
+        var user = await _userService.GetUserById(userId);
         var nameParts = Regex.Split(user.DisplayName, @"[^a-zA-Z0-9]").Where(x => x != string.Empty).ToArray();
 
         tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
