@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using General = GpConnect.AppointmentChecker.Models.General;
 
 namespace gpconnect_appointment_checker.Pages
 {

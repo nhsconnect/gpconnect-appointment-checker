@@ -1,11 +1,9 @@
 ﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DTO;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
-using gpconnect_appointment_checker.GPConnect.Constants;
 using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
@@ -23,10 +21,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using General = GpConnect.AppointmentChecker.Models.General;
 using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
 using ITokenService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.ITokenService;
-using Organisation = gpconnect_appointment_checker.DTO.Response.Application.Organisation;
-using SearchResult = gpconnect_appointment_checker.DTO.Request.Application.SearchResult;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages

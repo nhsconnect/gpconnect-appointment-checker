@@ -4,10 +4,10 @@ create function logging.log_spine_message
 (
     _user_session_id integer,
     _spine_message_type_id integer,
-    _command varchar(8000),
+    _command text,
     _request_headers text,
     _request_payload text,
-    _response_status varchar(100),
+    _response_status text,
     _response_headers text,
     _response_payload text,
     _roundtriptime_ms double precision,

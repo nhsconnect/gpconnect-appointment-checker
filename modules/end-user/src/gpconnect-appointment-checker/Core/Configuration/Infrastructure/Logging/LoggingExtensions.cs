@@ -22,7 +22,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, webServiceTarget);
 
             nLogConfiguration.AddTarget(consoleTarget);
-            nLogConfiguration.AddTarget(webServiceTarget);
+            //nLogConfiguration.AddTarget(webServiceTarget);
 
             //nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
             //nLogConfiguration.Variables.Add("userId", null);

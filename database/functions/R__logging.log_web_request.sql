@@ -4,16 +4,16 @@ create function logging.log_web_request
 (
 	_user_id integer,
 	_user_session_id integer,
-	_url varchar(1000),
-	_referrer_url varchar(1000),
-	_description varchar(1000),
-	_ip varchar(255),
-	_created_date timestamp,
-	_created_by varchar(255),
-	_server varchar(255),
+	_url text,
+	_referrer_url text,
+	_description text,
+	_ip text,
+	_created_date timestamp with time zone,
+	_created_by text,
+	_server text,
 	_response_code integer,
-	_session_id varchar(1000),
-	_user_agent varchar(1000)
+	_session_id text,
+	_user_agent text
 )
 returns void
 as $$

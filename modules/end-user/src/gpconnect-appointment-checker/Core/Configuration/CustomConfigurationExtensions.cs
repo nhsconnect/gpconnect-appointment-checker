@@ -1,9 +1,7 @@
-﻿using gpconnect_appointment_checker.Configuration.Infrastructure;
-using gpconnect_appointment_checker.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Models;
+using gpconnect_appointment_checker.Configuration.Infrastructure;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace gpconnect_appointment_checker.Configuration
 {

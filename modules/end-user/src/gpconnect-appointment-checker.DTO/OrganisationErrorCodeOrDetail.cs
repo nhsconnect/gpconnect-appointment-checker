@@ -1,5 +1,4 @@
 ﻿using gpconnect_appointment_checker.DTO.Response.Application;
-using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 
 namespace gpconnect_appointment_checker.DTO
@@ -13,6 +12,6 @@ namespace gpconnect_appointment_checker.DTO
         public string additionalDetails { get; set; }
         public Organisation providerOrganisation { get; set; }
         public Organisation consumerOrganisation { get; set; }
-        public Spine providerSpine { get; set; }
+        //public Spine providerSpine { get; set; }
     }
 }

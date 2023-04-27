@@ -1,4 +1,4 @@
-﻿using gpconnect_appointment_checker.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Mail;
