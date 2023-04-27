@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Response;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
@@ -13,33 +12,29 @@ public class SearchService : ISearchService
     private readonly ISpineService _spineService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IGpConnectQueryExecutionService _gpConnectQueryExecutionService;
-    private readonly IUserService _userService;
 
-    public SearchService(ITokenService tokenService, ISpineService spineService, ICapabilityStatement capabilityStatement, IGpConnectQueryExecutionService gpConnectQueryExecutionService, IUserService userService)
+    public SearchService(ITokenService tokenService, ISpineService spineService, ICapabilityStatement capabilityStatement, IGpConnectQueryExecutionService gpConnectQueryExecutionService)
     {
         _tokenService = tokenService;
         _spineService = spineService;
         _capabilityStatement = capabilityStatement;
         _gpConnectQueryExecutionService = gpConnectQueryExecutionService;
-        _userService = userService;
     }
 
     public async Task<IEnumerable<SearchResponse>> ExecuteSearch(SearchRequest searchRequest)
     {
-        var userDetails = await _userService.GetUserById(searchRequest.UserId);
-
         var searchResponses = new List<SearchResponse>();
         for (var providerCodeIndex = 0; providerCodeIndex < searchRequest.ProviderOdsCodeAsList.Count; providerCodeIndex++)
         {
             for (var consumerCodeIndex = 0; consumerCodeIndex < searchRequest.ConsumerOdsCodeAsList.Count; consumerCodeIndex++)
             {
-                searchResponses.Add(await ProcessSearchRequestInstance(searchRequest, userDetails, providerCodeIndex, consumerCodeIndex));
+                searchResponses.Add(await ProcessSearchRequestInstance(searchRequest, providerCodeIndex, consumerCodeIndex));
             }
         }
         return searchResponses.ToList();
     }
 
-    private async Task<SearchResponse> ProcessSearchRequestInstance(SearchRequest searchRequest, User userDetails, int providerCodeIndex, int consumerCodeIndex)
+    private async Task<SearchResponse> ProcessSearchRequestInstance(SearchRequest searchRequest, int providerCodeIndex, int consumerCodeIndex)
     {
         var searchResponse = new SearchResponse();
 
@@ -76,7 +71,7 @@ public class SearchService : ISearchService
                         ProviderOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = providerOrganisationDetails.OdsCode },
                         ConsumerOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = consumerOrganisationDetails.OdsCode },
                         SpineMessageTypeId = SpineMessageTypes.GpConnectSearchFreeSlots,
-                        UserDetails = userDetails,
+                        UserId = searchRequest.UserId,
                         Sid = searchRequest.Sid
                     });
 
