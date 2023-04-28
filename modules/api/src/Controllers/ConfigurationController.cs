@@ -85,4 +85,52 @@ public class ConfigurationController : ControllerBase
         }
         return Ok(response);
     }
+
+    [HttpGet("sso")]
+    public async Task<IActionResult> GetSsoConfiguration()
+    {
+        var response = await _service.GetSsoConfiguration();
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
+    [HttpGet("spine")]
+    public async Task<IActionResult> GetSpineConfiguration()
+    {
+        var response = await _service.GetSpineConfiguration();
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
+    [HttpGet("email")]
+    public async Task<IActionResult> GetEmailConfiguration()
+    {
+        var response = await _service.GetEmailConfiguration();
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
+    [HttpGet("general")]
+    public async Task<IActionResult> GetGeneralConfiguration()
+    {
+        var response = await _service.GetGeneralConfiguration();
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
 }

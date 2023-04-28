@@ -1,8 +1,8 @@
 ﻿using GpConnect.AppointmentChecker.Core.Config;
 using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
-using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -110,13 +110,12 @@ public static class ServiceCollectionExtensions
             options.Cookie.SameSite = SameSiteMode.None;
         });
 
-        
+        services.AddHttpClientServices(configuration, env);
+
         services.Configure<Sso>(configuration.GetSection("SingleSignOn"));
         services.Configure<General>(configuration.GetSection("General"));
         services.Configure<Spine>(configuration.GetSection("Spine"));
         services.Configure<Email>(configuration.GetSection("Email"));
-
-        services.AddHttpClientServices(configuration, env);
 
         var smtpClientExtensions = new SmtpClientExtensions(configuration);
         smtpClientExtensions.AddSmtpClientServices(services);

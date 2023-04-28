@@ -2,13 +2,13 @@ drop function if exists logging.log_error;
 
 create function logging.log_error
 (
-	_application varchar(100),
-	_logged timestamp,
-	_level varchar(100),
-	_message varchar(8000),
-	_logger varchar(8000), 
-	_callsite varchar(8000), 
-	_exception varchar(8000),
+	_application text,
+	_logged timestamp with time zone,
+	_level text,
+	_message text,
+	_logger text, 
+	_callsite text, 
+	_exception text,
 	_user_id integer default null,
 	_user_session_id integer default null
 )

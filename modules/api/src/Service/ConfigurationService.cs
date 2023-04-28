@@ -13,6 +13,13 @@ public class ConfigurationService : IConfigurationService
         _dataService = dataService ?? throw new ArgumentNullException();
     }
 
+    public async Task<Email> GetEmailConfiguration()
+    {
+        var functionName = "configuration.get_email_configuration";
+        var result = await _dataService.ExecuteQueryFirstOrDefault<Email>(functionName);
+        return result;
+    }
+
     public async Task<FhirApiQuery> GetFhirApiQueryConfiguration(string queryName)
     {
         var functionName = "configuration.get_fhir_api_queries";
@@ -48,6 +55,20 @@ public class ConfigurationService : IConfigurationService
         return result;
     }
 
+    public async Task<Spine> GetSpineConfiguration()
+    {
+        var functionName = "configuration.get_spine_configuration";
+        var result = await _dataService.ExecuteQueryFirstOrDefault<Spine>(functionName);
+        return result;
+    }
+
+    public async Task<General> GetGeneralConfiguration()
+    {
+        var functionName = "configuration.get_general_configuration";
+        var result = await _dataService.ExecuteQueryFirstOrDefault<General>(functionName);
+        return result;
+    }
+
     public async Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType)
     {
         var functionName = "configuration.get_spine_message_type";
@@ -59,6 +80,13 @@ public class ConfigurationService : IConfigurationService
     {
         var functionName = "configuration.get_spine_message_type";
         var result = await _dataService.ExecuteQuery<SpineMessageType>(functionName);
+        return result;
+    }
+
+    public async Task<Sso> GetSsoConfiguration()
+    {
+        var functionName = "configuration.get_sso_configuration";
+        var result = await _dataService.ExecuteQueryFirstOrDefault<Sso>(functionName);
         return result;
     }
 }

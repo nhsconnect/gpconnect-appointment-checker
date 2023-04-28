@@ -1,4 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace gpconnect_appointment_checker.Pages
     {
         private readonly IReportingService _reportingService;
 
-        public SearchBaseModel(IOptions<DTO.Response.Configuration.General> configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration, contextAccessor)
+        public SearchBaseModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration, contextAccessor)
         {
             _reportingService = reportingService;
         }

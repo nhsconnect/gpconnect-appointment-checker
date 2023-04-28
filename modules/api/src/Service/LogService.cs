@@ -20,8 +20,8 @@ public class LogService : ILogService
         var functionName = "logging.log_error";
         var parameters = new DynamicParameters();
         parameters.Add("_application", errorLog.Application);
-        parameters.Add("_logged", errorLog.Logged);
-        parameters.Add("_level", errorLog.Level);
+        parameters.Add("_logged", DateTime.UtcNow);
+        parameters.Add("_level", errorLog.Level, DbType.String);
         if (errorLog.UserId > 0)
         {
             parameters.Add("_user_id", errorLog.UserId, DbType.Int32);
@@ -38,10 +38,10 @@ public class LogService : ILogService
         {
             parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
         }
-        parameters.Add("_message", errorLog.Message);
-        parameters.Add("_logger", errorLog.Logger);
-        parameters.Add("_callsite", errorLog.Callsite);
-        parameters.Add("_exception", errorLog.Exception);
+        parameters.Add("_message", errorLog.Message, DbType.String);
+        parameters.Add("_logger", errorLog.Logger, DbType.String);
+        parameters.Add("_callsite", errorLog.Callsite, DbType.String);
+        parameters.Add("_exception", errorLog.Exception, DbType.String);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 
@@ -57,13 +57,13 @@ public class LogService : ILogService
         {
             parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
         }
-        parameters.Add("_spine_message_type_id", spineMessage.SpineMessageTypeId);
-        parameters.Add("_command", spineMessage.Command);
-        parameters.Add("_request_headers", spineMessage.RequestHeaders);
-        parameters.Add("_request_payload", spineMessage.RequestPayload);
-        parameters.Add("_response_status", spineMessage.ResponseStatus);
-        parameters.Add("_response_headers", spineMessage.ResponseHeaders);
-        parameters.Add("_response_payload", spineMessage.ResponsePayload ?? string.Empty);
+        parameters.Add("_spine_message_type_id", spineMessage.SpineMessageTypeId, DbType.Int32);
+        parameters.Add("_command", spineMessage.Command, DbType.String);
+        parameters.Add("_request_headers", spineMessage.RequestHeaders, DbType.String);
+        parameters.Add("_request_payload", spineMessage.RequestPayload, DbType.String);
+        parameters.Add("_response_status", spineMessage.ResponseStatus, DbType.String);
+        parameters.Add("_response_headers", spineMessage.ResponseHeaders, DbType.String);
+        parameters.Add("_response_payload", spineMessage.ResponsePayload ?? string.Empty, DbType.String);
         parameters.Add("_roundtriptime_ms", spineMessage.RoundTripTimeMs, DbType.Double);
         if (spineMessage.SearchResultId > 0)
         {
@@ -107,16 +107,16 @@ public class LogService : ILogService
         {
             parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
         }
-        parameters.Add("_url", webRequest.Url);
-        parameters.Add("_referrer_url", webRequest.ReferrerUrl);
-        parameters.Add("_description", webRequest.Description);
-        parameters.Add("_ip", webRequest.Ip);
+        parameters.Add("_url", webRequest.Url, DbType.String);
+        parameters.Add("_referrer_url", webRequest.ReferrerUrl, DbType.String);
+        parameters.Add("_description", webRequest.Description, DbType.String);
+        parameters.Add("_ip", webRequest.Ip, DbType.String);
         parameters.Add("_created_date", DateTime.UtcNow);
-        parameters.Add("_created_by", webRequest.CreatedBy);
-        parameters.Add("_server", webRequest.Server);
-        parameters.Add("_response_code", webRequest.ResponseCode);
-        parameters.Add("_session_id", webRequest.SessionId);
-        parameters.Add("_user_agent", webRequest.UserAgent);
+        parameters.Add("_created_by", webRequest.CreatedBy, DbType.String);
+        parameters.Add("_server", webRequest.Server, DbType.String);
+        parameters.Add("_response_code", webRequest.ResponseCode, DbType.Int32);
+        parameters.Add("_session_id", webRequest.SessionId, DbType.String);
+        parameters.Add("_user_agent", webRequest.UserAgent, DbType.String);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 

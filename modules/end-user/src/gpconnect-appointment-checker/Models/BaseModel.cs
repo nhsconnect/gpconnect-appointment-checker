@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.Helpers;
+﻿using GpConnect.AppointmentChecker.Models;
+using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,10 @@ namespace gpconnect_appointment_checker.Pages
 {
     public abstract class BaseModel : PageModel
     {
-        private readonly IOptions<DTO.Response.Configuration.General> _generalOptionsDelegate;
+        private readonly IOptions<General> _generalOptionsDelegate;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        protected BaseModel(IOptions<DTO.Response.Configuration.General> generalOptionsDelegate, IHttpContextAccessor contextAccessor)
+        protected BaseModel(IOptions<General> generalOptionsDelegate, IHttpContextAccessor contextAccessor)
         {
             _generalOptionsDelegate = generalOptionsDelegate;
             _contextAccessor = contextAccessor;

@@ -1,5 +1,4 @@
 ﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.DTO.Response.Configuration;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -7,20 +6,28 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Threading.Tasks;
+using Sso = GpConnect.AppointmentChecker.Models.Sso;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
     public class AuthenticationExtensions
     {
+        private IConfiguration configuration;
+
         public Sso _ssoConfig { get; private set; }
 
         public AuthenticationExtensions(IConfiguration config)
         {
-            _ssoConfig = config.GetSection("SingleSignOn").Get<Sso>();
+            //_ssoConfig = config.GetSection("SingleSignOn").Get<Sso>();
         }
 
         public void ConfigureAuthenticationServices(IServiceCollection services)
         {
+            var sp = services.BuildServiceProvider();
+            var configurationService = sp.GetRequiredService<IConfigurationService>();
+
+            _ssoConfig = configurationService.GetSsoConfiguration().Result;
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = _ssoConfig.AuthScheme;
