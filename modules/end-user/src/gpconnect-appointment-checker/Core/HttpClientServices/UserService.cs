@@ -4,7 +4,6 @@ using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -23,10 +22,9 @@ public class UserService : IUserService
     private readonly JsonSerializerSettings _options;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public UserService(ILogger<UserService> logger, HttpClient httpClient, IOptions<UserServiceConfig> options, IHttpContextAccessor contextAccessor)
+    public UserService(ILogger<UserService> logger, HttpClient httpClient, IHttpContextAccessor contextAccessor)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new UriBuilder(options.Value.BaseUrl).Uri;
         _contextAccessor = contextAccessor;
 
         _logger = logger;
@@ -191,10 +189,5 @@ public class UserService : IUserService
 
         var result = JsonConvert.DeserializeObject<User>(content, _options);
         return result;
-    }
-
-    public class UserServiceConfig
-    {
-        public string BaseUrl { get; set; } = "";
     }
 }

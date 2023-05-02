@@ -1,9 +1,7 @@
-using GpConnect.AppointmentChecker.Core.Config;
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using General = GpConnect.AppointmentChecker.Models.General;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -23,9 +20,9 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
         private readonly IOptions<NotificationConfig> _notificationConfig;
-        private readonly IOptions<General> _configuration;
+        private readonly IOptions<GeneralConfig> _configuration;
 
-        public CreateAccountModel(INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IUserService userService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public CreateAccountModel(INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IUserService userService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _contextAccessor = contextAccessor;
             _userService = userService;

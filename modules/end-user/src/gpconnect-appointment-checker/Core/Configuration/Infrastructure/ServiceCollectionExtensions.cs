@@ -1,4 +1,4 @@
-﻿using GpConnect.AppointmentChecker.Core.Config;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
@@ -11,12 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.ApplicationService;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.ConfigurationService;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.LogService;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.NotificationService;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.SpineService;
-using static GpConnect.AppointmentChecker.Core.HttpClientServices.UserService;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure;
 
@@ -39,13 +33,10 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddOptions();
-        services.Configure<UserServiceConfig>(configuration.GetSection("UserApi"));
-        services.Configure<SpineServiceConfig>(configuration.GetSection("SpineApi"));
-        services.Configure<ApplicationServiceConfig>(configuration.GetSection("ApplicationApi"));
-        services.Configure<NotificationServiceConfig>(configuration.GetSection("NotificationApi"));
+        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
         services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
-        services.Configure<LogServiceConfig>(configuration.GetSection("LogApi"));
-        services.Configure<ConfigurationServiceConfig>(configuration.GetSection("ConfigurationApi"));
+        services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
+        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
 
         services.AddHsts(options =>
         {
@@ -111,14 +102,6 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddHttpClientServices(configuration, env);
-
-        services.Configure<Sso>(configuration.GetSection("SingleSignOn"));
-        services.Configure<General>(configuration.GetSection("General"));
-        services.Configure<Spine>(configuration.GetSection("Spine"));
-        services.Configure<Email>(configuration.GetSection("Email"));
-
-        var smtpClientExtensions = new SmtpClientExtensions(configuration);
-        smtpClientExtensions.AddSmtpClientServices(services);
 
         return services;
     }

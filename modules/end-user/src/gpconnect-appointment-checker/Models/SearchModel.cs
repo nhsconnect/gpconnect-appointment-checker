@@ -1,10 +1,12 @@
-﻿using gpconnect_appointment_checker.Helpers.Constants;
+﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages

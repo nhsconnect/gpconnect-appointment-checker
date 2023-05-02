@@ -1,4 +1,4 @@
-namespace GpConnect.AppointmentChecker.Core.Config;
+namespace GpConnect.AppointmentChecker.Core.Configuration;
 
 public class NotificationConfig
 {

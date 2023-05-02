@@ -1,4 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -6,33 +7,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Threading.Tasks;
-using Sso = GpConnect.AppointmentChecker.Models.Sso;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
     public class AuthenticationExtensions
     {
-        private IConfiguration configuration;
-
-        public Sso _ssoConfig { get; private set; }
+        public SingleSignOnConfig _singleSignOnConfig { get; private set; }
 
         public AuthenticationExtensions(IConfiguration config)
         {
-            //_ssoConfig = config.GetSection("SingleSignOn").Get<Sso>();
+            config = config ?? throw new ArgumentNullException(nameof(config));
+            _singleSignOnConfig = config.GetSection("SingleSignOnConfig").Get<SingleSignOnConfig>();
         }
 
         public void ConfigureAuthenticationServices(IServiceCollection services)
         {
-            var sp = services.BuildServiceProvider();
-            var configurationService = sp.GetRequiredService<IConfigurationService>();
-
-            _ssoConfig = configurationService.GetSsoConfiguration().Result;
-
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = _ssoConfig.AuthScheme;
-                options.DefaultSignInScheme = _ssoConfig.AuthScheme;
-                options.DefaultChallengeScheme = _ssoConfig.ChallengeScheme;
+                options.DefaultAuthenticateScheme = _singleSignOnConfig.AuthScheme;
+                options.DefaultSignInScheme = _singleSignOnConfig.AuthScheme;
+                options.DefaultChallengeScheme = _singleSignOnConfig.ChallengeScheme;
             }).AddCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -44,13 +38,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             })
             .AddOpenIdConnect(
-                _ssoConfig.ChallengeScheme,
-                displayName: _ssoConfig.ChallengeScheme,
+                _singleSignOnConfig.ChallengeScheme,
+                displayName: _singleSignOnConfig.ChallengeScheme,
                 options =>
                 {
-                    options.SignInScheme = _ssoConfig.AuthScheme;
-                    options.Authority = _ssoConfig.AuthEndpoint;
-                    options.MetadataAddress = _ssoConfig.MetadataEndpoint;
+                    options.SignInScheme = _singleSignOnConfig.AuthScheme;
+                    options.Authority = _singleSignOnConfig.AuthEndpoint;
+                    options.MetadataAddress = _singleSignOnConfig.MetadataEndpoint;
                     options.MaxAge = TimeSpan.FromMinutes(30);
                     options.SaveTokens = true;
                     options.Scope.Clear();
@@ -59,10 +53,10 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                     options.Scope.Add("email");
                     options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
-                    options.ClientId = _ssoConfig.ClientId;
-                    options.ClientSecret = _ssoConfig.ClientSecret;
-                    options.CallbackPath = _ssoConfig.CallbackPath;
-                    options.SignedOutCallbackPath = _ssoConfig.SignedOutCallbackPath;
+                    options.ClientId = _singleSignOnConfig.ClientId;
+                    options.ClientSecret = _singleSignOnConfig.ClientSecret;
+                    options.CallbackPath = _singleSignOnConfig.CallbackPath;
+                    options.SignedOutCallbackPath = _singleSignOnConfig.SignedOutCallbackPath;
 
                     options.Events = new OpenIdConnectEvents
                     {

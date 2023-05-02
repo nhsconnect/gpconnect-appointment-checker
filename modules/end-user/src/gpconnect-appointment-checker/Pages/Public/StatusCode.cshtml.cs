@@ -1,4 +1,4 @@
-using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Core.Configuration;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ namespace gpconnect_appointment_checker.Pages
         protected ILogger<StatusCodeModel> _logger;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public StatusCodeModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<StatusCodeModel> logger) : base(configuration, contextAccessor) 
+        public StatusCodeModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<StatusCodeModel> logger) : base(configuration, contextAccessor) 
         {
             _logger = logger;
             _contextAccessor = contextAccessor;

@@ -1,5 +1,6 @@
 using GpConnect.AppointmentChecker.Api.Core;
 using GpConnect.AppointmentChecker.Api.Core.Logging;
+using GpConnect.AppointmentChecker.Api.Core.Mapping;
 
 namespace GpConnect.AppointmentChecker.Api;
 
@@ -28,5 +29,6 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.ConfigureApplicationBuilderServices(env);
+        MappingExtensions.ConfigureMappingServices();
     }
 }

@@ -5,7 +5,7 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 
 public interface IApplicationService
 {
-    public Task<DTO.Response.Spine.Organisation> GetOrganisation(string odsCode);
+    public Task<Organisation> GetOrganisation(string odsCode);
     public Task SynchroniseOrganisation(DTO.Response.Spine.Organisation request);
     public Task<SearchGroup> AddSearchGroup(DTO.Request.Application.SearchGroup request);
     public Task UpdateSearchGroup(int searchGroupId, int userId);

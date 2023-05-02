@@ -1,8 +1,6 @@
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,10 +12,9 @@ public class SpineService : ISpineService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
 
-    public SpineService(HttpClient httpClient, IOptions<SpineServiceConfig> options)
+    public SpineService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new UriBuilder(options.Value.BaseUrl).Uri;
 
         _options = new JsonSerializerSettings()
         {
@@ -43,7 +40,7 @@ public class SpineService : ISpineService
 
     public async Task<OrganisationSpine> GetOrganisation(string odsCode)
     {
-        var response = await _httpClient.GetAsync($"/spine/{odsCode}");
+        var response = await _httpClient.GetAsync($"/spine/organisation/{odsCode}");
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
@@ -71,10 +68,5 @@ public class SpineService : ISpineService
         var body = await response.Content.ReadAsStringAsync();
 
         return JsonConvert.DeserializeObject<Spine>(body, _options);
-    }
-
-    public class SpineServiceConfig
-    {
-        public string BaseUrl { get; set; } = "";
     }
 }

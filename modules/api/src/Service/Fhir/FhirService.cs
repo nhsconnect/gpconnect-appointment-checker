@@ -1,4 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Spine;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
@@ -15,9 +16,9 @@ public class FhirService : IFhirService
     private readonly IConfigurationService _configurationService;
     private readonly IApplicationService _applicationService;
     private readonly IFhirRequestExecution _fhirRequestExecution;
-    private readonly IOptions<Spine> _spineOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
 
-    public FhirService(IApplicationService applicationService, IConfigurationService configurationService, IFhirRequestExecution fhirRequestExecution, IOptions<Spine> spineOptionsDelegate)
+    public FhirService(IApplicationService applicationService, IConfigurationService configurationService, IFhirRequestExecution fhirRequestExecution, IOptions<SpineConfig> spineOptionsDelegate)
     {
         _applicationService = applicationService ?? throw new ArgumentNullException(nameof(applicationService));
         _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));

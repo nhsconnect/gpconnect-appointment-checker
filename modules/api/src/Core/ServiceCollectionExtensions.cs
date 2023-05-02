@@ -1,18 +1,17 @@
+using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.Core.HttpClientServices;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+using GpConnect.AppointmentChecker.Api.Dal.Configuration;
 using GpConnect.AppointmentChecker.Api.Service;
 using GpConnect.AppointmentChecker.Api.Service.Fhir;
+using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Fhir;
+using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 using GpConnect.AppointmentChecker.Api.Service.Ldap;
 using System.Net;
-using static GpConnect.AppointmentChecker.Api.Service.OrganisationService;
-using static GpConnect.AppointmentChecker.Api.Service.NotificationService;
 using DalInterfaces = GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using DalServices = GpConnect.AppointmentChecker.Api.DAL;
-using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
-using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
 namespace GpConnect.AppointmentChecker.Api.Core;
 
@@ -28,20 +27,18 @@ public static class ServiceCollectionExtensions
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
-        //services.AddOptions();
-        services.Configure<OrganisationServiceConfig>(configuration.GetSection("OrganisationService"));
-        services.Configure<NotificationServiceConfig>(configuration.GetSection("NotificationService"));
+        services.AddOptions();
 
-        services.Configure<Spine>(configuration.GetSection("Spine"));
-        services.Configure<General>(configuration.GetSection("General"));
-        services.Configure<Sso>(configuration.GetSection("SingleSignOn"));
-        services.Configure<Email>(configuration.GetSection("Email"));
+        services.Configure<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
+        services.Configure<SpineConfig>(configuration.GetSection("SpineConfig"));
+        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
+        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
+        services.Configure<OrganisationConfig>(configuration.GetSection("OrganisationConfig"));
 
         services.AddScoped<DalInterfaces.IDataService, DalServices.DataService>();
         services.AddScoped<IUserService, UserService>();        
         services.AddScoped<ILogService, LogService>();
         services.AddScoped<IAuditService, AuditService>();
-        services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IApplicationService, ApplicationService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IConfigurationService, ConfigurationService>();

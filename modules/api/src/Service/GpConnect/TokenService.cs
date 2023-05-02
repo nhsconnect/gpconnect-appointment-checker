@@ -1,4 +1,4 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Microsoft.Extensions.Options;
@@ -12,9 +12,9 @@ public class TokenService : ITokenService
     private readonly ILogger<TokenService> _logger;
     private readonly IConfigurationService _configurationService;
     private readonly ITokenDependencies _tokenDependencies;
-    private readonly IOptions<Spine> _spineOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
 
-    public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, IOptions<Spine> spineOptionsDelegate, ITokenDependencies tokenDependencies)
+    public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, IOptions<SpineConfig> spineOptionsDelegate, ITokenDependencies tokenDependencies)
     {
         _logger = logger;
         _configurationService = configurationService;

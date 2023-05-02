@@ -7,8 +7,8 @@ namespace GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 public interface IConfigurationService
 {
     Task<List<OrganisationType>> GetOrganisationTypes();
-    Task<General> GetGeneralConfiguration();
-    Task<Spine> GetSpineConfiguration();
-    Task<Sso> GetSsoConfiguration();
-    Task<Email> GetEmailConfiguration();
+    //Task<General> GetGeneralConfiguration();
+    //Task<Spine> GetSpineConfiguration();
+    //Task<Sso> GetSsoConfiguration();
+    //Task<Email> GetEmailConfiguration();
 }

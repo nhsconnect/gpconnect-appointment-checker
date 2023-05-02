@@ -1,6 +1,6 @@
-﻿namespace GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿namespace GpConnect.AppointmentChecker.Api.Core.Configuration;
 
-public class General
+public class GeneralConfig
 {
     public string ProductName { get; set; }
     public string ProductVersion { get; set; }

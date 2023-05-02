@@ -1,3 +1,4 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -6,7 +7,7 @@ namespace gpconnect_appointment_checker.Pages
 {
     public class AccessibilityModel : BaseModel
     {
-        public AccessibilityModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor) { }
+        public AccessibilityModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor) { }
 
         public void OnGet()
         {

@@ -1,5 +1,3 @@
-using GpConnect.AppointmentChecker.Api.DTO.Response.Fhir;
-
 namespace GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 
 public interface ILdapService

@@ -19,12 +19,12 @@ public class ApplicationService : IApplicationService
         _logService = logService;
     }
 
-    public async Task<DTO.Response.Spine.Organisation> GetOrganisation(string odsCode)
+    public async Task<Organisation> GetOrganisation(string odsCode)
     {
         var functionName = "application.get_organisation";
         var parameters = new DynamicParameters();
         parameters.Add("_ods_code", odsCode, DbType.String, ParameterDirection.Input);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<DTO.Response.Spine.Organisation>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<Organisation>(functionName, parameters);
         return result;
     }
 
