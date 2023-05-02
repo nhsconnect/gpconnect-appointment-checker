@@ -1,4 +1,4 @@
-﻿using GpConnect.AppointmentChecker.Core.Config;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
@@ -16,7 +16,7 @@ namespace gpconnect_appointment_checker.Pages
         private readonly INotificationService _notificationService;
         private readonly IOptions<NotificationConfig> _notificationConfig;
 
-        public AdminModel(IUserService userService, INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<General> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor)
+        public AdminModel(IUserService userService, INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor)
         {
             _userService = userService;
             _notificationService = notificationService;

@@ -1,4 +1,6 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DTO;
 using gpconnect_appointment_checker.DTO.Response.Application;
@@ -21,9 +23,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using General = GpConnect.AppointmentChecker.Models.General;
 using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
-using ITokenService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.ITokenService;
+//using ITokenService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.ITokenService;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -33,10 +34,10 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<SearchModel> _logger;
         private readonly IApplicationService _applicationService;
-        private readonly ITokenService _tokenService;
-        private readonly ISpineService _spineService;
-        private readonly IGpConnectQueryExecutionService _queryExecutionService;
-        private readonly IReportingService _reportingService;
+        //private readonly ITokenService _tokenService;
+        //private readonly ISpineService _spineService;
+        //private readonly IGpConnectQueryExecutionService _queryExecutionService;
+        //private readonly IReportingService _reportingService;
         private readonly IConfigurationService _configurationService;
         private readonly ILoggerManager _loggerManager;
         private readonly Stopwatch _stopwatch = new Stopwatch();
@@ -44,14 +45,14 @@ namespace gpconnect_appointment_checker.Pages
         private readonly List<string> _auditSearchIssues = new List<string>();
         private readonly List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, ITokenService tokenService, IGpConnectQueryExecutionService queryExecutionService, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _contextAccessor = contextAccessor;
             _logger = logger;
-            _tokenService = tokenService;
-            _queryExecutionService = queryExecutionService;
+            //_tokenService = tokenService;
+            //_queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
-            _reportingService = reportingService;
+            //_reportingService = reportingService;
             _configurationService = configurationService;
             if (null != loggerManager)
             {
@@ -59,7 +60,7 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        public IActionResult OnGet(string providerOdsCode, string consumerOdsCode)
+        public async Task<IActionResult> OnGet(string providerOdsCode, string consumerOdsCode)
         {
             if (!string.IsNullOrEmpty(providerOdsCode) && !string.IsNullOrEmpty(consumerOdsCode))
             {
@@ -72,8 +73,11 @@ namespace gpconnect_appointment_checker.Pages
                 if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
             }
 
+            OrganisationTypes = await GetOrganisationTypes();
+
             ModelState.ClearValidationState("ProviderOdsCode");
             ModelState.ClearValidationState("ConsumerOdsCode");
+
             return Page();
         }
 
@@ -133,7 +137,7 @@ namespace gpconnect_appointment_checker.Pages
                 }
                 _stopwatch.Stop();
                 SearchDuration = _stopwatch.Elapsed.TotalSeconds;
-                _queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
+               //_queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
             }
 
             return Page();
@@ -168,59 +172,61 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
-            try
-            {
-                var providerOrganisationDetails = await _spineService.GetOrganisation(ProviderOdsCode);
-                var consumerOrganisationDetails = await _spineService.GetOrganisation(ConsumerOdsCode);
 
-                _auditSearchParameters[0] = ConsumerOdsCode;
-                _auditSearchParameters[1] = ProviderOdsCode;
-                _auditSearchParameters[2] = SelectedDateRange;
-                _auditSearchParameters[3] = SelectedOrganisationType;
+            
+            //try
+            //{
+            //    var providerOrganisationDetails = await _spineService.GetOrganisation(ProviderOdsCode);
+            //    var consumerOrganisationDetails = await _spineService.GetOrganisation(ConsumerOdsCode);
 
-                ProviderODSCodeFound = providerOrganisationDetails != null;
-                ConsumerODSCodeFound = consumerOrganisationDetails != null;
+            //    _auditSearchParameters[0] = ConsumerOdsCode;
+            //    _auditSearchParameters[1] = ProviderOdsCode;
+            //    _auditSearchParameters[2] = SelectedDateRange;
+            //    _auditSearchParameters[3] = SelectedOrganisationType;
 
-                if (ProviderODSCodeFound && (ConsumerODSCodeFound || SelectedOrganisationType != null))
-                {
-                    var providerSpineDetails = await _spineService.GetProviderDetails(ProviderOdsCode);
-                    var consumerSpineDetails = await _spineService.GetConsumerDetails(ConsumerOdsCode);
+            //    ProviderODSCodeFound = providerOrganisationDetails != null;
+            //    ConsumerODSCodeFound = consumerOrganisationDetails != null;
 
-                    ProviderEnabledForGpConnectAppointmentManagement = providerSpineDetails != null;
-                    ConsumerEnabledForGpConnectAppointmentManagement = (consumerSpineDetails != null && consumerSpineDetails.HasAsId) || SelectedOrganisationType != null;
+            //    if (ProviderODSCodeFound && (ConsumerODSCodeFound || SelectedOrganisationType != null))
+            //    {
+            //        var providerSpineDetails = await _spineService.GetProviderDetails(ProviderOdsCode);
+            //        var consumerSpineDetails = await _spineService.GetConsumerDetails(ConsumerOdsCode);
 
-                    if (ProviderEnabledForGpConnectAppointmentManagement)
-                    {
-                        ProviderASIDPresent = providerSpineDetails.HasAsId;
+            //        ProviderEnabledForGpConnectAppointmentManagement = providerSpineDetails != null;
+            //        ConsumerEnabledForGpConnectAppointmentManagement = (consumerSpineDetails != null && consumerSpineDetails.HasAsId) || SelectedOrganisationType != null;
 
-                        if (ProviderASIDPresent)
-                        {
-                            await PopulateSearchResults(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
-                            SearchAtResultsText = providerOrganisationDetails.FormattedOrganisationDetails;
-                            SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(consumerOrganisationDetails?.FormattedOrganisationDetails, SelectedOrganisationType);
-                            ProviderPublisher = providerSpineDetails.ProductName;
-                        }
-                        else
-                        {
-                            _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
-                        }
-                    }
-                    else
-                    {
-                        _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
-                    }
-                }
-                else
-                {
-                    if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
-                    if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
-                }
-            }
-            catch (LdapException)
-            {
-                LdapErrorRaised = true;
-                _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
-            }
+            //        if (ProviderEnabledForGpConnectAppointmentManagement)
+            //        {
+            //            ProviderASIDPresent = providerSpineDetails.HasAsId;
+
+            //            if (ProviderASIDPresent)
+            //            {
+            //                await PopulateSearchResults(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
+            //                SearchAtResultsText = providerOrganisationDetails.FormattedOrganisationDetails;
+            //                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(consumerOrganisationDetails?.FormattedOrganisationDetails, SelectedOrganisationType);
+            //                ProviderPublisher = providerSpineDetails.ProductName;
+            //            }
+            //            else
+            //            {
+            //                _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
+            //        if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
+            //    }
+            //}
+            //catch (LdapException)
+            //{
+            //    LdapErrorRaised = true;
+            //    _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
+            //}
         }
 
         private string GetSearchOnBehalfOfResultsText(string consumerFormattedOrganisationDetails, string selectedOrganisationType)

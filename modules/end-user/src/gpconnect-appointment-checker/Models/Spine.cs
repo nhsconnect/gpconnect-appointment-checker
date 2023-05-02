@@ -4,7 +4,7 @@ namespace GpConnect.AppointmentChecker.Models;
 
 public class Spine
 {
-    [JsonProperty("useSSP")] 
+    [JsonProperty("useSSP")]
     public bool UseSSP { get; set; }
     [JsonProperty("sspHostname")]
     public string SspHostname { get; set; }

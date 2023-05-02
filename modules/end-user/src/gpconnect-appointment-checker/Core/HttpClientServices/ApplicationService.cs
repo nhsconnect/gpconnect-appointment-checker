@@ -1,8 +1,5 @@
 using GpConnect.AppointmentChecker.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -15,16 +12,12 @@ namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
 public class ApplicationService : IApplicationService
 {
-    private readonly ILogger<ApplicationService> _logger;
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
 
-    public ApplicationService(ILogger<ApplicationService> logger, HttpClient httpClient, IOptions<ApplicationServiceConfig> options)
+    public ApplicationService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new UriBuilder(options.Value.BaseUrl).Uri;
-
-        _logger = logger;
         _options = new JsonSerializerSettings()
         {
             NullValueHandling = NullValueHandling.Ignore
@@ -176,10 +169,5 @@ public class ApplicationService : IApplicationService
     {
         var response = await _httpClient.PutAsync($"/application/updateSearchGroup/{searchGroupId}/{userId}", null);
         response.EnsureSuccessStatusCode();
-    }
-
-    public class ApplicationServiceConfig
-    {
-        public string BaseUrl { get; set; } = "";
     }
 }

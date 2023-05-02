@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using GpConnect.AppointmentChecker.Api.Dal.Configuration;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
@@ -10,12 +11,12 @@ namespace GpConnect.AppointmentChecker.Api.DAL;
 public class DataService : IDataService
 {
     private readonly ILogger<DataService> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly IOptions<ConnectionStrings> _optionsAccessor;
 
-    public DataService(IConfiguration configuration, ILogger<DataService> logger)
+    public DataService(IOptions<ConnectionStrings> optionsAccessor, ILogger<DataService> logger)
     {
-        _logger = logger;
-        _configuration = configuration;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor));
     }
 
     public async Task<List<T>> ExecuteQuery<T>(string query, DynamicParameters? parameters = null) where T : class
@@ -124,11 +125,11 @@ public class DataService : IDataService
             _logger?.LogError(exc, $"An error has occurred while attempting to execute the query {query}");
             throw;
         }
-    }    
+    }
 
-    public NpgsqlConnection GetConnection()
+    private NpgsqlConnection GetConnection()
     {
-        return new NpgsqlConnection(_configuration.GetConnectionString(ConnectionStrings.DefaultConnection));
+        return new NpgsqlConnection(_optionsAccessor.Value.DefaultConnection);
     }
 
     private string CheckQuery(string query)

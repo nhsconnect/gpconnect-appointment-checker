@@ -1,4 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers;
@@ -12,14 +13,14 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class SearchDetailModel : SearchBaseModel
     {
-        protected IOptions<General> _configuration;
+        protected IOptions<GeneralConfig> _configuration;
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<SearchDetailModel> _logger;
         protected IApplicationService _applicationService;
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public SearchDetailModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IApplicationService applicationService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IApplicationService applicationService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;

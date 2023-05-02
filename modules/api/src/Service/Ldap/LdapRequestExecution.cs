@@ -1,5 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -17,9 +17,9 @@ public class LdapRequestExecution : ILdapRequestExecution
     private static X509Certificate _clientCertificate;
     private readonly ILogService _logService;
     private static bool _haveLoggedTlsVersion = false;
-    private readonly IOptions<Spine> _spineOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
 
-    public LdapRequestExecution(ILogger<LdapRequestExecution> logger, ILogService logService, IOptions<Spine> spineOptionsDelegate)
+    public LdapRequestExecution(ILogger<LdapRequestExecution> logger, ILogService logService, IOptions<SpineConfig> spineOptionsDelegate)
     {
         _logger = logger;
         _logService = logService;

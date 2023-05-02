@@ -1,6 +1,6 @@
-﻿namespace GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿namespace GpConnect.AppointmentChecker.Core.Configuration;
 
-public class Sso
+public class SingleSignOnConfig
 {
     public string ClientId { get; set; }
     public string ClientSecret { get; set; }

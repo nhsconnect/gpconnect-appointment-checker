@@ -1,3 +1,4 @@
+using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Options;
@@ -9,9 +10,9 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 public class NotificationService : INotificationService
 {
     private readonly ILogger<NotificationService> _logger;
-    private readonly IOptions<NotificationServiceConfig> _config;
+    private readonly IOptions<NotificationConfig> _config;
 
-    public NotificationService(ILogger<NotificationService> logger, IOptions<NotificationServiceConfig> config)
+    public NotificationService(ILogger<NotificationService> logger, IOptions<NotificationConfig> config)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,10 +43,5 @@ public class NotificationService : INotificationService
             _logger.LogError(exc, "Failed to send notification");
             throw;
         }
-    }
-
-    public class NotificationServiceConfig
-    {
-        public string ApiKey { get; set; } = "";
     }
 }

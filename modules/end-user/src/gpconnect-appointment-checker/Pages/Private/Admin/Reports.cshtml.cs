@@ -1,4 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers.Constants;
@@ -20,7 +21,7 @@ namespace gpconnect_appointment_checker.Pages
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public ReportsModel(IOptions<General> configuration, IHttpContextAccessor contextAccessor, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public ReportsModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _logger = logger;
             _reportingService = reportingService;

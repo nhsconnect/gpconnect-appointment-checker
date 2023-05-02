@@ -12,9 +12,4 @@ public interface IConfigurationService
 
     Task<IEnumerable<SdsQuery>> GetSdsQueryConfiguration();
     Task<IEnumerable<FhirApiQuery>> GetFhirApiQueryConfiguration();
-
-    Task<Sso> GetSsoConfiguration();
-    Task<General> GetGeneralConfiguration();
-    Task<Spine> GetSpineConfiguration();
-    Task<Email> GetEmailConfiguration();
 }

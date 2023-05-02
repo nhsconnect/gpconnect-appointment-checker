@@ -1,5 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Fhir;
@@ -14,9 +14,9 @@ public class FhirRequestExecution : IFhirRequestExecution
     private static ILogger<FhirRequestExecution> _logger;
     private static ILogService _logService;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IOptions<Spine> _spineOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
 
-    public FhirRequestExecution(ILogger<FhirRequestExecution> logger, ILogService logService, IHttpClientFactory httpClientFactory, IOptions<Spine> spineOptionsDelegate)
+    public FhirRequestExecution(ILogger<FhirRequestExecution> logger, ILogService logService, IHttpClientFactory httpClientFactory, IOptions<SpineConfig> spineOptionsDelegate)
     {
         _logger = logger;
         _logService = logService;

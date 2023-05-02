@@ -1,6 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
@@ -13,11 +12,11 @@ namespace GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
 public class TokenDependencies : ITokenDependencies
 {
-    private readonly IOptions<Spine> _spineOptionsDelegate;
-    private readonly IOptions<General> _generalOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
+    private readonly IOptions<GeneralConfig> _generalOptionsDelegate;
     private readonly IUserService _userService;
 
-    public TokenDependencies(IOptions<Spine> spineOptionsDelegate, IOptions<General> generalOptionsDelegate, IUserService userService)
+    public TokenDependencies(IOptions<SpineConfig> spineOptionsDelegate, IOptions<GeneralConfig> generalOptionsDelegate, IUserService userService)
     {
         _spineOptionsDelegate = spineOptionsDelegate;
         _generalOptionsDelegate = generalOptionsDelegate;

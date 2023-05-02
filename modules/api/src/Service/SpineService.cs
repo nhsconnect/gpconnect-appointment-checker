@@ -1,19 +1,20 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
+﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Spine;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
-using GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Fhir;
+using GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 using Microsoft.Extensions.Options;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
 public class SpineService : ISpineService
 {
-    private readonly IOptions<Spine> _spineOptionsDelegate;
+    private readonly IOptions<SpineConfig> _spineOptionsDelegate;
     private readonly IFhirService _fhirService;
     private readonly ILdapService _ldapService;
 
-    public SpineService(IFhirService fhirService, ILdapService ldapService, IOptions<Spine> spineOptionsDelegate)
+    public SpineService(IFhirService fhirService, ILdapService ldapService, IOptions<SpineConfig> spineOptionsDelegate)
     {
         _fhirService = fhirService ?? throw new ArgumentNullException();
         _ldapService = ldapService ?? throw new ArgumentNullException();

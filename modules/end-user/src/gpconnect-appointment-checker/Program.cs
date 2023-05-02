@@ -1,5 +1,5 @@
 using Autofac.Extensions.DependencyInjection;
-using gpconnect_appointment_checker.Configuration;
+using GpConnect.AppointmentChecker.Core.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -29,22 +29,22 @@ namespace gpconnect_appointment_checker
                     {
                         options.AddServerHeader = false;
                     });
-                }).ConfigureAppConfiguration(AddCustomConfiguration)
+                }).ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration)
                 .ConfigureLogging((builderContext, logging) =>
                 {
                     logging.ClearProviders();
                     logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
                 }).UseNLog();
 
-        private static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
-        {
-            builder.AddEnvironmentVariables("GPCONNECTAPPOINTMENTCHECKER_");
-            builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            var configuration = builder.Build();
-            //builder.AddConfiguration(options =>
-            //{
-            //    options.ConnectionString = configuration.GetConnectionString(ConnectionStrings.DefaultConnection);
-            //});
-        }
+        //private static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+        //{
+        //    builder.AddEnvironmentVariables("GPCONNECTAPPOINTMENTCHECKER_");
+        //    builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        //    var configuration = builder.Build();
+        //    //builder.AddConfiguration(options =>
+        //    //{
+        //    //    options.ConnectionString = configuration.GetConnectionString(ConnectionStrings.DefaultConnection);
+        //    //});
+        //}
     }
 }

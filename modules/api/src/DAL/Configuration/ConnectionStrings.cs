@@ -1,6 +1,11 @@
 ﻿namespace GpConnect.AppointmentChecker.Api.Dal.Configuration;
 
-public static class ConnectionStrings
+public class ConnectionStrings
 {
-    public static string DefaultConnection { get; } = "DefaultConnection";
+    public ConnectionStrings()
+    {
+        DefaultConnection = "DefaultConnection";
+    }
+
+    public string DefaultConnection { get; set; }
 }
