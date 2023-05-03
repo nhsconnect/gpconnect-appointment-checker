@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
@@ -40,27 +39,24 @@ public class LogService : ILogService
             var url = _contextAccessor.HttpContext.Request?.Path.Value;
             if (!url.Contains(gpconnect_appointment_checker.Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
             {
-                var webRequest = new Models.Request.WebRequest()
-                {
-                    CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
-                    Url = url,
-                    Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
-                    Description = string.Empty,
-                    Server = _contextAccessor.HttpContext.Request?.Host.Host,
-                    SessionId = _contextAccessor.HttpContext.GetSessionId(),
-                    ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
-                    ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
-                    UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
-                };
-                var json = new StringContent(
-                JsonConvert.SerializeObject(webRequest, null, _options),
-                Encoding.UTF8,
-                MediaTypeHeaderValue.Parse("application/json").MediaType);
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new Models.Request.WebRequest()
+                    {
+                        CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
+                        Url = url,
+                        Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
+                        Description = string.Empty,
+                        Server = _contextAccessor.HttpContext.Request?.Host.Host,
+                        SessionId = _contextAccessor.HttpContext.GetSessionId(),
+                        ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
+                        ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
+                        UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
+                    }));
 
-                _logger.LogInformation(_httpClient.BaseAddress.ToString());
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                var response = await _httpClient.PostAsync("/log/webrequest", json);
-                response.EnsureSuccessStatusCode();
+                //var response = await _httpClient.PostAsync("log/webrequest", content);
+                //response.EnsureSuccessStatusCode();
             }
         }
         catch (Exception exc)
