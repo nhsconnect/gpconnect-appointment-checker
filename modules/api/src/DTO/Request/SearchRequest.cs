@@ -4,7 +4,7 @@ public class SearchRequest
 {
     public string ProviderOdsCode { get; set; }
     public string ConsumerOdsCode { get; set; }
-    public string ConsumerOrganisationType { get; set; }
+    public string? ConsumerOrganisationType { get; set; }
     public string DateRange { get; set; }    
 
     public DateTime StartDate => Convert.ToDateTime(DateRange.Split(":")[0]);

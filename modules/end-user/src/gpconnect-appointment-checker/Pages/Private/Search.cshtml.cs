@@ -1,12 +1,10 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.DTO;
 using gpconnect_appointment_checker.DTO.Response.Application;
 using gpconnect_appointment_checker.DTO.Response.Configuration;
 using gpconnect_appointment_checker.DTO.Response.GpConnect;
-using gpconnect_appointment_checker.GPConnect.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.Enumerations;
@@ -24,7 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
-//using ITokenService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.ITokenService;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -34,30 +31,18 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<SearchModel> _logger;
         private readonly IApplicationService _applicationService;
-        //private readonly ITokenService _tokenService;
-        //private readonly ISpineService _spineService;
-        //private readonly IGpConnectQueryExecutionService _queryExecutionService;
-        //private readonly IReportingService _reportingService;
         private readonly IConfigurationService _configurationService;
-        private readonly ILoggerManager _loggerManager;
+        private readonly ISearchService _searchService;
         private readonly Stopwatch _stopwatch = new Stopwatch();
-        private readonly List<string> _auditSearchParameters = new List<string>(new[] { "", "", "", "" });
-        private readonly List<string> _auditSearchIssues = new List<string>();
         private readonly List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _contextAccessor = contextAccessor;
             _logger = logger;
-            //_tokenService = tokenService;
-            //_queryExecutionService = queryExecutionService;
             _applicationService = applicationService;
-            //_reportingService = reportingService;
             _configurationService = configurationService;
-            if (null != loggerManager)
-            {
-                _loggerManager = loggerManager;
-            }
+            _searchService = searchService;
         }
 
         public async Task<IActionResult> OnGet(string providerOdsCode, string consumerOdsCode)
@@ -126,18 +111,20 @@ namespace gpconnect_appointment_checker.Pages
                 ProviderOdsCode = CleansedProviderOdsCodeInput;
                 ConsumerOdsCode = CleansedConsumerOdsCodeInput;
 
-                _stopwatch.Start();
-                if (IsMultiSearch && ValidSearchCombination)
-                {
-                    SearchResultsSummary = await GetSearchResultsMulti();
-                }
-                else if (!IsMultiSearch)
-                {
-                    await GetSearchResults();
-                }
-                _stopwatch.Stop();
-                SearchDuration = _stopwatch.Elapsed.TotalSeconds;
-               //_queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
+                await GetSearchResults();
+
+                //_stopwatch.Start();
+                //if (IsMultiSearch && ValidSearchCombination)
+                //{
+                //    SearchResultsSummary = await GetSearchResultsMulti();
+                //}
+                //else if (!IsMultiSearch)
+                //{
+                //    await GetSearchResults();
+                //}
+                //_stopwatch.Stop();
+                //SearchDuration = _stopwatch.Elapsed.TotalSeconds;
+                //_queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
             }
 
             return Page();
@@ -172,8 +159,38 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
+            var response = await _searchService.ExecuteSearch(new GpConnect.AppointmentChecker.Models.Request.SearchRequest()
+            {
+                ProviderOdsCode = ProviderOdsCode,
+                ConsumerOdsCode = ConsumerOdsCode,
+                ConsumerOrganisationType = SelectedOrganisationType,
+                DateRange = SelectedDateRange,
+                RequestUri = FullUrl,
+                UserId = UserId,
+                Sid = Sid
+            });
 
-            
+            var searchResponse = response.FirstOrDefault();
+
+            IsMultiSearch = response.Count > 1;
+            ProviderODSCodeFound = searchResponse.ProviderOdsCodeFound;
+            ConsumerODSCodeFound = searchResponse.ConsumerOdsCodeFound;
+            ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement;
+            ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
+            ProviderASIDPresent = searchResponse.ProviderASIDPresent;
+            SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
+            SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
+            ProviderPublisher = searchResponse.ProviderPublisher;
+
+            SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
+            SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount;
+            SearchResultsPastCount = searchResponse.SearchResultsPastCount;
+
+            SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
+            SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
+
+            ProviderErrorDisplay = searchResponse.ProviderError;
+
             //try
             //{
             //    var providerOrganisationDetails = await _spineService.GetOrganisation(ProviderOdsCode);

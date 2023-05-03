@@ -1,6 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using GpConnect.AppointmentChecker.Models.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -18,8 +18,8 @@ namespace gpconnect_appointment_checker.Pages
             _reportingService = reportingService;
         }
 
-        public List<List<SlotEntrySimple>> SearchResults { get; set; }
-        public List<List<SlotEntrySimple>> SearchResultsPast { get; set; }
+        public List<List<SearchResultEntry>> SearchResultsCurrent { get; set; }
+        public List<List<SearchResultEntry>> SearchResultsPast { get; set; }
 
         [BindProperty]
         public string SearchAtResultsText { get; set; }
@@ -35,10 +35,10 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(Name = "SearchExportId", SupportsGet = true)]
         public int SearchExportId { get; set; }
         public double SearchDuration { get; set; }
-        
-        public int SearchResultsTotalCount { get; set; }
-        public int SearchResultsCurrentCount { get; set; }
-        public int SearchResultsPastCount { get; set; }
+
+        public int SearchResultsTotalCount { get; set; } = 0;
+        public int SearchResultsCurrentCount { get; set; } = 0;
+        public int SearchResultsPastCount { get; set; } = 0;
 
         public string ProviderPublisher { get; set; }
 

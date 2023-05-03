@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using GpConnect.AppointmentChecker.Core.HttpClientServices;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
@@ -19,11 +21,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             //containerBuilder.RegisterType<DataService>().As<IDataService>().InstancePerLifetimeScope();
             //containerBuilder.RegisterType<ConfigurationService>().As<IConfigurationService>().InstancePerLifetimeScope();
             //containerBuilder.RegisterType<AuditService>().As<IAuditService>().InstancePerDependency();
-            //containerBuilder.RegisterType<TokenService>().As<ITokenService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<TokenService>().As<ITokenService>().InstancePerLifetimeScope();
             //containerBuilder.RegisterType<ApplicationService>().As<IApplicationService>().InstancePerLifetimeScope();
             //containerBuilder.RegisterType<LogService>().As<ILogService>().InstancePerLifetimeScope();
             //containerBuilder.RegisterType<ReportingService>().As<IReportingService>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();            
+            //containerBuilder.RegisterType<SearchService>().As<ISearchService>().InstancePerLifetimeScope();
+            //containerBuilder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();            
         }
     }
 }

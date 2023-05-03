@@ -97,12 +97,12 @@ namespace gpconnect_appointment_checker.Pages
                                                || (HasMultipleConsumerOdsCodes && !HasMultipleProviderOdsCodes) 
                                                || (HasMultipleProviderOdsCodes && !HasMultipleConsumerOdsCodes));
 
-        public string MultipleSearchResultsLink { get; set; }
-
-        public bool IsMultiSearch => HasMultipleProviderOdsCodes || HasMultipleConsumerOdsCodes;
+        public string MultipleSearchResultsLink { get; set; }        
 
         [BindProperty]
-        public string SelectedDateRange { get; set; }       
+        public string SelectedDateRange { get; set; }
+
+        public bool IsMultiSearch { get; set; } = false;
 
         public bool ProviderODSCodeFound { get; set; } = true;
         public bool ConsumerODSCodeFound { get; set; } = true;

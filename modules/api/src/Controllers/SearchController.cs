@@ -15,7 +15,7 @@ public class SearchController : ControllerBase
         _service = service ?? throw new ArgumentNullException();
     }
 
-    [HttpGet()]
+    [HttpPost()]
     public async Task<ActionResult> ExecuteSearch([FromBody] SearchRequest searchRequest)
     {
         if (!searchRequest.ValidSearchCombination)

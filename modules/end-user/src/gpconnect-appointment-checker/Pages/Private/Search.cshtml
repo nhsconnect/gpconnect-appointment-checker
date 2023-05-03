@@ -5,37 +5,9 @@
 <form method="post" id="search-input-form">
     <partial name="SearchInput" />
 
-    @*@if (Model.IsMultiSearch)
+    @if (!Model.IsMultiSearch)
     {
-        @if (!string.IsNullOrEmpty(Model.ProviderOdsCode) && !string.IsNullOrEmpty(Model.ConsumerOdsCode) && !Model.ValidSearchCombination)
-        {
-            <div class="nhsuk-grid-row">
-                <div class="nhsuk-grid-column-full">
-                    <div class="nhsuk-warning-callout">
-                        <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESINPUTLABEL</h3>
-                        <p>@SearchConstants.ISSUEWITHODSCODESINPUTTEXT</p>
-                    </div>
-                </div>
-            </div>
-        }
-        else
-        {
-            @if (Model.SearchResultsSummary != null && Model.SearchResults == null)
-            {
-                <div class="nhsuk-grid-row">
-                    <div class="nhsuk-grid-column-full">
-                        <button class="nhsuk-button" asp-page-handler="ExportSearchGroupResults" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
-                    </div>
-                </div>
-                <partial name="SearchResultsSummary" />
-
-                <partial name="SearchNav" />
-            }
-        }
-    }
-    else
-    {
-        @if (Model.SearchResultsSummary == null && Model.SearchResults != null)
+        @if (Model.SearchResultsTotalCount > 0)
         {
             @if (!Model.ConsumerEnabledForGpConnectAppointmentManagement)
             {
@@ -48,19 +20,68 @@
                     </div>
                 </div>
             }
-
             <partial name="SearchResults" />
-
             <partial name="SearchNav" />
-
-            <partial name="SearchStats" />
-
-
-
+            @*<partial name="SearchStats" />*@
         }
-        else
-        {
-            <partial name="CodeErrorSingle" />
-        }
+    }
+
+    @*@if (Model.IsMultiSearch)
+    {
+    @if (!string.IsNullOrEmpty(Model.ProviderOdsCode) && !string.IsNullOrEmpty(Model.ConsumerOdsCode) && !Model.ValidSearchCombination)
+    {
+    <div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+    <div class="nhsuk-warning-callout">
+    <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESINPUTLABEL</h3>
+    <p>@SearchConstants.ISSUEWITHODSCODESINPUTTEXT</p>
+    </div>
+    </div>
+    </div>
+    }
+    else
+    {
+    @if (Model.SearchResultsSummary != null && Model.SearchResults == null)
+    {
+    <div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+    <button class="nhsuk-button" asp-page-handler="ExportSearchGroupResults" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
+    </div>
+    </div>
+    <partial name="SearchResultsSummary" />
+
+    <partial name="SearchNav" />
+    }
+    }
+    }
+    else
+    {
+    @if (Model.SearchResultsSummary == null && Model.SearchResults != null)
+    {
+    @if (!Model.ConsumerEnabledForGpConnectAppointmentManagement)
+    {
+    <div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+    <div class="nhsuk-warning-callout">
+    <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTCONSUMERLABEL</h3>
+    <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT, Model.ConsumerOdsCode)</p>
+    </div>
+    </div>
+    </div>
+    }
+
+    <partial name="SearchResults" />
+
+    <partial name="SearchNav" />
+
+    <partial name="SearchStats" />
+
+
+
+    }
+    else
+    {
+    <partial name="CodeErrorSingle" />
+    }
     }*@
 </form>

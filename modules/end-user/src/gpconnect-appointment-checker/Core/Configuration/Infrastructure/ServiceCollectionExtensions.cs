@@ -1,7 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices;
-using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -44,7 +42,7 @@ public static class ServiceCollectionExtensions
             options.MaxAge = TimeSpan.FromDays(730);
         });
 
-        services.AddScoped<ITokenService, TokenService>();
+        //services.AddScoped<ITokenService, TokenService>();
 
         services.AddResponseCaching();
         services.AddResponseCompression();

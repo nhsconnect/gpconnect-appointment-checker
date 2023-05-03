@@ -3,6 +3,7 @@ using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
+using System.Diagnostics;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -21,7 +22,7 @@ public class SearchService : ISearchService
         _gpConnectQueryExecutionService = gpConnectQueryExecutionService;
     }
 
-    public async Task<IEnumerable<SearchResponse>> ExecuteSearch(SearchRequest searchRequest)
+    public async Task<List<SearchResponse>> ExecuteSearch(SearchRequest searchRequest)
     {
         var searchResponses = new List<SearchResponse>();
         for (var providerCodeIndex = 0; providerCodeIndex < searchRequest.ProviderOdsCodeAsList.Count; providerCodeIndex++)
@@ -31,12 +32,14 @@ public class SearchService : ISearchService
                 searchResponses.Add(await ProcessSearchRequestInstance(searchRequest, providerCodeIndex, consumerCodeIndex));
             }
         }
-        return searchResponses.ToList();
+        return searchResponses;
     }
 
     private async Task<SearchResponse> ProcessSearchRequestInstance(SearchRequest searchRequest, int providerCodeIndex, int consumerCodeIndex)
     {
+        var stopwatch = new Stopwatch();
         var searchResponse = new SearchResponse();
+        stopwatch.Start();
 
         var providerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchRequest.ProviderOdsCodeAsList[providerCodeIndex].ToUpper());
         var consumerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchRequest.ConsumerOdsCodeAsList[consumerCodeIndex].ToUpper());
@@ -112,6 +115,8 @@ public class SearchService : ISearchService
                 }
             }
         }
+        stopwatch.Stop();
+        searchResponse.TimeTaken = stopwatch.Elapsed;
         return searchResponse;
     }
 }

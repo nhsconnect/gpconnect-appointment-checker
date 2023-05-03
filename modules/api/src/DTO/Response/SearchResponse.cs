@@ -8,6 +8,8 @@ public class SearchResponse
     public int? SearchResultsCurrentCount => SearchResults?.Count;
     public int? SearchResultsPastCount => SearchResultsPast?.Count;
 
+    public TimeSpan TimeTaken { get; set; }
+
     public List<SlotEntrySimple> SearchResults { get; set; }
     public List<SlotEntrySimple> SearchResultsPast { get; set; }
 
