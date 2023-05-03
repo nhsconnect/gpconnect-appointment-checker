@@ -3,6 +3,7 @@ using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -30,30 +31,37 @@ public class LogService : ILogService
 
     public async Task AddWebRequest()
     {
-        var url = _contextAccessor.HttpContext.Request?.Path.Value;
-        if (!url.Contains(gpconnect_appointment_checker.Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
+        try
         {
-            var webRequest = new Models.Request.WebRequest()
+            var url = _contextAccessor.HttpContext.Request?.Path.Value;
+            if (!url.Contains(gpconnect_appointment_checker.Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
             {
-                CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
-                Url = url,
-                Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
-                Description = string.Empty,
-                Server = _contextAccessor.HttpContext.Request?.Host.Host,
-                SessionId = _contextAccessor.HttpContext.GetSessionId(),
-                ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
-                ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
-                UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
-            };
-            var json = new StringContent(
-            JsonConvert.SerializeObject(webRequest, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+                var webRequest = new Models.Request.WebRequest()
+                {
+                    CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
+                    Url = url,
+                    Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
+                    Description = string.Empty,
+                    Server = _contextAccessor.HttpContext.Request?.Host.Host,
+                    SessionId = _contextAccessor.HttpContext.GetSessionId(),
+                    ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
+                    ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
+                    UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
+                };
+                var json = new StringContent(
+                JsonConvert.SerializeObject(webRequest, null, _options),
+                Encoding.UTF8,
+                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            _logger.LogInformation(_httpClient.BaseAddress.ToString());
+                _logger.LogInformation(_httpClient.BaseAddress.ToString());
 
-            var response = await _httpClient.PostAsync("/log/webrequest", json);
-            response.EnsureSuccessStatusCode();
+                var response = await _httpClient.PostAsync("/log/webrequest", json);
+                response.EnsureSuccessStatusCode();
+            }
+        }
+        catch (Exception exc)
+        {
+            _logger.LogError(exc, $"An error has occurred trying to write a web request entry - {_httpClient.BaseAddress}");
         }
     }
 }
