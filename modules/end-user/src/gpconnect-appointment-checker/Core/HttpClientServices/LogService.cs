@@ -1,6 +1,7 @@
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -14,8 +15,9 @@ public class LogService : ILogService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ILogger<LogService> _logger;
 
-    public LogService(HttpClient httpClient, IHttpContextAccessor contextAccessor)
+    public LogService(HttpClient httpClient, IHttpContextAccessor contextAccessor, ILogger<LogService> logger)
     {
         _httpClient = httpClient;
         _contextAccessor = contextAccessor;
@@ -23,6 +25,7 @@ public class LogService : ILogService
         {
             NullValueHandling = NullValueHandling.Ignore
         };
+        _logger = logger;
     }
 
     public async Task AddWebRequest()
@@ -47,8 +50,10 @@ public class LogService : ILogService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
+            _logger.LogInformation(_httpClient.BaseAddress.ToString());
+
             var response = await _httpClient.PostAsync("/log/webrequest", json);
             response.EnsureSuccessStatusCode();
-        }        
+        }
     }
 }
