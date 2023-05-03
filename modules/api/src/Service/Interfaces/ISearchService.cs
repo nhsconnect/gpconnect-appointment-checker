@@ -4,5 +4,5 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 
 public interface ISearchService
 {
-    Task<IEnumerable<SearchResponse>> ExecuteSearch(DTO.Request.SearchRequest searchRequest);
+    Task<List<SearchResponse>> ExecuteSearch(DTO.Request.SearchRequest searchRequest);
 }

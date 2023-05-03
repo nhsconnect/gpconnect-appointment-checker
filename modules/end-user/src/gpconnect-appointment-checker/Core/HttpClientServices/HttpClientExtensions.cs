@@ -29,7 +29,8 @@ public static class HttpClientExtensions
         services.AddHttpClient<IReportingService, ReportingService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<ISpineService, SpineService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<ITokenService, TokenService>(httpClientConfig).AugmentHttpClientBuilder(env);
-        services.AddHttpClient<IUserService, UserService>(httpClientConfig).AugmentHttpClientBuilder(env);        
+        services.AddHttpClient<IUserService, UserService>(httpClientConfig).AugmentHttpClientBuilder(env);      
+        services.AddHttpClient<ISearchService, SearchService>(httpClientConfig).AugmentHttpClientBuilder(env);
     }
 
     private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder, IWebHostEnvironment env)
