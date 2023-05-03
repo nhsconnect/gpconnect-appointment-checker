@@ -1,6 +1,9 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,9 +15,10 @@ public class SpineService : ISpineService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
 
-    public SpineService(HttpClient httpClient)
+    public SpineService(HttpClient httpClient, IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
 
         _options = new JsonSerializerSettings()
         {

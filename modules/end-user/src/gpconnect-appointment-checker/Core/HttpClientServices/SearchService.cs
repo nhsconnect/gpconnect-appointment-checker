@@ -1,7 +1,10 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models.Request;
 using GpConnect.AppointmentChecker.Models.Search;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,9 +18,10 @@ public class SearchService : ISearchService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
 
-    public SearchService(HttpClient httpClient)
+    public SearchService(HttpClient httpClient, IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
 
         _options = new JsonSerializerSettings()
         {

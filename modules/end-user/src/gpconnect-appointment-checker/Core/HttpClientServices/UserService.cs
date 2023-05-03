@@ -1,9 +1,11 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -22,9 +24,11 @@ public class UserService : IUserService
     private readonly JsonSerializerSettings _options;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public UserService(ILogger<UserService> logger, HttpClient httpClient, IHttpContextAccessor contextAccessor)
+    public UserService(ILogger<UserService> logger, HttpClient httpClient, IHttpContextAccessor contextAccessor, IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
+
         _contextAccessor = contextAccessor;
 
         _logger = logger;

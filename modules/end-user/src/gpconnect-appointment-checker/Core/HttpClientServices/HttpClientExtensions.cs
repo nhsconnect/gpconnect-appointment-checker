@@ -19,7 +19,6 @@ public static class HttpClientExtensions
         {
             options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            options.BaseAddress = new UriBuilder(configuration.GetSection("ApiBaseUrl").Value).Uri;
         };
 
         services.AddHttpClient<IApplicationService, ApplicationService>(httpClientConfig).AugmentHttpClientBuilder(env);

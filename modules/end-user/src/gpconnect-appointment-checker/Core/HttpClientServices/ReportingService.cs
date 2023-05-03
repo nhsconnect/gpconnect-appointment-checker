@@ -1,5 +1,7 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,9 +16,11 @@ public class ReportingService : IReportingService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
 
-    public ReportingService(HttpClient httpClient)
+    public ReportingService(HttpClient httpClient, IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
+
         _options = new JsonSerializerSettings()
         {
             NullValueHandling = NullValueHandling.Ignore
