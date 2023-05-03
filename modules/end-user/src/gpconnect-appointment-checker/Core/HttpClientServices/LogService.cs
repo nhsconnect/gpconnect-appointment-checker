@@ -1,7 +1,9 @@
+using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -18,9 +20,11 @@ public class LogService : ILogService
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly ILogger<LogService> _logger;
 
-    public LogService(HttpClient httpClient, IHttpContextAccessor contextAccessor, ILogger<LogService> logger)
+    public LogService(HttpClient httpClient, IHttpContextAccessor contextAccessor, ILogger<LogService> logger, IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
+
         _contextAccessor = contextAccessor;
         _options = new JsonSerializerSettings()
         {
