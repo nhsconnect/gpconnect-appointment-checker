@@ -29,4 +29,10 @@
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="appsettings.local.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

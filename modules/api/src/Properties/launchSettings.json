@@ -2,13 +2,13 @@
   "profiles": {
     "GpConnect.AppointmentChecker.Api": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": false,
       "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5002",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5002"
+      }
     },
     "IIS Express": {
       "commandName": "IISExpress",
