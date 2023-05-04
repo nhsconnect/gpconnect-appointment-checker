@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure
@@ -13,14 +14,18 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
     {
         public static void ConfigureApplicationBuilderServices(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseExceptionHandler("/Error");
-
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedProto
             });
 
-            app.UseHsts();
+            if (!env.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+
+            app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
             app.UseHttpsRedirection();
 
@@ -32,11 +37,8 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 }
             });
             app.UseSession();
-            app.UseCookiePolicy();
-
-            app.UseStatusCodePagesWithRedirects("/StatusCode/{0}");
-            app.UseRouting();            
-
+            app.UseCookiePolicy();            
+            app.UseRouting();
             app.UseResponseCaching();
 
             app.Use(async (context, next) =>
@@ -50,12 +52,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 await next(context);
             });
 
+            app.UseMiddleware<RequestLoggingMiddleware>();
+
             app.UseResponseCompression();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseMiddleware<RequestLoggingMiddleware>();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
