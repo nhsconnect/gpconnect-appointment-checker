@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.SecretsManager;
 using Microsoft.Extensions.Configuration;
 
@@ -14,6 +15,6 @@ public class SecretsManagerConfigurationSource : IConfigurationSource
 
     private IAmazonSecretsManager CreateClient()
     {
-        return new AmazonSecretsManagerClient();
+        return new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName("eu-west-2"));
     }
 }

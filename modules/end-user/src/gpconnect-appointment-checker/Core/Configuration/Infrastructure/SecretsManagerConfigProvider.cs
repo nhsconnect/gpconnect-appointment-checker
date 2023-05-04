@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Core.Configuration;
@@ -30,16 +29,16 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
 
     private async Task LoadAsync()
     {
-        _loadedSsoValues = await FetchSsoConfigurationAsync("gpcac-secret-end-user-application-sso-configuration", default).ConfigureAwait(false);
+        _loadedSsoValues = await FetchSsoConfigurationAsync("gpcac-secret-end-user-application-sso-configuration");
         SetData(_loadedSsoValues, triggerReload: false);
-        
-        _loadedGeneralValues = await FetchGeneralConfigurationAsync("gpcac-secret-shared-general-configuration", default).ConfigureAwait(false);
+
+        _loadedGeneralValues = await FetchGeneralConfigurationAsync("gpcac-secret-shared-general-configuration");
         SetData(_loadedGeneralValues, triggerReload: false);
 
-        _loadedNotificationValues = await FetchNotificationConfigurationAsync("gpcac-secret-shared-notification-configuration", default).ConfigureAwait(false);
+        _loadedNotificationValues = await FetchNotificationConfigurationAsync("gpcac-secret-shared-notification-configuration");
         SetData(_loadedNotificationValues, triggerReload: false);
 
-        _loadedApplicationValues = await FetchApplicationConfigurationAsync("gpcac-secret-end-user-application", default).ConfigureAwait(false);
+        _loadedApplicationValues = await FetchApplicationConfigurationAsync("gpcac-secret-end-user-application");
         SetData(_loadedApplicationValues, triggerReload: false);
     }
 
@@ -52,30 +51,30 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
         }
     }
 
-    private async Task<HashSet<(string, string)>> FetchSsoConfigurationAsync(string secretName, CancellationToken cancellationToken)
+    private async Task<HashSet<(string, string)>> FetchSsoConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName, cancellationToken);
+        var secretString = await GetSecretString(secretName);
         var configuration = PopulateSsoConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchGeneralConfigurationAsync(string secretName, CancellationToken cancellationToken)
+    private async Task<HashSet<(string, string)>> FetchGeneralConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName, cancellationToken);
+        var secretString = await GetSecretString(secretName);
         var configuration = PopulateGeneralConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchNotificationConfigurationAsync(string secretName, CancellationToken cancellationToken)
+    private async Task<HashSet<(string, string)>> FetchNotificationConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName, cancellationToken);
+        var secretString = await GetSecretString(secretName);
         var configuration = PopulateNotificationConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchApplicationConfigurationAsync(string secretName, CancellationToken cancellationToken)
+    private async Task<HashSet<(string, string)>> FetchApplicationConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName, cancellationToken);
+        var secretString = await GetSecretString(secretName);
         var configuration = PopulateApplicationConfiguration(secretString);
         return configuration;
     }
@@ -148,22 +147,23 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
         return configuration;
     }
 
-    private async Task<string> GetSecretString(string secretName, CancellationToken cancellationToken)
+    private async Task<string> GetSecretString(string secretName)
     {
+        var secretValueRequest = new GetSecretValueRequest
+        {
+            SecretId = secretName
+        };
+
+        GetSecretValueResponse response;
+
         try
         {
-            var secretValue = await _client.GetSecretValueAsync(new GetSecretValueRequest { SecretId = secretName }, cancellationToken).ConfigureAwait(false);
-            var secretString = secretValue.SecretString;
-
-            if (secretString is null)
-            {
-                throw new Exception("Failed to Find Secret with populated Data");
-            }
-            return secretString;
+            response = await _client.GetSecretValueAsync(secretValueRequest);
         }
-        catch (ResourceNotFoundException e)
+        catch
         {
-            throw new Exception($"Error retrieving secret value (Secret: {secretName})", e);
-        }
+            throw;
+        }        
+        return response.SecretString;
     }
 }
