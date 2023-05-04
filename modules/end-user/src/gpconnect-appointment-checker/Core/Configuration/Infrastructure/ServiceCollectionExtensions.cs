@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure;
@@ -48,7 +49,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHealthChecks();
 
-        services.AddRazorPages(options =>
+        var builder = services.AddRazorPages(options =>
         {
             options.Conventions.AuthorizeFolder("/Private", "MustHaveAuthorisedUserStatus");
             options.Conventions.AuthorizeFolder("/Pending", "MustHaveNotAuthorisedUserStatus");
@@ -86,10 +87,21 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAuthorizationHandler, NotAuthorisedUserHandler>();
         services.AddSingleton<IAuthorizationHandler, AuthorisedAndIsAdminUserHandler>();
 
-        services.AddDataProtection()
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        var dataProtectionBuilder = services.AddDataProtection()
             .SetApplicationName("GpConnectAppointmentChecker");
 
-        services.AddAntiforgery(options => 
+
+        if (env.IsDevelopment())
+        {
+            builder.AddRazorRuntimeCompilation();
+        }
+        else
+        {
+            dataProtectionBuilder.PersistKeysToAWSSystemsManager("/gpcac-end-user-application-service/data-protection");
+        }
+        services.AddAntiforgery(options =>
         { 
             options.SuppressXFrameOptionsHeader = true;
             options.Cookie.HttpOnly = false;
