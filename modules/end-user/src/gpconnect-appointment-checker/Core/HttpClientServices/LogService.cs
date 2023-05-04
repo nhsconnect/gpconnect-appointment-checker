@@ -52,10 +52,7 @@ public class LogService : ILogService
             };
 
             var stringContent = JsonConvert.SerializeObject(webRequest);
-
-            _logger.LogInformation(stringContent);
-            _logger.LogInformation($"An error has occurred trying to write a web request entry - {DateTime.Now} {_httpClient.BaseAddress}");
-
+            
             if (!url.Contains(gpconnect_appointment_checker.Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
             {
                 var content = new StringContent(stringContent);
