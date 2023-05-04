@@ -29,16 +29,16 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
 
     private async Task LoadAsync()
     {
-        _loadedSsoValues = await FetchSsoConfigurationAsync("gpcac-secret-end-user-application-sso-configuration");
+        _loadedSsoValues = await FetchSsoConfigurationAsync("gpcac/sso-configuration");
         SetData(_loadedSsoValues, triggerReload: false);
 
-        _loadedGeneralValues = await FetchGeneralConfigurationAsync("gpcac-secret-shared-general-configuration");
+        _loadedGeneralValues = await FetchGeneralConfigurationAsync("gpcac/general-configuration");
         SetData(_loadedGeneralValues, triggerReload: false);
 
-        _loadedNotificationValues = await FetchNotificationConfigurationAsync("gpcac-secret-shared-notification-configuration");
+        _loadedNotificationValues = await FetchNotificationConfigurationAsync("gpcac/notification-configuration");
         SetData(_loadedNotificationValues, triggerReload: false);
 
-        _loadedApplicationValues = await FetchApplicationConfigurationAsync("gpcac-secret-end-user-application");
+        _loadedApplicationValues = await FetchApplicationConfigurationAsync("gpcac/enduser-configuration");
         SetData(_loadedApplicationValues, triggerReload: false);
     }
 
