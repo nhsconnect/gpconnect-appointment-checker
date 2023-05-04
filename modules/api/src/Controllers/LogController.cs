@@ -14,21 +14,21 @@ public class LogController : ControllerBase
         _service = service ?? throw new ArgumentNullException();
     }
 
-    [HttpPost("WebRequest")]
+    [HttpPost("webrequest")]
     public async Task<IActionResult> WebRequest([FromBody] DTO.Request.Logging.WebRequest request)
     {
         await _service.AddWebRequestLog(request);
         return Ok();
     }
 
-    [HttpPost("SpineMessage")]
+    [HttpPost("spinemessage")]
     public async Task<IActionResult> SpineMessage([FromBody] DTO.Request.Logging.SpineMessage request)
     {
         await _service.AddSpineMessageLog(request);
         return Ok();
     }
 
-    [HttpPost("ErrorLog")]
+    [HttpPost("errorlog")]
     public async Task<IActionResult> ErrorLog([FromBody] DTO.Request.Logging.ErrorLog request)
     {
         await _service.AddErrorLog(request);

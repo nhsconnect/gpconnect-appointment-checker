@@ -40,9 +40,7 @@ public static class ServiceCollectionExtensions
         {
             options.IncludeSubDomains = true;
             options.MaxAge = TimeSpan.FromDays(730);
-        });
-
-        //services.AddScoped<ITokenService, TokenService>();
+        });        
 
         services.AddResponseCaching();
         services.AddResponseCompression();
