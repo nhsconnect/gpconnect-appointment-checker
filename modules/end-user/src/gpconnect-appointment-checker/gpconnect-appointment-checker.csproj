@@ -56,10 +56,4 @@
     <ProjectReference Include="..\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="appsettings.local.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>
