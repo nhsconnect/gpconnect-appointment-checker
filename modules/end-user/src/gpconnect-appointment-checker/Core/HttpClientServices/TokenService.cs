@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
@@ -19,20 +18,21 @@ public class TokenService : ITokenService
     private readonly IUserService _userService;
     private readonly ILogger<TokenService> _logger;
 
-    public TokenService(IApplicationService applicationService, ISpineService spineService, IUserService userService)
-    {    
+    public TokenService(ILogger<TokenService> logger, IApplicationService applicationService, ISpineService spineService, IUserService userService)
+    {
         _applicationService = applicationService;
         _spineService = spineService;
         _userService = userService;
+        _logger = logger;
     }
 
-    public async Task<Task> TokenValidationAsync(TokenValidatedContext context)
+    public async Task HandleOnTokenValidatedAsync(TokenValidatedContext context)
     {
         try
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
-            return await PerformRedirectionBasedOnStatus(context);
+            await PerformRedirectionBasedOnStatus(context);
         }
         catch (Exception exc)
         {
@@ -41,7 +41,7 @@ public class TokenService : ITokenService
         }
     }
 
-    private async Task<Task> PerformRedirectionBasedOnStatus(TokenValidatedContext context)
+    private async Task PerformRedirectionBasedOnStatus(TokenValidatedContext context)
     {
         var odsCode = context.Principal.GetClaimValue("ODS");
         var organisationDetails = await _spineService.GetOrganisation(odsCode);
@@ -87,7 +87,6 @@ public class TokenService : ITokenService
             }
 
         }
-        return Task.CompletedTask;
     }
 
     private string GetAuthorisedRedirectUri(string redirectUri)

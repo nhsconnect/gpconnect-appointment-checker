@@ -5,5 +5,5 @@ namespace GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 
 public interface ITokenService
 {
-    Task<Task> TokenValidationAsync(TokenValidatedContext context);
+    Task HandleOnTokenValidatedAsync(TokenValidatedContext context);
 }

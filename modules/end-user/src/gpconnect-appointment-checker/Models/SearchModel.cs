@@ -32,7 +32,7 @@ namespace gpconnect_appointment_checker.Pages
         public string ConsumerOdsCode { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public string SelectedOrganisationType { get; set; }
+        public string? SelectedOrganisationType { get; set; }
 
         public bool DisplayMultiSearchHelpText => MultiSearchEnabled;
         public bool ConsumerOrgTypeSearchEnabled => OrgTypeSearchEnabled;

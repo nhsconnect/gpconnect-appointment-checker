@@ -22,9 +22,9 @@ namespace gpconnect_appointment_checker.Pages
         public List<List<SearchResultEntry>> SearchResultsPast { get; set; }
 
         [BindProperty]
-        public string SearchAtResultsText { get; set; }
+        public string? SearchAtResultsText { get; set; }
         [BindProperty]
-        public string SearchOnBehalfOfResultsText { get; set; }
+        public string? SearchOnBehalfOfResultsText { get; set; }
         
         [BindProperty(Name = "SearchGroupId", SupportsGet = true)]
         public int SearchGroupId { get; set; }
