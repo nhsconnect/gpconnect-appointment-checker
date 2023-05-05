@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Threading.Tasks;
@@ -60,6 +61,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
 
                     options.Events = new OpenIdConnectEvents
                     {
+                        OnRedirectToIdentityProvider = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthenticationExtensions>>();
+                            logger.LogInformation("Redirecting to OIDC provider with ClientId: {clientId}", _singleSignOnConfig.ClientId);
+                            return Task.CompletedTask;
+                        },
                         OnSignedOutCallbackRedirect = context =>
                         {
                             context.Response.Redirect(context.Options.SignedOutRedirectUri);
@@ -69,8 +76,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                         OnTokenValidated = context =>
                         {
                             var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-                            var tokenValidation = tokenService.TokenValidationAsync(context);
-                            return tokenValidation;
+                            return tokenService.HandleOnTokenValidatedAsync(context);
                         },
                         OnAuthenticationFailed = context =>
                         {

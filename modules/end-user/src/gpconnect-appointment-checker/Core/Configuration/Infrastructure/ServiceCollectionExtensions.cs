@@ -1,5 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -109,8 +110,19 @@ public static class ServiceCollectionExtensions
             options.Cookie.SameSite = SameSiteMode.None;
         });
 
-        services.AddHttpClientServices(configuration, env);
+        services
+            .AddDependentServices(configuration)
+            .AddHttpClientServices(configuration, env);
 
+        return services;
+    }
+
+    private static IServiceCollection AddDependentServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        //services.AddScoped<IApplicationService, ApplicationService>();
+        //services.AddScoped<ISpineService, SpineService>();
+        //services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ITokenService, TokenService>();
         return services;
     }
 }
