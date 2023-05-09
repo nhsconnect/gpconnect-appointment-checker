@@ -3,6 +3,8 @@ using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using NLog;
+using NLog.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,9 +18,17 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
     private HashSet<(string, string)> _loadedGeneralValues = new();
     private HashSet<(string, string)> _loadedNotificationValues = new();
     private HashSet<(string, string)> _loadedApplicationValues = new();
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+    public AmazonSecretsManagerConfigurationProvider()
+    {
+        _logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+    }
 
     public override void Load()
     {
+        _logger.Info("Loading values");
+
         _loadedSsoValues = FetchSsoConfigurationAsync("gpcac/sso-configuration");
         SetData(_loadedSsoValues, triggerReload: false);
 
@@ -43,8 +53,10 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
 
     private HashSet<(string, string)> FetchSsoConfigurationAsync(string secretName)
     {
+        _logger.Info($"Gets to FetchSsoConfigurationAsync with secret name {secretName}");
         var secretString = GetSecretString(secretName);
         var configuration = PopulateSsoConfiguration(secretString);
+        _logger.Info($"SsoConfiguration is {configuration.Count}");
         return configuration;
     }
 
@@ -139,6 +151,8 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
 
     private string GetSecretString(string secretName)
     {
+        _logger.Info($"Gets to GetSecretString with secret name{secretName}");
+
         var request = new GetSecretValueRequest
         {
             SecretId = secretName
