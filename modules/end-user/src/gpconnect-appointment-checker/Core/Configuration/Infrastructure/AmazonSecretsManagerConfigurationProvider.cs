@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 
 namespace GpConnect.AppointmentChecker.Core.Configuration;
 
@@ -44,6 +45,10 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
 
     private void SetData(IEnumerable<(string, string)> values, bool triggerReload)
     {
+        foreach (var value in values)
+        {
+            _logger.Info($"SetData: Key is {value.Item1} Value is {value.Item2}");
+        }
         Data = values.ToDictionary(x => x.Item1, x => x.Item2, StringComparer.InvariantCultureIgnoreCase);
         if (triggerReload)
         {
@@ -151,28 +156,39 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
 
     private string GetSecretString(string secretName)
     {
-        _logger.Info($"Gets to GetSecretString with secret name{secretName}");
+        _logger.Info($"Gets to GetSecretString with secret name {secretName}");
 
         var request = new GetSecretValueRequest
         {
-            SecretId = secretName
+            SecretId = secretName,
+            VersionStage = "AWSCURRENT"
         };
+
+        _logger.Info($"Gets to GetSecretValueRequest with {request.SecretId}");
 
         using (var client = new AmazonSecretsManagerClient(RegionEndpoint.EUWest2))
         {
             var response = client.GetSecretValueAsync(request).Result;
 
+            _logger.Info($"Gets to GetSecretValueAsync ARN with {response.ARN}");
+
             string secretString;
 
             if (response.SecretString != null)
             {
+                _logger.Info("Gets to response.SecretString is not null");
                 secretString = response.SecretString;
+                _logger.Info($"Gets to secretString = response.SecretString with {response.SecretString}");
             }
             else
             {
+                _logger.Info("Gets to response.SecretString is null");
+
                 var memoryStream = response.SecretBinary;
                 var reader = new StreamReader(memoryStream);
                 secretString = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(reader.ReadToEnd()));
+
+                _logger.Info($"Gets to secretString with {secretString}");
             }
 
             return secretString;
