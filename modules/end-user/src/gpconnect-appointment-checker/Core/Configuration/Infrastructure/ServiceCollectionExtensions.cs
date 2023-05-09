@@ -31,13 +31,7 @@ public static class ServiceCollectionExtensions
             options.CheckConsentNeeded = context => true;
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
-
-        services.AddOptions();
-        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
-        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
-        services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
-        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
-
+        
         services.AddHsts(options =>
         {
             options.IncludeSubDomains = true;
@@ -90,9 +84,15 @@ public static class ServiceCollectionExtensions
 
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-        var dataProtectionBuilder = services.AddDataProtection()
-            .SetApplicationName("GpConnectAppointmentChecker");
+        var dataProtectionBuilder = services.AddDataProtection().SetApplicationName("GpConnectAppointmentChecker");
 
+        services.AddControllers();
+
+        services.AddOptions();
+        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
+        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
+        services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
+        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
 
         if (env.IsDevelopment())
         {
@@ -119,9 +119,6 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddDependentServices(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddScoped<IApplicationService, ApplicationService>();
-        //services.AddScoped<ISpineService, SpineService>();
-        //services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITokenService, TokenService>();
         return services;
     }
