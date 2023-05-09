@@ -18,7 +18,7 @@ namespace gpconnect_appointment_checker
             try
             {
                 logger.Debug("init main");
-                CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args, logger).Build().Run();
             }
             catch (Exception exception)
             {
@@ -31,7 +31,7 @@ namespace gpconnect_appointment_checker
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args, Logger logger) =>
             Host.CreateDefaultBuilder(args)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder =>

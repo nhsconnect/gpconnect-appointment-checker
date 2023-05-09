@@ -12,16 +12,21 @@ namespace gpconnect_appointment_checker.Pages
     {
         protected ILogger<IndexModel> _logger;
         private readonly IOptions<GeneralConfig> _options;
+        private readonly IOptions<SingleSignOnConfig> _ssoOptions;
 
-        public IndexModel(ILogger<IndexModel> logger, IOptions<GeneralConfig> options)
+        public IndexModel(ILogger<IndexModel> logger, IOptions<GeneralConfig> options, IOptions<SingleSignOnConfig> ssoOptions)
         {
             _logger = logger;
             _options = options;
+            _ssoOptions = ssoOptions;
         }
 
         public IActionResult OnGet()
         {
+            SsoClientId = _ssoOptions.Value.ClientId;
             return Page();
         }
+
+        public string SsoClientId { get; set; }
     }
 }
