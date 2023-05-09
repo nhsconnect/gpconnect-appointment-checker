@@ -61,6 +61,7 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
         _logger.Info($"Gets to FetchSsoConfigurationAsync with secret name {secretName}");
         var secretString = GetSecretString(secretName);
         var configuration = PopulateSsoConfiguration(secretString);
+
         _logger.Info($"SsoConfiguration is {configuration.Count}");
         return configuration;
     }
