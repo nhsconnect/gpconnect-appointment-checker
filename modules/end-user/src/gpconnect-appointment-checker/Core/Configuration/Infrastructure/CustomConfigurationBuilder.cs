@@ -12,22 +12,19 @@ public static class CustomConfigurationBuilder
 
         builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
         builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-        builder.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+        builder.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);        
 
         if (!context.HostingEnvironment.IsDevelopment())
         {
-            builder.AddSecretsManager();
+            builder.AddAmazonSecretsManager();
         }
 
         builder.AddEnvironmentVariables();
     }
 
-    public static IConfigurationBuilder AddSecretsManager(this IConfigurationBuilder configurationBuilder)
+    public static void AddAmazonSecretsManager(this IConfigurationBuilder configurationBuilder)
     {
-        var source = new SecretsManagerConfigurationSource();
-
-        configurationBuilder.Add(source);
-
-        return configurationBuilder;
+        var configurationSource = new AmazonSecretsManagerConfigurationSource();
+        configurationBuilder.Add(configurationSource);
     }
 }

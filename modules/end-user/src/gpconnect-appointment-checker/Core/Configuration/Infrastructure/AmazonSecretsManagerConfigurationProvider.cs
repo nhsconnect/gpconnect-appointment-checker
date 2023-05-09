@@ -1,44 +1,34 @@
+using Amazon;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Core.Configuration;
 
-public class SecretsManagerConfigProvider : ConfigurationProvider
+public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
 {
-    public IAmazonSecretsManager _client { get; }
     private HashSet<(string, string)> _loadedSsoValues = new();
     private HashSet<(string, string)> _loadedGeneralValues = new();
     private HashSet<(string, string)> _loadedNotificationValues = new();
     private HashSet<(string, string)> _loadedApplicationValues = new();
 
-    public SecretsManagerConfigProvider(IAmazonSecretsManager client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
-
     public override void Load()
     {
-        LoadAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-    }
-
-    private async Task LoadAsync()
-    {
-        _loadedSsoValues = await FetchSsoConfigurationAsync("gpcac/sso-configuration");
+        _loadedSsoValues = FetchSsoConfigurationAsync("gpcac/sso-configuration");
         SetData(_loadedSsoValues, triggerReload: false);
 
-        _loadedGeneralValues = await FetchGeneralConfigurationAsync("gpcac/general-configuration");
+        _loadedGeneralValues = FetchGeneralConfigurationAsync("gpcac/general-configuration");
         SetData(_loadedGeneralValues, triggerReload: false);
 
-        _loadedNotificationValues = await FetchNotificationConfigurationAsync("gpcac/notification-configuration");
+        _loadedNotificationValues = FetchNotificationConfigurationAsync("gpcac/notification-configuration");
         SetData(_loadedNotificationValues, triggerReload: false);
 
-        _loadedApplicationValues = await FetchApplicationConfigurationAsync("gpcac/enduser-configuration");
+        _loadedApplicationValues = FetchApplicationConfigurationAsync("gpcac/enduser-configuration");
         SetData(_loadedApplicationValues, triggerReload: false);
     }
 
@@ -51,30 +41,30 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
         }
     }
 
-    private async Task<HashSet<(string, string)>> FetchSsoConfigurationAsync(string secretName)
+    private HashSet<(string, string)> FetchSsoConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName);
+        var secretString = GetSecretString(secretName);
         var configuration = PopulateSsoConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchGeneralConfigurationAsync(string secretName)
+    private HashSet<(string, string)> FetchGeneralConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName);
+        var secretString = GetSecretString(secretName);
         var configuration = PopulateGeneralConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchNotificationConfigurationAsync(string secretName)
+    private HashSet<(string, string)> FetchNotificationConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName);
+        var secretString = GetSecretString(secretName);
         var configuration = PopulateNotificationConfiguration(secretString);
         return configuration;
     }
 
-    private async Task<HashSet<(string, string)>> FetchApplicationConfigurationAsync(string secretName)
+    private HashSet<(string, string)> FetchApplicationConfigurationAsync(string secretName)
     {
-        var secretString = await GetSecretString(secretName);
+        var secretString = GetSecretString(secretName);
         var configuration = PopulateApplicationConfiguration(secretString);
         return configuration;
     }
@@ -147,23 +137,31 @@ public class SecretsManagerConfigProvider : ConfigurationProvider
         return configuration;
     }
 
-    private async Task<string> GetSecretString(string secretName)
+    private string GetSecretString(string secretName)
     {
-        var secretValueRequest = new GetSecretValueRequest
+        var request = new GetSecretValueRequest
         {
             SecretId = secretName
         };
 
-        GetSecretValueResponse response;
+        using (var client = new AmazonSecretsManagerClient(RegionEndpoint.EUWest2))
+        {
+            var response = client.GetSecretValueAsync(request).Result;
 
-        try
-        {
-            response = await _client.GetSecretValueAsync(secretValueRequest);
+            string secretString;
+
+            if (response.SecretString != null)
+            {
+                secretString = response.SecretString;
+            }
+            else
+            {
+                var memoryStream = response.SecretBinary;
+                var reader = new StreamReader(memoryStream);
+                secretString = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(reader.ReadToEnd()));
+            }
+
+            return secretString;
         }
-        catch
-        {
-            throw;
-        }        
-        return response.SecretString;
     }
 }
