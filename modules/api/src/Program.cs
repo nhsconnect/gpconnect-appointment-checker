@@ -1,7 +1,6 @@
 using GpConnect.AppointmentChecker.Api.Core;
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.Core.Logging;
-using GpConnect.AppointmentChecker.Api.Dal.Configuration;
 using NLog;
 using NLog.Web;
 

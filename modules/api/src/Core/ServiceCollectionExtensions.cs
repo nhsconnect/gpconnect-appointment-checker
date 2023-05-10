@@ -28,7 +28,6 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddOptions();
-
         services.Configure<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
         services.Configure<SpineConfig>(configuration.GetSection("SpineConfig"));
         services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
