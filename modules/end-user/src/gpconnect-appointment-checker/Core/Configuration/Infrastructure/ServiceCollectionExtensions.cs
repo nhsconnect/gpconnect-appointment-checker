@@ -31,7 +31,13 @@ public static class ServiceCollectionExtensions
             options.CheckConsentNeeded = context => true;
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
-        
+
+        services.AddOptions();
+        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
+        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
+        services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
+        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
+
         services.AddHsts(options =>
         {
             options.IncludeSubDomains = true;
@@ -87,12 +93,6 @@ public static class ServiceCollectionExtensions
         var dataProtectionBuilder = services.AddDataProtection().SetApplicationName("GpConnectAppointmentChecker");
 
         services.AddControllers();
-
-        services.AddOptions();
-        services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
-        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
-        services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
-        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
 
         if (env.IsDevelopment())
         {
