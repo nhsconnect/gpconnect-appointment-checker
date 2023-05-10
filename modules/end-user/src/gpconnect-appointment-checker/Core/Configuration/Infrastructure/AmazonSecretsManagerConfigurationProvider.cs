@@ -31,10 +31,10 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
         _logger.Info("Loading values");
 
         _loadedSsoValues = FetchSsoConfigurationAsync("gpcac/sso-configuration");
-        SetData(_loadedSsoValues, triggerReload: false);
+        SetData(_loadedSsoValues, triggerReload: false);        
 
         _loadedGeneralValues = FetchGeneralConfigurationAsync("gpcac/general-configuration");
-        SetData(_loadedGeneralValues, triggerReload: false);
+        SetData(_loadedGeneralValues, triggerReload: false);        
 
         _loadedNotificationValues = FetchNotificationConfigurationAsync("gpcac/notification-configuration");
         SetData(_loadedNotificationValues, triggerReload: false);
@@ -62,7 +62,10 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
         var secretString = GetSecretString(secretName);
         var configuration = PopulateSsoConfiguration(secretString);
 
-        _logger.Info($"SsoConfiguration is {configuration.Count}");
+        foreach(var value in configuration)
+        {
+            _logger.Info($"value in sso configuration {value.Item1} {value.Item2}");
+        }
         return configuration;
     }
 
@@ -104,7 +107,8 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
         configuration.Add(("SingleSignOnConfig:AuthEndpoint", config.AuthEndpoint));
         configuration.Add(("SingleSignOnConfig:TokenEndpoint", config.TokenEndpoint));
         configuration.Add(("SingleSignOnConfig:MetadataEndpoint", config.MetadataEndpoint));
-        configuration.Add(("SingleSignOnConfig:SignedOutCallbackPath", config.SignedOutCallbackPath));
+        configuration.Add(("SingleSignOnConfig:SignedOutCallbackPath", config.SignedOutCallbackPath));       
+
         return configuration;
     }
 
