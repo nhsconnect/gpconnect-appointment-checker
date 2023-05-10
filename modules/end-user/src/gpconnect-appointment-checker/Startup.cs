@@ -29,7 +29,7 @@ namespace gpconnect_appointment_checker
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions(); 
+            services.AddOptions();
             services.AddHttpContextAccessor();
 
             var authenticationExtensions = new AuthenticationExtensions(_configuration);

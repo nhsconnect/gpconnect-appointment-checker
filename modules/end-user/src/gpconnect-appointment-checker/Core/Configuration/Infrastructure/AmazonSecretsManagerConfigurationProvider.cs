@@ -107,7 +107,9 @@ public class AmazonSecretsManagerConfigurationProvider : ConfigurationProvider
         configuration.Add(("SingleSignOnConfig:AuthEndpoint", config.AuthEndpoint));
         configuration.Add(("SingleSignOnConfig:TokenEndpoint", config.TokenEndpoint));
         configuration.Add(("SingleSignOnConfig:MetadataEndpoint", config.MetadataEndpoint));
-        configuration.Add(("SingleSignOnConfig:SignedOutCallbackPath", config.SignedOutCallbackPath));       
+        configuration.Add(("SingleSignOnConfig:SignedOutCallbackPath", config.SignedOutCallbackPath));
+
+        var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();        
 
         return configuration;
     }
