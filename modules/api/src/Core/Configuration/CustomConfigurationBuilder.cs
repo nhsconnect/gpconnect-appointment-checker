@@ -10,20 +10,6 @@ public static class CustomConfigurationBuilder
         builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
         builder.AddJsonFile($"appsettings.local.json", optional: true, reloadOnChange: true);
 
-        if (!context.HostingEnvironment.IsDevelopment())
-        {
-            builder.AddSecretsManager();
-        }
-
         builder.AddEnvironmentVariables();
-    }
-
-    public static IConfigurationBuilder AddSecretsManager(this IConfigurationBuilder configurationBuilder)
-    {
-        var source = new SecretsManagerConfigurationSource();
-
-        configurationBuilder.Add(source);
-
-        return configurationBuilder;
     }
 }

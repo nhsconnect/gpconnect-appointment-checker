@@ -38,14 +38,9 @@ namespace gpconnect_appointment_checker
                 {
                     webBuilder.UseStartup<Startup>().ConfigureKestrel(options => options.AddServerHeader = false);
                 })
-                .ConfigureAppConfiguration((builderContext, configurationBuilder) =>
-                {
-                    logger.Info("AddCustomConfiguration");
-                    CustomConfigurationBuilder.AddCustomConfiguration(builderContext, configurationBuilder);
-                })
+                .ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration)
                 .ConfigureLogging((builderContext, logging) =>
                 {
-                    logger.Info("AddLoggingConfiguration");
                     LoggingConfigurationBuilder.AddLoggingConfiguration(builderContext, logging);
                 })
                 .UseNLog();
