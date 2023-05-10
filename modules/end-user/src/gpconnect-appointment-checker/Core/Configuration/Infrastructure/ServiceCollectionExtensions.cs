@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
+using NLog.Web;
 using System;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure;
@@ -32,11 +34,21 @@ public static class ServiceCollectionExtensions
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
+        var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
+        var ssoConfig = configuration.GetSection("SingleSignOnConfig");
+
+        if (ssoConfig != null)
+        {
+            logger.Info($"ssoConfig.GetSection(\"ClientId\").Value is {ssoConfig.GetSection("ClientId").Value}");
+            logger.Info($"ssoConfig.GetSection(\"ClientSecret\").Value is {ssoConfig.GetSection("ClientSecret").Value}");
+        }
+
         services.AddOptions();
         services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
         services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
         services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
-        services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
+        services.Configure<SingleSignOnConfig>(ssoConfig);
 
         services.AddHsts(options =>
         {
