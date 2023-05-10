@@ -19,12 +19,24 @@ public class SearchResponse
     public bool ProviderOdsCodeFound { get; set; } = false;
     public bool ConsumerOdsCodeFound { get; set; } = false;
 
-    public string FormattedProviderOrganisationDetails { get; set; }
-    public string FormattedConsumerOrganisationDetails { get; set; }
-    public string FormattedConsumerOrganisationType { get; set; }
-    public string ProviderPublisher { get; set; }
+    public string ProviderOdsCode { get; set; } = "";
+    public string ConsumerOdsCode { get; set; } = "";
 
-    public ProviderError ProviderError { get; set; }    
+    public string FormattedProviderOrganisationDetails { get; set; } = "";
+    public string FormattedConsumerOrganisationDetails { get; set; } = "";
+    public string FormattedConsumerOrganisationType { get; set; } = "";
+    public string ProviderPublisher { get; set; } = "";
+
+    public ProviderError ProviderError { get; set; }
+
+    public bool DisplayProvider => ProviderError == null && ProviderOdsCodeFound;
+    public bool DisplayConsumer => ConsumerOdsCodeFound;
+    public bool DetailsEnabled => SearchResults?.Count > 0 && DisplayProvider && DisplayConsumer;
+
+    public bool DisplayConsumerOrganisationType => !string.IsNullOrWhiteSpace(FormattedConsumerOrganisationType);
+
+    public int SearchGroupId { get; set; }
+    public int SearchResultId { get; set; }
 
     public bool ProviderEnabledForGpConnectAppointmentManagement { get; set; } = false;
     public bool ConsumerEnabledForGpConnectAppointmentManagement { get; set; } = false;

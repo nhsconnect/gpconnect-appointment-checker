@@ -110,23 +110,8 @@ namespace gpconnect_appointment_checker.Pages
             {
                 ProviderOdsCode = CleansedProviderOdsCodeInput;
                 ConsumerOdsCode = CleansedConsumerOdsCodeInput;
-
                 await GetSearchResults();
-
-                //_stopwatch.Start();
-                //if (IsMultiSearch && ValidSearchCombination)
-                //{
-                //    SearchResultsSummary = await GetSearchResultsMulti();
-                //}
-                //else if (!IsMultiSearch)
-                //{
-                //    await GetSearchResults();
-                //}
-                //_stopwatch.Stop();
-                //SearchDuration = _stopwatch.Elapsed.TotalSeconds;
-                //_queryExecutionService.SendToAudit(_auditSearchParameters, _auditSearchIssues, _stopwatch, IsMultiSearch, SearchResultsTotalCount);
             }
-
             return Page();
         }
 
@@ -167,83 +152,108 @@ namespace gpconnect_appointment_checker.Pages
                 DateRange = SelectedDateRange,
                 RequestUri = FullUrl,
                 UserId = UserId,
+                UserSessionId = UserSessionId,
                 Sid = Sid
             });
 
-            var searchResponse = response.FirstOrDefault();
-
             IsMultiSearch = response.Count > 1;
-            ProviderODSCodeFound = searchResponse.ProviderOdsCodeFound;
-            ConsumerODSCodeFound = searchResponse.ConsumerOdsCodeFound;
-            ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement;
-            ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
-            ProviderASIDPresent = searchResponse.ProviderASIDPresent;
-            SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
-            SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
-            ProviderPublisher = searchResponse.ProviderPublisher;
 
-            SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
-            SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount;
-            SearchResultsPastCount = searchResponse.SearchResultsPastCount;
+            if (!IsMultiSearch)
+            {
+                var searchResponse = response.FirstOrDefault();
 
-            SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
-            SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
+                ProviderODSCodeFound = searchResponse.ProviderOdsCodeFound;
+                ConsumerODSCodeFound = searchResponse.ConsumerOdsCodeFound;
+                ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement;
+                ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
+                ProviderASIDPresent = searchResponse.ProviderASIDPresent;
+                SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
+                SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
+                ProviderPublisher = searchResponse.ProviderPublisher;
 
-            ProviderErrorDisplay = searchResponse.ProviderError;
+                SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
+                SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount;
+                SearchResultsPastCount = searchResponse.SearchResultsPastCount;
 
-            //try
-            //{
-            //    var providerOrganisationDetails = await _spineService.GetOrganisation(ProviderOdsCode);
-            //    var consumerOrganisationDetails = await _spineService.GetOrganisation(ConsumerOdsCode);
+                SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
+                SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
+            }
+            else
+            {
+                var slotEntrySummaryList = new List<SlotEntrySummary>();
 
-            //    _auditSearchParameters[0] = ConsumerOdsCode;
-            //    _auditSearchParameters[1] = ProviderOdsCode;
-            //    _auditSearchParameters[2] = SelectedDateRange;
-            //    _auditSearchParameters[3] = SelectedOrganisationType;
+                slotEntrySummaryList.AddRange(response.Select(x => new SlotEntrySummary()
+                {
+                    DisplayProvider = x.DisplayProvider,
+                    FormattedProviderOrganisationDetails = x.FormattedProviderOrganisationDetails,
+                    ProviderPublisher = x.ProviderPublisher,
+                    DisplayConsumer = x.DisplayConsumer,
+                    FormattedConsumerOrganisationDetails = x.FormattedConsumerOrganisationDetails,
+                    DisplayConsumerOrganisationType = x.DisplayConsumerOrganisationType,
+                    ConsumerOrganisationType = x.FormattedConsumerOrganisationType,
+                    DetailsEnabled = x.DetailsEnabled,
+                    ProviderOdsCode = x.ProviderOdsCode,
+                    ConsumerOdsCode = x.ConsumerOdsCode,
+                    SearchGroupId = x.SearchGroupId,
+                    SearchResultId = x.SearchResultId,
+                    SearchSummaryDetail = GetDetails(x.ProviderOdsCode, x.ConsumerOdsCode, x.ProviderEnabledForGpConnectAppointmentManagement, x.ConsumerEnabledForGpConnectAppointmentManagement, x.ProviderOdsCodeFound, x.ConsumerOdsCodeFound, x.SearchResultsCurrentCount, x.SearchResultsPastCount, x.SearchResultsTotalCount, x.ProviderError, x.ProviderASIDPresent).displayDetail,
+                    DisplayClass = GetDetails(x.ProviderOdsCode, x.ConsumerOdsCode, x.ProviderEnabledForGpConnectAppointmentManagement, x.ConsumerEnabledForGpConnectAppointmentManagement, x.ProviderOdsCodeFound, x.ConsumerOdsCodeFound, x.SearchResultsCurrentCount, x.SearchResultsPastCount, x.SearchResultsTotalCount, x.ProviderError, x.ProviderASIDPresent).displayClass
+                }));
 
-            //    ProviderODSCodeFound = providerOrganisationDetails != null;
-            //    ConsumerODSCodeFound = consumerOrganisationDetails != null;
+                SearchResultsSummary = slotEntrySummaryList;
 
-            //    if (ProviderODSCodeFound && (ConsumerODSCodeFound || SelectedOrganisationType != null))
-            //    {
-            //        var providerSpineDetails = await _spineService.GetProviderDetails(ProviderOdsCode);
-            //        var consumerSpineDetails = await _spineService.GetConsumerDetails(ConsumerOdsCode);
+            }
+        }
 
-            //        ProviderEnabledForGpConnectAppointmentManagement = providerSpineDetails != null;
-            //        ConsumerEnabledForGpConnectAppointmentManagement = (consumerSpineDetails != null && consumerSpineDetails.HasAsId) || SelectedOrganisationType != null;
+        struct details
+        {
+            public List<string> displayDetail;
+            public string displayClass;
+        }
 
-            //        if (ProviderEnabledForGpConnectAppointmentManagement)
-            //        {
-            //            ProviderASIDPresent = providerSpineDetails.HasAsId;
+        private details GetDetails(string providerOdsCode, string consumerOdsCode, bool providerEnabledForGpConnectAppointmentManagement, bool consumerEnabledForGpConnectAppointmentManagement, bool providerOdsCodeFound, bool consumerOdsCodeFound, int searchResultsCurrentCount, int searchResultsPastCount, int searchResultsTotalCount, string providerError, bool providerAsidFound)
+        {
+            details details;
+            details.displayClass = "nhsuk-slot-summary-error";
 
-            //            if (ProviderASIDPresent)
-            //            {
-            //                await PopulateSearchResults(providerSpineDetails, providerOrganisationDetails, consumerSpineDetails, consumerOrganisationDetails, SelectedOrganisationType);
-            //                SearchAtResultsText = providerOrganisationDetails.FormattedOrganisationDetails;
-            //                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(consumerOrganisationDetails?.FormattedOrganisationDetails, SelectedOrganisationType);
-            //                ProviderPublisher = providerSpineDetails.ProductName;
-            //            }
-            //            else
-            //            {
-            //                _auditSearchIssues.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
-            //            }
-            //        }
-            //        else
-            //        {
-            //            _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, ProviderOdsCode));
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (!ProviderODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, ProviderOdsCode));
-            //        if (!ConsumerODSCodeFound) _auditSearchIssues.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, ConsumerOdsCode));
-            //    }
-            //}
-            //catch (LdapException)
-            //{
-            //    LdapErrorRaised = true;
-            //    _auditSearchIssues.Add(SearchConstants.ISSUEWITHLDAPTEXT);
-            //}
+            var detailsBuilder = new List<string>();
+
+            if (!providerOdsCodeFound)
+                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, providerOdsCode));
+            if (providerOdsCodeFound && !providerEnabledForGpConnectAppointmentManagement)
+                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, providerOdsCode));
+
+            if (!consumerOdsCodeFound)
+                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, consumerOdsCode));
+            if (consumerOdsCodeFound && !consumerEnabledForGpConnectAppointmentManagement)
+                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT, consumerOdsCode));
+
+            if (providerOdsCodeFound && !providerAsidFound)
+                detailsBuilder.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
+
+            if (!string.IsNullOrWhiteSpace(providerError))
+                detailsBuilder.Add(providerError);
+
+            if (providerOdsCodeFound && consumerOdsCodeFound)
+            {
+                if (searchResultsTotalCount == 0)
+                {
+                    details.displayClass = "nhsuk-slot-summary";
+                    detailsBuilder.Add(SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT);
+                }
+                else
+                {
+                    details.displayClass = "nhsuk-slot-summary";
+                    if (searchResultsPastCount > 0)
+                        detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, searchResultsPastCount));
+                    if (searchResultsCurrentCount > 0)
+                        detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, searchResultsCurrentCount));
+                }
+            }
+
+            details.displayDetail = detailsBuilder;
+
+            return details;
         }
 
         private string GetSearchOnBehalfOfResultsText(string consumerFormattedOrganisationDetails, string selectedOrganisationType)

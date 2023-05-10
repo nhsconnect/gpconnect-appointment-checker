@@ -22,7 +22,7 @@ namespace gpconnect_appointment_checker.Pages
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("MaxNumberProviderCodesSearch", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE)]
-        [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
+        //[RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ProviderOdsCode { get; set; }
 
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
@@ -113,10 +113,13 @@ namespace gpconnect_appointment_checker.Pages
 
         public bool SlotSearchOk { get; set; } = true;
         public bool CapabilityStatementOk { get; set; } = true;
+
+        public string SearchSummaryDetail { get; set; }
+
         public string ProviderErrorDisplay { get; set; }
         public string ProviderErrorCode { get; set; }
         public string ProviderErrorDiagnostics { get; set; }
-        
+
         public bool LdapErrorRaised { get; set; }
     }
 }

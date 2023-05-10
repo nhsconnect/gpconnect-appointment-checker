@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.EMMA;
-using gpconnect_appointment_checker.Helpers;
+﻿using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +8,12 @@ namespace GpConnect.AppointmentChecker.Models.Search;
 
 public class SearchResultList
 {
+    [JsonProperty("providerOdsCode")]
+    public string ProviderOdsCode { get; set; }
+
+    [JsonProperty("consumerOdsCode")]
+    public string ConsumerOdsCode { get; set; }
+
     [JsonProperty("searchResultsTotalCount")]
     public int SearchResultsTotalCount { get; set; }
 
@@ -70,4 +75,21 @@ public class SearchResultList
 
     [JsonProperty("providerError")]
     public string ProviderError { get; set; }
+
+    [JsonProperty("displayProvider")]
+    public bool DisplayProvider { get; set; }
+
+    [JsonProperty("displayConsumer")]
+    public bool DisplayConsumer { get; set; }
+
+    [JsonProperty("detailsEnabled")]
+    public bool DetailsEnabled { get; set; }
+
+    [JsonProperty("displayConsumerOrganisationType")]
+    public bool DisplayConsumerOrganisationType { get; set; }
+
+    [JsonProperty("searchGroupId")]
+    public int SearchGroupId { get; set; }
+    [JsonProperty("searchResultId")]
+    public int SearchResultId { get; set; }
 }

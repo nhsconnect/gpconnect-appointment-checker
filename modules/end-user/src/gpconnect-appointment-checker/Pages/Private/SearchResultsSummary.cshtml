@@ -13,7 +13,7 @@
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.DisplayProvider)
                         {
-                            <span>@searchResult.ProviderLocationName (@searchResult.ProviderOdsCode)</span>
+                            <span>@searchResult.FormattedProviderOrganisationDetails</span>
                         }
                     </dd>
                     <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
@@ -33,7 +33,7 @@
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.DisplayConsumer)
                         {
-                            <span>@searchResult.ConsumerLocationName (@searchResult.ConsumerOdsCode)</span>
+                            <span>@searchResult.FormattedConsumerOrganisationDetails</span>
                         }
                     </dd>
                     <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
@@ -50,7 +50,12 @@
                 }
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
-                    <dd class="nhsuk-summary-list__value">@Html.Raw(searchResult.SearchSummaryDetail)</dd>
+                    <dd class="nhsuk-summary-list__value">
+                        @foreach(var detail in searchResult.SearchSummaryDetail)
+                        {
+                            <p>@detail</p>
+                        }
+                    </dd>
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {

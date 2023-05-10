@@ -10,5 +10,6 @@ public class SearchRequest
     public string DateRange { get; set; }
     public Uri RequestUri { get; set; }
     public int UserId { get; set; }
+    public int UserSessionId { get; set; }
     public string Sid { get; set; }
 }
