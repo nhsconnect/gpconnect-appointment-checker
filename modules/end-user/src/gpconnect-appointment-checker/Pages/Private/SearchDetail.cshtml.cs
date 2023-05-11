@@ -1,4 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
@@ -17,55 +18,56 @@ namespace gpconnect_appointment_checker.Pages
         protected IHttpContextAccessor _contextAccessor;
         protected ILogger<SearchDetailModel> _logger;
         protected IApplicationService _applicationService;
+        protected ISearchService _searchService;
         protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
 
-        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IApplicationService applicationService, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IApplicationService applicationService, IReportingService reportingService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _applicationService = applicationService;
-            //_auditService = auditService;
-            //_reportingService = reportingService;
+            _searchService = searchService;
             if (null != loggerManager)
             {
                 _loggerManager = loggerManager;
             }
         }
 
-        public IActionResult OnGet(int searchDetailId)
+        public async Task<IActionResult> OnGet(int searchDetailId)
         {
-            GetSearchResults(searchDetailId);
+            await GetSearchResults(searchDetailId);
             return Page();
         }
 
-        private void GetSearchResults(int searchResultId)
+        private async Task GetSearchResults(int searchResultId)
         {
-            var userId = User.GetClaimValue("UserId").StringToInteger();
-            var searchResult = _applicationService.GetSearchResult(searchResultId, userId);
+            var searchResult = await _applicationService.GetSearchResult(searchResultId, UserId);
             if (searchResult != null)
             {
-                //SearchAtResultsText = searchResult.SearchAtResults;
-                //SearchOnBehalfOfResultsText = searchResult.SearchOnBehalfOfResults;
+                SearchAtResultsText = searchResult.SearchAtResults;
+                SearchOnBehalfOfResultsText = searchResult.SearchOnBehalfOfResults;
 
-                //var searchResults = _queryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchResult.ResponsePayload, userId);
+                var searchResponse = await _searchService.ExecuteFreeSlotSearchFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchRequestFromDatabase() { UserId = UserId, SearchResultId = searchResultId });
+
+                SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
+                SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
+                ProviderPublisher = searchResponse.ProviderPublisher;
+
+                SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
+                SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount;
+                SearchResultsPastCount = searchResponse.SearchResultsPastCount;
+
+                SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
+                SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
 
                 //SearchExportId = searchResults.SearchExportId;
-                //SearchResults = new List<List<SlotEntrySimple>>();
-                //SearchResultsPast = new List<List<SlotEntrySimple>>();
 
-                //SearchGroupId = searchResult.SearchGroupId;
-                //SearchResultId = searchResult.SearchResultId;
-                //ProviderPublisher = searchResult.ProviderPublisher;
-                //SearchDuration = searchResult.SearchDurationSeconds;
-
-                //SearchResultsTotalCount = searchResults.SlotCount;
-                //SearchResultsCurrentCount = searchResults.CurrentSlotCount;
-                //SearchResultsPastCount = searchResults.PastSlotCount;
-
-                //SearchResults.AddRange(searchResults.CurrentSlotEntriesByLocationGrouping);
-                //SearchResultsPast.AddRange(searchResults.PastSlotEntriesByLocationGrouping);
+                SearchGroupId = searchResult.SearchGroupId;
+                SearchResultId = searchResult.SearchResultId;
+                ProviderPublisher = searchResult.ProviderPublisher;
+                SearchDuration = searchResult.SearchDurationSeconds;
             }
         }
 

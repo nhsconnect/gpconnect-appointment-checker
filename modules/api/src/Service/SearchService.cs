@@ -1,10 +1,12 @@
 ﻿using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 using GpConnect.AppointmentChecker.Api.DTO.Response;
+using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using System.Diagnostics;
+using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchGroup;
+using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchResult;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -25,9 +27,39 @@ public class SearchService : ISearchService
         _applicationService = applicationService;
     }
 
+    public async Task<SearchResponse> ExecuteFreeSlotSearchFromDatabase(SearchFromDatabaseRequest searchFromDatabaseRequest)
+    {
+        var response = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
+        if (response != null)
+        {
+            var searchResult = await _applicationService.GetSearchResult(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
+            var providerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchResult.ProviderOdsCode);
+            var consumerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchResult.ConsumerOdsCode);
+
+            var searchResponse = new SearchResponse()
+            {
+                SearchResults = response.CurrentSlotEntrySimple,
+                SearchResultsPast = response.PastSlotEntrySimple,
+                ProviderOdsCode = searchResult.ProviderOdsCode,
+                ConsumerOdsCode = searchResult.ConsumerOdsCode,
+                TimeTaken = searchResult.SearchDurationSeconds,
+                ProviderOdsCodeFound = true,
+                ConsumerOdsCodeFound = true,
+                SearchGroupId = searchResult.SearchGroupId,
+                SearchResultId = searchResult.SearchResultId,
+                FormattedProviderOrganisationDetails = providerOrganisationDetails?.OrganisationLocationWithOdsCode,
+                FormattedConsumerOrganisationDetails = consumerOrganisationDetails?.OrganisationLocationWithOdsCode,
+                FormattedConsumerOrganisationType = searchResult.ConsumerOrganisationType
+            };
+
+            return searchResponse;
+        }
+        return null;
+    }
+
     public async Task<List<SearchResponse>> ExecuteSearch(SearchRequest searchRequest)
     {
-        var createdSearchGroup = await AddSearchGroupToSearchResponse(searchRequest);        
+        var createdSearchGroup = await AddSearchGroupToSearchResponse(searchRequest);
 
         var searchResponses = new List<SearchResponse>();
         for (var providerCodeIndex = 0; providerCodeIndex < searchRequest.ProviderOdsCodeAsList.Count; providerCodeIndex++)
@@ -48,11 +80,12 @@ public class SearchService : ISearchService
         var providerOdsCode = searchRequest.ProviderOdsCodeAsList[providerCodeIndex].ToUpper();
         var consumerOdsCode = searchRequest.ConsumerOdsCodeAsList[consumerCodeIndex].ToUpper();
 
-        var searchResponse = new SearchResponse() 
-        { 
-            ProviderOdsCode = providerOdsCode, 
-            ConsumerOdsCode = consumerOdsCode
-        };       
+        var searchResponse = new SearchResponse()
+        {
+            ProviderOdsCode = providerOdsCode,
+            ConsumerOdsCode = consumerOdsCode,
+            SearchGroupId = searchGroupId
+        };
 
         var providerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(providerOdsCode);
         var consumerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(consumerOdsCode);
@@ -96,7 +129,11 @@ public class SearchService : ISearchService
                     if (capabilityStatement.NoIssues)
                     {
                         searchResponse.CapabilityStatementOk = true;
-                        var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchRequest.UserId);
+
+                        var createdSearchResult = await AddSearchResultToSearchGroup(providerOdsCode, consumerOdsCode, searchRequest.ConsumerOrganisationType, searchResponse.SearchGroupId, searchResponse.ProviderPublisher);
+                        searchResponse.SearchResultId = createdSearchResult.SearchResultId;
+
+                        var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchRequest.UserId, searchResponse.SearchResultId);
                         if (searchResults.NoIssues)
                         {
                             searchResponse.SearchResults = searchResults.CurrentSlotEntrySimple;
@@ -125,25 +162,79 @@ public class SearchService : ISearchService
                 }
             }
         }
-        stopwatch.Stop();
-        searchResponse.TimeTaken = stopwatch.Elapsed;
-        searchResponse.SearchGroupId = searchGroupId;
+        
+        var details = GetDetails(providerOdsCode, consumerOdsCode, searchResponse.ProviderEnabledForGpConnectAppointmentManagement, searchResponse.ConsumerEnabledForGpConnectAppointmentManagement, searchResponse.ProviderOdsCodeFound, searchResponse.ConsumerOdsCodeFound, searchResponse.SearchResultsCurrentCount, searchResponse.SearchResultsPastCount, searchResponse.SearchResultsTotalCount, searchResponse.ProviderError, searchResponse.ProviderASIDPresent);
 
-        var createdSearchResult = await AddSearchResultToSearchGroup(providerOdsCode, consumerOdsCode, searchRequest.ConsumerOrganisationType, searchResponse);
-        searchResponse.SearchResultId = createdSearchResult.SearchResultId;
+        searchResponse.DisplayDetails = details.displayDetail;
+        searchResponse.ErrorCode = details.errorCode;
+
+        stopwatch.Stop();
+        searchResponse.TimeTaken = stopwatch.Elapsed.TotalSeconds;
+
+        await _applicationService.UpdateSearchGroup(searchGroupId, searchRequest.UserId);
+        await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse.DisplayDetails, searchResponse.ErrorCode, searchResponse.TimeTaken);
 
         return searchResponse;
     }
 
-    private async Task<DTO.Response.Application.AddSearchResult> AddSearchResultToSearchGroup(string providerOdsCode, string consumerOdsCode, string consumerOrganisationType, SearchResponse searchResponse)
+    struct Details
+    {
+        public string displayDetail;
+        public int errorCode;
+    }
+
+    private Details GetDetails(string providerOdsCode, string consumerOdsCode, bool providerEnabledForGpConnectAppointmentManagement, bool consumerEnabledForGpConnectAppointmentManagement, bool providerOdsCodeFound, bool consumerOdsCodeFound, int? searchResultsCurrentCount, int? searchResultsPastCount, int? searchResultsTotalCount, ProviderError providerError, bool providerAsidFound)
+    {
+        Details details;
+        details.errorCode = 1;
+
+        var detailsBuilder = new List<string>();
+
+        if (!providerOdsCodeFound)
+            detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, providerOdsCode));
+        if (providerOdsCodeFound && !providerEnabledForGpConnectAppointmentManagement)
+            detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, providerOdsCode));
+
+        if (!consumerOdsCodeFound)
+            detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, consumerOdsCode));
+        if (consumerOdsCodeFound && !consumerEnabledForGpConnectAppointmentManagement)
+            detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT, consumerOdsCode));
+
+        if (providerOdsCodeFound && !providerAsidFound)
+            detailsBuilder.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
+
+        if (providerError != null)
+            detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, providerError.Display, providerError.Code));
+
+        if (providerOdsCodeFound && consumerOdsCodeFound)
+        {
+            if (searchResultsTotalCount == 0)
+            {
+                detailsBuilder.Add(SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT);
+            }
+            else
+            {
+                if (searchResultsPastCount > 0)
+                    detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, searchResultsPastCount.Value));
+                if (searchResultsCurrentCount > 0)
+                    detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, searchResultsCurrentCount.Value));
+            }
+            details.errorCode = 0;
+        }
+
+        details.displayDetail = detailsBuilder.ConvertObjectToJsonData();
+        return details;
+    }
+
+    private async Task<DTO.Response.Application.AddSearchResult> AddSearchResultToSearchGroup(string providerOdsCode, string consumerOdsCode, string consumerOrganisationType, int searchGroupId, string providerPublisher)
     {
         var createdSearchResult = await _applicationService.AddSearchResult(new SearchResult
         {
-            SearchGroupId = searchResponse.SearchGroupId,
+            SearchGroupId = searchGroupId,
             ProviderCode = providerOdsCode,
             ConsumerCode = consumerOdsCode,
             ConsumerOrganisationType = consumerOrganisationType,
-            ProviderPublisher = searchResponse.ProviderPublisher            
+            ProviderPublisher = providerPublisher
         });
         return createdSearchResult;
     }

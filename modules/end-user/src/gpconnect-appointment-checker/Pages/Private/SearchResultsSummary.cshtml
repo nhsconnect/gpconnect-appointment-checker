@@ -51,9 +51,12 @@
                 <div class="nhsuk-summary-list__row">
                     <dt class="nhsuk-summary-list__key">@SearchConstants.SEARCHDETAILSLABEL</dt>
                     <dd class="nhsuk-summary-list__value">
-                        @foreach(var detail in searchResult.SearchSummaryDetail)
+                        @if (searchResult.SearchSummaryDetail != null)
                         {
-                            <p>@detail</p>
+                            @foreach (var detail in searchResult.SearchSummaryDetail)
+                            {
+                                <p>@detail</p>
+                            }
                         }
                     </dd>
                     <dd class="nhsuk-summary-list__actions">

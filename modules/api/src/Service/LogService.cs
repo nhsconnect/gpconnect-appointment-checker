@@ -3,6 +3,7 @@ using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using System.Data;
+using SpineMessage = GpConnect.AppointmentChecker.Api.DTO.Request.Logging.SpineMessage;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -13,6 +14,16 @@ public class LogService : ILogService
     public LogService(IDataService dataService)
     {
         _dataService = dataService;
+    }
+
+    public async Task<DTO.Response.Logging.SpineMessage> GetSpineMessageLogBySearchResultId(int searchResultId)
+    {
+        var functionName = "logging.get_spine_message_by_search_result_id";
+        var parameters = new DynamicParameters();
+        parameters.Add("_search_result_id", searchResultId, DbType.Int32);
+
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DTO.Response.Logging.SpineMessage>(functionName, parameters);
+        return result;
     }
 
     public async Task AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)

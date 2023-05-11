@@ -16,4 +16,8 @@ public class SearchConstants
     public const string ISSUEWITHLDAPTEXT = "The SDS server is currently unavailable. Please try your search again.";
 
     public const string SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT = "Organisation Type - {0}";
+
+    public const string SEARCHSTATSCOUNTTEXT = "{0} free slot{1} found";
+    public const string SEARCHSTATSPASTCOUNTTEXT = "{0} past slot{1} found";
+    public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
 }

@@ -1,4 +1,6 @@
 using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
+using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Response;
 
@@ -8,7 +10,7 @@ public class SearchResponse
     public int? SearchResultsCurrentCount => SearchResults?.Count;
     public int? SearchResultsPastCount => SearchResultsPast?.Count;
 
-    public TimeSpan TimeTaken { get; set; }
+    public double TimeTaken { get; set; }
 
     public List<SlotEntrySimple> SearchResults { get; set; }
     public List<SlotEntrySimple> SearchResultsPast { get; set; }
@@ -44,4 +46,8 @@ public class SearchResponse
 
     public bool CapabilityStatementOk { get; set; } = false;
     public bool SlotSearchOk { get; set; } = false;
+
+    public int ErrorCode { get; set; }
+
+    public string DisplayDetails { get; set; }
 }

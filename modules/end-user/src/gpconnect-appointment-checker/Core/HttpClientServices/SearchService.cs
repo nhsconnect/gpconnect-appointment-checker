@@ -1,13 +1,18 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
 using GpConnect.AppointmentChecker.Models.Search;
+using gpconnect_appointment_checker.DTO.Response.GpConnect;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +32,24 @@ public class SearchService : ISearchService
         {
             NullValueHandling = NullValueHandling.Ignore
         };
+    }
+
+    public async Task<SearchResultList> ExecuteFreeSlotSearchFromDatabase(SearchRequestFromDatabase searchRequestFromDatabase)
+    {
+        var query = new Dictionary<string, string?>
+            {
+                { "search_result_id", searchRequestFromDatabase.SearchResultId.ToString() },
+                { "user_id", searchRequestFromDatabase.UserId.ToString() }
+            };
+
+        var request = QueryHelpers.AddQueryString("/search", query);
+
+        var response = await _httpClient.GetAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+
+        var result = JsonConvert.DeserializeObject<SearchResultList>(content, _options);
+        return result;
     }
 
     public async Task<List<SearchResultList>> ExecuteSearch(SearchRequest searchRequest)

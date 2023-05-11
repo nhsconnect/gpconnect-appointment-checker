@@ -24,7 +24,7 @@ public class SearchResultList
     public int SearchResultsPastCount { get; set; }
 
     [JsonProperty("timeTaken")]
-    public TimeSpan TimeTaken { get; set; }
+    public double TimeTaken { get; set; }
 
     public string SearchStats => string.Format(SearchConstants.SEARCHSTATSTEXT, TimeTaken.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"));
 
@@ -92,4 +92,15 @@ public class SearchResultList
     public int SearchGroupId { get; set; }
     [JsonProperty("searchResultId")]
     public int SearchResultId { get; set; }
+
+    [JsonProperty("errorCode")]
+    public int ErrorCode { get; set; }
+
+    public string DisplayClass => ErrorCode == 0 ? "nhsuk-slot-summary" : "nhsuk-slot-summary-error";
+
+    [JsonProperty("displayDetails")]
+    public string DisplayDetails { get; set; }
+
+
+
 }
