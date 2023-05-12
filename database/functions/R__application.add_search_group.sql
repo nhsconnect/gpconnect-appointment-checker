@@ -6,7 +6,7 @@ create function application.add_search_group
 	_consumer_ods_textbox text,
 	_provider_ods_textbox text,
 	_search_date_range text,
-	_search_start_at timestamp,
+	_search_start_at timestamp with time zone,
 	_consumer_organisation_type_dropdown text
 )
 returns table
