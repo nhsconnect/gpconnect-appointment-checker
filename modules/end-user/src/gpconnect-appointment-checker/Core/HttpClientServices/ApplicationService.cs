@@ -63,7 +63,7 @@ public class ApplicationService : IApplicationService
 
     public async Task<Models.SearchGroup> GetSearchGroup(int searchGroupId, int userId)
     {
-        var response = await _httpClient.GetAsync($"/application/searchexport/{searchGroupId}/{userId}");
+        var response = await _httpClient.GetAsync($"/application/searchgroup/{searchGroupId}/{userId}");
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {

@@ -34,6 +34,7 @@ namespace gpconnect_appointment_checker.Pages
         public bool OrgTypeSearchEnabled => _contextAccessor.HttpContext.User.GetClaimValue("OrgTypeSearchEnabled").StringToBoolean(false);
         public bool UserIsAdmin => _contextAccessor.HttpContext.User.GetClaimValue("IsAdmin").StringToBoolean(false);
         public int UserId => _contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger(0);
+        public int UserSessionId => _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0);
         public string Sid => _contextAccessor.HttpContext.User.GetClaimValue("sid");
 
         public bool NoUserPresent => UserId == 0;

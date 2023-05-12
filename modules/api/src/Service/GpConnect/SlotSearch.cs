@@ -29,7 +29,7 @@ public class SlotSearch : ISlotSearch
         _spineMessage = new SpineMessage();
     }
 
-    public async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress)
+    public async Task<SlotSimple> GetFreeSlots(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int searchResultId = 0)
     {
         var getRequest = new HttpRequestMessage();
 
@@ -62,10 +62,11 @@ public class SlotSearch : ISlotSearch
             _spineMessage.ResponseStatus = response.StatusCode.ToString();
             _spineMessage.RequestPayload = getRequest.ToString();
             _spineMessage.ResponseHeaders = response.Headers.ToString();
+            if (searchResultId > 0) _spineMessage.SearchResultId = searchResultId;
 
             stopWatch.Stop();
             _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
-            _logService.AddSpineMessageLog(_spineMessage);
+            await _logService.AddSpineMessageLog(_spineMessage);
 
             var slotSimple = new SlotSimple()
             {

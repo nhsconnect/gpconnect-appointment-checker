@@ -1,10 +1,13 @@
 ﻿using Dapper;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
+using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
-using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
-using GpConnect.AppointmentChecker.Api.Helpers.Enumerations;
+using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using System.Data;
+using SearchExport = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchExport;
+using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchGroup;
+using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchResult;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -88,7 +91,7 @@ public class ApplicationService : IApplicationService
 
         if (searchResult.SpineMessageId != null && result != null)
         {
-            _logService.UpdateSpineMessageLog(searchResult.SpineMessageId.Value, result.SearchResultId);
+            await _logService.UpdateSpineMessageLog(searchResult.SpineMessageId.Value, result.SearchResultId);
         }
         return result;
     }
@@ -146,29 +149,56 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
-    public async Task<List<SlotEntrySummary>> GetSearchResultByGroup(int searchGroupId, int userId)
+    public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId)
+    {
+        var searchResultForGroup = await GetSearchResultForGroup(searchGroupId, userId);
+        var searchResponses = new List<SearchResponse>();
+
+        foreach (var searchResult in searchResultForGroup)
+        {
+            searchResponses.Add(new SearchResponse
+            {
+                ProviderOdsCode = searchResult.ProviderOdsCode,
+                ConsumerOdsCode = searchResult.ConsumerOdsCode,
+                DisplayDetails = searchResult.DisplayDetails,
+                FormattedProviderOrganisationDetails = searchResult.FormattedProviderOrganisationDetails,
+                FormattedConsumerOrganisationDetails = searchResult.FormattedConsumerOrganisationDetails,
+                FormattedConsumerOrganisationType = searchResult.FormattedConsumerOrganisationType                
+            });
+        }
+        return searchResponses;
+    }
+
+    private async Task<List<SearchResponse>> GetSearchResultForGroup(int searchGroupId, int userId)
     {
         var functionName = "application.get_search_result_by_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
         parameters.Add("_user_id", userId);
         var searchResultByGroup = await _dataService.ExecuteQuery<SearchResultByGroup>(functionName, parameters);
-        var slotEntrySummaryList = searchResultByGroup.Select(a => new SlotEntrySummary
+        var searchResponseList = searchResultByGroup.Select(a => new SearchResponse
         {
-            ProviderLocationName = a.ProviderLocation,
             ProviderOdsCode = a.ProviderOdsCode,
-            ConsumerLocationName = a.ConsumerLocation,
             ConsumerOdsCode = a.ConsumerOdsCode,
-            ConsumerOrganisationType = a.ConsumerOrganisationType,
-            SearchSummaryDetail = a.Details,
+            FormattedConsumerOrganisationType = a.ConsumerOrganisationType,
+            FormattedProviderOrganisationDetails = $"{a.ProviderOrganisationName}, {AddressBuilder.GetAddress(a.ProviderAddressFields.ToList(), a.ProviderPostcode)} ({a.ProviderOdsCode})",         
+            FormattedConsumerOrganisationDetails = $"{a.ConsumerOrganisationName}, {AddressBuilder.GetAddress(a.ConsumerAddressFields.ToList(), a.ConsumerPostcode)} ({a.ConsumerOdsCode})",
+            DisplayDetails = a.Details,
             ProviderPublisher = a.ProviderPublisher,
             SearchResultId = a.SearchResultId,
-            SearchGroupId = searchGroupId,
-            DetailsEnabled = a.ErrorCode == (int)ErrorCode.None,
-            DisplayProvider = a.ProviderOrganisationName != null,
-            DisplayConsumer = a.ConsumerOrganisationName != null,
-            DisplayClass = (a.ErrorCode != (int)ErrorCode.None) ? "nhsuk-slot-summary-error" : "nhsuk-slot-summary"
+            SearchGroupId = searchGroupId            
         }).OrderBy(x => x.SearchResultId).ToList();
-        return slotEntrySummaryList;
+        return searchResponseList;
+    }
+
+    public async Task UpdateSearchResult(int searchResultId, string displayDetails, int errorCode, double timeTaken)
+    {
+        var functionName = "application.update_search_result";
+        var parameters = new DynamicParameters();
+        parameters.Add("_search_result_id", searchResultId);
+        parameters.Add("_details", displayDetails);
+        parameters.Add("_error_code", errorCode);
+        parameters.Add("_search_duration_seconds", timeTaken, DbType.Double);
+        await _dataService.ExecuteQuery(functionName, parameters);
     }
 }

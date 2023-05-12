@@ -21,6 +21,8 @@ namespace gpconnect_appointment_checker.Pages
         public List<List<SearchResultEntry>> SearchResultsCurrent { get; set; }
         public List<List<SearchResultEntry>> SearchResultsPast { get; set; }
 
+        public List<SearchResultList> SearchResultsAll { get; set; }
+
         [BindProperty]
         public string? SearchAtResultsText { get; set; }
         [BindProperty]

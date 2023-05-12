@@ -27,4 +27,6 @@ public class Organisation
     public string FormattedOrganisationDetails => $"{OrganisationName} ({OdsCode}) - {AddressBuilder.GetAddress(PostalAddressFields.ToList(), PostalCode)}";
 
     public string OrganisationLocation => $"{OrganisationName}, {AddressBuilder.GetAddress(PostalAddressFields.ToList(), PostalCode)}";
+
+    public string OrganisationLocationWithOdsCode => $"{OrganisationName}, {AddressBuilder.GetAddress(PostalAddressFields.ToList(), PostalCode)} ({OdsCode})";
 }

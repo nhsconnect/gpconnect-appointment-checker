@@ -7,7 +7,7 @@
 
     @if (!Model.IsMultiSearch)
     {
-        @if (Model.SearchResultsTotalCount > 0)
+        @if (Model.SearchResultsCurrent != null || Model.SearchResultsPast != null)
         {
             @if (!Model.ConsumerEnabledForGpConnectAppointmentManagement)
             {
@@ -23,6 +23,18 @@
             <partial name="SearchResults" />
             <partial name="SearchNav" />
             @*<partial name="SearchStats" />*@
+        }
+        else
+        {
+            <partial name="CodeErrorSingle" />
+        }
+    }
+    else
+    {
+        @if (Model.SearchResultsSummary != null)
+        {
+            <partial name="SearchResultsSummary" />
+            <partial name="SearchNav" />
         }
     }
 
@@ -81,7 +93,7 @@
     }
     else
     {
-    <partial name="CodeErrorSingle" />
+    
     }
     }*@
 </form>

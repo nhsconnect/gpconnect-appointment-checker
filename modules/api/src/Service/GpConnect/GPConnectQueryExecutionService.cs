@@ -13,8 +13,9 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
     private readonly ISlotSearch _slotSearch;
     private readonly ISlotSearchFromDatabase _slotSearchFromDatabase;
     private readonly ICapabilityStatement _capabilityStatement;
+    private readonly ILogService _logService;
 
-    public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IApplicationService applicationService, IAuditService auditService, ISlotSearch slotSearch, ISlotSearchFromDatabase slotSearchFromDatabase, ICapabilityStatement capabilityStatement)
+    public GpConnectQueryExecutionService(ILogger<GpConnectQueryExecutionService> logger, IApplicationService applicationService, IAuditService auditService, ISlotSearch slotSearch, ISlotSearchFromDatabase slotSearchFromDatabase, ICapabilityStatement capabilityStatement, ILogService logService)
     {
         _logger = logger;
         _applicationService = applicationService;
@@ -22,11 +23,12 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         _slotSearchFromDatabase = slotSearchFromDatabase;
         _slotSearch = slotSearch;
         _capabilityStatement = capabilityStatement;
+        _logService = logService;
     }
 
-    public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int userId)
+    public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int userId, int searchResultId = 0)
     {
-        var freeSlots = await _slotSearch.GetFreeSlots(requestParameters, startDate, endDate, baseAddress);
+        var freeSlots = await _slotSearch.GetFreeSlots(requestParameters, startDate, endDate, baseAddress, searchResultId);
 
         var searchExport = new SearchExport
         {
@@ -39,18 +41,24 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         return freeSlots;
     }
 
-    public async Task<SlotSimple> ExecuteFreeSlotSearchFromDatabase(string responseStream, int userId)
+    public async Task<SlotSimple> ExecuteFreeSlotSearchFromDatabase(int searchResultId, int userId)
     {
-        var freeSlots = _slotSearchFromDatabase.GetFreeSlotsFromDatabase(responseStream);
-        var searchExport = new SearchExport
+        var spineMessage = await _logService.GetSpineMessageLogBySearchResultId(searchResultId);
+        if (spineMessage != null)
         {
-            SearchExportData = freeSlots.ExportStreamData,
-            UserId = userId
-        };
+            var freeSlots = _slotSearchFromDatabase.GetFreeSlotsFromDatabase(spineMessage.ResponsePayload);
 
-        var searchExportInstance = await _applicationService.AddSearchExport(searchExport);
-        freeSlots.SearchExportId = searchExportInstance.SearchExportId;
-        return freeSlots;
+            var searchExport = new SearchExport
+            {
+                SearchExportData = freeSlots.ExportStreamData,
+                UserId = userId
+            };
+
+            var searchExportInstance = await _applicationService.AddSearchExport(searchExport);
+            freeSlots.SearchExportId = searchExportInstance.SearchExportId;
+            return freeSlots;
+        }
+        return null;
     }
 
     public async Task<DTO.Response.GpConnect.CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)

@@ -26,4 +26,15 @@ public class SearchController : ControllerBase
         var result = await _service.ExecuteSearch(searchRequest);
         return Ok(result);
     }
+
+    [HttpGet()]
+    public async Task<ActionResult> ExecuteFreeSlotSearchFromDatabase([FromQuery] SearchFromDatabaseRequest searchFromDatabaseRequest)
+    {
+        var result = await _service.ExecuteFreeSlotSearchFromDatabase(searchFromDatabaseRequest);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
 }

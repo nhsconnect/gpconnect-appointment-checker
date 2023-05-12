@@ -1,21 +1,18 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace GpConnect.AppointmentChecker.Models;
 
 public class SlotEntrySummary
 {
-    [JsonProperty("providerLocationName")]
-    public string ProviderLocationName { get; set; }
-    [JsonProperty("providerOdsCode")]
     public string ProviderOdsCode { get; set; }
-    [JsonProperty("consumerLocationName")]
-    public string ConsumerLocationName { get; set; }
-    [JsonProperty("consumerOdsCode")]
     public string ConsumerOdsCode { get; set; }
+    public string FormattedProviderOrganisationDetails { get; set; }
+    public string FormattedConsumerOrganisationDetails { get; set; }
     [JsonProperty("consumerOrganisationType")]
     public string ConsumerOrganisationType { get; set; }
     [JsonProperty("searchSummaryDetail")]
-    public string SearchSummaryDetail { get; set; }
+    public List<string> SearchSummaryDetail { get; set; }
     [JsonProperty("searchSummaryAdditionalDetail")]
     public string SearchSummaryAdditionalDetail { get; set; }
     [JsonProperty("providerPublisher")]
