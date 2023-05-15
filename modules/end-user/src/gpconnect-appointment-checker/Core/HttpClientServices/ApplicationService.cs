@@ -1,5 +1,6 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Models.Search;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -109,7 +110,7 @@ public class ApplicationService : IApplicationService
         return JsonConvert.DeserializeObject<Models.SearchResult>(body, _options);
     }
 
-    public async Task<List<SlotEntrySummary>> GetSearchResultByGroup(int searchGroupId, int userId)
+    public async Task<List<SearchResultList>> GetSearchResultByGroup(int searchGroupId, int userId)
     {
         var response = await _httpClient.GetAsync($"/application/searchresultbygroup/{searchGroupId}/{userId}");
 
@@ -122,7 +123,7 @@ public class ApplicationService : IApplicationService
 
         var body = await response.Content.ReadAsStringAsync();
 
-        return JsonConvert.DeserializeObject<List<SlotEntrySummary>>(body, _options);
+        return JsonConvert.DeserializeObject<List<SearchResultList>>(body, _options);
     }
 
     public async Task<Models.SearchExport> AddSearchExport(Models.Request.SearchExport request)

@@ -1,20 +1,12 @@
-using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
-
 namespace GpConnect.AppointmentChecker.Api.DTO.Response;
 
-public class SearchResponse
+public class SearchResponseNoResults
 {
     public int SearchResultsTotalCount => SearchResultsCurrentCount + SearchResultsPastCount;
     public int SearchResultsCurrentCount { get; set; } = 0;
     public int SearchResultsPastCount { get; set; } = 0;
 
     public double TimeTaken { get; set; }
-
-    public List<SlotEntrySimple> SearchResults { get; set; }
-    public List<SlotEntrySimple> SearchResultsPast { get; set; }
-
-    public List<List<SlotEntrySimple>> CurrentSlotEntriesByLocationGrouping => SearchResults?.GroupBy(l => l.LocationName).Select(grp => grp.ToList()).ToList();
-    public List<List<SlotEntrySimple>> PastSlotEntriesByLocationGrouping => SearchResultsPast?.GroupBy(l => l.LocationName).Select(grp => grp.ToList()).ToList();
 
     public bool ProviderOdsCodeFound { get; set; } = false;
     public bool ConsumerOdsCodeFound { get; set; } = false;

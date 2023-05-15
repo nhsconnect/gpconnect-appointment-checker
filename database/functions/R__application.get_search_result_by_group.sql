@@ -18,7 +18,7 @@ returns table
 	consumer_address text,
 	consumer_postcode varchar(200),
 	error_code integer,
-	details character varying(8000),
+	details text,
 	provider_publisher varchar(200),
 	consumer_organisation_type character varying(100)
 )

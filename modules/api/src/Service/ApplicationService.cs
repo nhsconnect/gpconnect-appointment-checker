@@ -4,6 +4,9 @@ using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
+using Newtonsoft.Json;
+using NLog.LayoutRenderers;
+using Notify.Models.Responses;
 using System.Data;
 using SearchExport = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchExport;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchGroup;
@@ -80,13 +83,13 @@ public class ApplicationService : IApplicationService
         var functionName = "application.add_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchResult.SearchGroupId);
-        parameters.Add("_provider_ods_code", searchResult.ProviderCode);
-        parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
-        parameters.Add("_error_code", searchResult.ErrorCode);
-        parameters.Add("_details", searchResult.Details);
-        parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
-        parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
-        parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
+        //parameters.Add("_provider_ods_code", searchResult.ProviderCode);
+        //parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
+        //parameters.Add("_error_code", searchResult.ErrorCode);
+        //parameters.Add("_details", searchResult.Details);
+        //parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
+        //parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
+        //parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
         var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchResult>(functionName, parameters);
 
         if (searchResult.SpineMessageId != null && result != null)
@@ -151,53 +154,78 @@ public class ApplicationService : IApplicationService
 
     public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId)
     {
-        var searchResultForGroup = await GetSearchResultForGroup(searchGroupId, userId);
-        var searchResponses = new List<SearchResponse>();
-
-        foreach (var searchResult in searchResultForGroup)
-        {
-            searchResponses.Add(new SearchResponse
-            {
-                ProviderOdsCode = searchResult.ProviderOdsCode,
-                ConsumerOdsCode = searchResult.ConsumerOdsCode,
-                DisplayDetails = searchResult.DisplayDetails,
-                FormattedProviderOrganisationDetails = searchResult.FormattedProviderOrganisationDetails,
-                FormattedConsumerOrganisationDetails = searchResult.FormattedConsumerOrganisationDetails,
-                FormattedConsumerOrganisationType = searchResult.FormattedConsumerOrganisationType                
-            });
-        }
-        return searchResponses;
-    }
-
-    private async Task<List<SearchResponse>> GetSearchResultForGroup(int searchGroupId, int userId)
-    {
         var functionName = "application.get_search_result_by_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
         parameters.Add("_user_id", userId);
         var searchResultByGroup = await _dataService.ExecuteQuery<SearchResultByGroup>(functionName, parameters);
-        var searchResponseList = searchResultByGroup.Select(a => new SearchResponse
+
+        var searchResponseList = searchResultByGroup.Select(a =>
         {
-            ProviderOdsCode = a.ProviderOdsCode,
-            ConsumerOdsCode = a.ConsumerOdsCode,
-            FormattedConsumerOrganisationType = a.ConsumerOrganisationType,
-            FormattedProviderOrganisationDetails = $"{a.ProviderOrganisationName}, {AddressBuilder.GetAddress(a.ProviderAddressFields.ToList(), a.ProviderPostcode)} ({a.ProviderOdsCode})",         
-            FormattedConsumerOrganisationDetails = $"{a.ConsumerOrganisationName}, {AddressBuilder.GetAddress(a.ConsumerAddressFields.ToList(), a.ConsumerPostcode)} ({a.ConsumerOdsCode})",
-            DisplayDetails = a.Details,
-            ProviderPublisher = a.ProviderPublisher,
-            SearchResultId = a.SearchResultId,
-            SearchGroupId = searchGroupId            
+            var searchResponseNoResults = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details);
+            if (searchResponseNoResults != null)
+            {
+                return new SearchResponse
+                {
+                    SearchResultsCurrentCount = searchResponseNoResults.SearchResultsCurrentCount,
+                    SearchResultsPastCount = searchResponseNoResults.SearchResultsPastCount,
+                    ProviderOdsCodeFound = searchResponseNoResults.ProviderOdsCodeFound,
+                    ConsumerOdsCodeFound = searchResponseNoResults.ConsumerOdsCodeFound,
+                    ProviderOdsCode = searchResponseNoResults.ProviderOdsCode,
+                    ConsumerOdsCode = searchResponseNoResults.ConsumerOdsCode,
+                    FormattedConsumerOrganisationType = searchResponseNoResults.FormattedConsumerOrganisationType,
+                    FormattedProviderOrganisationDetails = searchResponseNoResults.FormattedProviderOrganisationDetails,
+                    FormattedConsumerOrganisationDetails = searchResponseNoResults.FormattedConsumerOrganisationDetails,
+                    DisplayDetails = searchResponseNoResults.DisplayDetails,
+                    ProviderPublisher = searchResponseNoResults.ProviderPublisher,
+                    SearchResultId = searchResponseNoResults.SearchResultId,
+                    SearchGroupId = searchResponseNoResults.SearchGroupId,
+                    TimeTaken = searchResponseNoResults.TimeTaken,
+                    ProviderEnabledForGpConnectAppointmentManagement = searchResponseNoResults.ProviderEnabledForGpConnectAppointmentManagement,
+                    ConsumerEnabledForGpConnectAppointmentManagement = searchResponseNoResults.ConsumerEnabledForGpConnectAppointmentManagement,
+                    ProviderASIDPresent = searchResponseNoResults.ProviderASIDPresent,
+                    CapabilityStatementOk = searchResponseNoResults.CapabilityStatementOk,
+                    SlotSearchOk = searchResponseNoResults.SlotSearchOk,
+                    ErrorCode = searchResponseNoResults.ErrorCode
+                };
+            }
+            return null;
         }).OrderBy(x => x.SearchResultId).ToList();
         return searchResponseList;
     }
 
-    public async Task UpdateSearchResult(int searchResultId, string displayDetails, int errorCode, double timeTaken)
+    public async Task UpdateSearchResult(int searchResultId, SearchResponse searchResponse, double timeTaken)
     {
+        var searchResponseNoResults = new SearchResponseNoResults()
+        {
+            SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount,
+            SearchResultsPastCount = searchResponse.SearchResultsPastCount,
+            TimeTaken = searchResponse.TimeTaken,
+            ProviderOdsCode = searchResponse.ProviderOdsCode,
+            ConsumerOdsCode = searchResponse.ConsumerOdsCode,
+            ProviderOdsCodeFound = searchResponse.ProviderOdsCodeFound,
+            ConsumerOdsCodeFound = searchResponse.ConsumerOdsCodeFound,
+            FormattedProviderOrganisationDetails = searchResponse.FormattedProviderOrganisationDetails,
+            FormattedConsumerOrganisationDetails = searchResponse.FormattedConsumerOrganisationDetails,
+            FormattedConsumerOrganisationType = searchResponse.FormattedConsumerOrganisationType,
+            ProviderPublisher = searchResponse.ProviderPublisher,
+            ProviderError = searchResponse.ProviderError,
+            SearchGroupId = searchResponse.SearchGroupId,
+            SearchResultId = searchResponse.SearchResultId,
+            ProviderASIDPresent = searchResponse.ProviderASIDPresent,
+            ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement,
+            ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement,
+            CapabilityStatementOk = searchResponse.CapabilityStatementOk,
+            SlotSearchOk = searchResponse.SlotSearchOk,
+            DisplayDetails = searchResponse.DisplayDetails,
+            ErrorCode = searchResponse.ErrorCode
+        };
+
         var functionName = "application.update_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_result_id", searchResultId);
-        parameters.Add("_details", displayDetails);
-        parameters.Add("_error_code", errorCode);
+        parameters.Add("_details", JsonConvert.SerializeObject(searchResponseNoResults));
+        parameters.Add("_error_code", 0);
         parameters.Add("_search_duration_seconds", timeTaken, DbType.Double);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
