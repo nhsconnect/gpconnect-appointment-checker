@@ -160,29 +160,36 @@ public class ApplicationService : IApplicationService
         parameters.Add("_user_id", userId);
         var searchResultByGroup = await _dataService.ExecuteQuery<SearchResultByGroup>(functionName, parameters);
 
-        var searchResponseList = searchResultByGroup.Select(a => new SearchResponse
-        {   
-            SearchResultsCurrentCount = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultsCurrentCount,
-            SearchResultsPastCount = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultsPastCount,
-            ProviderOdsCodeFound = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderOdsCodeFound,
-            ConsumerOdsCodeFound = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerOdsCodeFound,
-            ProviderOdsCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderOdsCode,
-            ConsumerOdsCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerOdsCode,
-            FormattedConsumerOrganisationType = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedConsumerOrganisationType,
-            FormattedProviderOrganisationDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedProviderOrganisationDetails,
-            FormattedConsumerOrganisationDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedConsumerOrganisationDetails,
-            DisplayDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).DisplayDetails,
-            ProviderPublisher = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderPublisher,
-            SearchResultId = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultId,
-            SearchGroupId = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchGroupId,
-            TimeTaken = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).TimeTaken,
-            ProviderEnabledForGpConnectAppointmentManagement = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderEnabledForGpConnectAppointmentManagement,
-            ConsumerEnabledForGpConnectAppointmentManagement = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerEnabledForGpConnectAppointmentManagement,
-            ProviderASIDPresent = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderASIDPresent,
-            CapabilityStatementOk = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).CapabilityStatementOk,
-            SlotSearchOk = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SlotSearchOk,
-            ErrorCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ErrorCode,
-
+        var searchResponseList = searchResultByGroup.Select(a =>
+        {
+            var searchResponseNoResults = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details);
+            if (searchResponseNoResults != null)
+            {
+                return new SearchResponse
+                {
+                    SearchResultsCurrentCount = searchResponseNoResults.SearchResultsCurrentCount,
+                    SearchResultsPastCount = searchResponseNoResults.SearchResultsPastCount,
+                    ProviderOdsCodeFound = searchResponseNoResults.ProviderOdsCodeFound,
+                    ConsumerOdsCodeFound = searchResponseNoResults.ConsumerOdsCodeFound,
+                    ProviderOdsCode = searchResponseNoResults.ProviderOdsCode,
+                    ConsumerOdsCode = searchResponseNoResults.ConsumerOdsCode,
+                    FormattedConsumerOrganisationType = searchResponseNoResults.FormattedConsumerOrganisationType,
+                    FormattedProviderOrganisationDetails = searchResponseNoResults.FormattedProviderOrganisationDetails,
+                    FormattedConsumerOrganisationDetails = searchResponseNoResults.FormattedConsumerOrganisationDetails,
+                    DisplayDetails = searchResponseNoResults.DisplayDetails,
+                    ProviderPublisher = searchResponseNoResults.ProviderPublisher,
+                    SearchResultId = searchResponseNoResults.SearchResultId,
+                    SearchGroupId = searchResponseNoResults.SearchGroupId,
+                    TimeTaken = searchResponseNoResults.TimeTaken,
+                    ProviderEnabledForGpConnectAppointmentManagement = searchResponseNoResults.ProviderEnabledForGpConnectAppointmentManagement,
+                    ConsumerEnabledForGpConnectAppointmentManagement = searchResponseNoResults.ConsumerEnabledForGpConnectAppointmentManagement,
+                    ProviderASIDPresent = searchResponseNoResults.ProviderASIDPresent,
+                    CapabilityStatementOk = searchResponseNoResults.CapabilityStatementOk,
+                    SlotSearchOk = searchResponseNoResults.SlotSearchOk,
+                    ErrorCode = searchResponseNoResults.ErrorCode
+                };
+            }
+            return null;
         }).OrderBy(x => x.SearchResultId).ToList();
         return searchResponseList;
     }
