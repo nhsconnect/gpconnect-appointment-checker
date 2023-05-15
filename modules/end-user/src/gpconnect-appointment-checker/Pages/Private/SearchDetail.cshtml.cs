@@ -1,9 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -64,10 +61,9 @@ namespace gpconnect_appointment_checker.Pages
 
                 //SearchExportId = searchResults.SearchExportId;
 
-                SearchGroupId = searchResult.SearchGroupId;
-                SearchResultId = searchResult.SearchResultId;
-                ProviderPublisher = searchResult.ProviderPublisher;
-                SearchDuration = searchResult.SearchDurationSeconds;
+                SearchGroupId = searchResponse.SearchGroupId;
+                SearchResultId = searchResponse.SearchResultId;
+                SearchDuration = searchResponse.TimeTaken;
             }
         }
 

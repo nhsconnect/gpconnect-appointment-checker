@@ -4,6 +4,7 @@ using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchResult;
@@ -33,26 +34,39 @@ public class SearchService : ISearchService
         if (response != null)
         {
             var searchResult = await _applicationService.GetSearchResult(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
-            var providerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchResult.ProviderOdsCode);
-            var consumerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(searchResult.ConsumerOdsCode);
 
-            var searchResponse = new SearchResponse()
+            var searchResultNoResults = JsonConvert.DeserializeObject<SearchResponseNoResults>(searchResult.Details);
+            if (searchResultNoResults != null)
             {
-                SearchResults = response.CurrentSlotEntrySimple,
-                SearchResultsPast = response.PastSlotEntrySimple,
-                ProviderOdsCode = searchResult.ProviderOdsCode,
-                ConsumerOdsCode = searchResult.ConsumerOdsCode,
-                TimeTaken = searchResult.SearchDurationSeconds,
-                ProviderOdsCodeFound = true,
-                ConsumerOdsCodeFound = true,
-                SearchGroupId = searchResult.SearchGroupId,
-                SearchResultId = searchResult.SearchResultId,
-                FormattedProviderOrganisationDetails = providerOrganisationDetails?.OrganisationLocationWithOdsCode,
-                FormattedConsumerOrganisationDetails = consumerOrganisationDetails?.OrganisationLocationWithOdsCode,
-                FormattedConsumerOrganisationType = searchResult.ConsumerOrganisationType
-            };
+                var searchResponse = new SearchResponse()
+                {
+                    SearchResultsCurrentCount = searchResultNoResults.SearchResultsCurrentCount,
+                    SearchResultsPastCount = searchResultNoResults.SearchResultsPastCount,
+                    SearchResults = response.CurrentSlotEntrySimple,
+                    SearchResultsPast = response.PastSlotEntrySimple,
+                    ProviderOdsCode = searchResultNoResults.ProviderOdsCode,
+                    ConsumerOdsCode = searchResultNoResults.ConsumerOdsCode,
+                    TimeTaken = searchResultNoResults.TimeTaken,
+                    ProviderOdsCodeFound = searchResultNoResults.ProviderOdsCodeFound,
+                    ConsumerOdsCodeFound = searchResultNoResults.ConsumerOdsCodeFound,
+                    SearchGroupId = searchResultNoResults.SearchGroupId,
+                    SearchResultId = searchResultNoResults.SearchResultId,
+                    FormattedProviderOrganisationDetails = searchResultNoResults.FormattedProviderOrganisationDetails,
+                    FormattedConsumerOrganisationDetails = searchResultNoResults.FormattedConsumerOrganisationDetails,
+                    FormattedConsumerOrganisationType = searchResultNoResults.FormattedConsumerOrganisationType,
+                    DisplayDetails = searchResultNoResults.DisplayDetails,
+                    ErrorCode = searchResultNoResults.ErrorCode,
+                    ProviderASIDPresent = searchResultNoResults.ProviderASIDPresent,
+                    ProviderEnabledForGpConnectAppointmentManagement = searchResultNoResults.ProviderEnabledForGpConnectAppointmentManagement,
+                    ConsumerEnabledForGpConnectAppointmentManagement = searchResultNoResults.ConsumerEnabledForGpConnectAppointmentManagement,
+                    CapabilityStatementOk = searchResultNoResults.CapabilityStatementOk,
+                    SlotSearchOk = searchResultNoResults.SlotSearchOk,
+                    ProviderError = searchResultNoResults.ProviderError,
+                    ProviderPublisher = searchResultNoResults.ProviderPublisher
+                };
 
-            return searchResponse;
+                return searchResponse;
+            }
         }
         return null;
     }
@@ -87,6 +101,9 @@ public class SearchService : ISearchService
             SearchGroupId = searchGroupId
         };
 
+        var createdSearchResult = await AddSearchResultToSearchGroup(searchResponse.SearchGroupId);
+        searchResponse.SearchResultId = createdSearchResult.SearchResultId;
+
         var providerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(providerOdsCode);
         var consumerOrganisationDetails = await _spineService.GetOrganisationDetailsByOdsCodeAsync(consumerOdsCode);
 
@@ -97,8 +114,8 @@ public class SearchService : ISearchService
         searchResponse.FormattedConsumerOrganisationDetails = consumerOrganisationDetails?.OrganisationLocationWithOdsCode;
         searchResponse.FormattedConsumerOrganisationType = searchRequest.ConsumerOrganisationType;
 
-        var providerSpineDetails = await _spineService.GetProviderDetails(searchRequest.ProviderOdsCodeAsList[providerCodeIndex].ToUpper());
-        var consumerSpineDetails = await _spineService.GetConsumerDetails(searchRequest.ConsumerOdsCodeAsList[consumerCodeIndex].ToUpper());
+        var providerSpineDetails = await _spineService.GetProviderDetails(providerOdsCode);
+        var consumerSpineDetails = await _spineService.GetConsumerDetails(consumerOdsCode);
 
         searchResponse.ProviderEnabledForGpConnectAppointmentManagement = providerSpineDetails != null;
         searchResponse.ConsumerEnabledForGpConnectAppointmentManagement = (consumerSpineDetails != null && consumerSpineDetails.HasAsId) || !string.IsNullOrWhiteSpace(searchRequest.ConsumerOrganisationType);
@@ -130,12 +147,11 @@ public class SearchService : ISearchService
                     {
                         searchResponse.CapabilityStatementOk = true;
 
-                        var createdSearchResult = await AddSearchResultToSearchGroup(providerOdsCode, consumerOdsCode, searchRequest.ConsumerOrganisationType, searchResponse.SearchGroupId, searchResponse.ProviderPublisher);
-                        searchResponse.SearchResultId = createdSearchResult.SearchResultId;
-
                         var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchRequest.UserId, searchResponse.SearchResultId);
                         if (searchResults.NoIssues)
                         {
+                            searchResponse.SearchResultsCurrentCount = searchResults.CurrentSlotEntrySimple.Count;
+                            searchResponse.SearchResultsPastCount = searchResults.PastSlotEntrySimple.Count;
                             searchResponse.SearchResults = searchResults.CurrentSlotEntrySimple;
                             searchResponse.SearchResultsPast = searchResults.PastSlotEntrySimple;
                             searchResponse.SlotSearchOk = true;
@@ -172,7 +188,7 @@ public class SearchService : ISearchService
         searchResponse.TimeTaken = stopwatch.Elapsed.TotalSeconds;
 
         await _applicationService.UpdateSearchGroup(searchGroupId, searchRequest.UserId);
-        await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse.DisplayDetails, searchResponse.ErrorCode, searchResponse.TimeTaken);
+        await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
 
         return searchResponse;
     }
@@ -226,15 +242,15 @@ public class SearchService : ISearchService
         return details;
     }
 
-    private async Task<DTO.Response.Application.AddSearchResult> AddSearchResultToSearchGroup(string providerOdsCode, string consumerOdsCode, string consumerOrganisationType, int searchGroupId, string providerPublisher)
+    private async Task<DTO.Response.Application.AddSearchResult> AddSearchResultToSearchGroup(/*string providerOdsCode, string consumerOdsCode, string consumerOrganisationType, */int searchGroupId)
     {
         var createdSearchResult = await _applicationService.AddSearchResult(new SearchResult
         {
             SearchGroupId = searchGroupId,
-            ProviderCode = providerOdsCode,
-            ConsumerCode = consumerOdsCode,
-            ConsumerOrganisationType = consumerOrganisationType,
-            ProviderPublisher = providerPublisher
+            //ProviderCode = providerOdsCode,
+            //ConsumerCode = consumerOdsCode,
+            //ConsumerOrganisationType = consumerOrganisationType
+            //ProviderPublisher = providerPublisher
         });
         return createdSearchResult;
     }

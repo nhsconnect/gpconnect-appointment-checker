@@ -1,4 +1,5 @@
 using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Models.Search;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,5 +16,5 @@ public interface IApplicationService
     Task<SearchGroupExport> GetSearchGroupExport(int searchGroupId, int userId);
     Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId);
     Task<SearchResult> GetSearchResult(int searchResultId, int userId);
-    Task<List<SlotEntrySummary>> GetSearchResultByGroup(int searchGroupId, int userId);
+    Task<List<SearchResultList>> GetSearchResultByGroup(int searchGroupId, int userId);
 }

@@ -112,7 +112,27 @@ namespace gpconnect_appointment_checker.Pages
         {
             var searchResultsForGroup = await _applicationService.GetSearchResultByGroup(searchGroupId, UserId);
             IsMultiSearch = true;
-            SearchResultsSummary = searchResultsForGroup;
+
+            var slotEntrySummaryList = new List<SlotEntrySummary>();
+
+            slotEntrySummaryList.AddRange(searchResultsForGroup.Select(x => new SlotEntrySummary()
+            {
+                DisplayProvider = x.DisplayProvider,
+                FormattedProviderOrganisationDetails = x.FormattedProviderOrganisationDetails,
+                ProviderPublisher = x.ProviderPublisher,
+                DisplayConsumer = x.DisplayConsumer,
+                FormattedConsumerOrganisationDetails = x.FormattedConsumerOrganisationDetails,
+                DisplayConsumerOrganisationType = x.DisplayConsumerOrganisationType,
+                ConsumerOrganisationType = x.FormattedConsumerOrganisationType,
+                DetailsEnabled = x.DetailsEnabled,
+                ProviderOdsCode = x.ProviderOdsCode,
+                ConsumerOdsCode = x.ConsumerOdsCode,
+                SearchGroupId = x.SearchGroupId,
+                SearchResultId = x.SearchResultId,
+                SearchSummaryDetail = JsonConvert.DeserializeObject<List<string>>(x.DisplayDetails),
+                DisplayClass = x.DisplayClass
+            }));
+            SearchResultsSummary = slotEntrySummaryList;
         }
 
         private void CheckInputs()

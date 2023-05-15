@@ -4,6 +4,9 @@ using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
+using Newtonsoft.Json;
+using NLog.LayoutRenderers;
+using Notify.Models.Responses;
 using System.Data;
 using SearchExport = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchExport;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchGroup;
@@ -80,13 +83,13 @@ public class ApplicationService : IApplicationService
         var functionName = "application.add_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchResult.SearchGroupId);
-        parameters.Add("_provider_ods_code", searchResult.ProviderCode);
-        parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
-        parameters.Add("_error_code", searchResult.ErrorCode);
-        parameters.Add("_details", searchResult.Details);
-        parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
-        parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
-        parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
+        //parameters.Add("_provider_ods_code", searchResult.ProviderCode);
+        //parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
+        //parameters.Add("_error_code", searchResult.ErrorCode);
+        //parameters.Add("_details", searchResult.Details);
+        //parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
+        //parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
+        //parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
         var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchResult>(functionName, parameters);
 
         if (searchResult.SpineMessageId != null && result != null)
@@ -151,53 +154,71 @@ public class ApplicationService : IApplicationService
 
     public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId)
     {
-        var searchResultForGroup = await GetSearchResultForGroup(searchGroupId, userId);
-        var searchResponses = new List<SearchResponse>();
-
-        foreach (var searchResult in searchResultForGroup)
-        {
-            searchResponses.Add(new SearchResponse
-            {
-                ProviderOdsCode = searchResult.ProviderOdsCode,
-                ConsumerOdsCode = searchResult.ConsumerOdsCode,
-                DisplayDetails = searchResult.DisplayDetails,
-                FormattedProviderOrganisationDetails = searchResult.FormattedProviderOrganisationDetails,
-                FormattedConsumerOrganisationDetails = searchResult.FormattedConsumerOrganisationDetails,
-                FormattedConsumerOrganisationType = searchResult.FormattedConsumerOrganisationType                
-            });
-        }
-        return searchResponses;
-    }
-
-    private async Task<List<SearchResponse>> GetSearchResultForGroup(int searchGroupId, int userId)
-    {
         var functionName = "application.get_search_result_by_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
         parameters.Add("_user_id", userId);
         var searchResultByGroup = await _dataService.ExecuteQuery<SearchResultByGroup>(functionName, parameters);
+
         var searchResponseList = searchResultByGroup.Select(a => new SearchResponse
-        {
-            ProviderOdsCode = a.ProviderOdsCode,
-            ConsumerOdsCode = a.ConsumerOdsCode,
-            FormattedConsumerOrganisationType = a.ConsumerOrganisationType,
-            FormattedProviderOrganisationDetails = $"{a.ProviderOrganisationName}, {AddressBuilder.GetAddress(a.ProviderAddressFields.ToList(), a.ProviderPostcode)} ({a.ProviderOdsCode})",         
-            FormattedConsumerOrganisationDetails = $"{a.ConsumerOrganisationName}, {AddressBuilder.GetAddress(a.ConsumerAddressFields.ToList(), a.ConsumerPostcode)} ({a.ConsumerOdsCode})",
-            DisplayDetails = a.Details,
-            ProviderPublisher = a.ProviderPublisher,
-            SearchResultId = a.SearchResultId,
-            SearchGroupId = searchGroupId            
+        {   
+            SearchResultsCurrentCount = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultsCurrentCount,
+            SearchResultsPastCount = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultsPastCount,
+            ProviderOdsCodeFound = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderOdsCodeFound,
+            ConsumerOdsCodeFound = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerOdsCodeFound,
+            ProviderOdsCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderOdsCode,
+            ConsumerOdsCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerOdsCode,
+            FormattedConsumerOrganisationType = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedConsumerOrganisationType,
+            FormattedProviderOrganisationDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedProviderOrganisationDetails,
+            FormattedConsumerOrganisationDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).FormattedConsumerOrganisationDetails,
+            DisplayDetails = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).DisplayDetails,
+            ProviderPublisher = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderPublisher,
+            SearchResultId = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchResultId,
+            SearchGroupId = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SearchGroupId,
+            TimeTaken = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).TimeTaken,
+            ProviderEnabledForGpConnectAppointmentManagement = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderEnabledForGpConnectAppointmentManagement,
+            ConsumerEnabledForGpConnectAppointmentManagement = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ConsumerEnabledForGpConnectAppointmentManagement,
+            ProviderASIDPresent = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ProviderASIDPresent,
+            CapabilityStatementOk = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).CapabilityStatementOk,
+            SlotSearchOk = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).SlotSearchOk,
+            ErrorCode = JsonConvert.DeserializeObject<SearchResponseNoResults>(a.Details).ErrorCode,
+
         }).OrderBy(x => x.SearchResultId).ToList();
         return searchResponseList;
     }
 
-    public async Task UpdateSearchResult(int searchResultId, string displayDetails, int errorCode, double timeTaken)
+    public async Task UpdateSearchResult(int searchResultId, SearchResponse searchResponse, double timeTaken)
     {
+        var searchResponseNoResults = new SearchResponseNoResults()
+        {
+            SearchResultsCurrentCount = searchResponse.SearchResultsCurrentCount,
+            SearchResultsPastCount = searchResponse.SearchResultsPastCount,
+            TimeTaken = searchResponse.TimeTaken,
+            ProviderOdsCode = searchResponse.ProviderOdsCode,
+            ConsumerOdsCode = searchResponse.ConsumerOdsCode,
+            ProviderOdsCodeFound = searchResponse.ProviderOdsCodeFound,
+            ConsumerOdsCodeFound = searchResponse.ConsumerOdsCodeFound,
+            FormattedProviderOrganisationDetails = searchResponse.FormattedProviderOrganisationDetails,
+            FormattedConsumerOrganisationDetails = searchResponse.FormattedConsumerOrganisationDetails,
+            FormattedConsumerOrganisationType = searchResponse.FormattedConsumerOrganisationType,
+            ProviderPublisher = searchResponse.ProviderPublisher,
+            ProviderError = searchResponse.ProviderError,
+            SearchGroupId = searchResponse.SearchGroupId,
+            SearchResultId = searchResponse.SearchResultId,
+            ProviderASIDPresent = searchResponse.ProviderASIDPresent,
+            ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement,
+            ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement,
+            CapabilityStatementOk = searchResponse.CapabilityStatementOk,
+            SlotSearchOk = searchResponse.SlotSearchOk,
+            DisplayDetails = searchResponse.DisplayDetails,
+            ErrorCode = searchResponse.ErrorCode
+        };
+
         var functionName = "application.update_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_result_id", searchResultId);
-        parameters.Add("_details", displayDetails);
-        parameters.Add("_error_code", errorCode);
+        parameters.Add("_details", JsonConvert.SerializeObject(searchResponseNoResults));
+        parameters.Add("_error_code", 0);
         parameters.Add("_search_duration_seconds", timeTaken, DbType.Double);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
