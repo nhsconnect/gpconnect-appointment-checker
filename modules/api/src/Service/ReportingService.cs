@@ -12,26 +12,21 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 public class ReportingService : IReportingService
 {
     private readonly IDataService _dataService;
-    private readonly ILogService _logService;
-    private string _reportName;
 
-    public ReportingService(IDataService dataService, ILogService logService)
+    public ReportingService(IDataService dataService)
     {
         _dataService = dataService;
-        _logService = logService;
     }
 
-    public async Task<MemoryStream> ExportByReportName(string functionName, string reportName)
+    public async Task<MemoryStream> ExportByReportName(string functionName, string reportName = "")
     {
-        _reportName = reportName;
         var result = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{functionName}");
-        var spreadsheetDocument = CreateReport(result);
+        var spreadsheetDocument = CreateReport(result, reportName);
         return spreadsheetDocument;
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, int userId, string reportName)
     {
-        _reportName = reportName;
         var parameters = new Dictionary<string, int>
             {
                 { "_user_id", userId },
@@ -56,7 +51,7 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    private MemoryStream CreateReport(DataTable result)
+    public MemoryStream CreateReport(DataTable result, string reportName = "")
     {
         var memoryStream = new MemoryStream();
         var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
@@ -83,12 +78,12 @@ public class ReportingService : IReportingService
         {
             Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
             SheetId = 1,
-            Name = _reportName
+            Name = reportName
         };
 
         sheets.AppendChild(sheet);
 
-        BuildWorksheetHeader(sheetData);
+        BuildWorksheetHeader(sheetData, reportName);
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
 
@@ -155,13 +150,13 @@ public class ReportingService : IReportingService
         sheetData.AppendChild(headerRow);
     }
 
-    private void BuildWorksheetHeader(SheetData sheetData)
+    private void BuildWorksheetHeader(SheetData sheetData, string reportName)
     {
         var row1 = new Row { Height = 55 };
         var titleCell = new Cell
         {
             DataType = CellValues.String,
-            CellValue = new CellValue(_reportName),
+            CellValue = new CellValue(reportName),
             StyleIndex = 1
         };
 
@@ -172,7 +167,7 @@ public class ReportingService : IReportingService
         var subTitleCell = new Cell
         {
             DataType = CellValues.String,
-            CellValue = new CellValue($"Report generated at {DateTime.Now:F}"),
+            CellValue = new CellValue($"Report generated on {DateTime.Now:D} at {DateTime.Now:T}"),
             StyleIndex = 3
         };
         row2.AppendChild(subTitleCell);

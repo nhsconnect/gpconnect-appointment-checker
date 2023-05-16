@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using GpConnect.AppointmentChecker.Core.Configuration;
+﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers;
@@ -15,7 +14,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -23,15 +21,16 @@ namespace gpconnect_appointment_checker.Pages
     public partial class SearchModel : SearchBaseModel
     {
         private readonly IApplicationService _applicationService;
+        private readonly IExportService _exportService;
         private readonly IConfigurationService _configurationService;
         private readonly ISearchService _searchService;
-        private readonly List<SlotEntrySummary> _searchResultsSummaryDataTable;
 
-        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IApplicationService applicationService, IReportingService reportingService, IConfigurationService configurationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IExportService exportService, IApplicationService applicationService, IConfigurationService configurationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _applicationService = applicationService;
             _configurationService = configurationService;
             _searchService = searchService;
+            _exportService = exportService;
         }
 
         public async Task<IActionResult> OnGet(string providerOdsCode, string consumerOdsCode)
@@ -94,18 +93,26 @@ namespace gpconnect_appointment_checker.Pages
             return Page();
         }
 
-        public async Task<FileStreamResult> OnPostExportSearchResults(int searchexportid)
+        public async Task<FileStreamResult> OnPostExportSearchResult(int searchResultId)
         {
-            var exportTable = await _applicationService.GetSearchExport(searchexportid, UserId);
-            //return ExportResult(exportTable);
-            return null;
+            var filestream = await _exportService.ExportSearchResultFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport() 
+            {
+                ExportRequestId = searchResultId, 
+                UserId = UserId,
+                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+            });
+            return filestream;
         }
 
-        public async Task<FileStreamResult> OnPostExportSearchGroupResults(int searchgroupid)
+        public async Task<FileStreamResult> OnPostExportSearchGroupResults(int searchGroupId)
         {
-            var exportTable = await _applicationService.GetSearchGroupExport(searchgroupid, UserId);
-            //return ExportResult(exportTable);
-            return null;
+            var filestream = await _exportService.ExportSearchGroupFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport()
+            {
+                ExportRequestId = searchGroupId,
+                UserId = UserId,
+                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+            });
+            return filestream;
         }
 
         private async Task PopulateSearchResultsForGroup(int searchGroupId)
@@ -187,6 +194,9 @@ namespace gpconnect_appointment_checker.Pages
 
                 SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
                 SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
+
+                SearchGroupId = searchResponse.SearchGroupId;
+                SearchResultId = searchResponse.SearchResultId;
             }
             else
             {

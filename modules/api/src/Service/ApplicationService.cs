@@ -99,48 +99,48 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
-    public async Task<AddSearchExport> AddSearchExport(DTO.Request.Application.SearchExport searchExport)
-    {
-        var functionName = "application.add_search_export";
-        var parameters = new DynamicParameters();
-        parameters.Add("_search_export_data", searchExport.SearchExportData);
-        parameters.Add("_user_id", searchExport.UserId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchExport>(functionName, parameters);
-        return result;
-    }
+    //public async Task<AddSearchExport> AddSearchExport(DTO.Request.Application.SearchExport searchExport)
+    //{
+    //    var functionName = "application.add_search_export";
+    //    var parameters = new DynamicParameters();
+    //    parameters.Add("_search_export_data", searchExport.SearchExportData);
+    //    parameters.Add("_user_id", searchExport.UserId);
+    //    var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchExport>(functionName, parameters);
+    //    return result;
+    //}
 
-    public async Task<SearchExport> GetSearchExport(int searchExportId, int userId)
-    {
-        var functionName = "application.get_search_export";
-        var parameters = new DynamicParameters();
-        parameters.Add("_search_export_id", searchExportId);
-        parameters.Add("_user_id", userId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<SearchExport>(functionName, parameters);
-        //return result.SearchExportData.ConvertJsonDataToDataTable();
-        return result;
-    }
+    //public async Task<SearchExport> GetSearchExport(int searchExportId, int userId)
+    //{
+    //    var functionName = "application.get_search_export";
+    //    var parameters = new DynamicParameters();
+    //    parameters.Add("_search_export_id", searchExportId);
+    //    parameters.Add("_user_id", userId);
+    //    var result = await _dataService.ExecuteQueryFirstOrDefault<SearchExport>(functionName, parameters);
+    //    //return result.SearchExportData.ConvertJsonDataToDataTable();
+    //    return result;
+    //}
 
-    public async Task<List<SearchGroupExport>> GetSearchGroupExport(int searchGroupId, int userId)
-    {
-        var functionName = "application.get_search_result_by_group";
-        var parameters = new DynamicParameters();
-        parameters.Add("_search_group_id", searchGroupId);
-        parameters.Add("_user_id", userId);
-        var result = await _dataService.ExecuteQuery<SearchGroupExport>(functionName, parameters);
-        return result;
-        //var json = result.ConvertObjectToJsonData();
-        //return json.ConvertJsonDataToDataTable();
-    }
+    //public async Task<List<SearchGroupExport>> GetSearchGroupExport(int searchGroupId, int userId)
+    //{
+    //    var functionName = "application.get_search_result_by_group";
+    //    var parameters = new DynamicParameters();
+    //    parameters.Add("_search_group_id", searchGroupId);
+    //    parameters.Add("_user_id", userId);
+    //    var result = await _dataService.ExecuteQuery<SearchGroupExport>(functionName, parameters);
+    //    return result;
+    //    //var json = result.ConvertObjectToJsonData();
+    //    //return json.ConvertJsonDataToDataTable();
+    //}
 
-    public async Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId)
-    {
-        var functionName = "application.get_search_group";
-        var parameters = new DynamicParameters();
-        parameters.Add("_search_group_id", searchGroupId);
-        parameters.Add("_user_id", userId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<SearchGroup>(functionName, parameters);
-        return result;
-    }
+    //public async Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId)
+    //{
+    //    var functionName = "application.get_search_group";
+    //    var parameters = new DynamicParameters();
+    //    parameters.Add("_search_group_id", searchGroupId);
+    //    parameters.Add("_user_id", userId);
+    //    var result = await _dataService.ExecuteQueryFirstOrDefault<SearchGroup>(functionName, parameters);
+    //    return result;
+    //}
 
     public async Task<SearchResult> GetSearchResult(int searchResultId, int userId)
     {

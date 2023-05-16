@@ -30,6 +30,7 @@ public static class HttpClientExtensions
         services.AddHttpClient<ITokenService, TokenService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<IUserService, UserService>(httpClientConfig).AugmentHttpClientBuilder(env);      
         services.AddHttpClient<ISearchService, SearchService>(httpClientConfig).AugmentHttpClientBuilder(env);
+        services.AddHttpClient<IExportService, ExportService>(httpClientConfig).AugmentHttpClientBuilder(env);
     }
 
     private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder, IWebHostEnvironment env)

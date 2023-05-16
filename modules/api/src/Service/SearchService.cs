@@ -30,7 +30,7 @@ public class SearchService : ISearchService
 
     public async Task<SearchResponse> ExecuteFreeSlotSearchFromDatabase(SearchFromDatabaseRequest searchFromDatabaseRequest)
     {
-        var response = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchFromDatabase(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
+        var response = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchResultFromDatabase(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
         if (response != null)
         {
             var searchResult = await _applicationService.GetSearchResult(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);

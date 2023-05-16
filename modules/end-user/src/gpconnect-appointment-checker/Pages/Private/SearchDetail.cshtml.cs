@@ -1,6 +1,7 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,10 +17,10 @@ namespace gpconnect_appointment_checker.Pages
         protected ILogger<SearchDetailModel> _logger;
         protected IApplicationService _applicationService;
         protected ISearchService _searchService;
-        protected IReportingService _reportingService;
         protected readonly ILoggerManager _loggerManager;
+        private readonly IExportService _exportService;
 
-        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IApplicationService applicationService, IReportingService reportingService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor, reportingService)
+        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IExportService exportService, IApplicationService applicationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -30,6 +31,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 _loggerManager = loggerManager;
             }
+            _exportService = exportService;
         }
 
         public async Task<IActionResult> OnGet(int searchDetailId)
@@ -59,19 +61,21 @@ namespace gpconnect_appointment_checker.Pages
                 SearchResultsCurrent = searchResponse.CurrentSlotEntriesByLocationGrouping;
                 SearchResultsPast = searchResponse.PastSlotEntriesByLocationGrouping;
 
-                //SearchExportId = searchResults.SearchExportId;
-
                 SearchGroupId = searchResponse.SearchGroupId;
                 SearchResultId = searchResponse.SearchResultId;
                 SearchDuration = searchResponse.TimeTaken;
             }
         }
 
-        public async Task<FileStreamResult> OnPostExportSearchResults(int searchexportid)
+        public async Task<FileStreamResult> OnPostExportSearchResult(int searchResultId)
         {
-            var exportTable = await _applicationService.GetSearchExport(searchexportid, UserId);
-            //return ExportResult(exportTable);
-            return null;
+            var filestream = await _exportService.ExportSearchResultFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport()
+            {
+                ExportRequestId = searchResultId,
+                UserId = UserId,
+                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+            });
+            return filestream;
         }
     }
 }
