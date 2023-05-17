@@ -3,5 +3,6 @@
 public class SearchExport
 {
     public int UserId { get; set; }
-    public string SearchExportData { get; set; }
+    public int ExportRequestId { get; set; }
+    public string ReportName { get; set; }
 }

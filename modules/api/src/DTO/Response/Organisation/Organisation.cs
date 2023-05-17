@@ -1,3 +1,4 @@
+using GpConnect.AppointmentChecker.Api.Helpers;
 using Newtonsoft.Json;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Response.Organisation;
@@ -5,13 +6,15 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Response.Organisation;
 public class Organisation
 {
     [JsonProperty("id")]
-    public string OrganisationId { get; set; }
+    public string OdsCode { get; set; }
 
     [JsonProperty("name")]
     public string OrganisationName { get; set; }
 
     [JsonProperty("address")]
     public OrganisationAddress PostalAddress { get; set; }
+
+    public string[] PostalAddressFields => PostalAddress.FullAddress.Split(new char[] { ',', '$' });
 
     [JsonProperty("type")]
     public Type Type { get; set; }
@@ -24,6 +27,7 @@ public class Organisation
 
     [JsonProperty("errorText")]
     public string ErrorText { get; set; }
-
     public bool HasErrored => ErrorCode > 0;
+
+    public string OrganisationLocationWithOdsCode => $"{OrganisationName.ToTitleCase()}, {PostalAddress.FullAddress} ({OdsCode})";
 }

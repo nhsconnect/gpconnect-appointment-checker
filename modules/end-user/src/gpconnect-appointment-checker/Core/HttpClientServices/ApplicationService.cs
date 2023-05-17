@@ -46,21 +46,21 @@ public class ApplicationService : IApplicationService
         return JsonConvert.DeserializeObject<Organisation>(body, _options);
     }
 
-    public async Task<Models.SearchExport> GetSearchExport(int searchExportId, int userId)
-    {
-        var response = await _httpClient.GetAsync($"/application/searchexport/{searchExportId}/{userId}");
+    //public async Task<Models.SearchExport> GetSearchExport(int searchExportId, int userId)
+    //{
+    //    var response = await _httpClient.GetAsync($"/application/searchexport/{searchExportId}/{userId}");
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
+    //    if (response.StatusCode == HttpStatusCode.NotFound)
+    //    {
+    //        return null;
+    //    }
 
-        response.EnsureSuccessStatusCode();
+    //    response.EnsureSuccessStatusCode();
 
-        var body = await response.Content.ReadAsStringAsync();
+    //    var body = await response.Content.ReadAsStringAsync();
 
-        return JsonConvert.DeserializeObject<Models.SearchExport>(body, _options);
-    }
+    //    return JsonConvert.DeserializeObject<Models.SearchExport>(body, _options);
+    //}
 
     public async Task<Models.SearchGroup> GetSearchGroup(int searchGroupId, int userId)
     {
@@ -78,21 +78,21 @@ public class ApplicationService : IApplicationService
         return JsonConvert.DeserializeObject<Models.SearchGroup>(body, _options);
     }
 
-    public async Task<SearchGroupExport> GetSearchGroupExport(int searchGroupId, int userId)
-    {
-        var response = await _httpClient.GetAsync($"/application/searchgroupexport/{searchGroupId}/{userId}");
+    //public async Task<SearchGroupExport> GetSearchGroupExport(int searchGroupId, int userId)
+    //{
+    //    var response = await _httpClient.GetAsync($"/application/searchgroupexport/{searchGroupId}/{userId}");
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
+    //    if (response.StatusCode == HttpStatusCode.NotFound)
+    //    {
+    //        return null;
+    //    }
 
-        response.EnsureSuccessStatusCode();
+    //    response.EnsureSuccessStatusCode();
 
-        var body = await response.Content.ReadAsStringAsync();
+    //    var body = await response.Content.ReadAsStringAsync();
 
-        return JsonConvert.DeserializeObject<SearchGroupExport>(body, _options);
-    }
+    //    return JsonConvert.DeserializeObject<SearchGroupExport>(body, _options);
+    //}
 
     public async Task<Models.SearchResult> GetSearchResult(int searchResultId, int userId)
     {
@@ -126,54 +126,54 @@ public class ApplicationService : IApplicationService
         return JsonConvert.DeserializeObject<List<SearchResultList>>(body, _options);
     }
 
-    public async Task<Models.SearchExport> AddSearchExport(Models.Request.SearchExport request)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+    //public async Task<Models.SearchExport> AddSearchExport(Models.Request.SearchExport request)
+    //{
+    //    var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
+    //        Encoding.UTF8,
+    //        MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/application/addSearchExport", json);
+    //    var response = await _httpClient.PostAsync("/application/addSearchExport", json);
 
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
+    //    response.EnsureSuccessStatusCode();
+    //    var content = await response.Content.ReadAsStringAsync();
 
-        var result = JsonConvert.DeserializeObject<Models.SearchExport>(content, _options);
-        return result;
-    }
+    //    var result = JsonConvert.DeserializeObject<Models.SearchExport>(content, _options);
+    //    return result;
+    //}
 
-    public async Task<Models.SearchGroup> AddSearchGroup(Models.Request.SearchGroup request)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+    //public async Task<Models.SearchGroup> AddSearchGroup(Models.Request.SearchGroup request)
+    //{
+    //    var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
+    //        Encoding.UTF8,
+    //        MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/application/addSearchGroup", json);
+    //    var response = await _httpClient.PostAsync("/application/addSearchGroup", json);
 
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
+    //    response.EnsureSuccessStatusCode();
+    //    var content = await response.Content.ReadAsStringAsync();
 
-        var result = JsonConvert.DeserializeObject<Models.SearchGroup>(content, _options);
-        return result;
-    }
+    //    var result = JsonConvert.DeserializeObject<Models.SearchGroup>(content, _options);
+    //    return result;
+    //}
 
-    public async Task<Models.SearchResult> AddSearchResult(Models.Request.SearchResult request)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+    //public async Task<Models.SearchResult> AddSearchResult(Models.Request.SearchResult request)
+    //{
+    //    var json = new StringContent(JsonConvert.SerializeObject(request, null, _options),
+    //        Encoding.UTF8,
+    //        MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/application/addSearchResult", json);
+    //    var response = await _httpClient.PostAsync("/application/addSearchResult", json);
 
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
+    //    response.EnsureSuccessStatusCode();
+    //    var content = await response.Content.ReadAsStringAsync();
 
-        var result = JsonConvert.DeserializeObject<Models.SearchResult>(content, _options);
-        return result;
-    }
+    //    var result = JsonConvert.DeserializeObject<Models.SearchResult>(content, _options);
+    //    return result;
+    //}
 
-    public async Task UpdateSearchGroup(int searchGroupId, int userId)
-    {
-        var response = await _httpClient.PutAsync($"/application/updateSearchGroup/{searchGroupId}/{userId}", null);
-        response.EnsureSuccessStatusCode();
-    }
+    //public async Task UpdateSearchGroup(int searchGroupId, int userId)
+    //{
+    //    var response = await _httpClient.PutAsync($"/application/updateSearchGroup/{searchGroupId}/{userId}", null);
+    //    response.EnsureSuccessStatusCode();
+    //}
 }

@@ -26,6 +26,15 @@ public class LogService : ILogService
         return result;
     }
 
+    public async Task<List<DTO.Response.Logging.SpineMessage>> GetSpineMessageLogBySearchGroupId(int searchGroupId)
+    {
+        var functionName = "logging.get_spine_message_by_search_group_id";
+        var parameters = new DynamicParameters();
+        parameters.Add("_search_group_id", searchGroupId, DbType.Int32);
+        var result = await _dataService.ExecuteQuery<DTO.Response.Logging.SpineMessage>(functionName, parameters);
+        return result;
+    }
+
     public async Task AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
     {
         var functionName = "logging.log_error";

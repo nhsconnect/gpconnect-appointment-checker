@@ -1,12 +1,10 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Helpers.Constants;
+﻿using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -14,7 +12,7 @@ namespace gpconnect_appointment_checker.Pages
     public partial class SearchModel : SearchBaseModel
     {
         public IEnumerable<SelectListItem> DateRanges => GetDateRanges();
-        public IEnumerable<SelectListItem> OrganisationTypes { get; set; }
+        public IEnumerable<SelectListItem> OrganisationTypes => GetOrganisationTypes().Result;
 
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 
@@ -22,7 +20,7 @@ namespace gpconnect_appointment_checker.Pages
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("MaxNumberProviderCodesSearch", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE)]
-        //[RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
+        [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
         public string ProviderOdsCode { get; set; }
 
         [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]

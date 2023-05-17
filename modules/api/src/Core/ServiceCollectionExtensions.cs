@@ -56,6 +56,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITokenDependencies, TokenDependencies>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISearchService, SearchService>();
+        services.AddScoped<IExportService, ExportService>();
 
         services.AddResponseCaching();
         services.AddResponseCompression();

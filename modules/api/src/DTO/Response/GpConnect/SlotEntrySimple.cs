@@ -44,6 +44,7 @@ public class SlotEntrySimple
 
     [IgnoreDataMember]
     public List<string> PractitionerDetails { get; set; }
+    [JsonProperty("Practitioner Name")]
     public string PractitionerName => PractitionerBuilder(PractitionerDetails, PractitionerFamilyName, PractitionerGivenName, PractitionerPrefix);
 
     [IgnoreDataMember]

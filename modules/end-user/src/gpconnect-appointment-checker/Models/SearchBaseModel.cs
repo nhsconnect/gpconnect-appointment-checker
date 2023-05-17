@@ -11,11 +11,8 @@ namespace gpconnect_appointment_checker.Pages
 {
     public class SearchBaseModel : BaseModel
     {
-        private readonly IReportingService _reportingService;
-
-        public SearchBaseModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, IReportingService reportingService) : base(configuration, contextAccessor)
+        public SearchBaseModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor)
         {
-            _reportingService = reportingService;
         }
 
         public List<List<SearchResultEntry>> SearchResultsCurrent { get; set; }
@@ -34,8 +31,8 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(Name = "SearchResultId", SupportsGet = true)]
         public int SearchResultId { get; set; }
 
-        [BindProperty(Name = "SearchExportId", SupportsGet = true)]
-        public int SearchExportId { get; set; }
+        //[BindProperty(Name = "SearchExportId", SupportsGet = true)]
+        //public int SearchExportId { get; set; }
         public double SearchDuration { get; set; }
 
         public int SearchResultsTotalCount { get; set; } = 0;
@@ -43,12 +40,5 @@ namespace gpconnect_appointment_checker.Pages
         public int SearchResultsPastCount { get; set; } = 0;
 
         public string ProviderPublisher { get; set; }
-
-        protected FileStreamResult ExportResult(DataTable dataTable)
-        {
-            //var memoryStream = _reportingService.CreateReport(dataTable, ReportConstants.SLOTSEARCHREPORTHEADING);
-            //return GetFileStream(memoryStream);
-            return null;
-        }
     }
 }
