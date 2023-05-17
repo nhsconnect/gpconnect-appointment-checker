@@ -9,18 +9,7 @@ returns table
 (
 	search_result_id integer,
 	search_group_id integer,
-	provider_ods_code character varying(10),
-	consumer_ods_code character varying(10),
-	provider_organisation_name character varying(100),
-	provider_address text,
-	provider_postcode varchar(200),
-	consumer_organisation_name character varying(100),
-	consumer_address text,
-	consumer_postcode varchar(200),
-	error_code integer,
-	details text,
-	provider_publisher varchar(200),
-	consumer_organisation_type character varying(100)
+	details text
 )
 as $$
 begin
@@ -28,18 +17,7 @@ begin
 	select
 		sr.search_result_id,
 		sr.search_group_id,
-		sr.provider_ods_code,
-		sr.consumer_ods_code,
-		provider_organisation.organisation_name as provider_organisation_name,		
-		CONCAT(provider_organisation.address_line_1, ',', provider_organisation.address_line_2, ',', provider_organisation.locality, ',', provider_organisation.city, ',', provider_organisation.county) as provider_address,
-		provider_organisation.postcode as provider_postcode,
-		consumer_organisation.organisation_name as consumer_organisation_name,
-		CONCAT(consumer_organisation.address_line_1, ',', consumer_organisation.address_line_2, ',', consumer_organisation.locality, ',', consumer_organisation.city, ',', consumer_organisation.county) as consumer_address,
-		consumer_organisation.postcode as consumer_postcode,
-		sr.error_code,
-		sr.details,
-		sr.provider_publisher,
-		sr.consumer_organisation_type
+		sr.details
 	from
 		application.search_result sr
 		left outer join application.organisation provider_organisation on sr.provider_organisation_id = provider_organisation.organisation_id
