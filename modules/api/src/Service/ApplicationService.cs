@@ -79,13 +79,6 @@ public class ApplicationService : IApplicationService
         var functionName = "application.add_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchResult.SearchGroupId);
-        //parameters.Add("_provider_ods_code", searchResult.ProviderCode);
-        //parameters.Add("_consumer_ods_code", searchResult.ConsumerCode);
-        //parameters.Add("_error_code", searchResult.ErrorCode);
-        //parameters.Add("_details", searchResult.Details);
-        //parameters.Add("_provider_publisher", searchResult.ProviderPublisher);
-        //parameters.Add("_search_duration_seconds", searchResult.SearchDurationSeconds);
-        //parameters.Add("_consumer_organisation_type", searchResult.ConsumerOrganisationType);
         var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchResult>(functionName, parameters);
 
         if (searchResult.SpineMessageId != null && result != null)
@@ -94,49 +87,6 @@ public class ApplicationService : IApplicationService
         }
         return result;
     }
-
-    //public async Task<AddSearchExport> AddSearchExport(DTO.Request.Application.SearchExport searchExport)
-    //{
-    //    var functionName = "application.add_search_export";
-    //    var parameters = new DynamicParameters();
-    //    parameters.Add("_search_export_data", searchExport.SearchExportData);
-    //    parameters.Add("_user_id", searchExport.UserId);
-    //    var result = await _dataService.ExecuteQueryFirstOrDefault<AddSearchExport>(functionName, parameters);
-    //    return result;
-    //}
-
-    //public async Task<SearchExport> GetSearchExport(int searchExportId, int userId)
-    //{
-    //    var functionName = "application.get_search_export";
-    //    var parameters = new DynamicParameters();
-    //    parameters.Add("_search_export_id", searchExportId);
-    //    parameters.Add("_user_id", userId);
-    //    var result = await _dataService.ExecuteQueryFirstOrDefault<SearchExport>(functionName, parameters);
-    //    //return result.SearchExportData.ConvertJsonDataToDataTable();
-    //    return result;
-    //}
-
-    //public async Task<List<SearchGroupExport>> GetSearchGroupExport(int searchGroupId, int userId)
-    //{
-    //    var functionName = "application.get_search_result_by_group";
-    //    var parameters = new DynamicParameters();
-    //    parameters.Add("_search_group_id", searchGroupId);
-    //    parameters.Add("_user_id", userId);
-    //    var result = await _dataService.ExecuteQuery<SearchGroupExport>(functionName, parameters);
-    //    return result;
-    //    //var json = result.ConvertObjectToJsonData();
-    //    //return json.ConvertJsonDataToDataTable();
-    //}
-
-    //public async Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId)
-    //{
-    //    var functionName = "application.get_search_group";
-    //    var parameters = new DynamicParameters();
-    //    parameters.Add("_search_group_id", searchGroupId);
-    //    parameters.Add("_user_id", userId);
-    //    var result = await _dataService.ExecuteQueryFirstOrDefault<SearchGroup>(functionName, parameters);
-    //    return result;
-    //}
 
     public async Task<SearchResult> GetSearchResult(int searchResultId, int userId)
     {

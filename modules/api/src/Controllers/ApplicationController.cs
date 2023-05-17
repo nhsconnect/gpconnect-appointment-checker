@@ -54,49 +54,6 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
-    //[HttpPost("addSearchExport")]
-    //public async Task<IActionResult> AddSearchExport([FromBody] DTO.Request.Application.SearchExport request)
-    //{
-    //    var response = await _service.AddSearchExport(request);
-    //    return Ok(response);
-    //}
-
-    //[HttpGet("searchexport/{searchExportId}/{userId}", Name = "GetSearchExport")]
-    //public async Task<IActionResult> GetSearchExport([FromRoute] int searchExportId, int userId)
-    //{
-    //    var response = await _service.GetSearchExport(searchExportId, userId);
-
-    //    if (response == null)
-    //    {
-    //        return NotFound();
-    //    }
-    //    return Ok(response);
-    //}
-
-    //[HttpGet("searchgroupexport/{searchGroupId}/{userId}", Name = "GetSearchGroupExport")]
-    //public async Task<IActionResult> GetSearchGroupExport([FromRoute] int searchGroupId, int userId)
-    //{
-    //    var response = await _service.GetSearchGroupExport(searchGroupId, userId);
-
-    //    if (response == null)
-    //    {
-    //        return NotFound();
-    //    }
-    //    return Ok(response);
-    //}
-
-    //[HttpGet("searchgroup/{searchGroupId}/{userId}", Name = "GetSearchGroup")]
-    //public async Task<IActionResult> GetSearchGroup([FromRoute] int searchGroupId, int userId)
-    //{
-    //    var response = await _service.GetSearchGroup(searchGroupId, userId);
-
-    //    if (response == null)
-    //    {
-    //        return NotFound();
-    //    }
-    //    return Ok(response);
-    //}
-
     [HttpGet("searchresult/{searchResultId}/{userId}", Name = "GetSearchResult")]
     public async Task<IActionResult> GetSearchResult([FromRoute] int searchResultId, int userId)
     {

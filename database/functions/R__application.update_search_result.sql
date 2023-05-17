@@ -5,7 +5,7 @@ create function application.update_search_result
 	_search_result_id integer,
 	_details text,
 	_error_code integer,
-	_search_duration_seconds float
+	_search_duration_seconds double precision
 )
 returns void 
 as $$
