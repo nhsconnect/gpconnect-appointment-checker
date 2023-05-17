@@ -15,14 +15,16 @@ public class SearchService : ISearchService
 {
     private readonly ITokenService _tokenService;
     private readonly ISpineService _spineService;
+    private readonly IOrganisationService _organisationService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IGpConnectQueryExecutionService _gpConnectQueryExecutionService;
     private readonly IApplicationService _applicationService;
 
-    public SearchService(ITokenService tokenService, ISpineService spineService, ICapabilityStatement capabilityStatement, IGpConnectQueryExecutionService gpConnectQueryExecutionService, IApplicationService applicationService)
+    public SearchService(ITokenService tokenService, ISpineService spineService, ICapabilityStatement capabilityStatement, IGpConnectQueryExecutionService gpConnectQueryExecutionService, IApplicationService applicationService, IOrganisationService organisationService)
     {
         _tokenService = tokenService;
         _spineService = spineService;
+        _organisationService = organisationService;
         _capabilityStatement = capabilityStatement;
         _gpConnectQueryExecutionService = gpConnectQueryExecutionService;
         _applicationService = applicationService;

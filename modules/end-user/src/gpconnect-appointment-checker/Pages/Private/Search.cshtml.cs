@@ -46,7 +46,7 @@ namespace gpconnect_appointment_checker.Pages
                 if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
             }
 
-            OrganisationTypes = await GetOrganisationTypes();
+            //OrganisationTypes = await GetOrganisationTypes();
 
             ModelState.ClearValidationState("ProviderOdsCode");
             ModelState.ClearValidationState("ConsumerOdsCode");
@@ -104,7 +104,7 @@ namespace gpconnect_appointment_checker.Pages
             return filestream;
         }
 
-        public async Task<FileStreamResult> OnPostExportSearchGroupResults(int searchGroupId)
+        public async Task<FileStreamResult> OnPostExportSearchGroup(int searchGroupId)
         {
             var filestream = await _exportService.ExportSearchGroupFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport()
             {
@@ -220,6 +220,7 @@ namespace gpconnect_appointment_checker.Pages
                     DisplayClass = x.DisplayClass
                 }));
                 SearchResultsSummary = slotEntrySummaryList;
+                SearchGroupId = slotEntrySummaryList[0].SearchGroupId;
             }
         }               
 

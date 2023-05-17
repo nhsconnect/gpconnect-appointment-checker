@@ -2,13 +2,9 @@
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
-using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Newtonsoft.Json;
-using NLog.LayoutRenderers;
-using Notify.Models.Responses;
 using System.Data;
-using SearchExport = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchExport;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Response.Application.SearchResult;
 
