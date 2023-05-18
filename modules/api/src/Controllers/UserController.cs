@@ -69,7 +69,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("addUser")]
-    public async Task<ActionResult> AddUser([FromQuery] UserAdd userAdd)
+    public async Task<ActionResult> AddUser([FromBody] UserAdd userAdd)
     {
         var user = await _service.AddUser(userAdd);
 
@@ -94,24 +94,24 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPut("setuserstatus/{userId}/{userAccountStatusId}/{adminUserId}/{userSessionId}", Name = "SetUserStatus")]
-    public async Task<ActionResult> SetUserStatus(int userId, int userAccountStatusId, int adminUserId, int userSessionId)
+    [HttpPut("setuserstatus", Name = "SetUserStatus")]
+    public async Task<ActionResult> SetUserStatus([FromBody] UserUpdateStatus userUpdateStatus)
     {
-        var user = await _service.SetUserStatus(userId, userAccountStatusId, adminUserId, userSessionId);
+        var user = await _service.SetUserStatus(userUpdateStatus);
         return Ok(user);
     }
 
-    [HttpPut("setmultisearch/{userId}/{multiSearchEnabled}/{adminUserId}/{userSessionId}", Name = "SetMultiSearch")]
-    public async Task<ActionResult> SetMultiSearch(int userId, bool multiSearchEnabled, int adminUserId, int userSessionId)
+    [HttpPut("setmultisearch", Name = "SetMultiSearch")]
+    public async Task<ActionResult> SetMultiSearch([FromBody] UserUpdateMultiSearch userUpdateMultiSearch)
     {
-        await _service.SetMultiSearch(userId, multiSearchEnabled, adminUserId, userSessionId);
+        await _service.SetMultiSearch(userUpdateMultiSearch);
         return Ok();
     }
 
-    [HttpPut("setorgtypesearch/{userId}/{orgTypeSearchEnabled}/{adminUserId}/{userSessionId}", Name = "SetOrgTypeSearch")]
-    public async Task<ActionResult> SetOrgTypeSearch(int userId, bool orgTypeSearchEnabled, int adminUserId, int userSessionId)
+    [HttpPut("setorgtypesearch", Name = "SetOrgTypeSearch")]
+    public async Task<ActionResult> SetOrgTypeSearch([FromBody] UserUpdateOrgTypeSearch userUpdateOrgTypeSearch)
     {
-        await _service.SetOrgTypeSearch(userId, orgTypeSearchEnabled, adminUserId, userSessionId);
+        await _service.SetOrgTypeSearch(userUpdateOrgTypeSearch);
         return Ok();
     }
 }

@@ -1,8 +1,9 @@
 ﻿namespace GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 
-public class UserAdd
+public class UserUpdateMultiSearch
 {
-    public string EmailAddress { get; set; }
+    public int UserId { get; set; }
     public int AdminUserId { get; set; }
     public int UserSessionId { get; set; }
+    public bool MultiSearchEnabled { get; set; }
 }

@@ -50,13 +50,5 @@ namespace gpconnect_appointment_checker.Pages
             }
             return UserAccountStatus.Unknown;
         }
-
-        protected static FileStreamResult GetFileStream(MemoryStream memoryStream, string fileName = null)
-        {
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            {
-                FileDownloadName = fileName ?? $"{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
-            };
-        }
     }
 }

@@ -1,5 +1,8 @@
+using GpConnect.AppointmentChecker.Api.DTO.Request;
+using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Controllers;
 
@@ -15,17 +18,21 @@ public class ReportingController : ControllerBase
     }
 
     [HttpGet("{functionName}")]
-    public async Task<ActionResult> Get([FromRoute] string functionName)
+    public async Task<IActionResult> Get([FromRoute] string functionName)
     {
         var report = await _service.GetReport(functionName);
         return Ok(report);
     }
 
-    [HttpGet("exportbyreportname/{functionName}/{reportName}")]
-    public async Task<ActionResult> Export([FromRoute] string functionName, string reportName)
+    [HttpPost("export")]
+    public async Task<IActionResult> Export([FromBody] ReportRequest reportRequest)
     {
-        var report = await _service.ExportByReportName(functionName, reportName);
-        return Ok(report);
+        var result = await _service.ExportReport(reportRequest);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     [HttpGet("list")]

@@ -25,7 +25,7 @@ namespace gpconnect_appointment_checker.Pages
         public SortDirection SortByState { get; set; }
 
         [BindProperty]
-        public string SortByDirectionIcon { get; set; }
+        public string? SortByDirectionIcon { get; set; }
         [BindProperty]
         public UserAccountStatus? SelectedUserAccountStatusFilter { get; set; }
         [BindProperty]
@@ -41,10 +41,10 @@ namespace gpconnect_appointment_checker.Pages
         public int UserAccountStatusId { get; set; }
 
         [BindProperty]
-        public string EmailAddressSearchValue { get; set; }
+        public string? EmailAddressSearchValue { get; set; }
         [BindProperty]
-        public string SurnameSearchValue { get; set; }
+        public string? SurnameSearchValue { get; set; }
         [BindProperty]
-        public string OrganisationNameSearchValue { get; set; }
+        public string? OrganisationNameSearchValue { get; set; }
     }
 }

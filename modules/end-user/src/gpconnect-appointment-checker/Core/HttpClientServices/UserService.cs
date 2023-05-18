@@ -1,7 +1,7 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
-using gpconnect_appointment_checker.Helpers;
+using GpConnect.AppointmentChecker.Models.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -38,7 +38,7 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<List<User>> GetUsersAsync(Models.Request.UserListSimple userListSimple)
+    public async Task<List<User>> GetUsersAsync(UserListSimple userListSimple)
     {
         try
         {
@@ -56,7 +56,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<List<User>> GetUsersAsync(Models.Request.UserListAdvanced userListAdvanced)
+    public async Task<List<User>> GetUsersAsync(UserListAdvanced userListAdvanced)
     {
         try
         {
@@ -82,18 +82,74 @@ public class UserService : IUserService
         }
     }
 
-   public async Task<User> AddUserAsync(string emailAddress)
+    private async Task<List<User>> GetList(Dictionary<string, string?> keyValuePairs, string url)
     {
-        var keyValuePairs = new Dictionary<string, string>
-            {
-                { "email_address", emailAddress },
-                { "admin_user_id", _contextAccessor.HttpContext.User.GetClaimValue("UserId") },
-                { "user_session_id", _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId") }
-        };
+        var request = QueryHelpers.AddQueryString(url, keyValuePairs);
 
-        var request = QueryHelpers.AddQueryString("/user/addUser", keyValuePairs);
+        var response = await _httpClient.GetAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
 
-        var response = await _httpClient.PostAsync(request, null);
+        var result = JsonConvert.DeserializeObject<List<User>>(content, _options);
+        return result;
+    }
+
+    public async Task<User> LogonUser(LogonUser logonUser)
+    {
+        var json = new StringContent(
+            JsonConvert.SerializeObject(logonUser, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostAsync("/user/logonUser", json);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var result = JsonConvert.DeserializeObject<User>(content, _options);
+        return result;
+    }
+
+    public async Task<User> LogoffUser(LogoffUser logoffUser)
+    {
+        var json = new StringContent(
+            JsonConvert.SerializeObject(logoffUser, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostAsync("/user/logoffUser", json);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var result = JsonConvert.DeserializeObject<User>(content, _options);
+        return result;
+    }
+
+    public async Task<User> AddOrUpdateUser(UserCreateAccount userCreateAccount)
+    {
+        var json = new StringContent(
+            JsonConvert.SerializeObject(userCreateAccount, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostAsync("/user/addOrUpdateUser", json);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var result = JsonConvert.DeserializeObject<User>(content, _options);
+        return result;
+    }
+
+    public async Task<User> AddUserAsync(AddUser addUser)
+    {
+        var json = new StringContent(
+            JsonConvert.SerializeObject(addUser, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostAsync("/user/addUser", json);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
@@ -114,84 +170,36 @@ public class UserService : IUserService
         return JsonConvert.DeserializeObject<User>(body, _options);
     }
 
-    public async Task SetMultiSearch(int userId, bool multiSearchEnabled)
-    {
-        var response = await _httpClient.PutAsync($"/user/setmultisearch/{userId}/{multiSearchEnabled}/{_contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger(0)}/{_contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)}", null);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task SetOrgTypeSearch(int userId, bool orgTypeSearchEnabled)
-    {
-        var response = await _httpClient.PutAsync($"/user/setorgtypesearch/{userId}/{orgTypeSearchEnabled}/{_contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger(0)}/{_contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)}", null);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task<User> SetUserStatus(int userId, int userAccountStatusId)
-    {
-        var response = await _httpClient.PutAsync($"/user/setuserstatus/{userId}/{userAccountStatusId}/{_contextAccessor.HttpContext.User.GetClaimValue("UserId").StringToInteger(0)}/{_contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0)}", null);
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
-    }
-
-    private async Task<List<User>> GetList(Dictionary<string, string?> keyValuePairs, string url)
-    {
-        var request = QueryHelpers.AddQueryString(url, keyValuePairs);
-
-        var response = await _httpClient.GetAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<List<User>>(content, _options);
-        return result;
-    }
-
-    public async Task<User> LogonUser(Models.Request.LogonUser logonUser)
+    public async Task SetUserStatus(UserUpdateStatus userUpdateStatus)
     {
         var json = new StringContent(
-            JsonConvert.SerializeObject(logonUser, null, _options),
+            JsonConvert.SerializeObject(userUpdateStatus, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/logonUser", json);
+        var response = await _httpClient.PutAsync("/user/setuserstatus", json);
         response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
     }
 
-    public async Task<User> LogoffUser(Models.Request.LogoffUser logoffUser)
-    {
+    public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch)
+    {        
         var json = new StringContent(
-            JsonConvert.SerializeObject(logoffUser, null, _options),
+            JsonConvert.SerializeObject(userUpdateMultiSearch, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/logoffUser", json);
+        var response = await _httpClient.PutAsync("/user/setmultisearch", json);
         response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
     }
 
-    public async Task<User> AddOrUpdateUser(Models.Request.UserCreateAccount userCreateAccount)
+    public async Task SetOrgTypeSearch(UserUpdateOrgTypeSearch userUpdateOrgTypeSearch)
     {
         var json = new StringContent(
-            JsonConvert.SerializeObject(userCreateAccount, null, _options),
+            JsonConvert.SerializeObject(userUpdateOrgTypeSearch, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/addOrUpdateUser", json);
+        var response = await _httpClient.PutAsync("/user/setorgtypesearch", json);
         response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
     }
 }

@@ -25,30 +25,34 @@ public class LdapService : ILdapService
 
     public async Task<Spine> GetGpConsumerAsIdByOdsCode(string odsCode)
     {
-        try
+        if (!string.IsNullOrEmpty(odsCode))
         {
-            var sdsQuery = await GetSdsQueryByName(LdapQuery.GetGpConsumerAsIdByOdsCode);
-            var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
-            var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
-            var spine = response != null ? new Spine
+            try
             {
-                EndpointAddress = response.EndpointAddress,
-                AsId = response.AsId,
-                PartyKey = response.PartyKey
-            } : null;
+                var sdsQuery = await GetSdsQueryByName(LdapQuery.GetGpConsumerAsIdByOdsCode);
+                var filter = sdsQuery.QueryText.Replace("{odsCode}", Regex.Escape(odsCode));
+                var response = _ldapRequestExecution.ExecuteLdapQuery<DTO.Response.Ldap.Spine>(sdsQuery.SearchBase, filter, sdsQuery.QueryAttributesAsArray);
+                var spine = response != null ? new Spine
+                {
+                    EndpointAddress = response.EndpointAddress,
+                    AsId = response.AsId,
+                    PartyKey = response.PartyKey
+                } : null;
 
-            return spine;
+                return spine;
+            }
+            catch (LdapException ldapException)
+            {
+                _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
+                throw;
+            }
         }
-        catch (LdapException ldapException)
-        {
-            _logger.LogError(ldapException, "An LdapException error has occurred while attempting to execute an LDAP query");
-            throw;
-        }
-        catch (Exception exc)
-        {
-            _logger.LogError(exc, "An error has occurred while attempting to execute an LDAP query");
-            throw;
-        }
+        return null;
     }
 
     public async Task<Spine> GetGpProviderAsIdByOdsCodeAndPartyKey(string odsCode, string partyKey)

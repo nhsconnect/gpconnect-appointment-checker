@@ -1,11 +1,11 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models.Search;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Data;
+using System.Text;
 
 namespace gpconnect_appointment_checker.Pages
 {
@@ -31,8 +31,6 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(Name = "SearchResultId", SupportsGet = true)]
         public int SearchResultId { get; set; }
 
-        //[BindProperty(Name = "SearchExportId", SupportsGet = true)]
-        //public int SearchExportId { get; set; }
         public double SearchDuration { get; set; }
 
         public int SearchResultsTotalCount { get; set; } = 0;
@@ -40,5 +38,20 @@ namespace gpconnect_appointment_checker.Pages
         public int SearchResultsPastCount { get; set; } = 0;
 
         public string ProviderPublisher { get; set; }
+
+        public string GetSearchOnBehalfOfResultsText(string consumerFormattedOrganisationDetails, string selectedOrganisationType)
+        {
+            var searchOnBehalfOfResultsText = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(consumerFormattedOrganisationDetails))
+            {
+                searchOnBehalfOfResultsText.Append($"<p>{consumerFormattedOrganisationDetails}</p>");
+            }
+            if (!string.IsNullOrEmpty(selectedOrganisationType))
+            {
+                searchOnBehalfOfResultsText.Append($"<p><em>{SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT}</em>&nbsp;{selectedOrganisationType}</p>");
+            }
+            return searchOnBehalfOfResultsText.ToString();
+        }
     }
 }

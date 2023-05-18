@@ -31,7 +31,7 @@ public class SearchResponse
 
     public bool DisplayProvider => ProviderError == null && ProviderOdsCodeFound;
     public bool DisplayConsumer => ConsumerOdsCodeFound;
-    public bool DetailsEnabled => SearchResultsTotalCount > 0 && DisplayProvider && DisplayConsumer;
+    public bool DetailsEnabled => SearchResultsTotalCount > 0 && DisplayProvider && (DisplayConsumer || DisplayConsumerOrganisationType);
 
     public bool DisplayConsumerOrganisationType => !string.IsNullOrWhiteSpace(FormattedConsumerOrganisationType);
 

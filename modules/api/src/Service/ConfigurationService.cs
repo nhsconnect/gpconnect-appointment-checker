@@ -34,6 +34,13 @@ public class ConfigurationService : IConfigurationService
         return result;
     }
 
+    public async Task<OrganisationType> GetOrganisationType(string organisationTypeCode)
+    {
+        var functionName = "configuration.get_organisation_type";
+        var result = await _dataService.ExecuteQuery<OrganisationType>(functionName);
+        return result.FirstOrDefault(x => x.OrganisationTypeCode == organisationTypeCode);
+    }
+
     public async Task<SdsQuery> GetSdsQueryConfiguration(string queryName)
     {
         var functionName = "configuration.get_sds_queries";

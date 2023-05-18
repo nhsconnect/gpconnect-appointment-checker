@@ -38,6 +38,18 @@ public class ConfigurationController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("organisationtype/{organisationTypeCode}", Name = "GetOrganisationType")]
+    public async Task<IActionResult> GetOrganisationType(string organisationTypeCode)
+    {
+        var response = await _service.GetOrganisationType(organisationTypeCode);
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
     [HttpGet("sdsqueryconfiguration/{queryName}", Name = "GetSdsQueryConfiguration")]
     public async Task<IActionResult> GetSdsQueryConfiguration(string queryName)
     {

@@ -31,6 +31,7 @@ public class NotificationService : INotificationService
                 foreach (var emailAddress in notificationCreateRequest.EmailAddresses.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
                     var templateParameters = notificationCreateRequest.TemplateParameters?.ToDictionary(pair => pair.Key, pair => Convert.ToString(pair.Value) == null ? string.Empty : pair.Value.ToString());
+                    templateParameters.Add("url", notificationCreateRequest.RequestUrl);
                     emailNotificationResponse.Add(client.SendEmail(emailAddress, notificationCreateRequest.TemplateId, templateParameters));
                 }
                 return emailNotificationResponse.Count;

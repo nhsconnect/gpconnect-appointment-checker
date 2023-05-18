@@ -27,7 +27,7 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(SupportsGet = true)]
         [MaximumNumberOfCodes("MaxNumberConsumerCodesSearch", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE)]
         [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
-        public string ConsumerOdsCode { get; set; }
+        public string? ConsumerOdsCode { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string? SelectedOrganisationType { get; set; }

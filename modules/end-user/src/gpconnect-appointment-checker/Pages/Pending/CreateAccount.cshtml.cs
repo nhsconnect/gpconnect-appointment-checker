@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace gpconnect_appointment_checker.Pages
@@ -17,12 +16,9 @@ namespace gpconnect_appointment_checker.Pages
         protected ILogger<CreateAccountModel> _logger;
         protected IHttpContextAccessor _contextAccessor;
         protected readonly ILoggerManager _loggerManager;
-        private readonly IUserService _userService;
-        private readonly INotificationService _notificationService;
-        private readonly IOptions<NotificationConfig> _notificationConfig;
-        private readonly IOptions<GeneralConfig> _configuration;
+        private readonly IUserService _userService;        
 
-        public CreateAccountModel(INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IUserService userService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public CreateAccountModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<CreateAccountModel> logger, IUserService userService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _contextAccessor = contextAccessor;
             _userService = userService;
@@ -30,9 +26,6 @@ namespace gpconnect_appointment_checker.Pages
             {
                 _loggerManager = loggerManager;
             }
-            _notificationService = notificationService;
-            _configuration = configuration;
-            _notificationConfig = notificationConfig;
         }
 
         public IActionResult OnGet()
@@ -59,22 +52,10 @@ namespace gpconnect_appointment_checker.Pages
                     OrganisationName = Organisation,
                     Reason = AccessRequestReason,
                     DisplayName = UserName,
-                    OrganisationId = OrganisationId
+                    OrganisationId = OrganisationId,
+                    RequestUrl = FullUrl
                 };
-                var createdUser = await _userService.AddOrUpdateUser(userCreateAccount);
-
-                await _notificationService.PostNotificationAsync(new NotificationDetails
-                {
-                    EmailAddresses = new List<string>() { _configuration.Value.GetAccessEmailAddress },
-                    TemplateId = _notificationConfig.Value.UserDetailsFormTemplateId,
-                    TemplateParameters = new Dictionary<string, dynamic> {
-                    { "email_address", userCreateAccount.EmailAddress },
-                    { "job_role", userCreateAccount.JobRole },
-                    { "organisation_name", userCreateAccount.OrganisationName },
-                    { "access_reason", userCreateAccount.Reason }
-                }
-                });
-
+                await _userService.AddOrUpdateUser(userCreateAccount);
                 return Redirect("/Pending/Index");
             }
             return Page();

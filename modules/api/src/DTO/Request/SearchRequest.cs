@@ -3,7 +3,7 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Request;
 public class SearchRequest
 {
     public string ProviderOdsCode { get; set; }
-    public string ConsumerOdsCode { get; set; }
+    public string? ConsumerOdsCode { get; set; }
     public string? ConsumerOrganisationType { get; set; }
     public string DateRange { get; set; }    
 
@@ -17,7 +17,7 @@ public class SearchRequest
     public string Sid { get; set; }
 
     public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-    public List<string> ConsumerOdsCodeAsList => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+    public List<string>? ConsumerOdsCodeAsList => ConsumerOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
     public bool HasMultipleProviderOdsCodes => ProviderOdsCodeAsList?.Count > 1;
     public bool HasMultipleConsumerOdsCodes => ConsumerOdsCodeAsList?.Count > 1;

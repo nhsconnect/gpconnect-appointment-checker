@@ -98,6 +98,16 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
+    public async Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId)
+    {
+        var functionName = "application.get_search_group";
+        var parameters = new DynamicParameters();
+        parameters.Add("_search_group_id", searchGroupId);
+        parameters.Add("_user_id", userId);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<SearchGroup>(functionName, parameters);
+        return result;
+    }
+
     public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId)
     {
         var functionName = "application.get_search_result_by_group";

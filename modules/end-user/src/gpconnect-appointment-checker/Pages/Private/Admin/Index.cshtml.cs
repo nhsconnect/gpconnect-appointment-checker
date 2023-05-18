@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
@@ -13,14 +12,10 @@ namespace gpconnect_appointment_checker.Pages
     public partial class AdminModel : BaseModel
     {
         private readonly IUserService _userService;
-        private readonly INotificationService _notificationService;
-        private readonly IOptions<NotificationConfig> _notificationConfig;
 
-        public AdminModel(IUserService userService, INotificationService notificationService, IOptions<NotificationConfig> notificationConfig, IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor)
+        public AdminModel(IUserService userService, IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor) : base(configuration, contextAccessor)
         {
             _userService = userService;
-            _notificationService = notificationService;
-            _notificationConfig = notificationConfig;
         }
 
         public async Task OnGet()
@@ -54,41 +49,52 @@ namespace gpconnect_appointment_checker.Pages
         public async Task OnPostSetUserAccountStatus(int accountstatususerid, int userselectedindex, int[] UserAccountStatusId)
         {
             ClearValidationState();
-            await _userService.SetUserStatus(accountstatususerid, UserAccountStatusId[userselectedindex]);
+            var userUpdateStatus = new UserUpdateStatus()
+            {
+                AdminUserId = UserId,
+                UserSessionId = UserSessionId,
+                UserId = accountstatususerid,
+                UserAccountStatusId = UserAccountStatusId[userselectedindex],
+                RequestUrl = FullUrl
+            };
 
-            //switch(UserAccountStatusId[userselectedindex])
-            //{
-            //    case (int)UserAccountStatus.Deauthorised:
-            //        await _notificationService.PostNotificationAsync(new NotificationDetails
-            //        {
-            //            EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
-            //            TemplateId = _notificationConfig.Value.AccountDeactivatedTemplateId
-            //        });
-            //        break;
-            //    case (int)UserAccountStatus.Authorised:
-            //        await _notificationService.PostNotificationAsync(new NotificationDetails
-            //        {
-            //            EmailAddresses = new System.Collections.Generic.List<string>() { user.EmailAddress },
-            //            TemplateId = _notificationConfig.Value.NewAccountCreatedTemplateId
-            //        });
-            //        break;
-            //}            
-
+            await _userService.SetUserStatus(userUpdateStatus);
             await RefreshPage();
         }
 
         public async Task OnPostSetMultiSearch(int multisearchstatususerid, bool multisearchstatus)
         {
             ClearValidationState();
-            await _userService.SetMultiSearch(multisearchstatususerid, multisearchstatus);
+
+            var userUpdateMultiSearch = new UserUpdateMultiSearch()
+            {
+                AdminUserId = UserId,
+                UserSessionId = UserSessionId,
+                UserId = multisearchstatususerid,
+                MultiSearchEnabled = multisearchstatus,
+                RequestUrl = FullUrl
+            };
+
+            await _userService.SetMultiSearch(userUpdateMultiSearch);
             await RefreshPage();
         }
 
         public async Task OnPostSetOrgTypeSearch(int orgtypesearchstatususerid, bool orgtypesearchstatus)
         {
             ClearValidationState();
-            await _userService.SetOrgTypeSearch(orgtypesearchstatususerid, orgtypesearchstatus);
+
+            var userUpdateOrgTypeSearch = new UserUpdateOrgTypeSearch()
+            {
+                AdminUserId = UserId,
+                UserSessionId = UserSessionId,
+                UserId = orgtypesearchstatususerid,
+                OrgTypeSearchEnabled = orgtypesearchstatus,
+                RequestUrl = FullUrl
+            };
+
+            await _userService.SetOrgTypeSearch(userUpdateOrgTypeSearch);
             await RefreshPage();
+
         }
 
         private void ClearValidationState()
@@ -106,8 +112,14 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
-                UserEmailAddress = CleansedUserEmailAddress;
-                var user = await _userService.AddUserAsync(UserEmailAddress);
+                var addUser = new AddUser()
+                {
+                    AdminUserId = UserId,
+                    UserSessionId = UserSessionId,
+                    EmailAddress = CleansedUserEmailAddress,
+                    RequestUrl = FullUrl
+                };
+                await _userService.AddUserAsync(addUser);
                 UserEmailAddress = null;
             }
             await RefreshPage();

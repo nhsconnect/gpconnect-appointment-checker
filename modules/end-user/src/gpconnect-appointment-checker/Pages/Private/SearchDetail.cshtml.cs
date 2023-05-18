@@ -51,7 +51,7 @@ namespace gpconnect_appointment_checker.Pages
                 var searchResponse = await _searchService.ExecuteFreeSlotSearchFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchRequestFromDatabase() { UserId = UserId, SearchResultId = searchResultId });
 
                 SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
-                SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
+                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResponse.FormattedConsumerOrganisationDetails, searchResponse.FormattedConsumerOrganisationType); ;
                 ProviderPublisher = searchResponse.ProviderPublisher;
 
                 SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
