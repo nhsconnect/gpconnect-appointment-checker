@@ -1,4 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
@@ -31,27 +32,8 @@ namespace gpconnect_appointment_checker.Pages
             }
         }
 
-        public async Task OnGet()
+        public async Task<IActionResult> OnGet()
         {
-            await RefreshPage();
-        }
-
-        private async Task<IActionResult> RefreshPage()
-        {
-            var reportsList = new List<SelectListItem>
-            {
-                new SelectListItem(ReportConstants.SLOTSUMMARYREPORTDEFAULT, String.Empty)
-            };
-            
-            var reports = await _reportingService.GetReports();
-
-            reportsList.AddRange(reports.Select(r => new SelectListItem
-            {
-                Text = r.ReportName,
-                Value = r.FunctionName
-            }).ToList());
-
-            ReportsList = reportsList;
             return Page();
         }
 
@@ -60,7 +42,7 @@ namespace gpconnect_appointment_checker.Pages
             if (ModelState.IsValid)
             {
                 var report = await _reportingService.GetReport(SelectedReport);
-                //ReportData = report;
+                ReportData = report;
             }
         }
 
@@ -68,11 +50,30 @@ namespace gpconnect_appointment_checker.Pages
         {
             if (ModelState.IsValid)
             {
-                var reportName = ReportsList.FirstOrDefault(x => x.Value == SelectedReport)?.Text;
-                var memoryStream = await _reportingService.ExportReport(SelectedReport, reportName);
-                //return GetFileStream(memoryStream, $"{SelectedReport}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx");
+                var filestream = await _reportingService.ExportReport(new GpConnect.AppointmentChecker.Models.Request.ReportExport()
+                {
+                    FunctionName = SelectedReport,
+                    ReportName = ReportsList.FirstOrDefault(x => x.Value == SelectedReport).Text
+                });
+                return filestream;
             }
             return null;
+        }
+
+        private async Task<IEnumerable<SelectListItem>> GetReportsList()
+        {            
+            var reports = await _reportingService.GetReports();
+            var options = reports.Select(ot => new SelectListItem()
+            {
+                Text = ot.ReportName,
+                Value = ot.FunctionName
+            }).ToList();
+            options.Insert(0, new SelectListItem() 
+            {
+                Text = "Please select a report",
+                Value = ""
+            });
+            return options;
         }
     }
 }

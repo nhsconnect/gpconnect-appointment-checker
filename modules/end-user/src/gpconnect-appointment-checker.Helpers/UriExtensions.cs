@@ -15,9 +15,16 @@ namespace gpconnect_appointment_checker.Helpers
             return uriBuilder.Uri;
         }
 
-        public static string GetBaseSiteUrl(this HttpContext httpContext)
+        public static string GetBaseSiteUrl(this HttpRequest req)
         {
-            return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/";
+            if (req == null) return null;
+            var uriBuilder = new UriBuilder(req.Scheme, req.Host.Host, req.Host.Port ?? -1);
+            if (uriBuilder.Uri.IsDefaultPort)
+            {
+                uriBuilder.Port = -1;
+            }
+
+            return uriBuilder.Uri.AbsoluteUri;
         }
     }
 }

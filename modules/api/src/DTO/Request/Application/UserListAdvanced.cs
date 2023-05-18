@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 
-public class UserListAdvanced
+public class UserListAdvanced : BaseUserList
 {
     [BindProperty(Name = "surname", SupportsGet = true)]
     public string? Surname { get; set; }
@@ -18,9 +18,5 @@ public class UserListAdvanced
     [BindProperty(Name = "multi_search_filter", SupportsGet = true)]
     public bool? MultiSearchFilter { get; set; }
     [BindProperty(Name = "org_type_search_filter", SupportsGet = true)]
-    public bool? OrgTypeSearchFilter { get; set; }
-    [BindProperty(Name = "sort_by_column", SupportsGet = true)]
-    public SortBy SortByColumn { get; set; } = SortBy.EmailAddress;
-    [BindProperty(Name = "sort_direction", SupportsGet = true)]
-    public SortDirection SortDirection { get; set; } = SortDirection.ASC;
+    public bool? OrgTypeSearchFilter { get; set; }    
 }

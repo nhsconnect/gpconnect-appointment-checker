@@ -13,4 +13,5 @@ public interface IApplicationService
     public Task<AddSearchResult> AddSearchResult(DTO.Request.Application.SearchResult request);
     public Task<SearchResult> GetSearchResult(int searchResultId, int userId);
     public Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId);
+    public Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId);
 }

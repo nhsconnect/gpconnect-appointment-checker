@@ -15,7 +15,7 @@ public class SlotSearchFromDatabase : ISlotSearchFromDatabase
     {
         _slotSearchDependencies = slotSearchDependencies;
     }
-    
+
     public SlotSimple GetFreeSlotsFromDatabase(string responseStream)
     {
         var slotSimple = new SlotSimple()
@@ -65,7 +65,7 @@ public class SlotSearchFromDatabase : ISlotSearchFromDatabase
 
         slotSimple.CurrentSlotEntrySimple.AddRange(slotList.Where(x => !x.SlotInPast));
         slotSimple.PastSlotEntrySimple.AddRange(slotList.Where(x => x.SlotInPast));
-        
+
         return slotSimple;
     }
 }

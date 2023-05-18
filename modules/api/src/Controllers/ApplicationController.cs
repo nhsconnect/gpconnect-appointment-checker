@@ -66,6 +66,18 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("searchgroup/{searchGroupId}/{userId}", Name = "GetSearchGroup")]
+    public async Task<IActionResult> GetSearchGroup([FromRoute] int searchGroupId, int userId)
+    {
+        var response = await _service.GetSearchGroup(searchGroupId, userId);
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+        return Ok(response);
+    }
+
     [HttpGet("searchresultbygroup/{searchGroupId}/{userId}", Name = "GetSearchResultByGroup")]
     public async Task<IActionResult> GetSearchResultByGroup([FromRoute] int searchGroupId, int userId)
     {

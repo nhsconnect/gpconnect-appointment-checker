@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
+using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
@@ -18,11 +19,11 @@ public class ReportingService : IReportingService
         _dataService = dataService;
     }
 
-    public async Task<MemoryStream> ExportByReportName(string functionName, string reportName = "")
+    public async Task<Stream> ExportReport(ReportRequest reportRequest)
     {
-        var result = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{functionName}");
-        var spreadsheetDocument = CreateReport(result, reportName);
-        return spreadsheetDocument;
+        var dataTable = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);
+        var memoryStream = CreateReport(dataTable, reportRequest.ReportName);
+        return memoryStream;
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, int userId, string reportName)
@@ -126,12 +127,18 @@ public class ReportingService : IReportingService
                 var cell = new Cell
                 {
                     DataType = cellValue.GetCellDataType(),
-                    CellValue = cellValue?.Length > 0 ? new CellValue(cellValue) : null
+                    CellValue = cellValue?.Length > 0 ? new CellValue(IsDateTime(cellValue)) : null
                 };
                 row.AppendChild(cell);
             }
             sheetData.AppendChild(row);
         }
+    }
+
+    private string IsDateTime(string cellValue)
+    {
+        DateTime dateValue;
+        return DateTime.TryParse(cellValue, out dateValue) ? dateValue.ToString("dd/MMM/yyyy HH:mm:ss") : cellValue;
     }
 
     private void BuildHeaderRow(SheetData sheetData, DataColumnCollection dataColumnCollection)

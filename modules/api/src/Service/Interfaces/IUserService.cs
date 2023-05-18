@@ -10,9 +10,9 @@ public interface IUserService
     Task<User> LogonUser(DTO.Request.Application.LogonUser user);
     Task<User> LogoffUser(DTO.Request.Application.LogoffUser user);
     Task<User> AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount);
-    Task<User> SetUserStatus(int userId, int userAccountStatusId, int adminUserId, int userSessionId);
-    Task SetMultiSearch(int userId, bool multiSearchEnabled, int adminUserId, int userSessionId);
-    Task SetOrgTypeSearch(int userId, bool orgTypeSearchEnabled, int adminUserId, int userSessionId);
+    Task<User> SetUserStatus(DTO.Request.Application.UserUpdateStatus userUpdateStatus);
+    Task SetMultiSearch(DTO.Request.Application.UserUpdateMultiSearch userUpdateMultiSearch);
+    Task SetOrgTypeSearch(DTO.Request.Application.UserUpdateOrgTypeSearch userUpdateOrgTypeSearch);
     Task<User> AddUser(DTO.Request.Application.UserAdd userAdd);
     Task<User> GetUser(string emailAddress);
 }

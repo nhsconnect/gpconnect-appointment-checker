@@ -24,7 +24,6 @@ public static class HttpClientExtensions
         services.AddHttpClient<IApplicationService, ApplicationService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<IConfigurationService, ConfigurationService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<ILogService, LogService>(httpClientConfig).AugmentHttpClientBuilder(env);
-        services.AddHttpClient<INotificationService, NotificationService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<IReportingService, ReportingService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<ISpineService, SpineService>(httpClientConfig).AugmentHttpClientBuilder(env);
         services.AddHttpClient<ITokenService, TokenService>(httpClientConfig).AugmentHttpClientBuilder(env);

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
@@ -185,7 +186,7 @@ namespace gpconnect_appointment_checker.Pages
                 ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
                 ProviderASIDPresent = searchResponse.ProviderASIDPresent;
                 SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
-                SearchOnBehalfOfResultsText = searchResponse.FormattedConsumerOrganisationDetails;
+                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResponse.FormattedConsumerOrganisationDetails, searchResponse.FormattedConsumerOrganisationType);
                 ProviderPublisher = searchResponse.ProviderPublisher;
 
                 SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
@@ -222,11 +223,6 @@ namespace gpconnect_appointment_checker.Pages
                 SearchResultsSummary = slotEntrySummaryList;
                 SearchGroupId = slotEntrySummaryList[0].SearchGroupId;
             }
-        }               
-
-        private string AppendAdditionalDetails(string item2, string additionalDetails)
-        {
-            return !string.IsNullOrEmpty(additionalDetails) ? $"{item2}<div class=\"nhsuk-warning-message\"><p>{additionalDetails}</p></div>" : item2;
         }
 
         private IEnumerable<SelectListItem> GetDateRanges()

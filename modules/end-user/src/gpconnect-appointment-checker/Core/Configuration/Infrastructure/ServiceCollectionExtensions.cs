@@ -36,7 +36,6 @@ public static class ServiceCollectionExtensions
 
         services.AddOptions();
         services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
-        services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
         services.Configure<ApplicationConfig>(configuration.GetSection("ApplicationConfig"));
         services.Configure<SingleSignOnConfig>(configuration.GetSection("SingleSignOnConfig"));
 

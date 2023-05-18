@@ -9,7 +9,8 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class ReportsModel
     {
-        public List<SelectListItem> ReportsList { get; set; }
+        public IEnumerable<SelectListItem> ReportsList => GetReportsList().Result;
+
         [BindProperty]
         [Required(ErrorMessage = ReportConstants.SLOTSUMMARYREPORTSELECTIONERROR)]
         public string SelectedReport { get; set; }

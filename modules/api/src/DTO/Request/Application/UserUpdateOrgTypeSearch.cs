@@ -1,8 +1,10 @@
 ﻿namespace GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 
-public class UserAdd
+public class UserUpdateOrgTypeSearch
 {
-    public string EmailAddress { get; set; }
+    public int UserId { get; set; }
     public int AdminUserId { get; set; }
     public int UserSessionId { get; set; }
+    public bool OrgTypeSearchEnabled { get; set; }
 }
+

@@ -11,4 +11,5 @@ public class UserCreateAccount
     public string JobRole { get; set; }
     public string Reason { get; set; }
     public UserAccountStatus UserAccountStatus => UserAccountStatus.Pending;
+    public string RequestUrl { get; set; }
 }

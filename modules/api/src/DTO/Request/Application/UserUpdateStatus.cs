@@ -1,8 +1,10 @@
 ﻿namespace GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 
-public class UserAdd
+public class UserUpdateStatus
 {
-    public string EmailAddress { get; set; }
+    public int UserId { get; set; }
     public int AdminUserId { get; set; }
     public int UserSessionId { get; set; }
+    public int UserAccountStatusId { get; set; }
+    public string RequestUrl { get; set; }
 }

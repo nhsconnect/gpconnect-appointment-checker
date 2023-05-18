@@ -7,6 +7,7 @@ public interface IConfigurationService
     Task<IEnumerable<SpineMessageType>> GetSpineMessageTypes();
     Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType);
     Task<IEnumerable<OrganisationType>> GetOrganisationTypes();
+    Task<OrganisationType> GetOrganisationType(string organisationTypeCode);
     Task<SdsQuery> GetSdsQueryConfiguration(string queryName);
     Task<FhirApiQuery> GetFhirApiQueryConfiguration(string queryName);
 

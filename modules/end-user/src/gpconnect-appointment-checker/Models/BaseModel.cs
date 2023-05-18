@@ -40,7 +40,7 @@ namespace gpconnect_appointment_checker.Pages
         public bool NoUserPresent => UserId == 0;
         public UserAccountStatus UserAccountStatus => GetUserAccountStatus(_contextAccessor.HttpContext.User.GetClaimValue<UserAccountStatus>("UserAccountStatus"));
 
-        public Uri FullUrl => new Uri(HttpContext.Request.GetDisplayUrl());
+        public Uri FullUrl => new Uri(HttpContext.Request.GetBaseSiteUrl());
 
         private UserAccountStatus GetUserAccountStatus(UserAccountStatus? userAccountStatus)
         {
@@ -49,14 +49,6 @@ namespace gpconnect_appointment_checker.Pages
                 return userAccountStatus.Value;
             }
             return UserAccountStatus.Unknown;
-        }
-
-        protected static FileStreamResult GetFileStream(MemoryStream memoryStream, string fileName = null)
-        {
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            {
-                FileDownloadName = fileName ?? $"{DateTime.UtcNow.ToFileTimeUtc()}.xlsx"
-            };
         }
     }
 }
