@@ -24,7 +24,7 @@ public class User
     public string AccessLevel { get; set; }
 
     [JsonProperty("lastLogonDate")]
-    public DateTime? LastLogonDate { get; set; }
+    public string LastLogonDate { get; set; }
 
     [JsonProperty("userAccountStatusId")]
     public int UserAccountStatusId { get; set; }
