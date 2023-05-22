@@ -44,5 +44,5 @@ public class Program
             .ConfigureLogging((builderContext, logging) =>
             {
                 LoggingConfigurationBuilder.AddLoggingConfiguration(builderContext, logging);
-            }).UseNLog();    
+            }).UseNLog();
 }
