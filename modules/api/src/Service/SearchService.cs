@@ -261,7 +261,7 @@ public class SearchService : ISearchService
             if (providerError != null)
                 detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, providerError.Display, providerError.Code));            
 
-            if (!providerOdsCodeFound || !consumerOdsCodeFound || !providerAsidFound || providerError != null)
+            if (!providerOdsCodeFound || (!consumerOdsCodeFound && string.IsNullOrEmpty(consumerOrganisationType)) || !providerAsidFound || providerError != null)
             {
                 details.errorCode = 1;
             }
