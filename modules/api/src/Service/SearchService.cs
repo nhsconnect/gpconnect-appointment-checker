@@ -242,7 +242,7 @@ public class SearchService : ISearchService
         try
         {
             Details details;
-            details.errorCode = 1;
+            details.errorCode = 0;
 
             var detailsBuilder = new List<string>();
 
@@ -275,7 +275,11 @@ public class SearchService : ISearchService
                     if (searchResultsCurrentCount > 0)
                         detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, searchResultsCurrentCount.Value));
                 }
-                details.errorCode = 0;
+            }
+
+            if(!providerOdsCodeFound || !consumerOdsCodeFound || !providerAsidFound || providerError != null)
+            {
+                details.errorCode = 1;
             }
 
             details.displayDetail = detailsBuilder.ConvertObjectToJsonData();
