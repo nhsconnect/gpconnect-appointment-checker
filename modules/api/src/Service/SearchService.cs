@@ -259,26 +259,29 @@ public class SearchService : ISearchService
                 detailsBuilder.Add(SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT);
 
             if (providerError != null)
-                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, providerError.Display, providerError.Code));
-
-            if (providerOdsCodeFound && (consumerOdsCodeFound || !string.IsNullOrEmpty(consumerOrganisationType)))
-            {
-                if (searchResultsTotalCount == 0)
-                {
-                    detailsBuilder.Add(SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT);
-                }
-                else
-                {
-                    if (searchResultsPastCount > 0)
-                        detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, searchResultsPastCount.Value));
-                    if (searchResultsCurrentCount > 0)
-                        detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, searchResultsCurrentCount.Value));
-                }
-            }
+                detailsBuilder.Add(string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, providerError.Display, providerError.Code));            
 
             if (!providerOdsCodeFound || !consumerOdsCodeFound || !providerAsidFound || providerError != null)
             {
                 details.errorCode = 1;
+            }
+
+            if (details.errorCode == 0)
+            {
+                if (providerOdsCodeFound && (consumerOdsCodeFound || !string.IsNullOrEmpty(consumerOrganisationType)))
+                {
+                    if (searchResultsTotalCount == 0)
+                    {
+                        detailsBuilder.Add(SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT);
+                    }
+                    else
+                    {
+                        if (searchResultsPastCount > 0)
+                            detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, searchResultsPastCount.Value));
+                        if (searchResultsCurrentCount > 0)
+                            detailsBuilder.Add(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, searchResultsCurrentCount.Value));
+                    }
+                }
             }
 
             details.displayDetail = detailsBuilder.ConvertObjectToJsonData();
