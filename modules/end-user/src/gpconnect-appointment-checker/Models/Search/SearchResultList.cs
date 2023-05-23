@@ -74,7 +74,7 @@ public class SearchResultList
     public string ProviderPublisher { get; set; }
 
     [JsonProperty("providerError")]
-    public string ProviderError { get; set; }
+    public ProviderError ProviderError { get; set; }
 
     [JsonProperty("displayProvider")]
     public bool DisplayProvider { get; set; }

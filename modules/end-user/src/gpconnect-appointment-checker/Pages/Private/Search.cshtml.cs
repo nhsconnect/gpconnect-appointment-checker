@@ -198,6 +198,11 @@ namespace gpconnect_appointment_checker.Pages
 
                 SearchGroupId = searchResponse.SearchGroupId;
                 SearchResultId = searchResponse.SearchResultId;
+
+                if(searchResponse.ProviderError != null)
+                {
+                    ProviderError = searchResponse.ProviderError;
+                }
             }
             else
             {

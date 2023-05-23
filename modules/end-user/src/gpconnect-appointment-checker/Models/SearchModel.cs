@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.Helpers.Constants;
+﻿using GpConnect.AppointmentChecker.Models.Search;
+using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.CustomValidations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -114,9 +115,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public string SearchSummaryDetail { get; set; }
 
-        public string ProviderErrorDisplay { get; set; }
-        public string ProviderErrorCode { get; set; }
-        public string ProviderErrorDiagnostics { get; set; }
+        public ProviderError ProviderError { get; set; }
 
         public bool LdapErrorRaised { get; set; }
     }
