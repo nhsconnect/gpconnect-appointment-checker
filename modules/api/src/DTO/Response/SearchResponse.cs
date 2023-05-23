@@ -29,7 +29,7 @@ public class SearchResponse
 
     public ProviderError ProviderError { get; set; }
 
-    public bool DisplayProvider => ProviderError == null && ProviderOdsCodeFound;
+    public bool DisplayProvider => ProviderOdsCodeFound;
     public bool DisplayConsumer => ConsumerOdsCodeFound;
     public bool DetailsEnabled => SearchResultsTotalCount > 0 && DisplayProvider && (DisplayConsumer || DisplayConsumerOrganisationType);
 

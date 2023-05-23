@@ -1,3 +1,4 @@
+using GpConnect.AppointmentChecker.Models.Search;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 

@@ -56,14 +56,14 @@ else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
         </div>
     </div>
 }
-else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk)
+else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk || Model.ProviderError != null)
 {
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
                 <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, Model.ProviderErrorDisplay, Model.ProviderErrorCode)</p>
-                <p>@Model.ProviderErrorDiagnostics</p>
+                <p>@string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, Model.ProviderError.Display, Model.ProviderError.Code)</p>
+                <p>@Model.ProviderError.Diagnostics</p>
             </div>
         </div>
     </div>
