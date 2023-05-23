@@ -92,20 +92,20 @@ public class SearchService : ISearchService
 
             if (searchRequest.ConsumerOdsCodeAsList?.Count > 0)
             {
-                for (var providerCodeIndex = 0; providerCodeIndex < searchRequest.ProviderOdsCodeAsList.Count; providerCodeIndex++)
+                await Parallel.ForEachAsync(searchRequest.ProviderOdsCodeAsList, async (providerOdsCode, ct) =>
                 {
                     for (var consumerCodeIndex = 0; consumerCodeIndex < searchRequest.ConsumerOdsCodeAsList.Count; consumerCodeIndex++)
                     {
-                        searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerCodeIndex, consumerCodeIndex));
+                        searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper(), consumerCodeIndex));
                     }
-                }
+                });
             }
             else
             {
-                for (var providerCodeIndex = 0; providerCodeIndex < searchRequest.ProviderOdsCodeAsList.Count; providerCodeIndex++)
+                await Parallel.ForEachAsync(searchRequest.ProviderOdsCodeAsList, async (providerOdsCode, ct) =>
                 {
-                    searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerCodeIndex));
-                }
+                    searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper()));
+                });
             }
             return searchResponses;
         }
@@ -116,14 +116,13 @@ public class SearchService : ISearchService
         }
     }
 
-    private async Task<SearchResponse> ProcessSearchRequestInstance(int searchGroupId, SearchRequest searchRequest, int providerCodeIndex, int consumerCodeIndex = -1)
+    private async Task<SearchResponse> ProcessSearchRequestInstance(int searchGroupId, SearchRequest searchRequest, string providerOdsCode, int consumerCodeIndex = -1)
     {
         try
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var providerOdsCode = searchRequest.ProviderOdsCodeAsList[providerCodeIndex].ToUpper();
             var consumerOdsCode = consumerCodeIndex >= 0 ? searchRequest.ConsumerOdsCodeAsList[consumerCodeIndex].ToUpper() : null;
 
             var searchResponse = new SearchResponse()
@@ -277,7 +276,7 @@ public class SearchService : ISearchService
                 }
             }
 
-            if(!providerOdsCodeFound || !consumerOdsCodeFound || !providerAsidFound || providerError != null)
+            if (!providerOdsCodeFound || !consumerOdsCodeFound || !providerAsidFound || providerError != null)
             {
                 details.errorCode = 1;
             }
