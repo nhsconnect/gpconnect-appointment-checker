@@ -1,12 +1,15 @@
 ﻿namespace GpConnect.AppointmentChecker.Api.Helpers;
 public static class AddressBuilder
 {
-    public static string GetAddress(List<string> addressLines, string postalCode)
+    public static string GetAddress(List<string> addressLines, string postalCode = "")
     {
-        if (addressLines != null && !string.IsNullOrEmpty(postalCode))
+        if (addressLines != null)
         {
             addressLines ??= new List<string>();
-            addressLines.Add(postalCode);
+            if (!string.IsNullOrEmpty(postalCode))
+            {
+                addressLines.Add(postalCode);
+            }
             return string.Join(", ", addressLines.Where(s => !string.IsNullOrEmpty(s.Trim())));
         }
         return string.Empty;
