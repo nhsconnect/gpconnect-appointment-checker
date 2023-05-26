@@ -26,9 +26,7 @@
   </ItemGroup>  
 
   <ItemGroup>
-    <ProjectReference Include="..\gpconnect-appointment-checker.GPConnect\gpconnect-appointment-checker.GPConnect.csproj" />
     <ProjectReference Include="..\gpconnect-appointment-checker.Helpers\gpconnect-appointment-checker.Helpers.csproj" />
-    <ProjectReference Include="..\gpconnect-appointment-checker.SDS\gpconnect-appointment-checker.SDS.csproj" />
   </ItemGroup>  
 
   <ItemGroup>

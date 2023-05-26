@@ -2,7 +2,6 @@ using Autofac;
 using gpconnect_appointment_checker.Configuration.Infrastructure;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
 using gpconnect_appointment_checker.Core.Configuration.Infrastructure;
-using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,8 +22,6 @@ namespace gpconnect_appointment_checker
 
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
-
-            ConfigurationHelper.Initialize(configuration);
         }        
 
         public void ConfigureServices(IServiceCollection services)

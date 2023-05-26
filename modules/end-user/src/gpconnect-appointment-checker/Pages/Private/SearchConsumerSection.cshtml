@@ -10,7 +10,7 @@
     <div class="nhsuk-card__content nhsuk-card__content--feature">
         <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
             @SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT
-        </h2>        
+        </h2>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error" : string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
             @if (!string.IsNullOrEmpty(Model.ConsumerOdsCodeInputBoxHintText))
@@ -23,6 +23,9 @@
             {
                 @Html.ValidationMessageFor(m => m.ConsumerOdsCode, "", new { @class = "nhsuk-error-message" })
             }
+            <p>
+                <a target="_blank" href="https://digital.nhs.uk/services/gp-connect/gp-connect-in-your-organisation/appointment-management#gp-connect-appointment-management-in-gp-practices">ODS codes for national NHS 111 providers</a>
+            </p>
             <input class="nhsuk-input nhsuk-input--width-@Model.SearchInputBoxLength @(consumerOdsCodeInvalid ? "nhsuk-input--error" : string.Empty)" id="input-consumerodscode" asp-for="@Model.ConsumerOdsCode" name="consumerodscode" value="@Model.ConsumerOdsCode" type="search" aria-describedby="input-consumerodscode-hint-text">
         </div>
 
