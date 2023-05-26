@@ -34,6 +34,7 @@ namespace gpconnect_appointment_checker.Pages
             Organisation = User.GetClaimValue("OrganisationName");
             OrganisationId = User.GetClaimValue("OrganisationId").StringToInteger();
             EmailAddress = User.GetClaimValue("Email");
+            DisplayName = User.GetClaimValue("DisplayName");
 
             ModelState.ClearValidationState("JobRole");
             ModelState.ClearValidationState("Organisation");

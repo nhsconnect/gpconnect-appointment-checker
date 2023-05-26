@@ -31,6 +31,7 @@
             <input type="hidden" name="Organisation" id="Organisation" value="@Model.Organisation" />
             <input type="hidden" name="OrganisationId" id="OrganisationId" value="@Model.OrganisationId" />
             <input type="hidden" name="EmailAddress" id="EmailAddress" value="@Model.EmailAddress" />
+            <input type="hidden" name="DisplayName" id="DisplayName" value="@Model.DisplayName" />
 
             <div class="nhsuk-form-group @(organisationInvalid ? "nhsuk-form-group--error": string.Empty)">
                 <label class="nhsuk-label" for="input-organisation">@SearchConstants.ORGANISATIONLABEL</label>
@@ -49,7 +50,6 @@
                 }
                 <textarea class="nhsuk-textarea @(accessRequestReasonInvalid ? "nhsuk-textarea--error": string.Empty)" id="input-accessrequestreason" asp-for="@Model.AccessRequestReason" name="accessrequestreason" rows="5" aria-describedby="input-accessrequestreason-hint-text">@Model.AccessRequestReason</textarea>
             </div>
-
             <div class="nhsuk-form-group">
                 <p>By clicking on "Submit", you agree to abide by the Appointment Checker <a target="_blank" href="/TermsAndConditions">Terms and Conditions</a>&nbsp;(opens in a new window)</p>
             </div>

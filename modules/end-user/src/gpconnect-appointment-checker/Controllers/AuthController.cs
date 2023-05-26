@@ -49,14 +49,14 @@ namespace gpconnect_appointment_checker.Controllers
         }
 
         [Route("/Auth/Logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout(string redirectUrl = "/Index")
         {
             var userSessionId = _contextAccessor.HttpContext.User.GetClaimValue("UserSessionId").StringToInteger(0);
             try
             {
                 if (userSessionId > 0)
                 {
-                    _userService.LogoffUser(new LogoffUser
+                    await _userService.LogoffUser(new LogoffUser
                     {
                         EmailAddress = _contextAccessor.HttpContext.User.GetClaimValue("Email"),
                         UserSessionId = userSessionId
@@ -68,7 +68,13 @@ namespace gpconnect_appointment_checker.Controllers
                 _logger.LogError(exc, "An error occurred in trying to logout the user");
                 throw;
             }
-            return SignOut(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+
+            return Redirect(redirectUrl);
+
+            //return SignOut(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         }
     }
 }

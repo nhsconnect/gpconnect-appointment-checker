@@ -181,7 +181,7 @@ public class ApplicationService : IApplicationService
         var parameters = new DynamicParameters();
         parameters.Add("_search_result_id", searchResultId);
         parameters.Add("_details", JsonConvert.SerializeObject(searchResponseNoResults));
-        parameters.Add("_error_code", 0);
+        parameters.Add("_error_code", searchResponseNoResults.ErrorCode);
         parameters.Add("_search_duration_seconds", timeTaken, DbType.Double);
         await _dataService.ExecuteQuery(functionName, parameters);
     }

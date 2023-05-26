@@ -6,6 +6,7 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Net.WebSockets;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchResult;
 
@@ -96,7 +97,10 @@ public class SearchService : ISearchService
                 {
                     for (var consumerCodeIndex = 0; consumerCodeIndex < searchRequest.ConsumerOdsCodeAsList.Count; consumerCodeIndex++)
                     {
-                        searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper(), consumerCodeIndex));
+                        var searchResponse = await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper(), consumerCodeIndex);
+                        searchResponses.Add(searchResponse);
+                        await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId, searchRequest.UserId);                        
+                        await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
                     }
                 });
             }
@@ -104,7 +108,10 @@ public class SearchService : ISearchService
             {
                 await Parallel.ForEachAsync(searchRequest.ProviderOdsCodeAsList, async (providerOdsCode, ct) =>
                 {
-                    searchResponses.Add(await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper()));
+                    var searchResponse = await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper());
+                    searchResponses.Add(searchResponse);
+                    await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId, searchRequest.UserId);
+                    await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
                 });
             }
             return searchResponses;
@@ -120,11 +127,7 @@ public class SearchService : ISearchService
     {
         try
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             var consumerOdsCode = consumerCodeIndex >= 0 ? searchRequest.ConsumerOdsCodeAsList[consumerCodeIndex].ToUpper() : null;
-
             var searchResponse = new SearchResponse()
             {
                 ProviderOdsCode = providerOdsCode,
@@ -213,13 +216,7 @@ public class SearchService : ISearchService
             var details = GetDetails(providerOdsCode, consumerOdsCode, searchRequest.ConsumerOrganisationType, searchResponse.ProviderEnabledForGpConnectAppointmentManagement, searchResponse.ConsumerEnabledForGpConnectAppointmentManagement, searchResponse.ProviderOdsCodeFound, searchResponse.ConsumerOdsCodeFound, searchResponse.SearchResultsCurrentCount, searchResponse.SearchResultsPastCount, searchResponse.SearchResultsTotalCount, searchResponse.ProviderError, searchResponse.ProviderASIDPresent);
 
             searchResponse.DisplayDetails = details.displayDetail;
-            searchResponse.ErrorCode = details.errorCode;
-
-            stopwatch.Stop();
-            searchResponse.TimeTaken = stopwatch.Elapsed.TotalSeconds;
-
-            await _applicationService.UpdateSearchGroup(searchGroupId, searchRequest.UserId);
-            await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
+            searchResponse.ErrorCode = details.errorCode;            
 
             return searchResponse;
         }
