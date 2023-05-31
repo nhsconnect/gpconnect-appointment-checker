@@ -11,8 +11,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog;
-using NLog.Web;
 using System;
 
 namespace gpconnect_appointment_checker.Configuration.Infrastructure;
@@ -31,8 +29,12 @@ public static class ServiceCollectionExtensions
 
         services.Configure<CookiePolicyOptions>(options =>
         {
+            options.ConsentCookie.Name = ".GpConnectAppointmentChecker.ConsentCookie";
             options.CheckConsentNeeded = context => true;
-            options.MinimumSameSitePolicy = SameSiteMode.None;
+            options.MinimumSameSitePolicy = SameSiteMode.Lax;
+            options.Secure = CookieSecurePolicy.SameAsRequest;
+            options.ConsentCookie.SameSite = SameSiteMode.Lax;
+            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         });
 
         services.Configure<FormOptions>(x => x.ValueCountLimit = 100000);
@@ -109,9 +111,9 @@ public static class ServiceCollectionExtensions
         services.AddAntiforgery(options =>
         { 
             options.SuppressXFrameOptionsHeader = true;
-            options.Cookie.HttpOnly = false;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SameSite = SameSiteMode.Lax;
         });
 
         services
