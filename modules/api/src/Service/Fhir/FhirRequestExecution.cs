@@ -53,7 +53,7 @@ public class FhirRequestExecution : IFhirRequestExecution
 
             sw.Stop();
             spineMessage.RoundTripTimeMs = sw.Elapsed.TotalMilliseconds;
-            var savedSpineMessage = _logService.AddSpineMessageLog(spineMessage);
+            var savedSpineMessage = await _logService.AddSpineMessageLog(spineMessage);
 
             if (response.IsSuccessStatusCode)
             {

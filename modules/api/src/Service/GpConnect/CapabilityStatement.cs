@@ -69,7 +69,7 @@ public class CapabilityStatement : ICapabilityStatement
         {
             stopWatch.Stop();
             _spineMessage.RoundTripTimeMs = stopWatch.Elapsed.TotalMilliseconds;
-            _logService.AddSpineMessageLog(_spineMessage);
+            await _logService.AddSpineMessageLog(_spineMessage);
         }
     }
 }
