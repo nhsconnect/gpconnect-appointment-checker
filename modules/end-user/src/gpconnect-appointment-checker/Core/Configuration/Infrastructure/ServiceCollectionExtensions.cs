@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
         {
             s.Cookie.Name = ".GpConnectAppointmentChecker.Session";
             s.IdleTimeout = new TimeSpan(0, 30, 0);
-            s.Cookie.HttpOnly = false;
+            s.Cookie.HttpOnly = true;
             s.Cookie.IsEssential = true;
         });
 
@@ -31,10 +31,7 @@ public static class ServiceCollectionExtensions
         {
             options.ConsentCookie.Name = ".GpConnectAppointmentChecker.ConsentCookie";
             options.CheckConsentNeeded = context => true;
-            options.MinimumSameSitePolicy = SameSiteMode.Lax;
-            options.Secure = CookieSecurePolicy.SameAsRequest;
-            options.ConsentCookie.SameSite = SameSiteMode.Lax;
-            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
         services.Configure<FormOptions>(x => x.ValueCountLimit = 100000);
