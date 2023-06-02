@@ -42,13 +42,13 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults(int searchResultId)
         {
-            var searchResult = await _applicationService.GetSearchResult(searchResultId, UserId);
+            var searchResult = await _applicationService.GetSearchResult(searchResultId);
             if (searchResult != null)
             {
                 SearchAtResultsText = searchResult.SearchAtResults;
                 SearchOnBehalfOfResultsText = searchResult.SearchOnBehalfOfResults;
 
-                var searchResponse = await _searchService.ExecuteFreeSlotSearchFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchRequestFromDatabase() { UserId = UserId, SearchResultId = searchResultId });
+                var searchResponse = await _searchService.ExecuteFreeSlotSearchFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchRequestFromDatabase() { SearchResultId = searchResultId });
 
                 SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
                 SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResponse.FormattedConsumerOrganisationDetails, searchResponse.FormattedConsumerOrganisationType); ;

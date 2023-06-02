@@ -3,7 +3,6 @@ drop function if exists audit.add_entry;
 create function audit.add_entry
 (
     _user_id integer,
-    _user_session_id integer,
     _entry_type_id integer,
     _item1 varchar(1000) default null,
     _item2 varchar(1000) default null,
@@ -14,7 +13,18 @@ create function audit.add_entry
 )
 returns void
 as $$
+declare	_user_session_id integer;
 begin
+	select 
+		user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
 
     insert into audit.entry
     (

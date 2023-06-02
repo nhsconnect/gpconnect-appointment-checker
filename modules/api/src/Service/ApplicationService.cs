@@ -2,6 +2,8 @@
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Response;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
+using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Newtonsoft.Json;
 using System.Data;
@@ -20,16 +22,7 @@ public class ApplicationService : IApplicationService
         _dataService = dataService;
         _logService = logService;
     }
-
-    public async Task<Organisation> GetOrganisation(string odsCode)
-    {
-        var functionName = "application.get_organisation";
-        var parameters = new DynamicParameters();
-        parameters.Add("_ods_code", odsCode, DbType.String, ParameterDirection.Input);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<Organisation>(functionName, parameters);
-        return result;
-    }
-
+    
     public async Task SynchroniseOrganisation(DTO.Response.Spine.Organisation organisation)
     {
         if (organisation != null)
@@ -54,7 +47,7 @@ public class ApplicationService : IApplicationService
     {
         var functionName = "application.add_search_group";
         var parameters = new DynamicParameters();
-        parameters.Add("_user_session_id", searchGroup.UserSessionId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId));
         parameters.Add("_consumer_ods_textbox", searchGroup.ConsumerOdsTextbox);
         parameters.Add("_provider_ods_textbox", searchGroup.ProviderOdsTextbox);
         parameters.Add("_search_date_range", searchGroup.SearchDateRange);
@@ -64,12 +57,12 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
-    public async Task UpdateSearchGroup(int searchGroupId, int userId)
+    public async Task UpdateSearchGroup(int searchGroupId)
     {
         var functionName = "application.update_search_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
-        parameters.Add("_user_id", userId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId));
         parameters.Add("_search_end_at", DateTime.UtcNow);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
@@ -88,32 +81,32 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
-    public async Task<SearchResult> GetSearchResult(int searchResultId, int userId)
+    public async Task<SearchResult> GetSearchResult(int searchResultId)
     {
         var functionName = "application.get_search_result";
         var parameters = new DynamicParameters();
         parameters.Add("_search_result_id", searchResultId);
-        parameters.Add("_user_id", userId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId));
         var result = await _dataService.ExecuteQueryFirstOrDefault<SearchResult>(functionName, parameters);
         return result;
     }
 
-    public async Task<SearchGroup> GetSearchGroup(int searchGroupId, int userId)
+    public async Task<SearchGroup> GetSearchGroup(int searchGroupId)
     {
         var functionName = "application.get_search_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
-        parameters.Add("_user_id", userId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId));
         var result = await _dataService.ExecuteQueryFirstOrDefault<SearchGroup>(functionName, parameters);
         return result;
     }
 
-    public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId, int userId)
+    public async Task<List<SearchResponse>> GetSearchResultByGroup(int searchGroupId)
     {
         var functionName = "application.get_search_result_by_group";
         var parameters = new DynamicParameters();
         parameters.Add("_search_group_id", searchGroupId);
-        parameters.Add("_user_id", userId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId));
         var searchResultByGroup = await _dataService.ExecuteQuery<SearchResultByGroup>(functionName, parameters);
 
         var searchResponseList = searchResultByGroup.Select(a =>

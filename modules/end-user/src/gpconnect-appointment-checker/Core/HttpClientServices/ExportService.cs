@@ -2,6 +2,8 @@ using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -18,11 +20,13 @@ public class ExportService : IExportService
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
+    private readonly IHttpContextAccessor _contextAccessor;
 
-    public ExportService(HttpClient httpClient, IOptions<ApplicationConfig> config)
+    public ExportService(HttpClient httpClient, IOptions<ApplicationConfig> config, IHttpContextAccessor contextAccessor)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
+        _contextAccessor = contextAccessor;
 
         _options = new JsonSerializerSettings()
         {
@@ -36,7 +40,12 @@ public class ExportService : IExportService
             JsonConvert.SerializeObject(searchExport, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
-        var response = await _httpClient.PostAsync("/export/exportsearchresult", json);
+
+        var response = await _httpClient.PostWithHeadersAsync("/export/exportsearchresult", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
         var fileName = $"{searchExport.ReportName.ToLower().SearchAndReplace(new Dictionary<string, string>() { { " ", "_" } })}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx";
         return await GetFileStreamResult(response, fileName);
     }
@@ -47,7 +56,12 @@ public class ExportService : IExportService
             JsonConvert.SerializeObject(searchExport, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
-        var response = await _httpClient.PostAsync("/export/exportsearchgroup", json);
+
+        var response = await _httpClient.PostWithHeadersAsync("/export/exportsearchgroup", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
         var fileName = $"{searchExport.ReportName.ToLower().SearchAndReplace(new Dictionary<string, string>() { { " ", "_" } })}_{DateTime.UtcNow.ToFileTimeUtc()}.xlsx";
         return await GetFileStreamResult(response, fileName);
     }

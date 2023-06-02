@@ -1,4 +1,5 @@
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ public static class HttpClientExtensions
         {
             options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            options.DefaultRequestHeaders.Add(Headers.ApiKey, configuration.GetValue<string>("ApplicationConfig:ApiKey"));
         };
 
         services.AddHttpClient<IApplicationService, ApplicationService>(httpClientConfig).AugmentHttpClientBuilder(env);

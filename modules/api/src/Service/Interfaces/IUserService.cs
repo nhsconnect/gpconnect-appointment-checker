@@ -4,6 +4,7 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 
 public interface IUserService
 {
+    Task<Organisation> GetOrganisation(string odsCode);
     Task<IEnumerable<User>> GetUsers(DTO.Request.Application.UserListSimple userListSimple);
     Task<IEnumerable<User>> GetUsers(DTO.Request.Application.UserListAdvanced userListAdvanced);
     Task<User> GetUserById(int userId);

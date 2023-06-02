@@ -15,6 +15,18 @@ public class UserController : ControllerBase
         _service = service ?? throw new ArgumentNullException();
     }
 
+    [HttpGet("organisation/{odsCode}", Name = "GetOrganisation")]
+    public async Task<IActionResult> GetOrganisationAsync([FromRoute] string odsCode)
+    {
+        var site = await _service.GetOrganisation(odsCode);
+
+        if (site == null)
+        {
+            return NotFound();
+        }
+        return Ok(site);
+    }
+
     [HttpGet("user-simple")]
     public async Task<ActionResult> Get([FromQuery] UserListSimple userListSimple)
     {

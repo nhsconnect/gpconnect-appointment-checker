@@ -19,13 +19,13 @@ public class ExportService : IExportService
 
     public async Task<Stream> ExportSearchResultFromDatabase(ExportRequest request)
     {
-        var result = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchResultFromDatabase(request.ExportRequestId, request.UserId);
+        var result = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchResultFromDatabase(request.ExportRequestId);
         return GenerateExport(request, result);
     }
 
     public async Task<Stream> ExportSearchGroupFromDatabase(ExportRequest request)
     {
-        var result = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchGroupFromDatabase(request.ExportRequestId, request.UserId);
+        var result = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchGroupFromDatabase(request.ExportRequestId);
         return GenerateExport(request, result);
     }
 

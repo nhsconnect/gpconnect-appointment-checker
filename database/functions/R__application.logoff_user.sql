@@ -2,36 +2,23 @@ drop function if exists application.logoff_user;
 
 create function application.logoff_user
 (
-	_email_address varchar(200),
-	_user_session_id integer
+	_user_id integer
 )
 returns void
 as $$
-declare
-	_user_id integer;
+declare	_user_session_id integer;
 begin
-
-	--------------------------------------------
-	-- clean parameters
-	--
-	_email_address = trim(coalesce(_email_address, ''));
-
 	select 
-		u.user_id into _user_id
-	from application.user u
-	inner join application.user_session s on u.user_id = s.user_id
-	where lower(u.email_address) = lower(_email_address)
-	and s.user_session_id = _user_session_id;
+		user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
 
-	if (_user_id is null)
-	then
-		raise exception '_user_session_id and matching _email_address combination not found';
-		return;
-	end if;
-
-	--------------------------------------------
-	-- end the session
-	--
 	if exists
 	(
 		select *
@@ -50,7 +37,6 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-			_user_session_id := _user_session_id,
 			_entry_type_id := 3
 		);
 	end if;

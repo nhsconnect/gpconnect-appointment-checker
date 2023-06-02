@@ -2,7 +2,7 @@ drop function if exists application.add_search_group;
 
 create function application.add_search_group
 (
-	_user_session_id integer,
+	_user_id integer,
 	_consumer_ods_textbox text,
 	_provider_ods_textbox text,
 	_search_date_range text,
@@ -12,7 +12,6 @@ create function application.add_search_group
 returns table
 (
 	search_group_id integer,
-	user_session_id integer,
 	consumer_ods_textbox varchar(200),
 	provider_ods_textbox varchar(200),
 	selected_daterange varchar(200),
@@ -20,9 +19,20 @@ returns table
 	consumer_organisation_type_dropdown varchar(50)
 )
 as $$
-declare
-	_search_group_id integer;
+declare _search_group_id integer;
+declare	_user_session_id integer;
 begin
+	select 
+		user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
+	
 	insert into application.search_group
 	(
 		user_session_id, 
@@ -49,7 +59,6 @@ begin
 	return query
 	select
 		sg.search_group_id,
-		sg.user_session_id,
 		sg.consumer_ods_textbox,
 		sg.provider_ods_textbox,
 		sg.selected_daterange,

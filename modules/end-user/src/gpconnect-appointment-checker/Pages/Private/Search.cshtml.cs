@@ -79,7 +79,7 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<IActionResult> OnGetSearchByGroup(int searchGroupId)
         {
-            var searchGroup = await _applicationService.GetSearchGroup(searchGroupId, UserId);
+            var searchGroup = await _applicationService.GetSearchGroup(searchGroupId);
             if (searchGroup != null)
             {
                 ProviderOdsCode = searchGroup.ProviderOdsTextbox;
@@ -118,7 +118,7 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task PopulateSearchResultsForGroup(int searchGroupId)
         {
-            var searchResultsForGroup = await _applicationService.GetSearchResultByGroup(searchGroupId, UserId);
+            var searchResultsForGroup = await _applicationService.GetSearchResultByGroup(searchGroupId);
             IsMultiSearch = true;
 
             var slotEntrySummaryList = new List<SlotEntrySummary>();

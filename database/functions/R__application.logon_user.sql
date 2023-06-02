@@ -128,7 +128,6 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-			_user_session_id := null,
 			_entry_type_id := 5,
 			_item1 := _existing_display_name,
 			_item2 := _display_name
@@ -146,7 +145,6 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-			_user_session_id := null,
 			_entry_type_id := 6,
 			_item1 := _existing_organisation_id::text,
 			_item2 := _organisation_id::text
@@ -186,7 +184,6 @@ begin
 		from audit.add_entry
 		(
     		_user_id := _user_id,
-    		_user_session_id := _user_session_id,
     		_entry_type_id := 1
 		);
 	else
@@ -196,7 +193,6 @@ begin
 		from audit.add_entry
 		(
     		_user_id := _user_id,
-    		_user_session_id := _user_session_id,
     		_entry_type_id := 2,
     		_item1 := 'user not authorised'
 		);

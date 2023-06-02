@@ -25,8 +25,7 @@ public class TokenService : ITokenService
     public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request)
     {
         try
-        {
-            
+        {            
             var spineMessageType = await _configurationService.GetSpineMessageType(request.SpineMessageTypeId);
 
             var userGuid = Guid.NewGuid().ToString();
@@ -43,7 +42,7 @@ public class TokenService : ITokenService
             var tokenDescriptor = _tokenDependencies.BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
             _tokenDependencies.AddRequestingDeviceClaim(request.RequestUri, tokenDescriptor);
             _tokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor);
-            await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.UserId, request.Sid);
+            await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid);
 
             var token = AddTokenHeader(tokenHandler, tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);

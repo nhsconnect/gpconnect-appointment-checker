@@ -32,8 +32,8 @@ namespace gpconnect_appointment_checker
             var authenticationExtensions = new AuthenticationExtensions(_configuration);
             authenticationExtensions.ConfigureAuthenticationServices(services);
 
-            services.ConfigureApplicationServices(_configuration, _webHostEnvironment);
             services.ConfigureLoggingServices(_configuration);
+            services.ConfigureApplicationServices(_configuration, _webHostEnvironment);            
         }
 
         public void ConfigureContainer(ContainerBuilder builder)

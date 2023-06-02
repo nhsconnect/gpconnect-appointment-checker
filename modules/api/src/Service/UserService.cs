@@ -1,9 +1,10 @@
-﻿using Amazon.Runtime;
-using Dapper;
+﻿using Dapper;
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Request.Application;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Application;
+using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Enumerations;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Options;
@@ -26,6 +27,14 @@ public class UserService : IUserService
         _notificationService = notificationService ?? throw new ArgumentNullException();
         _notificationConfig = notificationConfig ?? throw new ArgumentNullException();
         _generalConfig = generalConfig ?? throw new ArgumentNullException();
+    }
+    public async Task<Organisation> GetOrganisation(string odsCode)
+    {
+        var functionName = "application.get_organisation";
+        var parameters = new DynamicParameters();
+        parameters.Add("_ods_code", odsCode, DbType.String, ParameterDirection.Input);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<Organisation>(functionName, parameters);
+        return result;
     }
 
     public async Task<IEnumerable<User>> GetUsers(UserListSimple userListSimple)
@@ -84,8 +93,7 @@ public class UserService : IUserService
     {
         var functionName = "application.logoff_user";
         var parameters = new DynamicParameters();
-        parameters.Add("_email_address", user.EmailAddress);
-        parameters.Add("_user_session_id", user.UserSessionId);
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
         return result;
     }
@@ -98,6 +106,7 @@ public class UserService : IUserService
         parameters.Add("_display_name", userCreateAccount.DisplayName);
         parameters.Add("_organisation_id", userCreateAccount.OrganisationId);
         parameters.Add("_user_account_status_id", (int)userCreateAccount.UserAccountStatus);
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
         await SendNewUserNotification(userCreateAccount);
@@ -109,10 +118,9 @@ public class UserService : IUserService
     {
         var functionName = "application.set_user_status";
         var parameters = new DynamicParameters();
-        parameters.Add("_admin_user_id", userUpdateStatus.AdminUserId);
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateStatus.UserId);
         parameters.Add("_user_account_status_id", userUpdateStatus.UserAccountStatusId);
-        parameters.Add("_user_session_id", userUpdateStatus.UserSessionId);
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
         await SendUserStatusNotification(userUpdateStatus);
@@ -163,10 +171,9 @@ public class UserService : IUserService
     {
         var functionName = "application.set_multi_search";
         var parameters = new DynamicParameters();
-        parameters.Add("_admin_user_id", userUpdateMultiSearch.AdminUserId);
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateMultiSearch.UserId);
         parameters.Add("_multi_search_enabled", userUpdateMultiSearch.MultiSearchEnabled);
-        parameters.Add("_user_session_id", userUpdateMultiSearch.UserSessionId);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 
@@ -174,10 +181,9 @@ public class UserService : IUserService
     {
         var functionName = "application.set_org_type_search";
         var parameters = new DynamicParameters();
-        parameters.Add("_admin_user_id", userUpdateOrgTypeSearch.AdminUserId);
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateOrgTypeSearch.UserId);
         parameters.Add("_org_type_search_enabled", userUpdateOrgTypeSearch.OrgTypeSearchEnabled);
-        parameters.Add("_user_session_id", userUpdateOrgTypeSearch.UserSessionId);
         await _dataService.ExecuteQuery(functionName, parameters);
     }
 
@@ -186,8 +192,7 @@ public class UserService : IUserService
         var functionName = "application.add_user_manual";
         var parameters = new DynamicParameters();
         parameters.Add("_email_address", userAdd.EmailAddress);
-        parameters.Add("_admin_user_id", userAdd.AdminUserId);
-        parameters.Add("_user_session_id", userAdd.UserSessionId);
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
         return result;
     }

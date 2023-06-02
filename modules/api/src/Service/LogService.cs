@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
+using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using System.Data;
 using SpineMessage = GpConnect.AppointmentChecker.Api.DTO.Request.Logging.SpineMessage;
@@ -35,29 +37,14 @@ public class LogService : ILogService
         return result;
     }
 
-    public async Task AddErrorLog(DTO.Request.Logging.ErrorLog errorLog)
+    public async Task AddErrorLog(ErrorLog errorLog)
     {
         var functionName = "logging.log_error";
         var parameters = new DynamicParameters();
         parameters.Add("_application", errorLog.Application);
         parameters.Add("_logged", DateTime.UtcNow);
         parameters.Add("_level", errorLog.Level, DbType.String);
-        if (errorLog.UserId > 0)
-        {
-            parameters.Add("_user_id", errorLog.UserId, DbType.Int32);
-        }
-        else
-        {
-            parameters.Add("_user_id", DBNull.Value, DbType.Int32);
-        }
-        if (errorLog.UserSessionId > 0)
-        {
-            parameters.Add("_user_session_id", errorLog.UserSessionId, DbType.Int32);
-        }
-        else
-        {
-            parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
-        }
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId), DbType.Int32);
         parameters.Add("_message", errorLog.Message, DbType.String);
         parameters.Add("_logger", errorLog.Logger, DbType.String);
         parameters.Add("_callsite", errorLog.Callsite, DbType.String);
@@ -69,14 +56,7 @@ public class LogService : ILogService
     {
         var functionName = "logging.log_spine_message";
         var parameters = new DynamicParameters();
-        if (spineMessage.UserSessionId > 0)
-        {
-            parameters.Add("_user_session_id", spineMessage.UserSessionId, DbType.Int32);
-        }
-        else
-        {
-            parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
-        }
+        parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId), DbType.Int32);
         parameters.Add("_spine_message_type_id", spineMessage.SpineMessageTypeId, DbType.Int32);
         parameters.Add("_command", spineMessage.Command, DbType.String);
         parameters.Add("_request_headers", spineMessage.RequestHeaders, DbType.String);
@@ -111,21 +91,13 @@ public class LogService : ILogService
     {
         var functionName = "logging.log_web_request";
         var parameters = new DynamicParameters();
-        if (webRequest.UserId > 0)
+        if (LoggingHelper.GetIntegerValue(Headers.UserId) > 0)
         {
-            parameters.Add("_user_id", webRequest.UserId, DbType.Int32);
+            parameters.Add("_user_id", LoggingHelper.GetIntegerValue(Headers.UserId), DbType.Int32);
         }
         else
         {
             parameters.Add("_user_id", DBNull.Value, DbType.Int32);
-        }
-        if (webRequest.UserSessionId > 0)
-        {
-            parameters.Add("_user_session_id", webRequest.UserSessionId, DbType.Int32);
-        }
-        else
-        {
-            parameters.Add("_user_session_id", DBNull.Value, DbType.Int32);
         }
         parameters.Add("_url", webRequest.Url, DbType.String);
         parameters.Add("_referrer_url", webRequest.ReferrerUrl, DbType.String);

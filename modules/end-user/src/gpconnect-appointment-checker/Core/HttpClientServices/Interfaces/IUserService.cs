@@ -7,6 +7,7 @@ namespace GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 
 public interface IUserService
 {
+    Task<Organisation> GetOrganisationAsync(string odsCode);
     Task<List<User>> GetUsersAsync(UserListSimple userListSimple);
     Task<List<User>> GetUsersAsync(UserListAdvanced userListAdvanced);
     Task<User> LogonUser(LogonUser user);

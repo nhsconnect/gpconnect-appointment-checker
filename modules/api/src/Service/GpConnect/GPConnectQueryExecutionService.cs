@@ -21,13 +21,13 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         _applicationService = applicationService;
     }
 
-    public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int userId, int searchResultId = 0)
+    public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int searchResultId = 0)
     {
         var freeSlots = await _slotSearch.GetFreeSlots(requestParameters, startDate, endDate, baseAddress, searchResultId);
         return freeSlots;
     }
 
-    public async Task<SlotSimple> ExecuteFreeSlotSearchResultFromDatabase(int searchResultId, int userId)
+    public async Task<SlotSimple> ExecuteFreeSlotSearchResultFromDatabase(int searchResultId)
     {
         var spineMessage = await _logService.GetSpineMessageLogBySearchResultId(searchResultId);
         if (spineMessage != null)
@@ -38,7 +38,7 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         return null;
     }
 
-    public async Task<SlotSimple> ExecuteFreeSlotSearchGroupFromDatabase(int searchGroupId, int userId)
+    public async Task<SlotSimple> ExecuteFreeSlotSearchGroupFromDatabase(int searchGroupId)
     {
         var slotSimple = new SlotSimple()
         {

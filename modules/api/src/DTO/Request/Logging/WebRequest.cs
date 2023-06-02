@@ -2,8 +2,6 @@
 
 public class WebRequest
 {
-    public int UserId { get; set; } = 0;
-    public int UserSessionId { get; set; } = 0;
     public string Url { get; set; }
     public string ReferrerUrl { get; set; }
     public string Description { get; set; }

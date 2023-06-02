@@ -31,6 +31,12 @@
 
   <ItemGroup>
     <Folder Include="Core\Configuration\Infrastructure\Authentication\Interfaces\" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <Content Update="appsettings.local.json">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -12,16 +12,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var userId = context.Principal.GetClaimValue("UserId");
-            var userSessionId = context.Principal.GetClaimValue("UserSessionId");
 
             if (userId == null)
             {
                 context.RejectPrincipal();
             }
-
-            NLog.LogManager.Configuration.Variables["userId"] = userId;
-            NLog.LogManager.Configuration.Variables["userSessionId"] = userSessionId;
-
+            
             context.Options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
             
             return Task.CompletedTask;

@@ -42,10 +42,10 @@ public class ReportingController : ControllerBase
         return Ok(reports);
     }
 
-    [HttpGet("exportbyspinemessage/{spineMessageId}/{userId}/{reportName}")]
-    public async Task<ActionResult> Export([FromRoute] int spineMessageId, int userId, string reportName)
+    [HttpGet("exportbyspinemessage/{spineMessageId}/{reportName}")]
+    public async Task<ActionResult> Export([FromRoute] int spineMessageId, string reportName)
     {
-        var report = await _service.ExportBySpineMessage(spineMessageId, userId, reportName);
+        var report = await _service.ExportBySpineMessage(spineMessageId, reportName);
         return Ok(report);
     }
 }

@@ -3,8 +3,7 @@ drop function if exists application.add_user_manual;
 create function application.add_user_manual
 (
 	_email_address varchar(200),
-	_admin_user_id integer default null,
-	_user_session_id integer default null
+	_admin_user_id integer
 )
 returns table
 (
@@ -27,7 +26,8 @@ declare _is_new_user boolean := false;
 begin
 	_email_address = lower(trim(coalesce(_email_address, '')));
 	
-	select u.user_id into _user_id
+	select 
+		u.user_id into _user_id
 	from application.user u
 		where lower(u.email_address) = _email_address;
 		
@@ -71,7 +71,6 @@ begin
 			from audit.add_entry
 			(
 				_user_id := _user_id,
-				_user_session_id := _user_session_id,
 				_entry_type_id := 16,
 				_item1 := 'user account created',
 				_item2 := _email_address,

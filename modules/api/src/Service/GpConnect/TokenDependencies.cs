@@ -76,9 +76,9 @@ public class TokenDependencies : ITokenDependencies
         return tokenDescriptor;
     }
 
-    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, int userId, string Sid)
+    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid)
     {
-        var user = await _userService.GetUserById(userId);
+        var user = await _userService.GetUserById(LoggingHelper.GetIntegerValue(Headers.UserId));
         var nameParts = Regex.Split(user.DisplayName, @"[^a-zA-Z0-9]").Where(x => x != string.Empty).ToArray();
 
         tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner

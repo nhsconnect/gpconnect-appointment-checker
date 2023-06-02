@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.Configure<GeneralConfig>(configuration.GetSection("GeneralConfig"));
         services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
         services.Configure<OrganisationConfig>(configuration.GetSection("OrganisationConfig"));
+        services.Configure<SecurityConfig>(configuration.GetSection("SecurityConfig"));
 
         services.AddScoped<DalInterfaces.IDataService, DalServices.DataService>();
         services.AddScoped<IUserService, UserService>();        

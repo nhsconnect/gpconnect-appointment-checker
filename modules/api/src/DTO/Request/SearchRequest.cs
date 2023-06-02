@@ -12,8 +12,6 @@ public class SearchRequest
 
     public Uri RequestUri { get; set; }
 
-    public int UserId { get; set; }
-    public int UserSessionId { get; set; }
     public string Sid { get; set; }
 
     public List<string> ProviderOdsCodeAsList => ProviderOdsCode?.Split(',', ' ').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();

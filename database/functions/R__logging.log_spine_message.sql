@@ -2,7 +2,7 @@ drop function if exists logging.log_spine_message;
 
 create function logging.log_spine_message
 (
-    _user_session_id integer,
+    _user_id integer,
     _spine_message_type_id integer,
     _command text,
     _request_headers text,
@@ -30,7 +30,18 @@ returns table
 )
 as $$
 declare _spine_message_id integer;
+declare	_user_session_id integer;
 begin
+	select 
+		application.user_session.user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
 
 	insert into logging.spine_message
 	(

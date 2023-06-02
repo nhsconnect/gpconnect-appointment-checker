@@ -1,13 +1,17 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
@@ -23,43 +27,45 @@ public class LogService : ILogService
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
-
         _contextAccessor = contextAccessor;
+        _logger = logger;
+
         _options = new JsonSerializerSettings()
         {
             NullValueHandling = NullValueHandling.Ignore
         };
-        _logger = logger;
     }
 
     public async Task AddWebRequest()
     {
         try
         {
-            var url = _contextAccessor.HttpContext.Request?.Path.Value;
+            var url = _contextAccessor.HttpContext.Request?.Path.Value;            
 
-            var webRequest = new Models.Request.WebRequest()
+            if (!url.Contains(SystemConstants.HEALTHCHECKERPATH))
             {
-                CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
-                Url = url,
-                Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
-                Description = string.Empty,
-                Server = _contextAccessor.HttpContext.Request?.Host.Host,
-                SessionId = _contextAccessor.HttpContext.GetSessionId(),
-                ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
-                ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
-                UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
-            };
+                var webRequest = new WebRequest()
+                {
+                    CreatedBy = _contextAccessor.HttpContext.User?.GetClaimValue("DisplayName"),
+                    Url = url,
+                    Ip = _contextAccessor.HttpContext.Connection?.LocalIpAddress.ToString(),
+                    Description = string.Empty,
+                    Server = _contextAccessor.HttpContext.Request?.Host.Host,
+                    SessionId = _contextAccessor.HttpContext.GetSessionId(),
+                    ReferrerUrl = _contextAccessor.HttpContext.Request?.Headers["Referrer"].ToString(),
+                    ResponseCode = _contextAccessor.HttpContext.Response.StatusCode,
+                    UserAgent = _contextAccessor.HttpContext.Request?.Headers["User-Agent"].ToString()
+                };
 
-            var stringContent = JsonConvert.SerializeObject(webRequest);
-            
-            if (!url.Contains(gpconnect_appointment_checker.Helpers.Constants.SystemConstants.HEALTHCHECKERPATH))
-            {
-                var content = new StringContent(stringContent);
+                var json = new StringContent(
+                    JsonConvert.SerializeObject(webRequest, null, _options),
+                    Encoding.UTF8,
+                    MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                var response = await _httpClient.PostAsync("log/webrequest", content);
+                var response = await _httpClient.PostWithHeadersAsync("/log/webrequest", new Dictionary<string, string>()
+                {
+                    [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+                }, json);
                 response.EnsureSuccessStatusCode();
             }
         }

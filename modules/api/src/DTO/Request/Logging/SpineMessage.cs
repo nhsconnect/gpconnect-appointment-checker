@@ -2,7 +2,7 @@
 
 public class SpineMessage
 {
-    public int UserSessionId { get; set; } = 0;
+    public int UserId { get; set; }
 
     public int SpineMessageTypeId { get; set; }
     public string Command { get; set; }

@@ -26,11 +26,11 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, int userId, string reportName)
+    public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)
     {
         var parameters = new Dictionary<string, int>
             {
-                { "_user_id", userId },
+                { "_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId) },
                 { "_spine_message_id", spineMessageId }
             };
         var result = await _dataService.ExecuteFunctionAndGetDataTable("application.get_spine_message_by_id", parameters);

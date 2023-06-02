@@ -5,8 +5,7 @@ using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Net.WebSockets;
+using NLog;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchResult;
 
@@ -30,17 +29,17 @@ public class SearchService : ISearchService
         _gpConnectQueryExecutionService = gpConnectQueryExecutionService;
         _applicationService = applicationService;
         _configurationService = configurationService;
-        _logger = logger;
+        _logger = logger;        
     }
 
     public async Task<SearchResponse> ExecuteFreeSlotSearchFromDatabase(SearchFromDatabaseRequest searchFromDatabaseRequest)
     {
         try
         {
-            var response = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchResultFromDatabase(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
+            var response = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearchResultFromDatabase(searchFromDatabaseRequest.SearchResultId);
             if (response != null)
             {
-                var searchResult = await _applicationService.GetSearchResult(searchFromDatabaseRequest.SearchResultId, searchFromDatabaseRequest.UserId);
+                var searchResult = await _applicationService.GetSearchResult(searchFromDatabaseRequest.SearchResultId);
 
                 var searchResultNoResults = JsonConvert.DeserializeObject<SearchResponseNoResults>(searchResult.Details);
                 if (searchResultNoResults != null)
@@ -99,7 +98,7 @@ public class SearchService : ISearchService
                     {
                         var searchResponse = await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper(), consumerCodeIndex);
                         searchResponses.Add(searchResponse);
-                        await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId, searchRequest.UserId);                        
+                        await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId);
                         await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
                     }
                 });
@@ -110,7 +109,7 @@ public class SearchService : ISearchService
                 {
                     var searchResponse = await ProcessSearchRequestInstance(createdSearchGroup.SearchGroupId, searchRequest, providerOdsCode.ToUpper());
                     searchResponses.Add(searchResponse);
-                    await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId, searchRequest.UserId);
+                    await _applicationService.UpdateSearchGroup(searchResponse.SearchGroupId);
                     await _applicationService.UpdateSearchResult(searchResponse.SearchResultId, searchResponse, searchResponse.TimeTaken);
                 });
             }
@@ -169,7 +168,6 @@ public class SearchService : ISearchService
                         ProviderOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = providerOrganisationDetails?.OdsCode },
                         ConsumerOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = consumerOrganisationDetails?.OdsCode },
                         SpineMessageTypeId = SpineMessageTypes.GpConnectSearchFreeSlots,
-                        UserId = searchRequest.UserId,
                         Sid = searchRequest.Sid
                     });
 
@@ -181,7 +179,7 @@ public class SearchService : ISearchService
                         {
                             searchResponse.CapabilityStatementOk = true;
 
-                            var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchRequest.UserId, searchResponse.SearchResultId);
+                            var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchResponse.SearchResultId);
                             if (searchResults.NoIssues)
                             {
                                 searchResponse.SearchResultsCurrentCount = searchResults.CurrentSlotEntrySimple.Count;
@@ -314,7 +312,6 @@ public class SearchService : ISearchService
         {
             var createdSearchGroup = await _applicationService.AddSearchGroup(new SearchGroup
             {
-                UserSessionId = searchRequest.UserSessionId,
                 ProviderOdsTextbox = searchRequest.ProviderOdsCode,
                 ConsumerOdsTextbox = searchRequest.ConsumerOdsCode,
                 SearchDateRange = searchRequest.DateRange,

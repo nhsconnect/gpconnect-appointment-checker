@@ -14,18 +14,6 @@ public class ApplicationController : ControllerBase
         _service = service ?? throw new ArgumentNullException();
     }
 
-    [HttpGet("{odsCode}", Name = "GetOrganisation")]
-    public async Task<IActionResult> GetOrganisationAsync([FromRoute] string odsCode)
-    {
-        var site = await _service.GetOrganisation(odsCode);
-
-        if (site == null)
-        {
-            return NotFound();
-        }
-        return Ok(site);
-    }
-
     [HttpPost("synchroniseOrganisation")]
     public async Task<IActionResult> SynchroniseOrganisation([FromBody] DTO.Response.Spine.Organisation request)
     {
@@ -40,10 +28,10 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPut("updateSearchGroup/{searchGroupId}/{userId}")]
-    public async Task<ActionResult> UpdateSearchGroup([FromRoute] int searchGroupId, int userId)
+    [HttpPut("updateSearchGroup/{searchGroupId}")]
+    public async Task<ActionResult> UpdateSearchGroup([FromRoute] int searchGroupId)
     {
-        await _service.UpdateSearchGroup(searchGroupId, userId);
+        await _service.UpdateSearchGroup(searchGroupId);
         return Ok();
     }
 
@@ -54,10 +42,10 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("searchresult/{searchResultId}/{userId}", Name = "GetSearchResult")]
-    public async Task<IActionResult> GetSearchResult([FromRoute] int searchResultId, int userId)
+    [HttpGet("searchresult/{searchResultId}", Name = "GetSearchResult")]
+    public async Task<IActionResult> GetSearchResult([FromRoute] int searchResultId)
     {
-        var response = await _service.GetSearchResult(searchResultId, userId);
+        var response = await _service.GetSearchResult(searchResultId);
 
         if (response == null)
         {
@@ -66,10 +54,10 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("searchgroup/{searchGroupId}/{userId}", Name = "GetSearchGroup")]
-    public async Task<IActionResult> GetSearchGroup([FromRoute] int searchGroupId, int userId)
+    [HttpGet("searchgroup/{searchGroupId}", Name = "GetSearchGroup")]
+    public async Task<IActionResult> GetSearchGroup([FromRoute] int searchGroupId)
     {
-        var response = await _service.GetSearchGroup(searchGroupId, userId);
+        var response = await _service.GetSearchGroup(searchGroupId);
 
         if (response == null)
         {
@@ -78,11 +66,10 @@ public class ApplicationController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("searchresultbygroup/{searchGroupId}/{userId}", Name = "GetSearchResultByGroup")]
-    public async Task<IActionResult> GetSearchResultByGroup([FromRoute] int searchGroupId, int userId)
+    [HttpGet("searchresultbygroup/{searchGroupId}", Name = "GetSearchResultByGroup")]
+    public async Task<IActionResult> GetSearchResultByGroup([FromRoute] int searchGroupId)
     {
-        var response = await _service.GetSearchResultByGroup(searchGroupId, userId);
-
+        var response = await _service.GetSearchResultByGroup(searchGroupId);
         if (response == null)
         {
             return NotFound();

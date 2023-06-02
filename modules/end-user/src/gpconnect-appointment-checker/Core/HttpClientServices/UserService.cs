@@ -2,6 +2,8 @@ using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
+using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -9,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -28,7 +29,6 @@ public class UserService : IUserService
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
-
         _contextAccessor = contextAccessor;
 
         _logger = logger;
@@ -37,6 +37,18 @@ public class UserService : IUserService
             NullValueHandling = NullValueHandling.Ignore
         };
     }
+
+    public async Task<Organisation> GetOrganisationAsync(string odsCode)
+    {
+        var response = await _httpClient.GetWithHeadersAsync($"/user/organisation/{odsCode}", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<Organisation>(body, _options);
+    }
+
 
     public async Task<List<User>> GetUsersAsync(UserListSimple userListSimple)
     {
@@ -86,12 +98,13 @@ public class UserService : IUserService
     {
         var request = QueryHelpers.AddQueryString(url, keyValuePairs);
 
-        var response = await _httpClient.GetAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        var response = await _httpClient.GetWithHeadersAsync(request, new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        });
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<List<User>>(content, _options);
-        return result;
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<User>>(body, _options);
     }
 
     public async Task<User> LogonUser(LogonUser logonUser)
@@ -101,13 +114,15 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/logonUser", json);
-        response.EnsureSuccessStatusCode();
+        var response = await _httpClient.PostWithHeadersAsync("/user/logonUser", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
 
+        response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
 
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
+        return JsonConvert.DeserializeObject<User>(content, _options);
     }
 
     public async Task<User> LogoffUser(LogoffUser logoffUser)
@@ -117,13 +132,14 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/logoffUser", json);
+        var response = await _httpClient.PostWithHeadersAsync("/user/logoffUser", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
         response.EnsureSuccessStatusCode();
-
         var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
+        return JsonConvert.DeserializeObject<User>(content, _options);
     }
 
     public async Task<User> AddOrUpdateUser(UserCreateAccount userCreateAccount)
@@ -133,13 +149,15 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/addOrUpdateUser", json);
-        response.EnsureSuccessStatusCode();
+        var response = await _httpClient.PostWithHeadersAsync("/user/addOrUpdateUser", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
 
+        response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
 
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
+        return JsonConvert.DeserializeObject<User>(content, _options);
     }
 
     public async Task<User> AddUserAsync(AddUser addUser)
@@ -149,22 +167,22 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostAsync("/user/addUser", json);
+        var response = await _httpClient.PostWithHeadersAsync("/user/addUser", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
         response.EnsureSuccessStatusCode();
-
         var content = await response.Content.ReadAsStringAsync();
-
-        var result = JsonConvert.DeserializeObject<User>(content, _options);
-        return result;
+        return JsonConvert.DeserializeObject<User>(content, _options);
     }
 
     public async Task<User> GetUser(string emailAddress)
     {
-        var response = await _httpClient.GetAsync($"/user/emailaddress/{emailAddress}");
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        var response = await _httpClient.GetWithHeadersAsync($"/user/emailaddress/{emailAddress}", new Dictionary<string, string>()
         {
-            return null;
-        }
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<User>(body, _options);
@@ -177,7 +195,11 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PutAsync("/user/setuserstatus", json);
+        var response = await _httpClient.PutWithHeadersAsync("/user/setuserstatus", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -188,7 +210,10 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PutAsync("/user/setmultisearch", json);
+        var response = await _httpClient.PutWithHeadersAsync("/user/setmultisearch", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
         response.EnsureSuccessStatusCode();
     }
 
@@ -199,7 +224,10 @@ public class UserService : IUserService
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PutAsync("/user/setorgtypesearch", json);
+        var response = await _httpClient.PutWithHeadersAsync("/user/setorgtypesearch", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
         response.EnsureSuccessStatusCode();
     }
 }

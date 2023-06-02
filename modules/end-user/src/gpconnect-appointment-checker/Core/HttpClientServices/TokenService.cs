@@ -2,6 +2,7 @@ using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
 using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
@@ -48,7 +49,7 @@ public class TokenService : ITokenService
 
         if (organisationDetails != null)
         {
-            var organisation = await _applicationService.GetOrganisationAsync(organisationDetails.OdsCode);
+            var organisation = await _userService.GetOrganisationAsync(organisationDetails.OdsCode);
 
             if (organisation != null)
             {
@@ -115,7 +116,7 @@ public class TokenService : ITokenService
             if (loggedOnUser != null)
             {
                 identity.AddClaim(new Claim("UserSessionId", loggedOnUser.UserSessionId.ToString()));
-                identity.AddClaim(new Claim("UserId", loggedOnUser.UserId.ToString()));
+                identity.AddClaim(new Claim(Headers.UserId, loggedOnUser.UserId.ToString()));
                 identity.AddClaim(new Claim("IsAdmin", loggedOnUser.IsAdmin.ToString()));
                 identity.AddClaim(new Claim("MultiSearchEnabled", loggedOnUser.MultiSearchEnabled.ToString()));
                 identity.AddClaim(new Claim("OrgTypeSearchEnabled", loggedOnUser.OrgTypeSearchEnabled.ToString()));

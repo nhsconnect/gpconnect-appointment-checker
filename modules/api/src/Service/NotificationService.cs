@@ -1,7 +1,9 @@
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Options;
+using NLog;
 using Notify.Client;
 using Notify.Models.Responses;
 

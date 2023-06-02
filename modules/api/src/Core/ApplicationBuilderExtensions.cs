@@ -35,6 +35,8 @@ public static class ApplicationBuilderExtensions
             await next();
         });
 
+        app.UseMiddleware<HeaderCheckMiddleware>();
+
         app.UseResponseCompression();
 
         app.UseEndpoints(endpoints =>

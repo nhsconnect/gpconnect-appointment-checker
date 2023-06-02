@@ -5,7 +5,8 @@ create function application.add_or_update_user
 	_email_address varchar(200),
 	_user_account_status_id integer,
 	_display_name varchar(200),
-	_organisation_id integer
+	_organisation_id integer,
+	_admin_user_id integer
 )
 returns table
 (
@@ -23,7 +24,19 @@ returns table
 )
 as $$
 declare	_user_id integer;
+declare	_user_session_id integer;
 begin
+	select 
+		user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _admin_user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
+
 	_email_address = lower(trim(coalesce(_email_address, '')));
 	
 	select u.user_id into _user_id
@@ -79,10 +92,11 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-			_user_session_id := null,
+			_user_session_id := _user_session_id,
 			_entry_type_id := 16,
 			_item1 := 'user account created',
-			_item2 := _email_address
+			_item2 := _email_address,
+			_admin_user_id := _admin_user_id
 		);
 	end if;
 	

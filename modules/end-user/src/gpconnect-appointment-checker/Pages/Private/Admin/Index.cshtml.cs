@@ -51,7 +51,6 @@ namespace gpconnect_appointment_checker.Pages
             ClearValidationState();
             var userUpdateStatus = new UserUpdateStatus()
             {
-                AdminUserId = UserId,
                 UserSessionId = UserSessionId,
                 UserId = accountstatususerid,
                 UserAccountStatusId = UserAccountStatusId[userselectedindex],
@@ -68,7 +67,6 @@ namespace gpconnect_appointment_checker.Pages
 
             var userUpdateMultiSearch = new UserUpdateMultiSearch()
             {
-                AdminUserId = UserId,
                 UserSessionId = UserSessionId,
                 UserId = multisearchstatususerid,
                 MultiSearchEnabled = multisearchstatus,
@@ -85,7 +83,6 @@ namespace gpconnect_appointment_checker.Pages
 
             var userUpdateOrgTypeSearch = new UserUpdateOrgTypeSearch()
             {
-                AdminUserId = UserId,
                 UserSessionId = UserSessionId,
                 UserId = orgtypesearchstatususerid,
                 OrgTypeSearchEnabled = orgtypesearchstatus,
@@ -114,7 +111,6 @@ namespace gpconnect_appointment_checker.Pages
             {
                 var addUser = new AddUser()
                 {
-                    AdminUserId = UserId,
                     UserSessionId = UserSessionId,
                     EmailAddress = CleansedUserEmailAddress,
                     RequestUrl = FullUrl

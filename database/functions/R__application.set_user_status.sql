@@ -4,8 +4,7 @@ create function application.set_user_status
 (
 	_user_id integer,	
 	_admin_user_id integer,
-	_user_account_status_id integer,
-	_user_session_id integer
+	_user_account_status_id integer
 )
 returns table
 (
@@ -23,7 +22,18 @@ as $$
 declare	_old_user_status character varying (100);
 declare	_new_user_status character varying (100);
 declare	_status_changed boolean;
+declare	_user_session_id integer;
 begin
+	select 
+		us.user_session_id into _user_session_id 
+	from
+		application.user_session us
+	where
+		us.user_id = _admin_user_id 
+		and us.end_time is null 
+	order by 
+		us.start_time desc 
+	limit 1;
 	
 	select
 		uas1.description,
@@ -48,7 +58,7 @@ begin
 		where
 			application.user.user_id = _user_id;
 
-		perform audit.add_entry(_user_id, _user_session_id, 10, _old_user_status, _new_user_status, null, null, null, _admin_user_id);
+		perform audit.add_entry(_user_id, 10, _old_user_status, _new_user_status, null, null, null, _admin_user_id);
 	end if;
 
 	return query

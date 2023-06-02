@@ -1,4 +1,5 @@
-﻿using gpconnect_appointment_checker.api.Helpers;
+﻿using GpConnect.AppointmentChecker.Api.Helpers.Constants;
+using gpconnect_appointment_checker.api.Helpers;
 using NLog;
 using NLog.Layouts;
 using NLog.Targets;
@@ -22,8 +23,7 @@ public static class LoggingExtensions
         nLogConfiguration.AddTarget(databaseTarget);
 
         nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
-        nLogConfiguration.Variables.Add("userId", null);
-        nLogConfiguration.Variables.Add("userSessionId", null);
+        nLogConfiguration.Variables.Add(Headers.UserId, null);
 
         LogManager.Configuration = nLogConfiguration;
 
@@ -107,14 +107,7 @@ public static class LoggingExtensions
         databaseTarget.Parameters.Add(new DatabaseParameterInfo
         {
             Name = "@_user_id",
-            Layout = "${var:userId}",
-            DbType = DbType.Int32.ToString()
-        });
-
-        databaseTarget.Parameters.Add(new DatabaseParameterInfo
-        {
-            Name = "@_user_session_id",
-            Layout = "${var:userSessionId}",
+            Layout = "${var:" + Headers.UserId + "}",
             DbType = DbType.Int32.ToString()
         });
 
@@ -126,7 +119,7 @@ public static class LoggingExtensions
         var consoleTarget = new ConsoleTarget
         {
             Name = "Console",
-            Layout = "${var:applicationVersion}|${date}|${level:uppercase=true}|${message}|${logger}|${callsite:filename=true}|${exception:format=stackTrace}|${var:userId}|${var:userSessionId}"
+            Layout = "${var:applicationVersion}|${date}|${level:uppercase=true}|${message}|${logger}|${callsite:filename=true}|${exception:format=stackTrace}|${var:" + Headers.UserId + "}"
         };
         return consoleTarget;
     }

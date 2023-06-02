@@ -3,7 +3,6 @@ drop function if exists logging.log_web_request;
 create function logging.log_web_request
 (
 	_user_id integer,
-	_user_session_id integer,
 	_url text,
 	_referrer_url text,
 	_description text,
@@ -17,7 +16,18 @@ create function logging.log_web_request
 )
 returns void
 as $$
+declare	_user_session_id integer;
 begin
+	select 
+		user_session_id into _user_session_id 
+	from
+		application.user_session 
+	where
+		user_id = _user_id 
+		and end_time is null 
+	order by 
+		start_time desc 
+	limit 1;
 
 	insert into logging.web_request
 	(
