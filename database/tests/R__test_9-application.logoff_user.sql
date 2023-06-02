@@ -55,8 +55,7 @@ begin
 	(
 		_user_id := _user_id,
 		_admin_user_id := _user_id,
-		_user_account_status_id := 2,
-		_user_session_id := _user_session_id
+		_user_account_status_id := 2
 	);
 
 	perform
@@ -75,18 +74,11 @@ begin
 		_organisation_id := _organisation_id
 	);
 
-	select
-		us.user_session_id into _user_session_id
-	from application.user u
-	inner join application.user_session us on u.user_id = us.user_id
-	where u.email_address = _email_address;
-
 	perform
 		*
 	from application.logoff_user
 	(
-		_email_address := _email_address,
-		_user_session_id := _user_session_id
+		_user_id := _user_id
 	);
 
 end
