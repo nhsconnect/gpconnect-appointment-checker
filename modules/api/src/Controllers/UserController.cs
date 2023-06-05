@@ -109,8 +109,8 @@ public class UserController : ControllerBase
     [HttpPut("setuserstatus", Name = "SetUserStatus")]
     public async Task<ActionResult> SetUserStatus([FromBody] UserUpdateStatus userUpdateStatus)
     {
-        var user = await _service.SetUserStatus(userUpdateStatus);
-        return Ok(user);
+        await _service.SetUserStatus(userUpdateStatus);
+        return Ok();
     }
 
     [HttpPut("setmultisearch", Name = "SetMultiSearch")]
