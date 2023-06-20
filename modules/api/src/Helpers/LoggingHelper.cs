@@ -8,7 +8,7 @@ namespace GpConnect.AppointmentChecker.Api.Helpers
         {
             if(LogManager.Configuration.Variables[header] != null)
             {
-                return LogManager.Configuration.Variables[header].ToString().StringToInteger();
+                return LogManager.Configuration.Variables[header].ToString().StringToInteger(0);
             }
             return 0;
         }
