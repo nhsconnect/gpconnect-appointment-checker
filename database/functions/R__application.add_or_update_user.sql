@@ -27,14 +27,14 @@ declare	_user_id integer;
 declare	_user_session_id integer;
 begin
 	select 
-		user_session_id into _user_session_id 
+		us.user_session_id into _user_session_id 
 	from
-		application.user_session 
+		application.user_session us
 	where
-		user_id = _admin_user_id 
-		and end_time is null 
+		us.user_id = _admin_user_id 
+		and us.end_time is null 
 	order by 
-		start_time desc 
+		us.start_time desc 
 	limit 1;
 
 	_email_address = lower(trim(coalesce(_email_address, '')));
@@ -92,7 +92,6 @@ begin
 		from audit.add_entry
 		(
 			_user_id := _user_id,
-			_user_session_id := _user_session_id,
 			_entry_type_id := 16,
 			_item1 := 'user account created',
 			_item2 := _email_address,

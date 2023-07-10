@@ -27,7 +27,7 @@ public class HeaderCheckMiddleware
         }
         else
         {
-            var exemptPaths = new List<string>() { "/log/webrequest", "/spine/organisation", "/user/logonUser", "/user/logoffUser", "/user/organisation", "/user/emailaddress" };
+            var exemptPaths = new List<string>() { "/log/webrequest", "/spine/organisation", "/user/addOrUpdateUser", "/user/logonUser", "/user/logoffUser", "/user/organisation", "/user/emailaddress" };
 
             if (!exemptPaths.Any(x => context.Request.Path.StartsWithSegments(x, StringComparison.OrdinalIgnoreCase)))
             {

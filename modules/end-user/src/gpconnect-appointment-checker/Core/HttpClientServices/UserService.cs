@@ -177,13 +177,18 @@ public class UserService : IUserService
         return JsonConvert.DeserializeObject<User>(content, _options);
     }
 
-    public async Task<User> GetUser(string emailAddress)
+    public async Task<User?> GetUser(string emailAddress)
     {
         var response = await _httpClient.GetWithHeadersAsync($"/user/emailaddress/{emailAddress}", new Dictionary<string, string>()
         {
             [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
         });
-        response.EnsureSuccessStatusCode();
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<User>(body, _options);
     }
@@ -204,7 +209,7 @@ public class UserService : IUserService
     }
 
     public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch)
-    {        
+    {
         var json = new StringContent(
             JsonConvert.SerializeObject(userUpdateMultiSearch, null, _options),
             Encoding.UTF8,

@@ -16,6 +16,6 @@ public interface IUserService
     Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch);
     Task SetOrgTypeSearch(UserUpdateOrgTypeSearch userUpdateOrgTypeSearch);
     Task<User> AddUserAsync(AddUser addUser);
-    Task<User> GetUser(string emailAddress);
+    Task<User?> GetUser(string emailAddress);
     Task<User> AddOrUpdateUser(UserCreateAccount userCreateAccount);
 }

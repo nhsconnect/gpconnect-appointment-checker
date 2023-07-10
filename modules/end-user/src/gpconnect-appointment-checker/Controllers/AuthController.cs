@@ -41,11 +41,19 @@ namespace gpconnect_appointment_checker.Controllers
         [AllowAnonymous]
         public async Task Register()
         {
-            await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties
+            try
             {
-                RedirectUri = "/CreateAccount",
-                ExpiresUtc = DateTimeOffset.Now.AddMinutes(30)
-            });
+                await HttpContext.ChallengeAsync("OpenIdConnect", new AuthenticationProperties
+                {
+                    RedirectUri = "/CreateAccount",
+                    ExpiresUtc = DateTimeOffset.Now.AddMinutes(30)
+                });
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "An error occurred in trying to register the user");
+                throw;
+            }
         }
 
         [Route("/Auth/Logout")]

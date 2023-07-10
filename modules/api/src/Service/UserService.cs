@@ -106,7 +106,17 @@ public class UserService : IUserService
         parameters.Add("_display_name", userCreateAccount.DisplayName);
         parameters.Add("_organisation_id", userCreateAccount.OrganisationId);
         parameters.Add("_user_account_status_id", (int)userCreateAccount.UserAccountStatus);
-        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
+
+        var adminUserId = LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId);
+        if (adminUserId > 0)
+        {
+            parameters.Add("_admin_user_id", adminUserId, DbType.Int32);
+        }
+        else
+        {
+            parameters.Add("_admin_user_id", DBNull.Value, DbType.Int32);
+        }
+
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
         await SendNewUserNotification(userCreateAccount);
