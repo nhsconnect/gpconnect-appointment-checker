@@ -21,7 +21,7 @@ public static class HttpClientExtensions
         services.AddHttpClient<IOrganisationService, OrganisationService>(httpClientConfig).AugmentHttpClientBuilder(env, configuration);
         services.AddHttpClient("GpConnectClient", options =>
         {
-            options.Timeout = new TimeSpan(0, 0, 0, 30);
+            options.Timeout = new TimeSpan(0, 0, 0, 60);
             options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }).ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(env, configuration)).SetHandlerLifetime(Timeout.InfiniteTimeSpan);
