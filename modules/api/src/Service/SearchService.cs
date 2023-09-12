@@ -174,37 +174,61 @@ public class SearchService : ISearchService
                     if (requestParameters != null)
                     {
                         var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
-
-                        if (capabilityStatement.NoIssues)
+                        if (capabilityStatement != null)
                         {
-                            searchResponse.CapabilityStatementOk = true;
-
-                            var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchResponse.SearchResultId);
-                            if (searchResults.NoIssues)
+                            if (capabilityStatement.NoIssues)
                             {
-                                searchResponse.SearchResultsCurrentCount = searchResults.CurrentSlotEntrySimple.Count;
-                                searchResponse.SearchResultsPastCount = searchResults.PastSlotEntrySimple.Count;
-                                searchResponse.SearchResults = searchResults.CurrentSlotEntrySimple;
-                                searchResponse.SearchResultsPast = searchResults.PastSlotEntrySimple;
-                                searchResponse.SlotSearchOk = true;
+                                searchResponse.CapabilityStatementOk = true;
+
+                                var searchResults = await _gpConnectQueryExecutionService.ExecuteFreeSlotSearch(requestParameters, searchRequest.StartDate, searchRequest.EndDate, providerSpineDetails.SspHostname, searchResponse.SearchResultId);
+
+                                if (searchResults != null)
+                                {
+                                    if (searchResults.NoIssues)
+                                    {
+                                        searchResponse.SearchResultsCurrentCount = searchResults.CurrentSlotEntrySimple.Count;
+                                        searchResponse.SearchResultsPastCount = searchResults.PastSlotEntrySimple.Count;
+                                        searchResponse.SearchResults = searchResults.CurrentSlotEntrySimple;
+                                        searchResponse.SearchResultsPast = searchResults.PastSlotEntrySimple;
+                                        searchResponse.SlotSearchOk = true;
+                                    }
+                                    else if (!searchResults.NoIssues)
+                                    {
+                                        searchResponse.ProviderError = new ProviderError()
+                                        {
+                                            Display = searchResults.ProviderError,
+                                            Code = searchResults.ProviderErrorCode,
+                                            Diagnostics = searchResults.ProviderErrorDiagnostics
+                                        };
+                                    }
+                                }
+                                else
+                                {
+                                    searchResponse.ProviderError = new ProviderError()
+                                    {
+                                        Display = ProviderErrorConstants.INTERNALSERVERERRORDISPLAY,
+                                        Code = ProviderErrorConstants.INTERNALSERVERERRORCODE,
+                                        Diagnostics = string.Empty
+                                    };
+                                }
                             }
-                            else if (!searchResults.NoIssues)
+                            else if (!capabilityStatement.NoIssues)
                             {
                                 searchResponse.ProviderError = new ProviderError()
                                 {
-                                    Display = searchResults.ProviderError,
-                                    Code = searchResults.ProviderErrorCode,
-                                    Diagnostics = searchResults.ProviderErrorDiagnostics
+                                    Display = capabilityStatement.ProviderError,
+                                    Code = capabilityStatement.ProviderErrorCode,
+                                    Diagnostics = capabilityStatement.ProviderErrorDiagnostics
                                 };
                             }
                         }
-                        else if (!capabilityStatement.NoIssues)
+                        else
                         {
                             searchResponse.ProviderError = new ProviderError()
                             {
-                                Display = capabilityStatement.ProviderError,
-                                Code = capabilityStatement.ProviderErrorCode,
-                                Diagnostics = capabilityStatement.ProviderErrorDiagnostics
+                                Display = ProviderErrorConstants.INTERNALSERVERERRORDISPLAY,
+                                Code = ProviderErrorConstants.INTERNALSERVERERRORCODE,
+                                Diagnostics = string.Empty
                             };
                         }
                     }

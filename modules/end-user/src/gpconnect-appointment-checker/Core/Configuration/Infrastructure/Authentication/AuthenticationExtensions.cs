@@ -84,6 +84,10 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                             {
                                 context.Response.Redirect("/AccessDenied");
                             }
+
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthenticationExtensions>>();
+                            logger.LogError(context.Exception?.StackTrace);
+
                             context.Response.Redirect("/Error");
                             context.HandleResponse();
                             return Task.CompletedTask;

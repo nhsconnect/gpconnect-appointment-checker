@@ -15,6 +15,7 @@ public interface IUserService
     Task SetUserStatus(UserUpdateStatus userUpdateStatus);
     Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch);
     Task SetOrgTypeSearch(UserUpdateOrgTypeSearch userUpdateOrgTypeSearch);
+    Task SetIsAdmin(UserUpdateIsAdmin userUpdateIsAdmin);
     Task<User> AddUserAsync(AddUser addUser);
     Task<User?> GetUser(string emailAddress);
     Task<User> AddOrUpdateUser(UserCreateAccount userCreateAccount);

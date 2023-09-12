@@ -1,9 +1,7 @@
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Options;
-using NLog;
 using Notify.Client;
 using Notify.Models.Responses;
 
@@ -43,7 +41,7 @@ public class NotificationService : INotificationService
         }
         catch (Notify.Exceptions.NotifyClientException exc)
         {
-            _logger.LogError(exc, "Failed to send notification");
+            _logger.LogError(exc, $"Failed to send notification. Template Id is {notificationCreateRequest.TemplateId}");
             throw;
         }
     }

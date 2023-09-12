@@ -208,6 +208,21 @@ public class UserService : IUserService
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task SetIsAdmin(UserUpdateIsAdmin userUpdateIsAdmin)
+    {
+        var json = new StringContent(
+            JsonConvert.SerializeObject(userUpdateIsAdmin, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PutWithHeadersAsync("/user/setisadmin", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+        }, json);
+
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch)
     {
         var json = new StringContent(

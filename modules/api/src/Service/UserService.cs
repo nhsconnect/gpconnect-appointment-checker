@@ -177,6 +177,16 @@ public class UserService : IUserService
         await _notificationService.PostNotificationAsync(notificationRequest);
     }
 
+    public async Task SetIsAdmin(UserUpdateIsAdmin userUpdateIsAdmin)
+    {
+        var functionName = "application.set_user_is_admin";
+        var parameters = new DynamicParameters();
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
+        parameters.Add("_user_id", userUpdateIsAdmin.UserId);
+        parameters.Add("_is_admin", userUpdateIsAdmin.IsAdmin);
+        await _dataService.ExecuteQuery(functionName, parameters);
+    }
+
     public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch)
     {
         var functionName = "application.set_multi_search";

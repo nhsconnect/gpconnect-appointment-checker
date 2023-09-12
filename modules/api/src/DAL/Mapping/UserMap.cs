@@ -14,7 +14,6 @@ public class UserMap : EntityMap<User>
         Map(p => p.EmailAddress).ToColumn("email_address");
         Map(p => p.DisplayName).ToColumn("display_name");
         Map(p => p.UserAccountStatusId).ToColumn("user_account_status_id");
-        Map(p => p.AccessLevel).ToColumn("access_level");
         Map(p => p.LastLogonDate).ToColumn("last_logon_date");
         Map(p => p.MultiSearchEnabled).ToColumn("multi_search_enabled");
         Map(p => p.IsAdmin).ToColumn("is_admin");

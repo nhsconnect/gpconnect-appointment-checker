@@ -81,8 +81,6 @@ namespace gpconnect_appointment_checker.Controllers
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
 
             return Redirect(redirectUrl);
-
-            //return SignOut(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         }
     }
 }

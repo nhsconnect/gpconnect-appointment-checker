@@ -126,4 +126,11 @@ public class UserController : ControllerBase
         await _service.SetOrgTypeSearch(userUpdateOrgTypeSearch);
         return Ok();
     }
+
+    [HttpPut("setisadmin", Name = "SetIsAdmin")]
+    public async Task<ActionResult> SetIsAdmin([FromBody] UserUpdateIsAdmin userUpdateIsAdmin)
+    {
+        await _service.SetIsAdmin(userUpdateIsAdmin);
+        return Ok();
+    }
 }

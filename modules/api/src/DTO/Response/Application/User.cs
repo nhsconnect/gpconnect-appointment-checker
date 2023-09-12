@@ -7,7 +7,7 @@ public class User
     public string EmailAddress { get; set; }
     public string DisplayName { get; set; }
     public string OrganisationName { get; set; }
-    public string AccessLevel { get; set; }
+    public string AccessLevel => IsAdmin ? "Admin" : "User";
     public string LastLogonDate { get; set; }
     public int UserAccountStatusId { get; set; }
     public bool MultiSearchEnabled { get; set; }

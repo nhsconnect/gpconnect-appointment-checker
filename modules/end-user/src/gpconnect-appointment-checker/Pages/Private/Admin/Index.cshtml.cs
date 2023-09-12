@@ -77,6 +77,22 @@ namespace gpconnect_appointment_checker.Pages
             await RefreshPage();
         }
 
+        public async Task OnPostSetIsAdmin(int isadminuserid, bool isadmin)
+        {
+            ClearValidationState();
+
+            var userUpdateIsAdmin = new UserUpdateIsAdmin()
+            {
+                UserSessionId = UserSessionId,
+                UserId = isadminuserid,
+                IsAdmin = isadmin,
+                RequestUrl = FullUrl
+            };
+
+            await _userService.SetIsAdmin(userUpdateIsAdmin);
+            await RefreshPage();
+        }
+
         public async Task OnPostSetOrgTypeSearch(int orgtypesearchstatususerid, bool orgtypesearchstatus)
         {
             ClearValidationState();

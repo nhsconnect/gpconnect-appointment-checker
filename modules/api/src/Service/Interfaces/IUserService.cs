@@ -13,6 +13,7 @@ public interface IUserService
     Task<User> AddOrUpdateUser(DTO.Request.Application.UserCreateAccount userCreateAccount);
     Task<User> SetUserStatus(DTO.Request.Application.UserUpdateStatus userUpdateStatus);
     Task SetMultiSearch(DTO.Request.Application.UserUpdateMultiSearch userUpdateMultiSearch);
+    Task SetIsAdmin(DTO.Request.Application.UserUpdateIsAdmin userUpdateIsAdmin);
     Task SetOrgTypeSearch(DTO.Request.Application.UserUpdateOrgTypeSearch userUpdateOrgTypeSearch);
     Task<User> AddUser(DTO.Request.Application.UserAdd userAdd);
     Task<User> GetUser(string emailAddress);

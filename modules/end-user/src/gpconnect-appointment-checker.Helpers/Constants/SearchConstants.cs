@@ -164,6 +164,7 @@
         public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi Search?";
         public const string USERLISTRESULTSACCESSREQUESTCOUNT = "Number of access requests";
         public const string USERLISTRESULTSORGTYPESEARCHENABLED = "Org Type Search?";
+        public const string USERLISTRESULTSISADMIN = "Is Admin?";
 
         public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code";
         public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code";
