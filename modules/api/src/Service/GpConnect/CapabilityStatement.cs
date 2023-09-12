@@ -53,8 +53,6 @@ public class CapabilityStatement : ICapabilityStatement
             var response = await client.SendAsync(getRequest);
             var responseStream = await response.Content.ReadAsStringAsync();
 
-            responseStream = string.Empty;
-
             _spineMessage.ResponsePayload = responseStream;
             _spineMessage.ResponseStatus = response.StatusCode.ToString();
             _spineMessage.ResponseHeaders = response.Headers.ToString();
