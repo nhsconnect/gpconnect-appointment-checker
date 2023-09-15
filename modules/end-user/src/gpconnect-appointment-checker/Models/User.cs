@@ -29,6 +29,9 @@ public class User
     [JsonProperty("userAccountStatusId")]
     public int UserAccountStatusId { get; set; }
 
+    [JsonProperty("userAccountStatus")]
+    public string UserAccountStatus { get; set; }
+
     [JsonProperty("multiSearchEnabled")]
     public bool MultiSearchEnabled { get; set; }
 
@@ -52,4 +55,7 @@ public class User
 
     [JsonProperty("orgTypeSearchEnabled")]
     public bool OrgTypeSearchEnabled { get; set; }
+
+    [JsonProperty("isRequestUser")]
+    public bool IsRequestUser { get; set; }    
 }

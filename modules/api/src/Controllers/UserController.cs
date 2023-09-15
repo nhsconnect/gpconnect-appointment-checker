@@ -1,4 +1,5 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request.Application;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,7 @@ public class UserController : ControllerBase
     [HttpGet("user-simple")]
     public async Task<ActionResult> Get([FromQuery] UserListSimple userListSimple)
     {
+        userListSimple.RequestUserId = Convert.ToInt32(Request.Headers[Headers.UserId].ToString());
         var users = await _service.GetUsers(userListSimple);
         return Ok(users);
     }
@@ -37,6 +39,7 @@ public class UserController : ControllerBase
     [HttpGet("user-advanced")]
     public async Task<ActionResult> Get([FromQuery] UserListAdvanced userListAdvanced)
     {
+        userListAdvanced.RequestUserId = Convert.ToInt32(Request.Headers[Headers.UserId].ToString());
         var users = await _service.GetUsers(userListAdvanced);
         return Ok(users);
     }

@@ -9,4 +9,5 @@ public abstract class BaseUserList
     public SortBy SortByColumn { get; set; } = SortBy.EmailAddress;
     [BindProperty(Name = "sort_direction", SupportsGet = true)]
     public SortDirection SortDirection { get; set; } = SortDirection.ASC;
+    public int RequestUserId { get; set; }
 }

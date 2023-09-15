@@ -23,7 +23,7 @@ public class NotificationService : INotificationService
         try
         {
             var apiKey = _config.Value.ApiKey;
-            if (!string.IsNullOrEmpty(apiKey))
+            if (!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(notificationCreateRequest.TemplateId.Trim()))
             {
                 var client = new NotificationClient(apiKey);
                 var emailNotificationResponse = new List<EmailNotificationResponse>();
@@ -36,7 +36,7 @@ public class NotificationService : INotificationService
                 }
                 return emailNotificationResponse.Count;
             }
-            _logger.LogWarning("API Key is missing. Unable to send emails.");
+            _logger.LogWarning("Unable to send email as required values are not present.");
             return 0;
         }
         catch (Notify.Exceptions.NotifyClientException exc)

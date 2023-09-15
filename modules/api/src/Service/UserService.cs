@@ -42,6 +42,7 @@ public class UserService : IUserService
         var functionName = "application.get_users";
         var filteredList = (await _dataService.ExecuteQuery<User>(functionName)).AsQueryable();
         var orderedList = filteredList.OrderBy($"{userListSimple.SortByColumn} {userListSimple.SortDirection}");
+        orderedList.First(x => x.UserId == userListSimple.RequestUserId).IsRequestUser = true;
         return orderedList;
     }
 
@@ -50,6 +51,7 @@ public class UserService : IUserService
         var functionName = "application.get_users";
         var filteredList = (await _dataService.ExecuteQuery<User>(functionName)).AsQueryable();
         filteredList = ApplyFilters(userListAdvanced, filteredList);
+        filteredList.First(x => x.UserId == userListAdvanced.RequestUserId).IsRequestUser = true;
         return filteredList.OrderBy($"{userListAdvanced.SortByColumn} {userListAdvanced.SortDirection}");
     }
 
@@ -133,9 +135,35 @@ public class UserService : IUserService
         parameters.Add("_user_account_status_id", userUpdateStatus.UserAccountStatusId);
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
-        await SendUserStatusNotification(userUpdateStatus);
+        switch (userUpdateStatus.UserAccountStatusId)
+        {
+            case (int)UserAccountStatus.Deauthorised:
+            case (int)UserAccountStatus.Authorised:
+                var user = await GetUserById(userUpdateStatus.UserId);
+
+                var notificationRequest = new NotificationCreateRequest()
+                {
+                    EmailAddresses = new List<string>() { user.EmailAddress },
+                    RequestUrl = userUpdateStatus.RequestUrl,
+                    TemplateId = GetTemplateForUserUpdateStatus(userUpdateStatus.UserAccountStatusId)
+                };
+                await _notificationService.PostNotificationAsync(notificationRequest);
+                break;
+        }
 
         return result;
+    }
+
+    private string GetTemplateForUserUpdateStatus(int userAccountStatusId)
+    {
+        switch (userAccountStatusId)
+        {
+            case (int)UserAccountStatus.Deauthorised:
+                return _notificationConfig.Value.AccountDeactivatedTemplateId;
+            case (int)UserAccountStatus.Authorised:
+                return _notificationConfig.Value.NewAccountCreatedTemplateId;
+        }
+        return string.Empty;
     }
 
     private async Task SendNewUserNotification(UserCreateAccount userCreateAccount)
@@ -152,28 +180,6 @@ public class UserService : IUserService
         notificationRequest.TemplateParameters.Add("organisation_name", userCreateAccount.OrganisationName);
         notificationRequest.TemplateParameters.Add("access_reason", userCreateAccount.Reason);
 
-        await _notificationService.PostNotificationAsync(notificationRequest);
-    }
-
-    private async Task SendUserStatusNotification(UserUpdateStatus userUpdateStatus)
-    {
-        var user = await GetUserById(userUpdateStatus.UserId);
-
-        var notificationRequest = new NotificationCreateRequest()
-        {
-            EmailAddresses = new List<string>() { user.EmailAddress },
-            RequestUrl = userUpdateStatus.RequestUrl
-        };
-
-        switch (userUpdateStatus.UserAccountStatusId)
-        {
-            case (int)UserAccountStatus.Deauthorised:
-                notificationRequest.TemplateId = _notificationConfig.Value.AccountDeactivatedTemplateId;                
-                break;
-            case (int)UserAccountStatus.Authorised:
-                notificationRequest.TemplateId = _notificationConfig.Value.NewAccountCreatedTemplateId;
-                break;
-        }
         await _notificationService.PostNotificationAsync(notificationRequest);
     }
 
