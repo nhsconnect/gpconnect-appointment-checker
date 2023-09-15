@@ -150,7 +150,7 @@
                                         @if (!Model.UserList[i].IsRequestUser)
                                         {
                                                                                                                                                                     <button type="submit" class="nhsuk-tag@(Model.UserList[i].IsAdmin ? " nhsuk-tag--yellow": string.Empty)" asp-route-isadminuserid="@Model.UserList[i].UserId" asp-route-isadmin="!@Model.UserList[i].IsAdmin" asp-page-handler="SetIsAdmin">
-
+                                                @Model.UserList[i].AccessLevel
                                                                                                                                                             </button>
                                         }
                                         else
@@ -168,7 +168,8 @@
                                         else
                                         {
                                             @Model.UserList[i].UserAccountStatus
-                                                            }
+                                        }
+
                                         @if (!Model.UserList[i].IsRequestUser)
                                         {
                                                                                                         <button type="submit" class="nhsuk-tag nhsuk-tag--green"
