@@ -39,19 +39,21 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<User>> GetUsers(UserListSimple userListSimple)
     {
-        var functionName = "application.get_users";
-        var filteredList = (await _dataService.ExecuteQuery<User>(functionName)).AsQueryable();
+        var functionName = "application.get_users"; 
+        var parameters = new DynamicParameters();
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
+        var filteredList = (await _dataService.ExecuteQuery<User>(functionName, parameters)).AsQueryable();
         var orderedList = filteredList.OrderBy($"{userListSimple.SortByColumn} {userListSimple.SortDirection}");
-        orderedList.First(x => x.UserId == userListSimple.RequestUserId).IsRequestUser = true;
         return orderedList;
     }
 
     public async Task<IEnumerable<User>> GetUsers(UserListAdvanced userListAdvanced)
     {
         var functionName = "application.get_users";
-        var filteredList = (await _dataService.ExecuteQuery<User>(functionName)).AsQueryable();
+        var parameters = new DynamicParameters();
+        parameters.Add("_admin_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId));
+        var filteredList = (await _dataService.ExecuteQuery<User>(functionName, parameters)).AsQueryable();
         filteredList = ApplyFilters(userListAdvanced, filteredList);
-        filteredList.First(x => x.UserId == userListAdvanced.RequestUserId).IsRequestUser = true;
         return filteredList.OrderBy($"{userListAdvanced.SortByColumn} {userListAdvanced.SortDirection}");
     }
 
