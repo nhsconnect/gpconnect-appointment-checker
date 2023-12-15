@@ -67,6 +67,10 @@ public static class HttpClientExtensions
 
             httpClientHandler.ClientCertificates.Add(pfxFormattedCertificate);
             httpClientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+
+            var clientCertExpirationDate = x509ClientCertificate.GetExpirationDateString();
+            var subCaCertExpirationDate = x509ServerCertificateSubCa.GetExpirationDateString();
+            var rootCaCertExpirationDate = x509ServerCertificateRootCa.GetExpirationDateString();
         }
 
         return httpClientHandler;
