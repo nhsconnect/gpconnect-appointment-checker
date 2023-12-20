@@ -1,0 +1,21 @@
+select 
+	use_ssp,
+	ssp_hostname,
+	sds_hostname,
+	sds_port,
+	sds_use_ldaps,
+	organisation_id,
+	ods_code,
+	organisation_name,
+	party_key,
+	asid,
+	timeout_seconds,
+	client_cert,
+	client_private_key,
+	server_ca_certchain,
+	sds_use_mutualauth,
+	spine_fqdn,
+	sds_tls_version
+from configuration.get_spine_configuration
+(
+);

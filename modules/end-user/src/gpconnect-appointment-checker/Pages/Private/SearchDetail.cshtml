@@ -1,0 +1,11 @@
+﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers
+@model SearchDetailModel
+
+<form method="post" id="search-detail-form">
+    <a class="nhsuk-button" href="/Search?SearchGroupId=@Model.SearchGroupId&Handler=SearchByGroup#@Model.SearchResultId">@SearchConstants.BACKTORESULTSSUMMARYLABEL</a>
+    <partial name="SearchDetailResults" />
+    <partial name="SearchDetailStats" />
+    <partial name="SearchNav" />
+</form>

@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+
+@{
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+}
+
+@if (showBanner)
+{
+    <div id="nhsuk-cookie-banner" role="alert">
+        <div class="nhsuk-cookie-banner" id="cookiebanner">
+            <div class="nhsuk-width-container">
+                <h2>Cookies on this website</h2>
+                <p>We've put some small files called cookies on your device to make our site work.</p>
+                <p>You can <a href="~/PrivacyAndCookies">read more about our cookies</a> before you continue.</p>
+                <button class="nhsuk-button" type="button" data-cookie-string="@cookieString">I understand</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.querySelector("#nhsuk-cookie-banner button[data-cookie-string]").addEventListener("click", function (el) {
+                document.cookie = el.target.dataset.cookieString;
+                document.querySelector('#nhsuk-cookie-banner').style.display = "none";
+            }, false);
+        })();
+    </script>
+}

@@ -1,0 +1,1 @@
+INSERT INTO reporting.list(report_name, function_name) VALUES ('Multi Search Statistics', 'get_multi_search_stats');

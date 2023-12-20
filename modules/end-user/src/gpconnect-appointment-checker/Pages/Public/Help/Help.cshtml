@@ -1,0 +1,18 @@
+﻿@page
+@model HelpModel
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <h1>Appointment Checker Help</h1>
+        <partial name="Public/Help/SigningIn" />
+        <partial name="Public/Help/What" />
+        @if (!Model.NoUserPresent)
+        {
+            <partial name="Public/Help/Using" />
+            <partial name="Public/Help/NoAppointments" />
+            <partial name="Public/Help/Troubleshooting" />
+            <partial name="Public/Help/Further" />
+        }
+    </div>
+</div>
+

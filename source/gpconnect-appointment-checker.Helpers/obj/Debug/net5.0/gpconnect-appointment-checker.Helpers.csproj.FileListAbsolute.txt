@@ -1,0 +1,12 @@
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/bin/Debug/net5.0/gpconnect-appointment-checker.Helpers.deps.json
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/bin/Debug/net5.0/gpconnect-appointment-checker.Helpers.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/bin/Debug/net5.0/ref/gpconnect-appointment-checker.Helpers.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/bin/Debug/net5.0/gpconnect-appointment-checker.Helpers.pdb
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.csproj.AssemblyReference.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.GeneratedMSBuildEditorConfig.editorconfig
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.AssemblyInfoInputs.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.AssemblyInfo.cs
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.csproj.CoreCompileInputs.cache
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/ref/gpconnect-appointment-checker.Helpers.dll
+/Users/martin/Documents/GitHub/gpconnect-appointment-checker/source/gpconnect-appointment-checker.Helpers/obj/Debug/net5.0/gpconnect-appointment-checker.Helpers.pdb

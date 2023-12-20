@@ -1,0 +1,81 @@
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
+
+@if (!Model.ConsumerODSCodeFound && !Model.ProviderODSCodeFound)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHODSCODESTEXT, Model.ProviderOdsCode, Model.ConsumerOdsCode)</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ConsumerODSCodeFound && string.IsNullOrEmpty(Model.SelectedOrganisationType))
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHCONSUMERODSCODELABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, Model.ConsumerOdsCode)</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ProviderODSCodeFound)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHPROVIDERODSCODELABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, Model.ProviderOdsCode)</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ProviderASIDPresent)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
+                <p>@SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, Model.ProviderOdsCode)</p>
+            </div>
+        </div>
+    </div>
+}
+else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk || Model.ProviderError != null)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL</h3>
+                <p>@string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, Model.ProviderError.Display, Model.ProviderError.Code)</p>
+                <p>@Model.ProviderError.Diagnostics</p>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.LdapErrorRaised)
+{
+    <div class="nhsuk-grid-row">
+        <div class="nhsuk-grid-column-full">
+            <div class="nhsuk-warning-callout">
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHLDAPLABEL</h3>
+                <p>@SearchConstants.ISSUEWITHLDAPTEXT</p>
+            </div>
+        </div>
+    </div>
+}

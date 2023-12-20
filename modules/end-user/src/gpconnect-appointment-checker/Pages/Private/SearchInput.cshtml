@@ -1,0 +1,28 @@
+﻿@using gpconnect_appointment_checker.Helpers.Constants
+@model SearchModel
+
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">        
+        <partial name="SearchProviderSection" />
+        <partial name="SearchConsumerSection" />
+
+        <div class="nhsuk-card nhsuk-card--feature">
+            <div class="nhsuk-card__content nhsuk-card__content--feature">
+                <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
+                    @SearchConstants.SEARCHINPUTDATERANGELABEL
+                </h2>
+                <div class="nhsuk-form-group">
+                    <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.DisplayMultiSearchHelpText)
+        {
+            <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
+        }
+        <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
+        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+    </div>
+</div>

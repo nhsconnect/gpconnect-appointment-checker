@@ -1,0 +1,26 @@
+﻿<Properties StartupConfiguration="{299D7E01-5B75-4934-AE9E-260DD25BA417}|gpconnect_apptconfig_checker">
+  <MonoDevelop.Ide.Workbench>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="gpconnect-appointment-checker" expanded="True">
+            <Node name="gpconnect-appointment-checker" expanded="True">
+              <Node name="appsettings.json" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.gpconnect-appointment-checker.Console PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <Debugger.DebugSourceFolders>
+    <String>/Users/martin/Library/Caches/VisualStudio/8.0/Symbols/StackExchange/Dapper/6ab170c160f0689e2e2bf7e6eb603447f734d454</String>
+  </Debugger.DebugSourceFolders>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.gpconnect-appointment-checker PreferredExecutionTarget="/Applications/Google Chrome.app" />
+</Properties>

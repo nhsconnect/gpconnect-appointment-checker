@@ -1,0 +1,12 @@
+﻿<h2>Using the Appointment Checker</h2>
+
+@if (Model.MultiSearchEnabled)
+{
+    <partial name="Public/Help/MultipleVersion" />
+}
+else
+{
+    <partial name="Public/Help/StandardVersion" />
+}
+
+<partial name="Public/Help/Go" />

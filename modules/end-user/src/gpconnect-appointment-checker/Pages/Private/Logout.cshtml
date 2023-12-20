@@ -1,0 +1,21 @@
+﻿@page
+@model LogoutModel
+@using gpconnect_appointment_checker.Helpers.Constants
+@using gpconnect_appointment_checker.Helpers.Enumerations
+@using gpconnect_appointment_checker.Helpers
+@{
+    var userAccountStatus = User.GetClaimValue<UserAccountStatus>("UserAccountStatus");
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    @if (userAccountStatus != null)
+    {
+        <div style="color: #ffffff; font-style: italic">
+            @User.GetClaimValue("Email")<br />
+            @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
+        </div>
+
+        @Html.ActionLink(@SearchConstants.SIGNOUTBUTTONTEXT, "Logout", "Auth", null, new { @style = "color:#ffffff" })
+    }
+}

@@ -1,0 +1,38 @@
+insert into configuration.spine
+(
+    single_row_lock,
+    use_ssp,
+    ssp_hostname,
+    sds_hostname,
+    sds_port,
+    sds_use_ldaps,
+    organisation_id,
+    party_key,
+    asid,
+    timeout_seconds,
+    client_cert,
+    client_private_key,
+    server_ca_certchain,
+    sds_use_mutualauth,
+    spine_fqdn,
+    sds_tls_version
+)
+values
+(
+	true,
+	false,
+	null,
+	'orange.testlab.nhs.uk',
+	636,
+	true,
+	1,
+	'ABC-123456',
+	'100000000001',
+	30,
+	null,
+	null,
+	null,
+	false,
+	'https://orange.testlab.nhs.uk',
+	'negotiate'
+);

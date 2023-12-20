@@ -1,0 +1,21 @@
+﻿@page
+@using gpconnect_appointment_checker.Helpers.Constants
+@addTagHelper *, gpconnect-appointment-checker
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <div class="nhsuk-warning-callout">
+            <h3 class="nhsuk-warning-callout__label">@SearchConstants.REQUESTSUBMITTEDLABEL</h3>
+            <p>
+                @if (TempData["EmailSent"] as bool? == false)
+                {
+                    @Html.Raw(string.Format(SearchConstants.REQUESTSUBMITTEDERRORTEXT, TempData["EmailAddressManual"]))
+                }
+                else
+                {
+                    @SearchConstants.REQUESTSUBMITTEDTEXT
+                }
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,12 @@
+﻿@page
+@model TermsAndConditionsModel
+@addTagHelper *, gpconnect-appointment-checker
+
+<div class="nhsuk-grid-row">
+    <div class="nhsuk-grid-column-full">
+        <h1>Terms and Conditions</h1>
+        <p>
+            If you have any questions about the terms and conditions, please email us at @Html.Raw(Model.GetAccessEmailAddressLink)
+        </p>
+    </div>
+</div>

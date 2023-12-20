@@ -1,0 +1,13 @@
+﻿<p>You have been given access to search for slots for multiple ODS codes.</p>
+<p><strong>To run a search</strong>, enter:</p>
+<p>EITHER up to @Model.MaxNumberProviderCodesSearch provider ODS codes and one consumer ODS code,</p>
+<p>OR one provider ODS code and up to @Model.MaxNumberConsumerCodesSearch consumer ODS codes.</p>
+<p>When entering multiple codes, each one should be separated by a space or a comma.</p>
+
+@if (Model.OrgTypeSearchEnabled)
+{
+    <p>A consumer organisation type may also be selected from the drop-down list. Select an organisation type to return only slots which have been restricted to this type of consumer, or which have not been restricted by type of consumer. Leave the field blank to return slots which have not been restricted by the provider to any type or consumer.</p>
+    <p>Either at least one consumer ODS code must be entered or an organisation type must be selected, or both.</p>
+}
+
+<partial name="Public/Help/DateRange" />
