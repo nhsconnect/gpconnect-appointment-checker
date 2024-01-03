@@ -16,4 +16,14 @@ public static class UriExtensions
     {
         return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/";
     }
+
+    public static string AddScheme(this string url)
+    {
+        return !url.StartsWith("https://") ? "https://" + url : url;
+    }
+
+    public static string CheckForTrailingSlash(string endpointAddress)
+    {
+        return !endpointAddress.EndsWith("/") ? endpointAddress : endpointAddress.Substring(0, endpointAddress.Length - 1);
+    }
 }
