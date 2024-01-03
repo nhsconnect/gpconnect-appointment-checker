@@ -1,4 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Api.Helpers.Constants;
+﻿using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 
@@ -17,15 +18,10 @@ public class RequestParameters
     public int RequestTimeout { get; set; }
     public string GPConnectConsumerOrganisationType { get; set; }
 
-    public string EndpointAddressWithSpineSecureProxy => AddSecureSpineProxy();
+    public string EndpointAddressWithSpineSecureProxy => AddSpineSecureProxy();
 
-    private string AddSecureSpineProxy()
+    private string AddSpineSecureProxy()
     {
-        return UseSSP ? AddSspHostnameWithScheme() + "/" + EndpointAddress : EndpointAddress;
-    }
-
-    private string AddSspHostnameWithScheme()
-    {
-        return !SspHostname.StartsWith("https://") ? "https://" + SspHostname : SspHostname;
+        return UriExtensions.CheckForTrailingSlash(UseSSP ? $"{SspHostname.AddScheme()}/{EndpointAddress}" : EndpointAddress);
     }
 }
