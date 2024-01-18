@@ -59,19 +59,6 @@
                                     }
                                 </button>
                             </th>
-                            <th role="columnheader" class="" scope="col">
-                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.AccessRequestCount" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
-                                @SortDirection.DESC.ToString()
- } else {
-                                @SortDirection.ASC.ToString()
- }" asp-page-handler="SortBy" type="submit">
-                                    @SearchConstants.USERLISTRESULTSACCESSREQUESTCOUNT
-                                    @if (Model.SortByColumn == SortBy.AccessRequestCount)
-                                    {
-                                        @Html.Raw(Model.SortByDirectionIcon)
-                                    }
-                                </button>
-                            </th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
@@ -147,7 +134,6 @@
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].DisplayName</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].OrganisationName</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].LastLogonDate</td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].AccessRequestCount</td>
 
 
                                     <td role="cell" class="" scope="nhsuk-table__cell">
