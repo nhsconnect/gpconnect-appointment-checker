@@ -23,7 +23,7 @@ public class User
     [JsonProperty("accessLevel")]
     public string AccessLevel { get; set; }
 
-    [JsonProperty("lastLogonDate")]
+    [JsonProperty("lastLogonDateShort")]
     public string LastLogonDate { get; set; }
 
     [JsonProperty("userAccountStatusId")]
@@ -40,9 +40,6 @@ public class User
 
     [JsonProperty("isNewUser")]
     public bool IsNewUser { get; set; }
-
-    [JsonProperty("accessRequestCount")]
-    public int AccessRequestCount { get; set; }
 
     [JsonProperty("isPastLastLogonThreshold")]
     public bool IsPastLastLogonThreshold { get; set; }

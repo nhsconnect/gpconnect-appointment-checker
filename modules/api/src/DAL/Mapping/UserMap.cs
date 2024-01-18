@@ -18,7 +18,6 @@ public class UserMap : EntityMap<User>
         Map(p => p.MultiSearchEnabled).ToColumn("multi_search_enabled");
         Map(p => p.IsAdmin).ToColumn("is_admin");
         Map(p => p.IsNewUser).ToColumn("is_new_user");
-        Map(p => p.AccessRequestCount).ToColumn("number_of_access_requests");
         Map(p => p.IsPastLastLogonThreshold).ToColumn("is_past_last_logon_threshold");
         Map(p => p.StatusChanged).ToColumn("status_changed");
         Map(p => p.OrgTypeSearchEnabled).ToColumn("org_type_search_enabled");
