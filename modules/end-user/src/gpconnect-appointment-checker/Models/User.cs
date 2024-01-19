@@ -17,9 +17,6 @@ public class User
     [JsonProperty("displayName")]
     public string DisplayName { get; set; }
 
-    [JsonProperty("organisationName")]
-    public string OrganisationName { get; set; }
-
     [JsonProperty("accessLevel")]
     public string AccessLevel { get; set; }
 
@@ -40,6 +37,9 @@ public class User
 
     [JsonProperty("isNewUser")]
     public bool IsNewUser { get; set; }
+
+    [JsonProperty("accessRequests")]
+    public int AccessRequests { get; set; }
 
     [JsonProperty("isPastLastLogonThreshold")]
     public bool IsPastLastLogonThreshold { get; set; }

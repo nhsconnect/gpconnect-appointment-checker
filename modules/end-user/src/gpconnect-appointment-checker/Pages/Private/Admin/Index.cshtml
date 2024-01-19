@@ -45,7 +45,6 @@
                                 </button>
                             </th>
                             <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGANISATIONNAME</th>
                             <th role="columnheader" class="" scope="col">
                                 <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
                                 @SortDirection.DESC.ToString()
@@ -54,6 +53,19 @@
  }" asp-page-handler="SortBy" type="submit">
                                     @SearchConstants.USERLISTRESULTSLASTLOGONDATE
                                     @if (Model.SortByColumn == SortBy.LastLogonDate)
+                                    {
+                                        @Html.Raw(Model.SortByDirectionIcon)
+                                    }
+                                </button>
+                            </th>
+                            <th role="columnheader" class="" scope="col">
+                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.AccessRequests" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
+                                @SortDirection.DESC.ToString()
+ } else {
+                                @SortDirection.ASC.ToString()
+ }" asp-page-handler="SortBy" type="submit">
+                                    @SearchConstants.USERLISTRESULTSACCESSREQUESTCOUNT
+                                    @if (Model.SortByColumn == SortBy.AccessRequests)
                                     {
                                         @Html.Raw(Model.SortByDirectionIcon)
                                     }
@@ -72,9 +84,6 @@
                             </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">
                                 <input class="nhsuk-input nhsuk-input--width-10" id="input-surnamesearch" no-validate asp-for="@Model.SurnameSearchValue" name="surnamesearchvalue" value="@Model.SurnameSearchValue" type="text" aria-describedby="input-surnamesearch-hint-text">
-                            </td>
-                            <td role="cell" class="" scope="nhsuk-table__cell">
-                                <input class="nhsuk-input nhsuk-input--width-10" id="input-organisationnamesearch" no-validate asp-for="@Model.OrganisationNameSearchValue" name="organisationnamesearchvalue" value="@Model.OrganisationNameSearchValue" type="text" aria-describedby="input-organisationnamesearch-hint-text">
                             </td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
                             <td role="cell" class="" scope="nhsuk-table__cell">&nbsp;</td>
@@ -132,8 +141,8 @@
                                 <tr role="row" class="@(isPastLastLogonThreshold ? "nhsuk-row-warning" : string.Empty)" scope="nhsuk-table__cell">
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].EmailAddress</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].DisplayName</td>
-                                    <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].OrganisationName</td>
                                     <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].LastLogonDate</td>
+                                    <td role="cell" class="" scope="nhsuk-table__cell">@Model.UserList[i].AccessRequests</td>
 
 
                                     <td role="cell" class="" scope="nhsuk-table__cell">
@@ -187,7 +196,6 @@
     <input type="hidden" asp-for="SortByState" value="@Model.SortByState" />
     <input type="hidden" asp-for="SurnameSearchValue" value="@Model.SurnameSearchValue" />
     <input type="hidden" asp-for="EmailAddressSearchValue" value="@Model.EmailAddressSearchValue" />
-    <input type="hidden" asp-for="OrganisationNameSearchValue" value="@Model.OrganisationNameSearchValue" />
     <input type="hidden" asp-for="SelectedUserAccountStatusFilter" value="@Model.SelectedUserAccountStatusFilter" />
     <input type="hidden" asp-for="SelectedAccessLevelFilter" value="@Model.SelectedAccessLevelFilter" />
     <input type="hidden" asp-for="SelectedMultiSearchFilter" value="@Model.SelectedMultiSearchFilter" />

@@ -61,7 +61,12 @@ public class TokenService : ITokenService
                     switch ((UserAccountStatus)user.UserAccountStatusId)
                     {
                         case UserAccountStatus.Authorised:
-                            var loggedOnUser = await LogonAuthorisedUser(emailAddress, context, organisation);
+                            var loggedOnUser = await LogonAuthorisedUser(new LogonUser()
+                            {
+                                DisplayName = context.Principal.GetClaimValue("DisplayName"),
+                                OrganisationId = organisation.OrganisationId,
+                                EmailAddress = emailAddress
+                            });
                             PopulateAdditionalClaims((UserAccountStatus)user.UserAccountStatusId, loggedOnUser, emailAddress, context, organisation);
                             context.Properties.RedirectUri = GetAuthorisedRedirectUri(context.Properties.RedirectUri);
                             break;
@@ -124,14 +129,8 @@ public class TokenService : ITokenService
         }
     }
 
-    private async Task<User> LogonAuthorisedUser(string emailAddress, TokenValidatedContext context, Organisation organisation)
+    private async Task<User> LogonAuthorisedUser(LogonUser logonUser)
     {
-        var loggedOnUser = await _userService.LogonUser(new LogonUser
-        {
-            EmailAddress = emailAddress,
-            DisplayName = context.Principal.GetClaimValue("DisplayName"),
-            OrganisationId = organisation.OrganisationId
-        });
-        return loggedOnUser;
+        return await _userService.LogonUser(logonUser);
     }
 }

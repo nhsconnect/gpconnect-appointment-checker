@@ -61,7 +61,6 @@ public class UserService : IUserService
     {
         filteredList = !string.IsNullOrEmpty(userListAdvanced.Surname) ? filteredList.Where(x => x.DisplayName.Contains(userListAdvanced.Surname, StringComparison.OrdinalIgnoreCase)) : filteredList;
         filteredList = !string.IsNullOrEmpty(userListAdvanced.EmailAddress) ? filteredList.Where(x => x.EmailAddress.Contains(userListAdvanced.EmailAddress, StringComparison.OrdinalIgnoreCase)) : filteredList;
-        filteredList = !string.IsNullOrEmpty(userListAdvanced.OrganisationName) ? filteredList.Where(x => x.OrganisationName.Contains(userListAdvanced.OrganisationName, StringComparison.OrdinalIgnoreCase)) : filteredList;
 
         if (userListAdvanced.UserAccountStatusFilter != null)
         {

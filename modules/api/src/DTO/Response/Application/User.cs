@@ -9,7 +9,6 @@ public class User
     public int UserSessionId { get; set; }
     public string EmailAddress { get; set; }
     public string DisplayName { get; set; }
-    public string OrganisationName { get; set; }
     public string AccessLevel => IsAdmin ? "Admin" : "User";
     public DateTime? LastLogonDate { get; set; }
     public string LastLogonDateShort => LastLogonDate.HasValue ? LastLogonDate.Value.ToString("d MMM yyyy") : string.Empty;
@@ -18,6 +17,7 @@ public class User
     public bool MultiSearchEnabled { get; set; }
     public bool IsAdmin { get; set; }
     public bool IsNewUser { get; set; }
+    public int AccessRequests { get; set; }
     public bool IsPastLastLogonThreshold { get; set; }
     public bool StatusChanged { get; set; }
     public int OrganisationId { get; set; }

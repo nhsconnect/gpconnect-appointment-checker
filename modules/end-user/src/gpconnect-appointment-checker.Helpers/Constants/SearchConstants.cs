@@ -156,8 +156,7 @@
         public const string SEARCHRESULTSPRACTITIONERCOLUMNHEADERTEXT = "Practitioner";
 
         public const string USERLISTRESULTSEMAILADDRESS = "Email";
-        public const string USERLISTRESULTSDISPLAYNAME = "Name";
-        public const string USERLISTRESULTSORGANISATIONNAME = "Organisation";
+        public const string USERLISTRESULTSDISPLAYNAME = "Name (Organisation)";
         public const string USERLISTRESULTSSTATUS = "Status";
         public const string USERLISTRESULTSACCESSLEVEL = "Access Level";
         public const string USERLISTRESULTSLASTLOGONDATE = "Last signed on";
