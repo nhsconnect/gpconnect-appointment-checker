@@ -9,8 +9,6 @@ public class UserListAdvanced : BaseUserList
     public string? Surname { get; set; }
     [BindProperty(Name = "email_address", SupportsGet = true)]
     public string? EmailAddress { get; set; }
-    [BindProperty(Name = "organisation_name", SupportsGet = true)]
-    public string? OrganisationName { get; set; }
     [BindProperty(Name = "user_account_status_filter", SupportsGet = true)]
     public UserAccountStatus? UserAccountStatusFilter { get; set; }
     [BindProperty(Name = "access_level_filter", SupportsGet = true)]

@@ -4,7 +4,7 @@
     {
         EmailAddress,
         LastLogonDate,
-        AccessRequestCount
+        AccessRequests
     }
 
     public enum SortDirection

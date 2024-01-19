@@ -6,7 +6,6 @@ public class UserListAdvanced
 {
     public string? Surname { get; set; }
     public string? EmailAddress { get; set; }
-    public string? OrganisationName { get; set; }
     public UserAccountStatus? UserAccountStatusFilter { get; set; }
     public AccessLevel? AccessLevelFilter { get; set; }
     public bool? MultiSearchFilter { get; set; }

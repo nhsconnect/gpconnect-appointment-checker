@@ -78,7 +78,6 @@ public class UserService : IUserService
                 { "sort_direction", userListAdvanced.SortDirection.ToString() },
                 { "surname", userListAdvanced.Surname },
                 { "email_address", userListAdvanced.EmailAddress },
-                { "organisation_name", userListAdvanced.OrganisationName },
                 { "user_account_status_filter", userListAdvanced.UserAccountStatusFilter.ToString() },
                 { "access_level_filter", userListAdvanced.AccessLevelFilter.ToString() },
                 { "multi_search_filter", userListAdvanced.MultiSearchFilter.ToString() },

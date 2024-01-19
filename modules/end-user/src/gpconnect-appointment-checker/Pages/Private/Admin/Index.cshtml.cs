@@ -157,7 +157,6 @@ namespace gpconnect_appointment_checker.Pages
             {
                 Surname = SurnameSearchValue,
                 EmailAddress = EmailAddressSearchValue,
-                OrganisationName = OrganisationNameSearchValue,
                 SortByColumn = SortByColumn,
                 SortDirection = SortByState,
                 UserAccountStatusFilter = SelectedUserAccountStatusFilter,
