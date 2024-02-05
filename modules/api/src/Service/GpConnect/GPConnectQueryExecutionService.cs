@@ -10,15 +10,13 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
     private readonly ISlotSearchFromDatabase _slotSearchFromDatabase;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly ILogService _logService;
-    private readonly IApplicationService _applicationService;
 
-    public GpConnectQueryExecutionService(ISlotSearch slotSearch, ISlotSearchFromDatabase slotSearchFromDatabase, ICapabilityStatement capabilityStatement, ILogService logService, IApplicationService applicationService)
+    public GpConnectQueryExecutionService(ISlotSearch slotSearch, ISlotSearchFromDatabase slotSearchFromDatabase, ICapabilityStatement capabilityStatement, ILogService logService)
     {
         _slotSearchFromDatabase = slotSearchFromDatabase;
         _slotSearch = slotSearch;
         _capabilityStatement = capabilityStatement;
         _logService = logService;
-        _applicationService = applicationService;
     }
 
     public async Task<SlotSimple> ExecuteFreeSlotSearch(RequestParameters requestParameters, DateTime startDate, DateTime endDate, string baseAddress, int searchResultId = 0)
@@ -55,9 +53,9 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         return slotSimple;
     }
 
-    public async Task<DTO.Response.GpConnect.CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
-    {
-        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, baseAddress);
-        return capabilityStatement;
-    }
+    //public async Task<DTO.Response.GpConnect.CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+    //{
+    //    var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, baseAddress);
+    //    return capabilityStatement;
+    //}
 }

@@ -4,5 +4,5 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 
 public interface ICapabilityStatement
 {
-    Task<CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress);
+    Task<CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string? interactionId = null);
 }

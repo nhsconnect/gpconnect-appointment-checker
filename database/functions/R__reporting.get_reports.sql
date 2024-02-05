@@ -16,6 +16,9 @@ begin
 		r.function_name
 	from 
 		reporting.list r
+	where 
+		r.interaction_id is null
+		and r.function_name is not null
 	order by 
 		r.report_name;	
 end;

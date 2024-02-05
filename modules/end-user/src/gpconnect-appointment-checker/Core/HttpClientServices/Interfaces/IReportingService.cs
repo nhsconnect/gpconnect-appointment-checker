@@ -11,5 +11,6 @@ public interface IReportingService
 {
     Task<DataTable> GetReport(string functionName);
     Task<List<Report>> GetReports();
+    Task<List<CapabilityReport>> GetCapabilityReports();
     Task<FileStreamResult> ExportReport(ReportExport reportExport);
 }

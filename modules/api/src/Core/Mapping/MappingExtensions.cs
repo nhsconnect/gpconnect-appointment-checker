@@ -14,7 +14,6 @@ public static class MappingExtensions
             config.AddMap(new OrganisationMap());
             config.AddMap(new FhirApiQueryMap());
             config.AddMap(new SdsQueryMap());
-            //config.AddMap(new SpineMap());
             config.AddMap(new OrganisationTypeMap());
             config.AddMap(new SpineMessageTypeMap());
             config.AddMap(new SearchExportMap());
@@ -25,6 +24,7 @@ public static class MappingExtensions
             config.AddMap(new AddSearchExportMap());
             config.AddMap(new SearchResultByGroupMap());
             config.AddMap(new ReportMap());
+            config.AddMap(new CapabilityReportMap());
             config.AddMap(new SpineMessageMap());
         });
     }

@@ -3,11 +3,11 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 
 namespace GpConnect.AppointmentChecker.Api.DAL.Mapping;
 
-public class ReportMap : EntityMap<Report>
+public class CapabilityReportMap : EntityMap<CapabilityReport>
 {
-    public ReportMap()
+    public CapabilityReportMap()
     {
         Map(p => p.ReportName).ToColumn("report_name");
-        Map(p => p.FunctionName).ToColumn("function_name");
+        Map(p => p.InteractionId).ToColumn("interaction_id");
     }
 }
