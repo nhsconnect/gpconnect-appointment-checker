@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
 
 WORKDIR /src
 
-COPY gpconnect-user-portal.function.sln ./
+COPY gpconnect-appointment-checker.function.sln ./
 COPY src/*.csproj ./src/
 
 RUN dotnet restore
@@ -23,4 +23,4 @@ FROM base AS final
 WORKDIR /var/task
 COPY --from=publish /app/publish .
 
-CMD [ "GpConnect.NationalDataSharingPortal.Function::GpConnect.NationalDataSharingPortal.Function.SQSEventFunction::FunctionHandler" ]
+CMD [ "GpConnect.AppointmentChecker.Function::GpConnect.AppointmentChecker.Function.CapabilityReportScheduledEventFunction::FunctionHandler" ]
