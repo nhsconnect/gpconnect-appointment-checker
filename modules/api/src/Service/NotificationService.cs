@@ -22,7 +22,7 @@ public class NotificationService : INotificationService
     {
         try
         {
-            var apiKey = _config.Value.ApiKey;
+            var apiKey = notificationCreateRequest.ApiKey ?? _config.Value.ApiKey;
             if (!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(notificationCreateRequest.TemplateId.Trim()))
             {
                 var client = new NotificationClient(apiKey);
@@ -32,6 +32,12 @@ public class NotificationService : INotificationService
                 {
                     var templateParameters = notificationCreateRequest.TemplateParameters?.ToDictionary(pair => pair.Key, pair => Convert.ToString(pair.Value) == null ? string.Empty : pair.Value.ToString());
                     templateParameters.Add("url", notificationCreateRequest.RequestUrl);
+
+                    if(notificationCreateRequest.FileUpload != null)
+                    {
+                        templateParameters.Add(notificationCreateRequest.FileUpload.FirstOrDefault().Key, NotificationClient.PrepareUpload(notificationCreateRequest.FileUpload.FirstOrDefault().Value as byte[]));
+                    }
+
                     emailNotificationResponse.Add(client.SendEmail(emailAddress, notificationCreateRequest.TemplateId, templateParameters));
                 }
                 return emailNotificationResponse.Count;
