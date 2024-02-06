@@ -123,8 +123,6 @@
         public const string ADDNEWUSERTEXT = "Add a new user";
         public const string NEWUSEREMAILADDRESS = ADDNEWUSERTEXT + ". Enter an nhs.net email address";
         public const string SAVENEWUSERBUTTONTEXT = "Save";
-        public const string LOADREPORTBUTTONTEXT = "Load report";
-        public const string EXPORTREPORTBUTTONTEXT = "Export report";
         public const string EXPORTSEARCHRESULTSBUTTONTEXT = "Export results";
         public const string USERLISTTEXT = "User list";
 

@@ -5,7 +5,7 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 public interface IConfigurationService
 {
     Task<IEnumerable<SpineMessageType>> GetSpineMessageTypes();
-    Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType);
+    Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType, string? interactionId = null);
     Task<IEnumerable<OrganisationType>> GetOrganisationTypes();
     Task<OrganisationType> GetOrganisationType(string organisationTypeCode);
     Task<SdsQuery> GetSdsQueryConfiguration(string queryName);

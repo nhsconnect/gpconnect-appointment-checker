@@ -55,10 +55,14 @@ public class ConfigurationService : IConfigurationService
         return result;
     }
 
-    public async Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType)
+    public async Task<SpineMessageType> GetSpineMessageType(Helpers.Constants.SpineMessageTypes spineMessageType, string? interactionId = null)
     {
         var functionName = "configuration.get_spine_message_type";
         var result = await _dataService.ExecuteQuery<SpineMessageType>(functionName);
+        if(interactionId != null)
+        {
+            return result.FirstOrDefault(x => x.InteractionId == interactionId);
+        }
         return result.FirstOrDefault(x => x.SpineMessageTypeId == (int)spineMessageType);
     }
 

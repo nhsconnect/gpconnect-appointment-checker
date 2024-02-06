@@ -1,8 +1,6 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Controllers;
 
@@ -39,6 +37,13 @@ public class ReportingController : ControllerBase
     public async Task<ActionResult> List()
     {
         var reports = await _service.GetReports();
+        return Ok(reports);
+    }
+
+    [HttpGet("capabilitylist")]
+    public async Task<ActionResult> CapabilityList()
+    {
+        var reports = await _service.GetCapabilityReports();
         return Ok(reports);
     }
 

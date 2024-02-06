@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace GpConnect.AppointmentChecker.Api.Helpers;
 
@@ -42,4 +44,17 @@ public static class StringExtensions
             "" => string.Empty,
             _ => countValue == 1 ? string.Format(input, countValue, string.Empty) : countValue == 0 ? string.Empty : string.Format(input, countValue, "s")
         } + endTag;
+
+    public static bool IsJson(this string input)
+    {
+        try
+        {
+            JObject.Parse(input);
+            return true;
+        }
+        catch(JsonReaderException)
+        {  
+            return false;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Api.DTO.Request.Logging;
 using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
+using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
@@ -27,15 +28,16 @@ public class CapabilityStatement : ICapabilityStatement
         _spineMessage = new SpineMessage();
     }
 
-    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress)
+    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string? interactionId = null)
     {
         var getRequest = new HttpRequestMessage();
         var stopWatch = new Stopwatch();
 
         try
         {
-            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData);
-            requestParameters.SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData;
+            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interactionId);
+
+            requestParameters.SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId;
             requestParameters.InteractionId = spineMessageType?.InteractionId;
 
             _spineMessage.SpineMessageTypeId = (int)requestParameters.SpineMessageTypeId;
@@ -57,8 +59,19 @@ public class CapabilityStatement : ICapabilityStatement
             _spineMessage.ResponseStatus = response.StatusCode.ToString();
             _spineMessage.ResponseHeaders = response.Headers.ToString();
 
-            var results = JsonConvert.DeserializeObject<DTO.Response.GpConnect.CapabilityStatement>(responseStream);
-            return results;
+            var capabilityStatement = default(DTO.Response.GpConnect.CapabilityStatement);
+
+            if (responseStream.IsJson())
+            {
+                capabilityStatement = JsonConvert.DeserializeObject<DTO.Response.GpConnect.CapabilityStatement>(responseStream);
+            }
+            else
+            {
+                capabilityStatement = new DTO.Response.GpConnect.CapabilityStatement();
+                capabilityStatement.Issue.Add(new Issue() { Details = new Detail() { Text = "Response was not valid" } });
+            }
+            return capabilityStatement;
+
         }
         catch (Exception exc)
         {
