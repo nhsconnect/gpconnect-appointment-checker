@@ -45,18 +45,4 @@
             }
         </div>
     </div>
-    <div class="nhsuk-grid-row">
-        <div class="nhsuk-grid-column-full">
-            <h2>Appointment Checker Capability Reports</h2>
-            <label class="nhsuk-label nhsuk-label--m" asp-for="OdsCodes"></label>
-            <div class="nhsuk-form-group">
-                <div class="nhsuk-hint" id="ods-cods-list">Provide a comma or space delimited list of ODS codes for which you want to produce the report.</div>
-                <textarea placeholder="for example: LS0511, J82132" class="nhsuk-textarea" rows="5" asp-for="OdsCodes" aria-describedby="ods-cods-list"></textarea>
-            </div>
-            <div class="nhsuk-form-group">
-                <select asp-for="@Model.SelectedCapabilityReport" asp-items="@Model.CapabilityReportsList" class="nhsuk-select" id="@Model.SelectedCapabilityReport"></select>
-            </div>
-            <button class="nhsuk-button" asp-page-handler="LoadCapabilityReport" type="submit">@ReportConstants.LOADCAPABILITYREPORTBUTTONTEXT</button>
-        </div>
-    </div>
 </form>

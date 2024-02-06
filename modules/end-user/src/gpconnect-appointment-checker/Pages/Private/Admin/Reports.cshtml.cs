@@ -1,15 +1,11 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
 using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
-using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,23 +40,7 @@ namespace gpconnect_appointment_checker.Pages
                 var report = await _reportingService.GetReport(SelectedReport);
                 ReportData = report;
             }
-        }
-
-        public async Task<FileStreamResult> OnPostLoadCapabilityReport()
-        {
-            if(!string.IsNullOrWhiteSpace(OdsCodes) && !string.IsNullOrWhiteSpace(SelectedCapabilityReport))
-            {
-                var filestream = await _reportingService.ExportReport(new GpConnect.AppointmentChecker.Models.Request.ReportExport()
-                {
-                    OdsCodes = OdsCodeList,
-                    InteractionId = SelectedCapabilityReport,
-                    ReportName = CapabilityReportsList.FirstOrDefault(x => x.Value == SelectedCapabilityReport).Text
-                });
-                return filestream;
-            }
-            return null;
-        }
-        
+        }        
 
         public async Task<FileStreamResult> OnPostExportReport()
         {
@@ -87,22 +67,6 @@ namespace gpconnect_appointment_checker.Pages
             options.Insert(0, new SelectListItem() 
             {
                 Text = "Please select a report",
-                Value = ""
-            });
-            return options;
-        }
-
-        private async Task<IEnumerable<SelectListItem>> GetCapabilityReportsList()
-        {
-            var reports = await _reportingService.GetCapabilityReports();
-            var options = reports.Select(ot => new SelectListItem()
-            {
-                Text = $"{ot.ReportName}",
-                Value = ot.InteractionId
-            }).ToList();
-            options.Insert(0, new SelectListItem()
-            {
-                Text = "Please select a capability report",
                 Value = ""
             });
             return options;
