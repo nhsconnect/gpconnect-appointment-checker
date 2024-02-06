@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace GpConnect.AppointmentChecker.Models;
+namespace GpConnect.AppointmentChecker.Function.DTO.Response;
 
 public class CapabilityReport
 {

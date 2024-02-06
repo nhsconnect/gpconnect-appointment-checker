@@ -40,6 +40,9 @@ jobs:
       - name: Build dotnet api solution
         run: dotnet build modules/api/gpconnect-appointment-checker.api.sln
 
+      - name: Build dotnet lambda solution
+        run: dotnet build modules/function/gpconnect-appointment-checker.function.sln
+
       - name: Build dotnet end user solution
         run: dotnet build modules/end-user/gpconnect-appointment-checker.sln
 
@@ -48,6 +51,9 @@ jobs:
 
       - name: Build docker api application image
         run: docker build -t gpconnect-appointment-checker-api-application modules/api/.
+
+      - name: Build docker lambda application image
+        run: docker build -t gpconnect-appointment-checker-function-application modules/function/.
 
       - name: Build docker end user application image
         run: docker build -t gpconnect-appointment-checker-end-user-application modules/end-user/.

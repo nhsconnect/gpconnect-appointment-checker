@@ -75,17 +75,6 @@ public class ReportingService : IReportingService
         return JsonConvert.DeserializeObject<List<Report>>(body, _options);
     }
 
-    public async Task<List<CapabilityReport>> GetCapabilityReports()
-    {
-        var response = await _httpClient.GetWithHeadersAsync("/reporting/capabilitylist", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
-        });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
-    }
-
     private async Task<FileStreamResult> GetFileStreamResult(HttpResponseMessage response, string fileName)
     {
         response.EnsureSuccessStatusCode();
