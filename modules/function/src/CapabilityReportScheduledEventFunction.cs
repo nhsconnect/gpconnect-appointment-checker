@@ -15,7 +15,6 @@ public class CapabilityReportScheduledEventFunction
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
-    private readonly SecretManager _secretManager;
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly LambdaConfiguration _lambdaConfiguration;
     private List<string> _distributionList = new List<string>();
@@ -24,35 +23,21 @@ public class CapabilityReportScheduledEventFunction
     {
         _httpClient = new HttpClient();
 
-        _secretManager = new SecretManager();
-        var endUserConfiguration = _secretManager.Get("gpcac/enduser-configuration");
-        var lambdaConfiguration = _secretManager.Get("gpcac/lambda-configuration");
+        Console.WriteLine("EndUserConfigurationApiKey");
+        Console.WriteLine(Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"));
 
-        Console.WriteLine("Dumping out endUserConfiguration");
-        Console.WriteLine(endUserConfiguration);
-        Console.WriteLine("Dumping out lambdaConfiguration");
-        Console.WriteLine(lambdaConfiguration);
-
-        if (endUserConfiguration != null && lambdaConfiguration != null)
+        _endUserConfiguration = new EndUserConfiguration()
         {
-            _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(endUserConfiguration);
-            _lambdaConfiguration = JsonConvert.DeserializeObject<LambdaConfiguration>(lambdaConfiguration);
-        }
-        else
-        {
-            _endUserConfiguration = new EndUserConfiguration()
-            {
-                ApiKey = Environment.GetEnvironmentVariable("EndUserConfiguration:ApiKey"),
-                ApiBaseUrl = Environment.GetEnvironmentVariable("EndUserConfiguration:ApiBaseUrl"),
-                UserId = Environment.GetEnvironmentVariable("EndUserConfiguration:UserId"),
-            };
+            ApiKey = Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"),
+            ApiBaseUrl = Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"),
+            UserId = Environment.GetEnvironmentVariable("EndUserConfigurationUserId"),
+        };
 
-            _lambdaConfiguration = new LambdaConfiguration()
-            {
-                ApiKey = Environment.GetEnvironmentVariable("LambdaConfiguration:ApiKey"),
-                TemplateId = Environment.GetEnvironmentVariable("LambdaConfiguration:TemplateId")
-            };
-        }
+        _lambdaConfiguration = new LambdaConfiguration()
+        {
+            ApiKey = Environment.GetEnvironmentVariable("LambdaConfigurationApiKey"),
+            TemplateId = Environment.GetEnvironmentVariable("LambdaConfigurationTemplateId")
+        };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
@@ -105,13 +90,13 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task SendCapabilityReport(ReportExport reportExport, byte[] documentContent)
     {
-        var notification = new MessagingNotificationFunctionRequest() 
-        { 
+        var notification = new MessagingNotificationFunctionRequest()
+        {
             ApiKey = _lambdaConfiguration.ApiKey,
             EmailAddresses = _distributionList,
             TemplateId = _lambdaConfiguration.TemplateId,
             FileUpload = new Dictionary<string, byte[]> { { "link_to_file", documentContent } },
-            TemplateParameters = new Dictionary<string, dynamic> { 
+            TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportExport.ReportName },
                 { "interaction_id", reportExport.InteractionId },
                 { "date_generated", DateTime.Now.ToString("F") }
