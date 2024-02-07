@@ -24,7 +24,7 @@ jobs:
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
       - name: Tag lambda application image
-        run: docker tag gpconnect-appointment-checker-function-application:latest 382277187564.dkr.ecr.eu-west-2.amazonaws.com/gpconnect-appointment-checker-function-application:latest
+        run: docker tag nhsgpconnect/gpconnect-appointment-checker-function-application:latest 382277187564.dkr.ecr.eu-west-2.amazonaws.com/gpconnect-appointment-checker-function-application:latest
       - name: Push lambda application image to elastic container registry
         run: docker push 382277187564.dkr.ecr.eu-west-2.amazonaws.com/gpconnect-appointment-checker-function-application:latest
       - name: Push end user application image to docker hub
