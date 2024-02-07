@@ -26,6 +26,9 @@ public class CapabilityReportScheduledEventFunction
         Console.WriteLine("EndUserConfigurationApiKey");
         Console.WriteLine(Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"));
 
+        Console.WriteLine("EndUserConfigurationApiBaseUrl");
+        Console.WriteLine(Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"));
+
         _endUserConfiguration = new EndUserConfiguration()
         {
             ApiKey = Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"),
@@ -38,6 +41,9 @@ public class CapabilityReportScheduledEventFunction
             ApiKey = Environment.GetEnvironmentVariable("LambdaConfigurationApiKey"),
             TemplateId = Environment.GetEnvironmentVariable("LambdaConfigurationTemplateId")
         };
+
+        Console.WriteLine("_endUserConfiguration.ApiBaseUrl");
+        Console.WriteLine(_endUserConfiguration.ApiBaseUrl);
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
