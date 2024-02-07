@@ -28,6 +28,11 @@ public class CapabilityReportScheduledEventFunction
         var endUserConfiguration = _secretManager.Get("gpcac/enduser-configuration");
         var lambdaConfiguration = _secretManager.Get("gpcac/lambda-configuration");
 
+        Console.WriteLine("Dumping out endUserConfiguration");
+        Console.WriteLine(endUserConfiguration);
+        Console.WriteLine("Dumping out lambdaConfiguration");
+        Console.WriteLine(lambdaConfiguration);
+
         if (endUserConfiguration != null && lambdaConfiguration != null)
         {
             _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(endUserConfiguration);

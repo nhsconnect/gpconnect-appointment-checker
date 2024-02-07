@@ -32,14 +32,6 @@ jobs:
           repository: nhsgpconnect/gpconnect-appointment-checker-function-application
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
-      - name: Get AWS login credentials
-        run: aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com
-      - name: Pull lambda application image
-        run: docker pull nhsgpconnect/gpconnect-appointment-checker-function-application:latest
-      - name: Tag lambda application image
-        run: docker tag nhsgpconnect/gpconnect-appointment-checker-function-application:latest ${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/gpconnect-appointment-checker-function-application:latest
-      - name: Push lambda application image to elastic container registry
-        run: docker push ${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/gpconnect-appointment-checker-function-application:latest
       - name: Push end user application image to docker hub
         uses: docker/build-push-action@v1
         with:
