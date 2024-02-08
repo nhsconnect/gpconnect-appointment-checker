@@ -23,12 +23,6 @@ public class CapabilityReportScheduledEventFunction
     {
         _httpClient = new HttpClient();
 
-        Console.WriteLine("EndUserConfigurationApiKey");
-        Console.WriteLine(Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"));
-
-        Console.WriteLine("EndUserConfigurationApiBaseUrl");
-        Console.WriteLine(Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"));
-
         _endUserConfiguration = new EndUserConfiguration()
         {
             ApiKey = Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"),
@@ -38,12 +32,9 @@ public class CapabilityReportScheduledEventFunction
 
         _lambdaConfiguration = new LambdaConfiguration()
         {
-            ApiKey = Environment.GetEnvironmentVariable("LambdaConfigurationApiKey"),
-            TemplateId = Environment.GetEnvironmentVariable("LambdaConfigurationTemplateId")
+            ApiKey = Environment.GetEnvironmentVariable("CapabilityReportingApiKey"),
+            TemplateId = Environment.GetEnvironmentVariable("CapabilityReportingTemplateId")
         };
-
-        Console.WriteLine("_endUserConfiguration.ApiBaseUrl");
-        Console.WriteLine(_endUserConfiguration.ApiBaseUrl);
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
@@ -65,7 +56,7 @@ public class CapabilityReportScheduledEventFunction
         var capabilityReports = await GetCapabilityReports();
         for (var i = 0; i < capabilityReports.Count; i++)
         {
-            await GenerateCapabilityReport(new ReportExport()
+            await GenerateCapabilityReport(new ReportInteraction()
             {
                 OdsCodes = input.OdsCodes,
                 ReportName = capabilityReports[i].ReportName,
@@ -74,13 +65,13 @@ public class CapabilityReportScheduledEventFunction
         }
     }
 
-    private async Task GenerateCapabilityReport(ReportExport reportExport)
+    private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
     {
-        var json = new StringContent(JsonConvert.SerializeObject(reportExport, null, _options),
+        var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
            Encoding.UTF8,
            MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/export", new Dictionary<string, string>()
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/interaction", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
@@ -90,11 +81,11 @@ public class CapabilityReportScheduledEventFunction
         var result = await GetByteArray(response);
         if (result != null)
         {
-            await SendCapabilityReport(reportExport, result);
+            await SendCapabilityReport(reportInteraction, result);
         }
     }
 
-    private async Task SendCapabilityReport(ReportExport reportExport, byte[] documentContent)
+    private async Task SendCapabilityReport(ReportInteraction reportInteraction, byte[] documentContent)
     {
         var notification = new MessagingNotificationFunctionRequest()
         {
@@ -103,8 +94,8 @@ public class CapabilityReportScheduledEventFunction
             TemplateId = _lambdaConfiguration.TemplateId,
             FileUpload = new Dictionary<string, byte[]> { { "link_to_file", documentContent } },
             TemplateParameters = new Dictionary<string, dynamic> {
-                { "report_name", reportExport.ReportName },
-                { "interaction_id", reportExport.InteractionId },
+                { "report_name", reportInteraction.ReportName },
+                { "interaction_id", reportInteraction.InteractionId },
                 { "date_generated", DateTime.Now.ToString("F") }
             }
         };

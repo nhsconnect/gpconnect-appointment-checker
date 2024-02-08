@@ -26,6 +26,18 @@ public class ReportingController : ControllerBase
     public async Task<IActionResult> Export([FromBody] ReportRequest reportRequest)
     {
         var result = await _service.ExportReport(reportRequest);
+        return SendReport(result);
+    }
+
+    [HttpPost("interaction")]
+    public async Task<IActionResult> Interaction([FromBody] ReportInteractionRequest reportInteractionRequest)
+    {
+        var result = await _service.ExportInteractionReport(reportInteractionRequest);
+        return SendReport(result);
+    }
+
+    private IActionResult SendReport(Stream result)
+    {
         if (result == null)
         {
             return NotFound();
