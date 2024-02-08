@@ -4,7 +4,14 @@
       "commandName": "Executable",
       "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-7.0.exe",
       "commandLineArgs": "--port 5050",
-      "workingDirectory": ".\\bin\\$(Configuration)\\net7.0"
+      "workingDirectory": ".\\bin\\$(Configuration)\\net7.0",
+      "environmentVariables": {
+        "EndUserConfigurationApiKey": "a22f50b323164131879282ad4fd1673e",
+        "EndUserConfigurationApiBaseUrl": "http://localhost:5002",
+        "EndUserConfigurationUserId": "1165",
+        "CapabilityReportingApiKey": "gpconnect_reporting_api_key-2ce3fb73-aeec-4073-9883-ddcd5e70a41f-5c3824bb-11f4-410c-baf0-aa3627ff6b8a",
+        "CapabilityReportingTemplateId": "27a4e7ef-05ef-42ff-8fed-afa956fe19a7"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
-﻿namespace GpConnect.AppointmentChecker.Function.DTO.Request;
+namespace GpConnect.AppointmentChecker.Api.DTO.Request;
 
-public class ReportExport
+public class ReportInteractionRequest
 {
     public List<string>? OdsCodes { get; set; } = null;
     public string? InteractionId { get; set; } = null;
