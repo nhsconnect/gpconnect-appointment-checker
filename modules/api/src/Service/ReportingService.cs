@@ -45,6 +45,7 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> ExportInteractionReport(ReportInteractionRequest reportInteractionRequest)
     {
+        reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
         var capabilityStatements = new List<IDictionary<string, object>>();
         string? jsonData = null;
         var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
