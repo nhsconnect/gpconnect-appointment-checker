@@ -26,7 +26,7 @@ public class CapabilityReportScheduledEventFunction
         _endUserConfiguration = new EndUserConfiguration()
         {
             ApiKey = Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"),
-            ApiBaseUrl = Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"),
+            ApiBaseUrl = Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"),            
             UserId = Environment.GetEnvironmentVariable("EndUserConfigurationUserId"),
         };
 
