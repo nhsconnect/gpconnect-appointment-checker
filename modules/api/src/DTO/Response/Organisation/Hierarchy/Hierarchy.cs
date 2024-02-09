@@ -4,7 +4,7 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 
 public class Hierarchy
 {
-    [JsonProperty("ODS Code")] 
+    [JsonProperty("ODS Code")]
     public string OdsCode { get; set; }
     [JsonProperty("Site Name")]
     public string SiteName { get; set; }
@@ -14,7 +14,7 @@ public class Hierarchy
     public string? IcbCode { get; set; }
     [JsonProperty("Higher Health Authority Code")]
     public string? HigherHealthAuthorityCode { get; set; }
-    [JsonProperty("Commissioning Region Code")] 
+    [JsonProperty("Commissioning Region Code")]
     public string? NationalGroupingCode { get; set; }
     [JsonProperty("ICB Name")]
     public string? IcbName { get; set; }

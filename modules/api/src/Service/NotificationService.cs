@@ -22,7 +22,7 @@ public class NotificationService : INotificationService
     {
         try
         {
-            var apiKey = notificationCreateRequest.ApiKey ?? _config.Value.ApiKey;
+            var apiKey = notificationCreateRequest.ApiKey ?? _config.Value.ApptCheckerApiKey;
             if (!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(notificationCreateRequest.TemplateId.Trim()))
             {
                 var client = new NotificationClient(apiKey);

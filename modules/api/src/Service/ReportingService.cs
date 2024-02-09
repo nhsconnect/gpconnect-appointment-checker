@@ -7,7 +7,6 @@ using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
-using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
@@ -46,42 +45,44 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> ExportInteractionReport(ReportInteractionRequest reportInteractionRequest)
     {
-        DataTable? dataTable = null;
-
         var capabilityStatements = new List<IDictionary<string, object>>();
         string? jsonData = null;
         var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
 
-        await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
+        for (int i = 0; i < reportInteractionRequest.OdsCodes.Count; i++)
         {
-            var capabilityStatementReporting = new CapabilityStatementReporting();
+            var capabilityStatementReporting = new CapabilityStatementReporting()
+            {
+                Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
+            };
 
-            capabilityStatementReporting.Hierarchy = organisationHierarchy[odsCode];
-
-            var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
+            var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
             if (providerSpineDetails != null)
             {
                 var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
                 {
                     RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                     ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                    ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode }
+                    ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] }
                 });
 
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
-                capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
-                capabilityStatementReporting.Rest = capabilityStatement.Rest.Select(x => x.Operation.Select(y => y.Name));
+
+                if (capabilityStatement != null)
+                {
+                    capabilityStatementReporting.Profile = capabilityStatement.Profile;
+                    capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
+                    capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+                }
             }
 
             var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
             var jObject = JObject.Parse(jsonString);
             capabilityStatements.Add(jObject.Flatten());
-        });
+        }
 
         jsonData = JsonConvert.SerializeObject(capabilityStatements);
-        dataTable = jsonData.ConvertJsonDataToDataTable();
-
-        var memoryStream = CreateReport(dataTable, reportInteractionRequest.ReportName);
+        var memoryStream = CreateReport(jsonData.ConvertJsonDataToDataTable(), reportInteractionRequest.ReportName);
         return memoryStream;
     }
 
@@ -215,7 +216,7 @@ public class ReportingService : IReportingService
             var column = new Cell
             {
                 DataType = CellValues.String,
-                CellValue = new CellValue(dataColumnCollection[j].ColumnName),
+                CellValue = new CellValue(dataColumnCollection[j].ColumnName.SearchAndReplace(new Dictionary<string, string>() { { "_", " " } })),
                 StyleIndex = 2
             };
             headerRow.AppendChild(column);
