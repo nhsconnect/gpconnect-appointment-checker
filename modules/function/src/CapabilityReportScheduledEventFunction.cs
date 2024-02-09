@@ -16,7 +16,7 @@ public class CapabilityReportScheduledEventFunction
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
     private readonly EndUserConfiguration _endUserConfiguration;
-    private readonly LambdaConfiguration _lambdaConfiguration;
+    private readonly NotificationConfiguration _notificationConfiguration;
     private List<string> _distributionList = new List<string>();
 
     public CapabilityReportScheduledEventFunction()
@@ -30,10 +30,10 @@ public class CapabilityReportScheduledEventFunction
             UserId = Environment.GetEnvironmentVariable("EndUserConfigurationUserId"),
         };
 
-        _lambdaConfiguration = new LambdaConfiguration()
+        _notificationConfiguration = new NotificationConfiguration()
         {
-            ApiKey = Environment.GetEnvironmentVariable("CapabilityReportingApiKey"),
-            TemplateId = Environment.GetEnvironmentVariable("CapabilityReportingTemplateId")
+            CapabilityReportingApiKey = Environment.GetEnvironmentVariable("CapabilityReportingApiKey"),
+            CapabilityReportingTemplateId = Environment.GetEnvironmentVariable("CapabilityReportingTemplateId")
         };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
@@ -89,9 +89,9 @@ public class CapabilityReportScheduledEventFunction
     {
         var notification = new MessagingNotificationFunctionRequest()
         {
-            ApiKey = _lambdaConfiguration.ApiKey,
+            ApiKey = _notificationConfiguration.CapabilityReportingApiKey,
             EmailAddresses = _distributionList,
-            TemplateId = _lambdaConfiguration.TemplateId,
+            TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
             FileUpload = new Dictionary<string, byte[]> { { "link_to_file", documentContent } },
             TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportInteraction.ReportName },
