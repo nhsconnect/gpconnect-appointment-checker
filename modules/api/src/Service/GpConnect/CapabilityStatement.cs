@@ -11,14 +11,14 @@ namespace GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
 public class CapabilityStatement : ICapabilityStatement
 {
-    private readonly ILogger<SlotSearch> _logger;
+    private readonly ILogger<CapabilityStatement> _logger;
     private readonly IConfigurationService _configurationService;
     private readonly ISlotSearchDependencies _slotSearchDependencies;
     private readonly ILogService _logService;
     private readonly IHttpClientFactory _httpClientFactory;
     private SpineMessage _spineMessage;
 
-    public CapabilityStatement(ILogger<SlotSearch> logger, IConfigurationService configurationService, IHttpClientFactory httpClientFactory, ISlotSearchDependencies slotSearchDependencies, ILogService logService)
+    public CapabilityStatement(ILogger<CapabilityStatement> logger, IConfigurationService configurationService, IHttpClientFactory httpClientFactory, ISlotSearchDependencies slotSearchDependencies, ILogService logService)
     {
         _logger = logger;
         _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
