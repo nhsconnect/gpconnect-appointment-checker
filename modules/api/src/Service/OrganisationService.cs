@@ -29,11 +29,14 @@ public class OrganisationService : IOrganisationService
 
     public async Task<DTO.Response.Organisation.Organisation> GetOrganisation(string odsCode)
     {
-        var response = await _fhirReadClient.GetAsync($"{odsCode}");
-        if (response.IsSuccessStatusCode)
+        if (!string.IsNullOrWhiteSpace(odsCode))
         {
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<DTO.Response.Organisation.Organisation>(body, _options);
+            var response = await _fhirReadClient.GetAsync($"{odsCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DTO.Response.Organisation.Organisation>(body, _options);
+            }
         }
         return null;
     }
@@ -41,11 +44,10 @@ public class OrganisationService : IOrganisationService
     public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
         var hierarchies = new Dictionary<string, Hierarchy>();
-
-        await Parallel.ForEachAsync(odsCodes, async (odsCode, ct) =>
+        for(var i = 0; i < odsCodes.Count(); i++)
         {
-            hierarchies.Add(odsCode, await GetOrganisationHierarchy(odsCode));
-        });
+            hierarchies.Add(odsCodes[i], await GetOrganisationHierarchy(odsCodes[i]));
+        }
         return hierarchies;
     }
 
