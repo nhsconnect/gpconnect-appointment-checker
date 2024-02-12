@@ -69,7 +69,7 @@ public class ReportingService : IReportingService
 
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
 
-                if (capabilityStatement != null)
+                if (capabilityStatement != null && capabilityStatement.NoIssues)
                 {
                     capabilityStatementReporting.Profile = capabilityStatement.Profile;
                     capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
