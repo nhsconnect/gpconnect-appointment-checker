@@ -1,4 +1,6 @@
-﻿namespace GpConnect.AppointmentChecker.Function.Helpers;
+﻿using System.Text.RegularExpressions;
+
+namespace GpConnect.AppointmentChecker.Function.Helpers;
 
 public static class StringExtensions
 {
@@ -26,6 +28,13 @@ public static class StringExtensions
     {
         return string.Join(", ", strings.Where(s => !string.IsNullOrEmpty(s)));
     }
+
+    public static string ReplaceNonAlphanumeric(this string input, string replacementCharacter = "_") =>
+        input switch
+        {
+            null or "" => string.Empty,
+            _ => Regex.Replace(input, "[^a-zA-Z0-9]", replacementCharacter)
+        };
 
     public static string Pluraliser(this string input, int countValue, string startTag = "", string endTag = "") =>
         startTag + input switch
