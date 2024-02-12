@@ -18,15 +18,16 @@ public class CapabilityReportScheduledEventFunction
     private readonly SecretManager _secretManager;
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
+    private readonly StorageConfiguration _storageConfiguration;
     private List<string> _distributionList = new List<string>();
 
     public CapabilityReportScheduledEventFunction()
     {
         _httpClient = new HttpClient();
-
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
+        _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
@@ -73,11 +74,22 @@ public class CapabilityReportScheduledEventFunction
         var result = await GetByteArray(response);
         if (result != null)
         {
-            await SendCapabilityReport(reportInteraction, result);
+            await PostCapabilityReport(reportInteraction, result);
+            //await EmailCapabilityReport(reportInteraction, result);
         }
     }
 
-    private async Task SendCapabilityReport(ReportInteraction reportInteraction, byte[] documentContent)
+    private async Task PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
+    {
+        StorageManager.Post(new StorageUploadRequest()
+        {
+            BucketName = _storageConfiguration.BucketName,
+            Key = reportInteraction.InteractionKey,
+            InputBytes = result
+        });
+    }
+
+    private async Task EmailCapabilityReport(ReportInteraction reportInteraction, byte[] documentContent)
     {
         var notification = new MessagingNotificationFunctionRequest()
         {
