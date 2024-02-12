@@ -7,7 +7,7 @@ public class ReportInteraction
     public List<string>? OdsCodes { get; set; } = null;
     public string? InteractionId { get; set; } = null;
 
-    public string InteractionKey => $"{ InteractionId?.ReplaceNonAlphanumeric() }_{DateTime.UtcNow.ToFileTimeUtc}";
+    public string InteractionKey => $"{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }_{DateTime.Now:O}";
 
     public string? ReportName { get; set; } = null;
 }
