@@ -13,7 +13,6 @@ using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
-using System.Reflection.Emit;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
