@@ -15,6 +15,7 @@ public class CapabilityReportScheduledEventFunction
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerSettings _options;
+    private readonly SecretManager _secretManager;
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
     private List<string> _distributionList = new List<string>();
@@ -23,18 +24,9 @@ public class CapabilityReportScheduledEventFunction
     {
         _httpClient = new HttpClient();
 
-        _endUserConfiguration = new EndUserConfiguration()
-        {
-            ApiKey = Environment.GetEnvironmentVariable("EndUserConfigurationApiKey"),
-            ApiBaseUrl = Environment.GetEnvironmentVariable("EndUserConfigurationApiBaseUrl"),            
-            UserId = Environment.GetEnvironmentVariable("EndUserConfigurationUserId"),
-        };
-
-        _notificationConfiguration = new NotificationConfiguration()
-        {
-            CapabilityReportingApiKey = Environment.GetEnvironmentVariable("CapabilityReportingApiKey"),
-            CapabilityReportingTemplateId = Environment.GetEnvironmentVariable("CapabilityReportingTemplateId")
-        };
+        _secretManager = new SecretManager();
+        _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
+        _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
