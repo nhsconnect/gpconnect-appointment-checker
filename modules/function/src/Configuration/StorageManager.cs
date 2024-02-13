@@ -1,62 +1,22 @@
 using Amazon;
 using Amazon.S3;
-using Amazon.S3.Transfer;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
-using GpConnect.AppointmentChecker.Function.Helpers;
 
 namespace GpConnect.AppointmentChecker.Function.Configuration;
 
 public static class StorageManager
 {
-    public static byte[] Get(StorageDownloadRequest storageDownloadRequest)
+    private static HttpClient httpClient = new HttpClient();
+
+    public static async Task<string> Post(StorageUploadRequest storageUploadRequest)
     {
         try
         {
-            var request = new TransferUtilityOpenStreamRequest
-            {
-                BucketName = storageDownloadRequest.BucketName,
-                Key = storageDownloadRequest.Key                
-            };
-            var client = GetS3Client();
-            var transferUtility = new TransferUtility(client);
-
-            var downloadStream = transferUtility.OpenStream(request);
-            return StreamExtensions.ConvertStreamToByteArray(downloadStream);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("The download request has resulted in an error: " + e.Message);
-            throw;
-        }
-    }
-
-    public static string Post(StorageUploadRequest storageUploadRequest)
-    {
-        try
-        {
-            var request = new TransferUtilityUploadRequest
-            {
-                BucketName = storageUploadRequest.BucketName,
-                Key = storageUploadRequest.Key,
-                ContentType = storageUploadRequest.ContentType,
-                InputStream = new MemoryStream(storageUploadRequest.InputBytes),
-                AutoCloseStream = true                
-            };
-
-            var client = GetS3Client();
-            var preSignedUrl = client.GetPreSignedURL(new Amazon.S3.Model.GetPreSignedUrlRequest()
-            {
-                BucketName = storageUploadRequest.BucketName,
-                Key = storageUploadRequest.Key,
-                ContentType = storageUploadRequest.ContentType, 
-                Protocol = Protocol.HTTPS,
-                Verb = HttpVerb.GET,
-                Expires = DateTime.Now.AddDays(7)                
-            });
-
-            var transferUtility = new TransferUtility(client);   
-            transferUtility.Upload(request);
-            return preSignedUrl;
+            var url = GetPresignedUrl(storageUploadRequest);
+            var inputStream = new MemoryStream(storageUploadRequest.InputBytes);
+            using var streamContent = new StreamContent(inputStream);
+            var response = await httpClient.PutAsync(url, streamContent);
+            return url;
         }
         catch (Exception e)
         {
@@ -65,9 +25,27 @@ public static class StorageManager
         }
     }
 
+    private static string GetPresignedUrl(StorageUploadRequest storageUploadRequest)
+    {
+        var client = GetS3Client();
+        var preSignedUrl = client.GetPreSignedURL(new Amazon.S3.Model.GetPreSignedUrlRequest()
+        {
+            BucketName = storageUploadRequest.BucketName,
+            Key = storageUploadRequest.Key,
+            ContentType = storageUploadRequest.ContentType,
+            Expires = DateTime.UtcNow.AddDays(7),
+            Verb = HttpVerb.PUT
+        });
+        return preSignedUrl;
+    }
+
     private static AmazonS3Client GetS3Client()
     {
-        var config = new AmazonS3Config { RegionEndpoint = RegionEndpoint.EUWest2 };
+        var config = new AmazonS3Config { 
+            RegionEndpoint = RegionEndpoint.EUWest2            
+        };
+
+        AWSConfigsS3.UseSignatureVersion4 = true;
         var client = new AmazonS3Client(config);
         return client;
     }

@@ -1,5 +1,4 @@
 using Amazon.Lambda.Core;
-using Amazon.Runtime.Internal.Transform;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
@@ -75,20 +74,21 @@ public class CapabilityReportScheduledEventFunction
         var result = await GetByteArray(response);
         if (result != null)
         {
-            var preSignedUrl = PostCapabilityReport(reportInteraction, result);
+            var preSignedUrl = await PostCapabilityReport(reportInteraction, result);
             await EmailCapabilityReport(reportInteraction, preSignedUrl);
         }
     }
 
-    private string PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
+    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
     {
-        return StorageManager.Post(new StorageUploadRequest()
+        var url = await StorageManager.Post(new StorageUploadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
             Key = reportInteraction.InteractionKey,
             InputBytes = result,
             ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         });
+        return url;
     }
 
     private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
