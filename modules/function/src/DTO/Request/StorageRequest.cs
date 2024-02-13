@@ -4,4 +4,5 @@ public abstract class StorageRequest
 {
     public string BucketName { get; set; }
     public string Key { get; set; }
+    public string ContentType { get; set; }
 }
