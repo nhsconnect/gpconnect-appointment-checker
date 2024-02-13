@@ -32,12 +32,6 @@ public class NotificationService : INotificationService
                 {
                     var templateParameters = notificationCreateRequest.TemplateParameters?.ToDictionary(pair => pair.Key, pair => Convert.ToString(pair.Value) == null ? string.Empty : pair.Value.ToString());
                     templateParameters.Add("url", notificationCreateRequest.RequestUrl);
-
-                    if(notificationCreateRequest.FileUpload != null)
-                    {
-                        templateParameters.Add(notificationCreateRequest.FileUpload.FirstOrDefault().Key, NotificationClient.PrepareUpload(notificationCreateRequest.FileUpload.FirstOrDefault().Value as byte[]));
-                    }
-
                     emailNotificationResponse.Add(client.SendEmail(emailAddress, notificationCreateRequest.TemplateId, templateParameters));
                 }
                 return emailNotificationResponse.Count;
