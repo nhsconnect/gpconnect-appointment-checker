@@ -1,4 +1,5 @@
 using Amazon;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -30,7 +31,7 @@ public static class StorageManager
         }
     }
 
-    public static Task<string> Post(StorageUploadRequest storageUploadRequest)
+    public static string Post(StorageUploadRequest storageUploadRequest)
     {
         try
         {
@@ -44,7 +45,7 @@ public static class StorageManager
             };
 
             var client = GetS3Client();
-            var preSignedUrl = client.GetPreSignedURLAsync(new Amazon.S3.Model.GetPreSignedUrlRequest()
+            var preSignedUrl = client.GetPreSignedURL(new Amazon.S3.Model.GetPreSignedUrlRequest()
             {
                 BucketName = storageUploadRequest.BucketName,
                 Key = storageUploadRequest.Key,
