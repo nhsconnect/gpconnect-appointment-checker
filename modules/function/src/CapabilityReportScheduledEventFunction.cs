@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.Runtime.Internal.Transform;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
@@ -74,32 +75,39 @@ public class CapabilityReportScheduledEventFunction
         var result = await GetByteArray(response);
         if (result != null)
         {
-            await PostCapabilityReport(reportInteraction, result);
-            //await EmailCapabilityReport(reportInteraction, result);
+            var preSignedUrl = await PostCapabilityReport(reportInteraction, result);
+            await EmailCapabilityReport(reportInteraction, preSignedUrl);
         }
     }
 
-    private async Task PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
+    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
     {
-        StorageManager.Post(new StorageUploadRequest()
+        return await StorageManager.Post(new StorageUploadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
             Key = reportInteraction.InteractionKey,
-            InputBytes = result
+            InputBytes = result,
+            ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         });
     }
 
-    private async Task EmailCapabilityReport(ReportInteraction reportInteraction, byte[] documentContent)
+    private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
     {
+        var stream = StorageManager.Get(new StorageDownloadRequest()
+        {
+            BucketName = _storageConfiguration.BucketName,
+            Key = reportInteraction.InteractionKey
+        });
+        
         var notification = new MessagingNotificationFunctionRequest()
         {
             ApiKey = _notificationConfiguration.CapabilityReportingApiKey,
             EmailAddresses = _distributionList,
             TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
-            FileUpload = new Dictionary<string, byte[]> { { "link_to_file", documentContent } },
             TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportInteraction.ReportName },
                 { "interaction_id", reportInteraction.InteractionId },
+                { "pre_signed_url", preSignedUrl },
                 { "date_generated", DateTime.Now.ToString("F") }
             }
         };
