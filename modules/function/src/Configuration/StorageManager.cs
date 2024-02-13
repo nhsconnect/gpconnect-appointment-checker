@@ -14,8 +14,9 @@ public static class StorageManager
         {
             var url = GetPresignedUrl(storageUploadRequest);
             var inputStream = new MemoryStream(storageUploadRequest.InputBytes);
-            using var streamContent = new StreamContent(inputStream);
+            var streamContent = new StreamContent(inputStream);
             var response = await httpClient.PutAsync(url, streamContent);
+            response.EnsureSuccessStatusCode();
             return url;
         }
         catch (Exception e)
