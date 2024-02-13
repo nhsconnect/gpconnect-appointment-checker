@@ -75,14 +75,14 @@ public class CapabilityReportScheduledEventFunction
         var result = await GetByteArray(response);
         if (result != null)
         {
-            var preSignedUrl = await PostCapabilityReport(reportInteraction, result);
+            var preSignedUrl = PostCapabilityReport(reportInteraction, result);
             await EmailCapabilityReport(reportInteraction, preSignedUrl);
         }
     }
 
-    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
+    private string PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
     {
-        return await StorageManager.Post(new StorageUploadRequest()
+        return StorageManager.Post(new StorageUploadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
             Key = reportInteraction.InteractionKey,
@@ -93,11 +93,11 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
     {
-        var stream = StorageManager.Get(new StorageDownloadRequest()
-        {
-            BucketName = _storageConfiguration.BucketName,
-            Key = reportInteraction.InteractionKey
-        });
+        //var stream = StorageManager.Get(new StorageDownloadRequest()
+        //{
+        //    BucketName = _storageConfiguration.BucketName,
+        //    Key = reportInteraction.InteractionKey
+        //});
         
         var notification = new MessagingNotificationFunctionRequest()
         {
