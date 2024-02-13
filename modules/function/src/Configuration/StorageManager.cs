@@ -1,5 +1,4 @@
 using Amazon;
-using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -57,8 +56,6 @@ public static class StorageManager
 
             var transferUtility = new TransferUtility(client);   
             transferUtility.Upload(request);
-
-            Console.WriteLine("The signed URL is: " + preSignedUrl);
             return preSignedUrl;
         }
         catch (Exception e)

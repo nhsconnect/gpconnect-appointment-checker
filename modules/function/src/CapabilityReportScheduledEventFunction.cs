@@ -93,12 +93,6 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
     {
-        //var stream = StorageManager.Get(new StorageDownloadRequest()
-        //{
-        //    BucketName = _storageConfiguration.BucketName,
-        //    Key = reportInteraction.InteractionKey
-        //});
-        
         var notification = new MessagingNotificationFunctionRequest()
         {
             ApiKey = _notificationConfiguration.CapabilityReportingApiKey,

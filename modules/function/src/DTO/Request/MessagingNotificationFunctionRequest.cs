@@ -6,5 +6,4 @@ public class MessagingNotificationFunctionRequest
     public string TemplateId { get; set; }
     public string ApiKey { get; set; }
     public Dictionary<string, dynamic> TemplateParameters { get; set; } = new Dictionary<string, dynamic>();
-    public Dictionary<string, byte[]> FileUpload { get; set; } = new Dictionary<string, byte[]>();
 }
