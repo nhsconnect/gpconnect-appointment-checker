@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -84,30 +85,31 @@ public class CapabilityReportScheduledEventFunction
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
-        response.EnsureSuccessStatusCode();
-        var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
-        _lambdaContext.Logger.LogInformation(preSignedUrl);
-        await EmailCapabilityReport(reportInteraction, preSignedUrl);
+        response.EnsureSuccessStatusCode();        
+        var httpStatusCode = await PostCapabilityReport(reportInteraction.InteractionKey, response);
+        
+        _lambdaContext.Logger.LogInformation(httpStatusCode.ToString());
+        //reportInteraction.PreSignedUrl = preSignedUrl;
+        //await EmailCapabilityReport(reportInteraction);
     }
 
-    private async Task<string> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
+    private async Task<HttpStatusCode> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
     {
         if (response != null)
         {
             var inputBytes = await GetByteArray(response);
-            var url = await StorageManager.Post(new StorageUploadRequest()
+            return await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
                 Key = interactionKey,
                 InputBytes = inputBytes,
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             });
-            return url;
         }
-        return string.Empty;
+        return HttpStatusCode.BadRequest;
     }
 
-    private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
+    private async Task EmailCapabilityReport(ReportInteraction reportInteraction)
     {
         var notification = new MessagingNotificationFunctionRequest()
         {
@@ -117,7 +119,7 @@ public class CapabilityReportScheduledEventFunction
             TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportInteraction.ReportName },
                 { "interaction_id", reportInteraction.InteractionId },
-                { "pre_signed_url", preSignedUrl },
+                { "pre_signed_url", reportInteraction.PreSignedUrl },
                 { "date_generated", DateTime.Now.ToString("F") }
             }
         };

@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace GpConnect.AppointmentChecker.Function.Configuration;
 
@@ -34,30 +35,52 @@ public static class StorageManager
         }
     }
 
-    public static async Task<string> Post(StorageUploadRequest storageUploadRequest)
+    public static async Task<HttpStatusCode> Post(StorageUploadRequest storageUploadRequest)
     {
         try
         {
-            var request = new PutObjectRequest
+            var request = new GetPreSignedUrlRequest
             {
                 BucketName = storageUploadRequest.BucketName,
                 Key = storageUploadRequest.Key,
-                InputStream = new MemoryStream(storageUploadRequest.InputBytes),
-                AutoCloseStream = true,
-                BucketKeyEnabled = true,                
-                ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS,
-                TagSet = new List<Tag>() 
-                { 
-                    new() { 
-                        Key = $"{storageUploadRequest.BucketName}-object-tag", 
-                        Value = DateTime.UtcNow.Ticks.ToString()
-                    } 
-                }
-            };           
+                Verb = HttpVerb.PUT,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
 
-            var response = await s3Client.PutObjectAsync(request);
-            var url = GetPresignedUrl(storageUploadRequest);
-            return url;
+            var url = s3Client.GetPreSignedURL(request);
+
+            var httpRequest = WebRequest.Create(url) as HttpWebRequest;
+            httpRequest.Method = HttpMethod.Put.Method;
+            httpRequest.ContentLength = storageUploadRequest.InputBytes.Length;
+
+            var requestStream = httpRequest.GetRequestStream();
+            requestStream.Write(storageUploadRequest.InputBytes, 0, storageUploadRequest.InputBytes.Length);
+            requestStream.Close();
+
+            var httpResponse = httpRequest.GetResponse() as HttpWebResponse;
+
+            return httpResponse.StatusCode;
+
+            //var request = new PutObjectRequest
+            //{
+            //    BucketName = storageUploadRequest.BucketName,
+            //    Key = storageUploadRequest.Key,
+            //    InputStream = new MemoryStream(storageUploadRequest.InputBytes),
+            //    AutoCloseStream = true,
+            //    BucketKeyEnabled = true,                
+            //    ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS,
+            //    TagSet = new List<Tag>() 
+            //    { 
+            //        new() { 
+            //            Key = $"{storageUploadRequest.BucketName}-object-tag", 
+            //            Value = DateTime.UtcNow.Ticks.ToString()
+            //        } 
+            //    }
+            //};           
+
+            //var response = await s3Client.PutObjectAsync(request);
+            //var url = GetPresignedUrl(storageUploadRequest);
+            //return url;
         }
         catch (Exception e)
         {
@@ -76,7 +99,7 @@ public static class StorageManager
             Expires = DateTime.UtcNow.AddHours(12),
             Verb = HttpVerb.GET,
             Protocol = Protocol.HTTPS,
-            ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS            
+            ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS
         };
         var preSignedUrl = s3Client.GetPreSignedURL(request);
         return preSignedUrl;

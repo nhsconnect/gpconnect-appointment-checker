@@ -10,4 +10,5 @@ public class ReportInteraction
     public string InteractionKey => $"{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.xlsx".ToLower();
 
     public string? ReportName { get; set; } = null;
+    public Uri? PreSignedUrl { get; set; } = null;
 }
