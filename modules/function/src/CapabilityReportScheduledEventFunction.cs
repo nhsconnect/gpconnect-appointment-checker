@@ -19,17 +19,17 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
-    private readonly ILambdaContext _lambdaContext;
+    private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
+    private List<string> _additionalOdsCodes = new List<string>();
 
-    public CapabilityReportScheduledEventFunction(ILambdaContext lambdaContext)
+    public CapabilityReportScheduledEventFunction()
     {
         _httpClient = new HttpClient();
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
-        _lambdaContext = lambdaContext ?? throw new ArgumentNullException("ILambdaContext");
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
@@ -40,9 +40,11 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task FunctionHandler(FunctionRequest input)
+    public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
+        _lambdaContext = lambdaContext;
         _distributionList = input.DistributionList;
+        _additionalOdsCodes = input.OdsCodes;
         await GetCapabilityReport();
     }
 
@@ -57,6 +59,7 @@ public class CapabilityReportScheduledEventFunction
 
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
+            sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
             for (var i = 0; i < capabilityReports.Count; i++)
             {
