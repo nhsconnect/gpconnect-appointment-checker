@@ -19,15 +19,17 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
+    private readonly ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
 
-    public CapabilityReportScheduledEventFunction()
+    public CapabilityReportScheduledEventFunction(ILambdaContext lambdaContext)
     {
         _httpClient = new HttpClient();
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
+        _lambdaContext = lambdaContext ?? throw new ArgumentNullException("ILambdaContext");
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
@@ -38,13 +40,13 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task FunctionHandler(FunctionRequest input, ILambdaContext context)
+    public async Task FunctionHandler(FunctionRequest input)
     {
         _distributionList = input.DistributionList;
-        await GetCapabilityReport(context);
+        await GetCapabilityReport();
     }
 
-    private async Task GetCapabilityReport(ILambdaContext context)
+    private async Task GetCapabilityReport()
     {
         var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
         {
@@ -80,11 +82,12 @@ public class CapabilityReportScheduledEventFunction
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
         response.EnsureSuccessStatusCode();
-        var preSignedUrl = await PostCapabilityReport(reportInteraction, response);
+        var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
+        _lambdaContext.Logger.LogInformation(preSignedUrl);
         await EmailCapabilityReport(reportInteraction, preSignedUrl);
     }
 
-    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, HttpResponseMessage? response)
+    private async Task<string> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
     {
         if (response != null)
         {
@@ -92,7 +95,7 @@ public class CapabilityReportScheduledEventFunction
             var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
-                Key = reportInteraction.InteractionKey,
+                Key = interactionKey,
                 InputBytes = inputBytes,
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             });

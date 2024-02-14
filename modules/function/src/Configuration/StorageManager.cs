@@ -44,7 +44,8 @@ public static class StorageManager
                 Key = storageUploadRequest.Key,
                 InputStream = new MemoryStream(storageUploadRequest.InputBytes),
                 AutoCloseStream = true,
-                BucketKeyEnabled = true
+                BucketKeyEnabled = true,
+                ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS
             };
             var response = await s3Client.PutObjectAsync(request);
             var url = GetPresignedUrl(storageUploadRequest);
@@ -66,7 +67,8 @@ public static class StorageManager
             ContentType = storageUploadRequest.ContentType,
             Expires = DateTime.UtcNow.AddHours(12),
             Verb = HttpVerb.GET,
-            Protocol = Protocol.HTTPS
+            Protocol = Protocol.HTTPS,
+            ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS
         };
         var preSignedUrl = s3Client.GetPreSignedURL(request);
         return preSignedUrl;
