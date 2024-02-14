@@ -77,8 +77,6 @@ public static class StorageManager
         var config = new AmazonS3Config { 
             RegionEndpoint = RegionEndpoint.EUWest2            
         };
-
-        AWSConfigsS3.UseSignatureVersion4 = true;
         var client = new AmazonS3Client(config);
         return client;
     }
