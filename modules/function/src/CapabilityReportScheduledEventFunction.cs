@@ -41,20 +41,37 @@ public class CapabilityReportScheduledEventFunction
     public async Task FunctionHandler(FunctionRequest input, ILambdaContext context)
     {
         _distributionList = input.DistributionList;
-        await GetCapabilityReport(input, context);
+        await GetCapabilityReport(context);
     }
 
-    private async Task GetCapabilityReport(FunctionRequest input, ILambdaContext context)
-    {
-        var capabilityReports = await GetCapabilityReports();
-        for (var i = 0; i < capabilityReports.Count; i++)
+    private async Task GetCapabilityReport(ILambdaContext context)
+    {        
+        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
         {
-            await GenerateCapabilityReport(new ReportInteraction()
+            BucketName = _storageConfiguration.BucketName,
+            Key = _storageConfiguration.SourceObject,
+            ContentType = "application/json"
+        });
+
+        context.Logger.LogInformation(_storageConfiguration.SourceObject);
+
+        if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
+        {
+            for (int i = 0; i < sourceOdsCodes.Count; i++)
             {
-                OdsCodes = input.OdsCodes,
-                ReportName = capabilityReports[i].ReportName,
-                InteractionId = capabilityReports[i].InteractionId
-            });
+                context.Logger.LogInformation(sourceOdsCodes[i]);
+            }
+
+            var capabilityReports = await GetCapabilityReports();
+            for (var i = 0; i < capabilityReports.Count; i++)
+            {
+                await GenerateCapabilityReport(new ReportInteraction()
+                {
+                    OdsCodes = sourceOdsCodes,
+                    ReportName = capabilityReports[i].ReportName,
+                    InteractionId = capabilityReports[i].InteractionId
+                });
+            }
         }
     }
 
