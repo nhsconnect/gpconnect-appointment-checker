@@ -46,7 +46,13 @@ public static class StorageManager
                 AutoCloseStream = true,
                 BucketKeyEnabled = true,                
                 ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS,
-                TagSet = new List<Tag>() { new Tag() { Key = $"{storageUploadRequest.BucketName}-object-tag", Value = DateTime.UtcNow.ToString("D") } }
+                TagSet = new List<Tag>() 
+                { 
+                    new() { 
+                        Key = $"{storageUploadRequest.BucketName}-object-tag", 
+                        Value = DateTime.UtcNow.Ticks.ToString()
+                    } 
+                }
             };           
 
             var response = await s3Client.PutObjectAsync(request);
