@@ -39,11 +39,18 @@ public static class StorageManager
     {
         try
         {
+            var request = new PutObjectRequest
+            {
+                BucketName = storageUploadRequest.BucketName,
+                Key = storageUploadRequest.Key,
+                InputStream = new MemoryStream(storageUploadRequest.InputBytes),
+                AutoCloseStream = true,
+                BucketKeyEnabled = true
+            };
+            var client = GetS3Client();
+            var response = await client.PutObjectAsync(request);
+
             var url = GetPresignedUrl(storageUploadRequest);
-            var inputStream = new MemoryStream(storageUploadRequest.InputBytes);
-            var streamContent = new StreamContent(inputStream);
-            var response = await httpClient.PutAsync(url, streamContent);
-            response.EnsureSuccessStatusCode();
             return url;
         }
         catch (Exception e)
@@ -56,13 +63,12 @@ public static class StorageManager
     private static string GetPresignedUrl(StorageUploadRequest storageUploadRequest)
     {
         var client = GetS3Client();
-        var preSignedUrl = client.GetPreSignedURL(new Amazon.S3.Model.GetPreSignedUrlRequest()
+        var preSignedUrl = client.GetPreSignedURL(new GetPreSignedUrlRequest()
         {
             BucketName = storageUploadRequest.BucketName,
             Key = storageUploadRequest.Key,
             ContentType = storageUploadRequest.ContentType,
-            Expires = DateTime.UtcNow.AddDays(7),
-            Verb = HttpVerb.PUT
+            Expires = DateTime.UtcNow.AddHours(12)
         });
         return preSignedUrl;
     }

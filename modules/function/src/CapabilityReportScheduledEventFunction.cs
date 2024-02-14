@@ -45,7 +45,7 @@ public class CapabilityReportScheduledEventFunction
     }
 
     private async Task GetCapabilityReport(ILambdaContext context)
-    {        
+    {
         var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
@@ -53,15 +53,8 @@ public class CapabilityReportScheduledEventFunction
             ContentType = "application/json"
         });
 
-        context.Logger.LogInformation(_storageConfiguration.SourceObject);
-
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
-            for (int i = 0; i < sourceOdsCodes.Count; i++)
-            {
-                context.Logger.LogInformation(sourceOdsCodes[i]);
-            }
-
             var capabilityReports = await GetCapabilityReports();
             for (var i = 0; i < capabilityReports.Count; i++)
             {
@@ -86,26 +79,26 @@ public class CapabilityReportScheduledEventFunction
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
-
         response.EnsureSuccessStatusCode();
-        var result = await GetByteArray(response);
-        if (result != null)
-        {
-            var preSignedUrl = await PostCapabilityReport(reportInteraction, result);
-            await EmailCapabilityReport(reportInteraction, preSignedUrl);
-        }
+        var preSignedUrl = await PostCapabilityReport(reportInteraction, response);
+        await EmailCapabilityReport(reportInteraction, preSignedUrl);
     }
 
-    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, byte[] result)
+    private async Task<string> PostCapabilityReport(ReportInteraction reportInteraction, HttpResponseMessage? response)
     {
-        var url = await StorageManager.Post(new StorageUploadRequest()
+        if (response != null)
         {
-            BucketName = _storageConfiguration.BucketName,
-            Key = reportInteraction.InteractionKey,
-            InputBytes = result,
-            ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
-        return url;
+            var inputBytes = await GetByteArray(response);
+            var url = await StorageManager.Post(new StorageUploadRequest()
+            {
+                BucketName = _storageConfiguration.BucketName,
+                Key = reportInteraction.InteractionKey,
+                InputBytes = inputBytes,
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            });
+            return url;
+        }
+        return string.Empty;
     }
 
     private async Task EmailCapabilityReport(ReportInteraction reportInteraction, string preSignedUrl)
