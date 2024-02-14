@@ -8,7 +8,7 @@ namespace GpConnect.AppointmentChecker.Function.Configuration;
 
 public static class StorageManager
 {
-    private static HttpClient httpClient = new HttpClient();
+    private static AmazonS3Client s3Client = GetS3Client();
 
     public static async Task<T?> Get<T>(StorageDownloadRequest storageDownloadRequest) where T : class
     {
@@ -19,8 +19,7 @@ public static class StorageManager
                 BucketName = storageDownloadRequest.BucketName,
                 Key = storageDownloadRequest.Key
             };
-            var client = GetS3Client();
-            using GetObjectResponse response = await client.GetObjectAsync(request);
+            using GetObjectResponse response = await s3Client.GetObjectAsync(request);
             var responseBody = await new StreamReader(response.ResponseStream).ReadToEndAsync();
             if (responseBody != null)
             {
@@ -47,9 +46,7 @@ public static class StorageManager
                 AutoCloseStream = true,
                 BucketKeyEnabled = true
             };
-            var client = GetS3Client();
-            var response = await client.PutObjectAsync(request);
-
+            var response = await s3Client.PutObjectAsync(request);
             var url = GetPresignedUrl(storageUploadRequest);
             return url;
         }
@@ -62,14 +59,16 @@ public static class StorageManager
 
     private static string GetPresignedUrl(StorageUploadRequest storageUploadRequest)
     {
-        var client = GetS3Client();
-        var preSignedUrl = client.GetPreSignedURL(new GetPreSignedUrlRequest()
+        var request = new GetPreSignedUrlRequest()
         {
             BucketName = storageUploadRequest.BucketName,
             Key = storageUploadRequest.Key,
             ContentType = storageUploadRequest.ContentType,
-            Expires = DateTime.UtcNow.AddHours(12)
-        });
+            Expires = DateTime.UtcNow.AddHours(12),
+            Verb = HttpVerb.GET,
+            Protocol = Protocol.HTTPS
+        };
+        var preSignedUrl = s3Client.GetPreSignedURL(request);
         return preSignedUrl;
     }
 
