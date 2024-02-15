@@ -1,6 +1,9 @@
 name: Build function on checkin
 
-on: push
+on: 
+  push:
+    paths:
+      - 'modules/function/**'
 
 jobs:
   build:
