@@ -122,7 +122,7 @@ public class CapabilityReportScheduledEventFunction
                 { "report_name", reportInteraction.ReportName },
                 { "interaction_id", reportInteraction.InteractionId },
                 { "pre_signed_url", reportInteraction.PreSignedUrl },
-                { "date_generated", DateTime.Now.ToString("F") }
+                { "date_generated", DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss") }
             }
         };
 
