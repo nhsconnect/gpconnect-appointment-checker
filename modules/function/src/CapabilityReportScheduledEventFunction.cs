@@ -33,6 +33,7 @@ public class CapabilityReportScheduledEventFunction
 
         _httpClient = new HttpClient();
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
+        _httpClient.Timeout = TimeSpan.FromMinutes(15);
 
         _options = new JsonSerializerSettings
         {
