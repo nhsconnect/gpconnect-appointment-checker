@@ -101,13 +101,15 @@ public class CapabilityReportScheduledEventFunction
         if (response != null)
         {
             var inputBytes = await GetByteArray(response);
-            return await StorageManager.Post(new StorageUploadRequest()
+            var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
                 Key = interactionKey,
                 InputBytes = inputBytes,
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             });
+            _lambdaContext.Logger.LogInformation(url);
+            return url;
         }
         return null;
     }
