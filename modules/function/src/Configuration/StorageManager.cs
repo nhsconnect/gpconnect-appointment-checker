@@ -40,7 +40,7 @@ public static class StorageManager
     {
         try
         {
-            var url = GetPreSignedUrl(storageUploadRequest, HttpVerb.PUT, null);
+            var url = GetPreSignedUrl(storageUploadRequest, HttpVerb.PUT);
 
             var httpRequest = WebRequest.Create(url) as HttpWebRequest;
             httpRequest.Method = HttpMethod.Put.Method;
@@ -51,7 +51,7 @@ public static class StorageManager
             requestStream.Close();
             httpRequest.GetResponse();
 
-            return GetPreSignedUrl(storageUploadRequest, HttpVerb.GET, storageUploadRequest.ContentType);
+            return GetPreSignedUrl(storageUploadRequest, HttpVerb.GET);
         }
         catch (Exception e)
         {
@@ -60,7 +60,7 @@ public static class StorageManager
         }
     }
 
-    private static string GetPreSignedUrl(StorageUploadRequest storageUploadRequest, HttpVerb httpVerb, string? contentType = null)
+    private static string GetPreSignedUrl(StorageUploadRequest storageUploadRequest, HttpVerb httpVerb)
     {
         var request = new GetPreSignedUrlRequest
         {
@@ -70,13 +70,7 @@ public static class StorageManager
             Expires = DateTime.UtcNow.AddDays(7)
         };
 
-        if (contentType != null)
-        {
-            //request.ResponseHeaderOverrides.ContentType = contentType;
-            //request.ResponseHeaderOverrides.CacheControl = "No-cache";
-            //request.ResponseHeaderOverrides.ContentLanguage = "en-GB";
-            //request.ResponseHeaderOverrides.Expires = DateTime.UtcNow.AddDays(7).ToLongDateString();
-        }
+        request.ContentType = storageUploadRequest.ContentType;
 
         return s3Client.GetPreSignedURL(request);
     }
