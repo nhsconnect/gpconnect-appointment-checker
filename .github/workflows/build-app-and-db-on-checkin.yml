@@ -5,6 +5,7 @@ on:
     paths:
       - 'modules/api/**'
       - 'modules/end-user/**'
+      - '.github/**'
 
 env:
   DB_HOST: localhost
