@@ -1,6 +1,11 @@
 name: Build app and db on checkin
 
-on: push
+on: 
+  push:
+    paths:
+      - 'modules/api/**'
+      - 'modules/end-user/**'
+      - '.github/**'
 
 env:
   DB_HOST: localhost
