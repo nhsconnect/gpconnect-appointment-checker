@@ -1,0 +1,25 @@
+name: Publish function to docker hub (manual)
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  push_to_registry:
+    name: Build and push to docker hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup BUILD_TAG environment variable
+        run: echo "BUILD_TAG=\"${GITHUB_REPOSITORY#*/} | Branch ${GITHUB_REF#refs/heads/} | SHA ${GITHUB_SHA:0:7} | BuildTime $(date '+%Y-%m-%dT%H:%M:%S')\"" >> $GITHUB_ENV
+      - name: Print the BUILD_TAG
+        run: echo ${{ env.BUILD_TAG }}
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push lambda image to docker hub
+        uses: docker/build-push-action@v1
+        with:
+          path: modules/function
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          repository: nhsgpconnect/gpconnect-appointment-checker-function-application
+          build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
+          tag_with_ref: true      
