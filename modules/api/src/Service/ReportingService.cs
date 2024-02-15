@@ -49,37 +49,75 @@ public class ReportingService : IReportingService
         string? jsonData = null;
         var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
 
-        for (int i = 0; i < reportInteractionRequest.OdsCodes.Count; i++)
+        var capabilityStatementResponses = new List<IDictionary<string, object>>();
+
+        if (reportInteractionRequest.OdsCodes.Count > 0)
         {
-            var capabilityStatementReporting = new CapabilityStatementReporting()
+            await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
             {
-                Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
-            };
-
-            var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
-            if (providerSpineDetails != null)
-            {
-                var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+                var capabilityStatementReporting = new CapabilityStatementReporting()
                 {
-                    RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
-                    ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                    ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] }
-                });
+                    Hierarchy = organisationHierarchy[odsCode]
+                };
 
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
-
-                if (capabilityStatement != null && capabilityStatement.NoIssues)
+                var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
+                if (providerSpineDetails != null)
                 {
-                    capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                    capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
-                    capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+                    var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+                    {
+                        RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
+                        ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
+                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode }
+                    });
+
+                    var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
+
+                    if (capabilityStatement != null && capabilityStatement.NoIssues)
+                    {
+                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
+                        capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
+                        capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+                    }
                 }
-            }
 
-            var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
-            var jObject = JObject.Parse(jsonString);
-            capabilityStatements.Add(jObject.Flatten());
+                var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
+                var jObject = JObject.Parse(jsonString);
+                capabilityStatements.Add(jObject.Flatten());
+            });
         }
+
+        
+        //for (int i = 0; i < reportInteractionRequest.OdsCodes.Count; i++)
+        //{
+        //    var capabilityStatementReporting = new CapabilityStatementReporting()
+        //    {
+        //        Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
+        //    };
+
+        //    var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
+        //    if (providerSpineDetails != null)
+        //    {
+        //        var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+        //        {
+        //            RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
+        //            ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
+        //            ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] }
+        //        });
+
+        //        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
+
+        //        if (capabilityStatement != null && capabilityStatement.NoIssues)
+        //        {
+        //            capabilityStatementReporting.Profile = capabilityStatement.Profile;
+        //            capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
+        //            capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+        //        }
+        //    }
+
+        //    var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
+        //    var jObject = JObject.Parse(jsonString);
+        //    capabilityStatements.Add(jObject.Flatten());
+        //}
 
         jsonData = JsonConvert.SerializeObject(capabilityStatements);
         var memoryStream = CreateReport(jsonData.ConvertJsonDataToDataTable(), reportInteractionRequest.ReportName);
