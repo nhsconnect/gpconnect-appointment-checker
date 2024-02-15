@@ -23,15 +23,6 @@ jobs:
           repository: nhsgpconnect/gpconnect-appointment-checker-api-application
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
-      - name: Push lambda image to docker hub
-        uses: docker/build-push-action@v1
-        with:
-          path: modules/function
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-          repository: nhsgpconnect/gpconnect-appointment-checker-function-application
-          build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
-          tag_with_ref: true
       - name: Push end user application image to docker hub
         uses: docker/build-push-action@v1
         with:
