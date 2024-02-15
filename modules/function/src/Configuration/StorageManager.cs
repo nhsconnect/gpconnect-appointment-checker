@@ -45,7 +45,6 @@ public static class StorageManager
             var httpRequest = WebRequest.Create(url) as HttpWebRequest;
             httpRequest.Method = HttpMethod.Put.Method;
             httpRequest.ContentLength = storageUploadRequest.InputBytes.Length;
-            httpRequest.Headers.Add("x-amz-tagging", $"{storageUploadRequest.ObjectTagKey}={storageUploadRequest.ObjectTagValue}");
 
             var requestStream = httpRequest.GetRequestStream();
             requestStream.Write(storageUploadRequest.InputBytes, 0, storageUploadRequest.InputBytes.Length);

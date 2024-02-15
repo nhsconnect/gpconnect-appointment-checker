@@ -19,19 +19,19 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
-    private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
     private List<string> _additionalOdsCodes = new List<string>();
 
     public CapabilityReportScheduledEventFunction()
     {
-        _httpClient = new HttpClient();
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
+
+        _httpClient = new HttpClient();
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
 
         _options = new JsonSerializerSettings
@@ -40,9 +40,8 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
+    public async Task FunctionHandler(FunctionRequest input)
     {
-        _lambdaContext = lambdaContext;
         _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
         await GetCapabilityReport();
@@ -105,11 +104,8 @@ public class CapabilityReportScheduledEventFunction
             {
                 BucketName = _storageConfiguration.BucketName,
                 Key = interactionKey,
-                InputBytes = inputBytes,
-                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                ObjectTagValue = DateTime.UtcNow.Ticks.ToString()
+                InputBytes = inputBytes
             });
-            _lambdaContext.Logger.LogInformation(url);
             return url;
         }
         return null;
