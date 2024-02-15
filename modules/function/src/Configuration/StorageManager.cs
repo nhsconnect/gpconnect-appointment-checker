@@ -72,7 +72,7 @@ public static class StorageManager
 
         if (contentType != null)
         {
-            request.ResponseHeaderOverrides.ContentType = contentType;
+            //request.ResponseHeaderOverrides.ContentType = contentType;
             //request.ResponseHeaderOverrides.CacheControl = "No-cache";
             //request.ResponseHeaderOverrides.ContentLanguage = "en-GB";
             //request.ResponseHeaderOverrides.Expires = DateTime.UtcNow.AddDays(7).ToLongDateString();
