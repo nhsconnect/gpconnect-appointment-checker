@@ -45,6 +45,7 @@ public static class StorageManager
             var httpRequest = WebRequest.Create(url) as HttpWebRequest;
             httpRequest.Method = HttpMethod.Put.Method;
             httpRequest.ContentLength = storageUploadRequest.InputBytes.Length;
+            httpRequest.Headers.Add("x-amz-tagging", $"{storageUploadRequest.ObjectTagKey}={storageUploadRequest.ObjectTagValue}");
 
             var requestStream = httpRequest.GetRequestStream();
             requestStream.Write(storageUploadRequest.InputBytes, 0, storageUploadRequest.InputBytes.Length);
@@ -68,7 +69,7 @@ public static class StorageManager
             Key = storageUploadRequest.Key,
             Verb = httpVerb,
             Expires = DateTime.UtcNow.AddDays(7)
-        };
+        };        
 
         return s3Client.GetPreSignedURL(request);
     }
