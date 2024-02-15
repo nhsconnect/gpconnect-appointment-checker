@@ -5,7 +5,6 @@ using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -51,12 +50,7 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task GetCapabilityReport()
     {
-        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
-        {
-            BucketName = _storageConfiguration.BucketName,
-            Key = _storageConfiguration.SourceObject,
-            ContentType = "application/json"
-        });
+        var sourceOdsCodes = await LoadSource();
 
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
@@ -74,6 +68,16 @@ public class CapabilityReportScheduledEventFunction
         }
     }
 
+    private async Task<List<string>?> LoadSource()
+    {
+        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
+        {
+            BucketName = _storageConfiguration.BucketName,
+            Key = _storageConfiguration.SourceObject
+        });
+        return sourceOdsCodes;
+    }
+
     private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
     {
         var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
@@ -86,14 +90,13 @@ public class CapabilityReportScheduledEventFunction
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
         response.EnsureSuccessStatusCode();        
-        var httpStatusCode = await PostCapabilityReport(reportInteraction.InteractionKey, response);
         
-        _lambdaContext.Logger.LogInformation(httpStatusCode.ToString());
-        //reportInteraction.PreSignedUrl = preSignedUrl;
-        //await EmailCapabilityReport(reportInteraction);
+        var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
+        reportInteraction.PreSignedUrl = preSignedUrl;
+        await EmailCapabilityReport(reportInteraction);
     }
 
-    private async Task<HttpStatusCode> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
+    private async Task<string?> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
     {
         if (response != null)
         {
@@ -106,7 +109,7 @@ public class CapabilityReportScheduledEventFunction
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             });
         }
-        return HttpStatusCode.BadRequest;
+        return null;
     }
 
     private async Task EmailCapabilityReport(ReportInteraction reportInteraction)

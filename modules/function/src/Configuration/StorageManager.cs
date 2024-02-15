@@ -20,6 +20,7 @@ public static class StorageManager
                 BucketName = storageDownloadRequest.BucketName,
                 Key = storageDownloadRequest.Key
             };
+
             using GetObjectResponse response = await s3Client.GetObjectAsync(request);
             var responseBody = await new StreamReader(response.ResponseStream).ReadToEndAsync();
             if (responseBody != null)
@@ -35,19 +36,11 @@ public static class StorageManager
         }
     }
 
-    public static async Task<HttpStatusCode> Post(StorageUploadRequest storageUploadRequest)
+    public static async Task<string> Post(StorageUploadRequest storageUploadRequest)
     {
         try
         {
-            var request = new GetPreSignedUrlRequest
-            {
-                BucketName = storageUploadRequest.BucketName,
-                Key = storageUploadRequest.Key,
-                Verb = HttpVerb.PUT,
-                Expires = DateTime.UtcNow.AddDays(7)
-            };
-
-            var url = s3Client.GetPreSignedURL(request);
+            var url = GetPreSignedUrl(storageUploadRequest, HttpVerb.PUT);
 
             var httpRequest = WebRequest.Create(url) as HttpWebRequest;
             httpRequest.Method = HttpMethod.Put.Method;
@@ -57,30 +50,7 @@ public static class StorageManager
             requestStream.Write(storageUploadRequest.InputBytes, 0, storageUploadRequest.InputBytes.Length);
             requestStream.Close();
 
-            var httpResponse = httpRequest.GetResponse() as HttpWebResponse;
-
-            return httpResponse.StatusCode;
-
-            //var request = new PutObjectRequest
-            //{
-            //    BucketName = storageUploadRequest.BucketName,
-            //    Key = storageUploadRequest.Key,
-            //    InputStream = new MemoryStream(storageUploadRequest.InputBytes),
-            //    AutoCloseStream = true,
-            //    BucketKeyEnabled = true,                
-            //    ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS,
-            //    TagSet = new List<Tag>() 
-            //    { 
-            //        new() { 
-            //            Key = $"{storageUploadRequest.BucketName}-object-tag", 
-            //            Value = DateTime.UtcNow.Ticks.ToString()
-            //        } 
-            //    }
-            //};           
-
-            //var response = await s3Client.PutObjectAsync(request);
-            //var url = GetPresignedUrl(storageUploadRequest);
-            //return url;
+            return GetPreSignedUrl(storageUploadRequest, HttpVerb.GET);
         }
         catch (Exception e)
         {
@@ -89,20 +59,18 @@ public static class StorageManager
         }
     }
 
-    private static string GetPresignedUrl(StorageUploadRequest storageUploadRequest)
+    private static string GetPreSignedUrl(StorageUploadRequest storageUploadRequest, HttpVerb httpVerb)
     {
-        var request = new GetPreSignedUrlRequest()
+        var request = new GetPreSignedUrlRequest
         {
             BucketName = storageUploadRequest.BucketName,
             Key = storageUploadRequest.Key,
             ContentType = storageUploadRequest.ContentType,
-            Expires = DateTime.UtcNow.AddHours(12),
-            Verb = HttpVerb.GET,
-            Protocol = Protocol.HTTPS,
-            ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS
+            Verb = httpVerb,
+            Expires = DateTime.UtcNow.AddDays(7)
         };
-        var preSignedUrl = s3Client.GetPreSignedURL(request);
-        return preSignedUrl;
+
+        return s3Client.GetPreSignedURL(request);
     }
 
     private static AmazonS3Client GetS3Client()
