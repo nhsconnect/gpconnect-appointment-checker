@@ -106,7 +106,8 @@ public class CapabilityReportScheduledEventFunction
                 BucketName = _storageConfiguration.BucketName,
                 Key = interactionKey,
                 InputBytes = inputBytes,
-                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ObjectTagValue = DateTime.UtcNow.Ticks.ToString()
             });
             _lambdaContext.Logger.LogInformation(url);
             return url;
