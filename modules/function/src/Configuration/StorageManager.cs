@@ -70,8 +70,6 @@ public static class StorageManager
             Expires = DateTime.UtcNow.AddDays(7)
         };
 
-        request.ContentType = storageUploadRequest.ContentType;
-
         return s3Client.GetPreSignedURL(request);
     }
 
