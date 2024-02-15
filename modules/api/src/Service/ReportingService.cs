@@ -47,7 +47,7 @@ public class ReportingService : IReportingService
         reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
         var capabilityStatements = new List<IDictionary<string, object>>();
         string? jsonData = null;
-        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
+        //var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
 
         var capabilityStatementResponses = new List<IDictionary<string, object>>();
 
@@ -55,9 +55,11 @@ public class ReportingService : IReportingService
         {
             await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
             {
+                var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCode);
+
                 var capabilityStatementReporting = new CapabilityStatementReporting()
                 {
-                    Hierarchy = organisationHierarchy[odsCode]
+                    Hierarchy = organisationHierarchy
                 };
 
                 var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
