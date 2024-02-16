@@ -13,11 +13,13 @@ using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Diagnostics;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
 public class ReportingService : IReportingService
 {
+    private readonly ILogger<ReportingService> _logger;
     private readonly ITokenService _tokenService;
     private readonly IDataService _dataService;
     private readonly ISpineService _spineService;
@@ -25,8 +27,9 @@ public class ReportingService : IReportingService
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ReportingService(IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public ReportingService(ILogger<ReportingService> logger, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenService = tokenService;
         _spineService = spineService;
         _organisationService = organisationService;
@@ -47,19 +50,24 @@ public class ReportingService : IReportingService
         reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
         var capabilityStatements = new List<IDictionary<string, object>>();
         string? jsonData = null;
-        //var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
-
-        var capabilityStatementResponses = new List<IDictionary<string, object>>();
+        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
 
         if (reportInteractionRequest.OdsCodes.Count > 0)
         {
-            await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
+            ParallelOptions parallelOptions = new()
             {
-                var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCode);
+                MaxDegreeOfParallelism = 10
+            };
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, parallelOptions, async (odsCode, ct) =>
+            {
+                _logger.LogInformation("Processing ODS Code in ExportInteractionReport {odsCode}", odsCode);
                 var capabilityStatementReporting = new CapabilityStatementReporting()
                 {
-                    Hierarchy = organisationHierarchy
+                    Hierarchy = organisationHierarchy[odsCode]
                 };
 
                 var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
@@ -86,6 +94,9 @@ public class ReportingService : IReportingService
                 var jObject = JObject.Parse(jsonString);
                 capabilityStatements.Add(jObject.Flatten());
             });
+
+            stopwatch.Stop();
+            _logger.LogInformation(stopwatch.Elapsed.TotalMinutes.ToString());
         }
 
         
