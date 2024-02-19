@@ -49,35 +49,30 @@ public class OrganisationService : IOrganisationService
         return null;
     }
 
-    public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
+    public async Task<Hierarchy[]> GetOrganisationHierarchy(List<string> odsCodes)
     {
-        var hierarchies = new Dictionary<string, Hierarchy>();
+        int numberOfRequests = odsCodes.Count;
+        int maxParallelRequests = 100;
+        var semaphoreSlim = new SemaphoreSlim(maxParallelRequests, numberOfRequests);
 
-        ParallelOptions parallelOptions = new()
-        {
-            MaxDegreeOfParallelism = 10
-        };
-
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         _bearerToken = await GetBearerToken();
         _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-
-        await Parallel.ForEachAsync(odsCodes, parallelOptions, async (odsCode, ct) =>
+        
+        var hierarchies = new List<Task<Hierarchy>>();
+        for (int i = 0; i < numberOfRequests; ++i)
         {
-            _logger.LogInformation("Processing ODS Code in GetOrganisationHierarchy {odsCode}", odsCode);
-            hierarchies.Add(odsCode, await GetOrganisationHierarchy(odsCode));
-        });
-
-        stopwatch.Stop();
-        _logger.LogInformation(stopwatch.Elapsed.TotalMinutes.ToString());
-        return hierarchies;
+            hierarchies.Add(GetOrganisationHierarchy(odsCodes[i], semaphoreSlim));
+        }
+        var returnData = await Task.WhenAll(hierarchies.ToArray());
+        return returnData;
     }
 
-    public async Task<Hierarchy> GetOrganisationHierarchy(string odsCode)
+    public async Task<Hierarchy> GetOrganisationHierarchy(string odsCode, SemaphoreSlim? semaphoreSlim = null)
     {
         try
         {
+            await semaphoreSlim.WaitAsync();
+
             var organisation = await GetOrganisation(odsCode);
             var hierarchy = new Hierarchy()
             {
@@ -87,13 +82,7 @@ public class OrganisationService : IOrganisationService
             {
                 var postCode = organisation.PostalAddress.PostCode;
                 hierarchy.Postcode = postCode;
-                hierarchy.SiteName = organisation.OrganisationName;
-
-                if (!string.IsNullOrEmpty(_bearerToken))
-                {
-                    _bearerToken = await GetBearerToken();
-                    _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-                }
+                hierarchy.SiteName = organisation.OrganisationName;                
 
                 const string RE6 = "RE6";
                 const string ICB = "ICB";
@@ -126,6 +115,10 @@ public class OrganisationService : IOrganisationService
         {
             _logger.LogError(ex, "An error has occurred while trying to obtain the organisation hierarchy");
             throw;
+        }
+        finally
+        {
+            semaphoreSlim.Release();
         }
     }
 

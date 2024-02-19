@@ -45,7 +45,44 @@ public class CapabilityReportScheduledEventFunction
     {
         _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
-        await GetCapabilityReport();
+        await AddMessagesToQueue();
+        //await GetCapabilityReport();
+    }
+
+    private async Task AddMessagesToQueue()
+    {
+        var sourceOdsCodes = await LoadSource();
+        if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
+        {
+            sourceOdsCodes.AddRange(_additionalOdsCodes);
+            var capabilityReports = await GetCapabilityReports();
+            for (var i = 0; i < capabilityReports.Count; i++)
+            {
+                for(var j = 0; j < sourceOdsCodes.Count; j+=10)
+                {
+                    await GenerateMessage(new MessagingRequest()
+                    {
+                        OdsCodes = sourceOdsCodes.Take(10).ToList(),
+                        ReportName = capabilityReports[i].ReportName,
+                        InteractionId = capabilityReports[i].InteractionId
+                    });
+                }
+            }
+        }
+    }
+
+    private async Task GenerateMessage(MessagingRequest messagingRequest)
+    {
+        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
+           Encoding.UTF8,
+           MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+        response.EnsureSuccessStatusCode();
     }
 
     private async Task GetCapabilityReport()
