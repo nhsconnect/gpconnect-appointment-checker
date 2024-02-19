@@ -59,11 +59,12 @@ public class CapabilityReportScheduledEventFunction
         {
             sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
+            var runningCount = 0;
             for (var i = 0; i < capabilityReports.Count; i++)
-            {                
+            {   
                 for(var j = 0; j < sourceOdsCodes.Count; j += batchCount)
                 {
-                    var odsCodesInRange = sourceOdsCodes.GetRange(j, batchCount);
+                    var odsCodesInRange = sourceOdsCodes.GetRange(j, (j + batchCount) > sourceOdsCodes.Count ? j - batchCount : batchCount);
 
                     _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
                     await GenerateMessage(new MessagingRequest()
