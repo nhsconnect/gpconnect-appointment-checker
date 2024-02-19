@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Amazon.AspNetCore.DataProtection.SSM" Version="3.1.0" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.102.35" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.300.52" />
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />

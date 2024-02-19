@@ -1,4 +1,6 @@
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.Core.Factories.Interfaces;
+using GpConnect.AppointmentChecker.Api.Core.Factories;
 using GpConnect.AppointmentChecker.Api.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Api.Dal.Configuration;
 using GpConnect.AppointmentChecker.Api.Service;
@@ -34,6 +36,9 @@ public static class ServiceCollectionExtensions
         services.Configure<NotificationConfig>(configuration.GetSection("NotificationConfig"));
         services.Configure<OrganisationConfig>(configuration.GetSection("OrganisationConfig"));
         services.Configure<SecurityConfig>(configuration.GetSection("SecurityConfig"));
+        services.Configure<MessageConfig>(configuration.GetSection("MessageConfig"));
+
+        services.AddSingleton<ISqsClientFactory, SqsClientFactory>();
 
         services.AddScoped<DalInterfaces.IDataService, DalServices.DataService>();
         services.AddScoped<IUserService, UserService>();        
@@ -58,6 +63,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IExportService, ExportService>();
+        services.AddScoped<IMessageService, MessageService>();
 
         services.AddResponseCaching();
         services.AddResponseCompression();
