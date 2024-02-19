@@ -52,21 +52,23 @@ public class CapabilityReportScheduledEventFunction
     private async Task AddMessagesToQueue()
     {
         var sourceOdsCodes = await LoadSource();
+        var batchCount = 20;
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
             sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
             for (var i = 0; i < capabilityReports.Count; i++)
             {
-                for(var j = 0; j < sourceOdsCodes.Count; j+=10)
+                for(var j = 0; j < sourceOdsCodes.Count; j+=batchCount)
                 {
                     await GenerateMessage(new MessagingRequest()
                     {
-                        OdsCodes = sourceOdsCodes.Take(10).ToList(),
+                        OdsCodes = sourceOdsCodes.Take(batchCount).ToList(),
                         ReportName = capabilityReports[i].ReportName,
                         InteractionId = capabilityReports[i].InteractionId
                     });
-                }
+                    sourceOdsCodes.Skip(batchCount);
+                }                
             }
         }
     }
