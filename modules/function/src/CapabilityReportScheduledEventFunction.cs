@@ -19,6 +19,7 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly NotificationConfiguration _notificationConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
+    private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
     private List<string> _additionalOdsCodes = new List<string>();
 
@@ -41,8 +42,9 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task FunctionHandler(FunctionRequest input)
+    public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
+        _lambdaContext = lambdaContext;
         _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
         await AddMessagesToQueue();
@@ -58,16 +60,18 @@ public class CapabilityReportScheduledEventFunction
             sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
             for (var i = 0; i < capabilityReports.Count; i++)
-            {
-                for(var j = 0; j < sourceOdsCodes.Count; j+=batchCount)
+            {                
+                for(var j = 0; j < sourceOdsCodes.Count; j += batchCount)
                 {
+                    var odsCodesInRange = sourceOdsCodes.GetRange(j, batchCount);
+
+                    _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
                     await GenerateMessage(new MessagingRequest()
                     {
-                        OdsCodes = sourceOdsCodes.Take(batchCount).ToList(),
+                        OdsCodes = odsCodesInRange,
                         ReportName = capabilityReports[i].ReportName,
                         InteractionId = capabilityReports[i].InteractionId
                     });
-                    sourceOdsCodes.Skip(batchCount);
                 }                
             }
         }
