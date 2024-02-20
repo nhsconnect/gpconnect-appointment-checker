@@ -17,17 +17,14 @@ public class CapabilityReportScheduledEventFunction
     private readonly JsonSerializerSettings _options;
     private readonly SecretManager _secretManager;
     private readonly EndUserConfiguration _endUserConfiguration;
-    private readonly NotificationConfiguration _notificationConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
-    private List<string> _distributionList = new List<string>();
     private List<string> _additionalOdsCodes = new List<string>();
 
     public CapabilityReportScheduledEventFunction()
     {
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
-        _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
@@ -45,13 +42,48 @@ public class CapabilityReportScheduledEventFunction
     public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        _lambdaContext.Logger.LogInformation("Firing CapabilityReportScheduledEventFunction");
-
-        _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
         var messages = await AddMessagesToQueue();
         await GenerateMessages(messages);
-        //await GetCapabilityReport();
+    }
+
+    public async Task<List<CapabilityReport>> GetCapabilityReports()
+    {
+        var response = await _httpClient.GetWithHeadersAsync("/reporting/capabilitylist", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
+    }
+
+    private async Task GenerateMessages(List<MessagingRequest> messagingRequests)
+    {
+        for (var i = 0; i < messagingRequests.Count; i++)
+        {
+            var json = new StringContent(JsonConvert.SerializeObject(messagingRequests[i], null, _options),
+                Encoding.UTF8,
+                MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+            response.EnsureSuccessStatusCode();
+        }
+    }
+
+    private async Task<List<string>?> LoadSource()
+    {
+        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
+        {
+            BucketName = _storageConfiguration.BucketName,
+            Key = _storageConfiguration.SourceObject
+        });
+        return sourceOdsCodes;
     }
 
     private async Task<List<MessagingRequest>> AddMessagesToQueue()
@@ -72,11 +104,9 @@ public class CapabilityReportScheduledEventFunction
             {
                 while (y <= iterationCount)
                 {
-                    var odsCodesInRange = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize);
-                    _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
                     messages.Add(new MessagingRequest()
                     {
-                        OdsCodes = odsCodesInRange,
+                        OdsCodes = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         InteractionId = capabilityReports[i].InteractionId
                     });
@@ -86,135 +116,5 @@ public class CapabilityReportScheduledEventFunction
             }
         }
         return messages;
-    }
-
-    private async Task GenerateMessages(List<MessagingRequest> messagingRequests)
-    {
-        for (var i = 0; i < messagingRequests.Count; i++)
-        {
-            _lambdaContext.Logger.LogInformation(string.Join(", ", messagingRequests[i].OdsCodes.ToArray()));
-            _lambdaContext.Logger.LogInformation($"Creating message {i + 1} of {messagingRequests.Count + 1}");
-
-            var json = new StringContent(JsonConvert.SerializeObject(messagingRequests[i], null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-            {
-                [Headers.UserId] = _endUserConfiguration.UserId,
-                [Headers.ApiKey] = _endUserConfiguration.ApiKey
-            }, json);
-            response.EnsureSuccessStatusCode();
-        }
-    }
-
-    private async Task GetCapabilityReport()
-    {
-        var sourceOdsCodes = await LoadSource();
-
-        if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
-        {
-            sourceOdsCodes.AddRange(_additionalOdsCodes);
-            var capabilityReports = await GetCapabilityReports();
-            for (var i = 0; i < capabilityReports.Count; i++)
-            {
-                await GenerateCapabilityReport(new ReportInteraction()
-                {
-                    OdsCodes = sourceOdsCodes,
-                    ReportName = capabilityReports[i].ReportName,
-                    InteractionId = capabilityReports[i].InteractionId
-                });
-            }
-        }
-    }
-
-    private async Task<List<string>?> LoadSource()
-    {
-        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
-        {
-            BucketName = _storageConfiguration.BucketName,
-            Key = _storageConfiguration.SourceObject
-        });
-        return sourceOdsCodes;
-    }
-
-    private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/interaction", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-        response.EnsureSuccessStatusCode();
-
-        var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
-        reportInteraction.PreSignedUrl = preSignedUrl;
-        await EmailCapabilityReport(reportInteraction);
-    }
-
-    private async Task<string?> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
-    {
-        if (response != null)
-        {
-            var inputBytes = await GetByteArray(response);
-            var url = await StorageManager.Post(new StorageUploadRequest()
-            {
-                BucketName = _storageConfiguration.BucketName,
-                Key = interactionKey,
-                InputBytes = inputBytes
-            });
-            return url;
-        }
-        return null;
-    }
-
-    private async Task EmailCapabilityReport(ReportInteraction reportInteraction)
-    {
-        var notification = new MessagingNotificationFunctionRequest()
-        {
-            ApiKey = _notificationConfiguration.CapabilityReportingApiKey,
-            EmailAddresses = _distributionList,
-            TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
-            TemplateParameters = new Dictionary<string, dynamic> {
-                { "report_name", reportInteraction.ReportName },
-                { "interaction_id", reportInteraction.InteractionId },
-                { "pre_signed_url", reportInteraction.PreSignedUrl },
-                { "date_generated", DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss") }
-            }
-        };
-
-        var json = new StringContent(JsonConvert.SerializeObject(notification, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/notification", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-
-        response.EnsureSuccessStatusCode();
-    }
-
-    private async Task<byte[]> GetByteArray(HttpResponseMessage response)
-    {
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsByteArrayAsync();
-    }
-
-    public async Task<List<CapabilityReport>> GetCapabilityReports()
-    {
-        var response = await _httpClient.GetWithHeadersAsync("/reporting/capabilitylist", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
     }
 }
