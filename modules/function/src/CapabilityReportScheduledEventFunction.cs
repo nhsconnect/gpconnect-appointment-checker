@@ -54,17 +54,18 @@ public class CapabilityReportScheduledEventFunction
     private async Task AddMessagesToQueue()
     {
         var sourceOdsCodes = await LoadSource();
-        var batchCount = 20;
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
             sourceOdsCodes.AddRange(_additionalOdsCodes);
-            var capabilityReports = await GetCapabilityReports();
-            var runningCount = 0;
+            var capabilityReports = await GetCapabilityReports();            
+            var batchSize = 20;
+            var batchCount = sourceOdsCodes.Count / batchSize;
+
             for (var i = 0; i < capabilityReports.Count; i++)
             {   
-                for(var j = 0; j < sourceOdsCodes.Count; j += batchCount)
+                for(var j = 0; j < batchCount; j += batchSize)
                 {
-                    var odsCodesInRange = sourceOdsCodes.GetRange(j, (j + batchCount) > sourceOdsCodes.Count ? j - batchCount : batchCount);
+                    var odsCodesInRange = sourceOdsCodes.GetRange(j, batchSize);
 
                     _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
                     await GenerateMessage(new MessagingRequest()
