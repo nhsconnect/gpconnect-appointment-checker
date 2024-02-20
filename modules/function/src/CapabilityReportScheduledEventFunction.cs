@@ -49,22 +49,24 @@ public class CapabilityReportScheduledEventFunction
 
         _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
-        await AddMessagesToQueue();
+        var messages = await AddMessagesToQueue();
+        await GenerateMessages(messages);
         //await GetCapabilityReport();
     }
 
-    private async Task AddMessagesToQueue()
+    private async Task<List<MessagingRequest>> AddMessagesToQueue()
     {
         var sourceOdsCodes = await LoadSource();
+        var messages = new List<MessagingRequest>();
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
             sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
-            
+
             var batchSize = 20;
             var iterationCount = sourceOdsCodes.Count / batchSize;
             var x = 0;
-            var y = 0;            
+            var y = 0;
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
@@ -72,7 +74,7 @@ public class CapabilityReportScheduledEventFunction
                 {
                     var odsCodesInRange = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize);
                     _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
-                    await GenerateMessage(new MessagingRequest()
+                    messages.Add(new MessagingRequest()
                     {
                         OdsCodes = odsCodesInRange,
                         ReportName = capabilityReports[i].ReportName,
@@ -80,23 +82,30 @@ public class CapabilityReportScheduledEventFunction
                     });
                     x += batchSize;
                     y++;
-                }                
+                }
             }
         }
+        return messages;
     }
 
-    private async Task GenerateMessage(MessagingRequest messagingRequest)
+    private async Task GenerateMessages(List<MessagingRequest> messagingRequests)
     {
-        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        for (var i = 0; i < messagingRequests.Count; i++)
         {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-        response.EnsureSuccessStatusCode();
+            _lambdaContext.Logger.LogInformation(string.Join(", ", messagingRequests[i].OdsCodes.ToArray()));
+            _lambdaContext.Logger.LogInformation($"Creating message {i + 1} of {messagingRequests.Count + 1}");
+
+            var json = new StringContent(JsonConvert.SerializeObject(messagingRequests[i], null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+            response.EnsureSuccessStatusCode();
+        }
     }
 
     private async Task GetCapabilityReport()
@@ -140,8 +149,8 @@ public class CapabilityReportScheduledEventFunction
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
-        response.EnsureSuccessStatusCode();        
-        
+        response.EnsureSuccessStatusCode();
+
         var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
         reportInteraction.PreSignedUrl = preSignedUrl;
         await EmailCapabilityReport(reportInteraction);
