@@ -23,4 +23,4 @@ FROM base AS final
 WORKDIR /var/task
 COPY --from=publish /app/publish .
 
-CMD [ "GpConnect.AppointmentChecker.Function::GpConnect.AppointmentChecker.Function.CapabilityReportScheduledEventFunction::FunctionHandler" ]
+# CMD [ "GpConnect.AppointmentChecker.Function::GpConnect.AppointmentChecker.Function.CapabilityReportScheduledEventFunction::FunctionHandler" ]
