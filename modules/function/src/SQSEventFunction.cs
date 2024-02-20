@@ -29,7 +29,7 @@ public class SQSEventFunction
 
         _httpClient = new HttpClient();
         _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
-        
+
         _options = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore
@@ -66,8 +66,6 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                _lambdaContext.Logger.LogInformation("Processing OdsCodes: " + messageRequest.OdsCodes);
-
                 await GenerateCapabilityReport(new ReportInteraction()
                 {
                     OdsCodes = messageRequest.OdsCodes,
@@ -87,41 +85,49 @@ public class SQSEventFunction
 
     private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
     {
-        var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
+        try
         {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
+            var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        if(response.IsSuccessStatusCode)
-        {
-            await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
-        }        
-    }
-
-    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? response)
-    {
-        if (response != null)
-        {
-            var inputBytes = await GetByteArray(response);            
-            var url = await StorageManager.Post(new StorageUploadRequest()
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
             {
-                BucketName = _storageConfiguration.BucketName,
-                Key = interactionKeyJson,
-                InputBytes = inputBytes
-            });
-            return url;
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+            }
         }
-        return null;
+        catch (Exception e)
+        {
+            _lambdaContext.Logger.LogError(e.StackTrace);
+            throw;
+        }
     }
 
-    private async Task<byte[]> GetByteArray(HttpResponseMessage response)
-    {
-        return await response.Content.ReadAsByteArrayAsync();
-    }
+        private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? response)
+        {
+            if (response != null)
+            {
+                var inputBytes = await GetByteArray(response);
+                var url = await StorageManager.Post(new StorageUploadRequest()
+                {
+                    BucketName = _storageConfiguration.BucketName,
+                    Key = interactionKeyJson,
+                    InputBytes = inputBytes
+                });
+                return url;
+            }
+            return null;
+        }
 
-}
+        private async Task<byte[]> GetByteArray(HttpResponseMessage response)
+        {
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
+    }
