@@ -51,6 +51,8 @@ public class OrganisationService : IOrganisationService
 
     public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
+        _bearerToken = await GetBearerToken();
+        _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
         var hierarchies = new Dictionary<string, Hierarchy>();
         for (var i = 0; i < odsCodes.Count(); i++)
         {
