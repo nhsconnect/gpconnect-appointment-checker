@@ -29,11 +29,18 @@ public class ReportingController : ControllerBase
         return SendReport(result);
     }
 
-    [HttpPost("interaction")]
-    public async Task<IActionResult> Interaction([FromBody] ReportInteractionRequest reportInteractionRequest)
+    [HttpPost("createinteractionreport")]
+    public async Task<IActionResult> CreateInteractionReport([FromBody] ReportInteractionRequest reportInteractionRequest)
     {
-        var result = await _service.ExportInteractionReport(reportInteractionRequest);
+        var result = await _service.CreateInteractionReport(reportInteractionRequest);
         return SendReport(result);
+    }
+
+    [HttpPost("createinteractiondata")]
+    public async Task<IActionResult> CreateInteractionData([FromBody] ReportInteractionRequest reportInteractionRequest)
+    {
+        var result = await _service.CreateInteractionData(reportInteractionRequest);
+        return Ok(result);
     }
 
     [HttpPost("createinteractionmessage")]
