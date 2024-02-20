@@ -57,16 +57,18 @@ public class CapabilityReportScheduledEventFunction
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {
             sourceOdsCodes.AddRange(_additionalOdsCodes);
-            var capabilityReports = await GetCapabilityReports();            
+            var capabilityReports = await GetCapabilityReports();
+            
             var batchSize = 20;
-            var batchCount = sourceOdsCodes.Count / batchSize;
+            var iterationCount = sourceOdsCodes.Count / batchSize;
+            var x = 0;
+            var y = 0;            
 
             for (var i = 0; i < capabilityReports.Count; i++)
-            {   
-                for(var j = 0; j < batchCount; j += batchSize)
+            {
+                while (y <= iterationCount)
                 {
-                    var odsCodesInRange = sourceOdsCodes.GetRange(j, batchSize);
-
+                    var odsCodesInRange = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize);
                     _lambdaContext.Logger.LogInformation(string.Join(",", odsCodesInRange.ToArray()));
                     await GenerateMessage(new MessagingRequest()
                     {
@@ -74,6 +76,8 @@ public class CapabilityReportScheduledEventFunction
                         ReportName = capabilityReports[i].ReportName,
                         InteractionId = capabilityReports[i].InteractionId
                     });
+                    x += batchSize;
+                    y++;
                 }                
             }
         }
