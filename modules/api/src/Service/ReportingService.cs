@@ -17,6 +17,7 @@ using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Reflection.Emit;
 using System.Threading;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
@@ -98,21 +99,21 @@ public class ReportingService : IReportingService
 
         if (reportInteractionRequest.OdsCodes.Count > 0)
         {
-            await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
+            for(var i = 0; i < reportInteractionRequest.OdsCodes.Count; i++)
             {
                 var capabilityStatementReporting = new CapabilityStatementReporting()
                 {
-                    Hierarchy = organisationHierarchy[odsCode]
+                    Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
                 };
 
-                var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
+                var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
                 if (providerSpineDetails != null)
                 {
                     var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
                     {
                         RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                         ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode }
+                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] }
                     });
 
                     var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
@@ -127,7 +128,8 @@ public class ReportingService : IReportingService
                 var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                 var jObject = JObject.Parse(jsonString);
                 capabilityStatements.Add(jObject.Flatten());
-            });
+            }
+
             jsonData = JsonConvert.SerializeObject(capabilityStatements);
         }
         return jsonData;

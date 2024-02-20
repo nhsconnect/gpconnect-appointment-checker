@@ -2,11 +2,9 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
-using GpConnect.AppointmentChecker.Function.DTO.Response;
-using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using GpConnect.AppointmentChecker.Function.Helpers;
+using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -98,16 +96,18 @@ public class SQSEventFunction
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
-        response.EnsureSuccessStatusCode();
 
-        await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+        if(response.IsSuccessStatusCode)
+        {
+            await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+        }        
     }
 
     private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? response)
     {
         if (response != null)
         {
-            var inputBytes = await GetByteArray(response);
+            var inputBytes = await GetByteArray(response);            
             var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
@@ -121,7 +121,6 @@ public class SQSEventFunction
 
     private async Task<byte[]> GetByteArray(HttpResponseMessage response)
     {
-        response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsByteArrayAsync();
     }
 
