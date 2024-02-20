@@ -49,30 +49,20 @@ public class OrganisationService : IOrganisationService
         return null;
     }
 
-    public async Task<Hierarchy[]> GetOrganisationHierarchy(List<string> odsCodes)
+    public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
-        int numberOfRequests = odsCodes.Count;
-        int maxParallelRequests = 100;
-        var semaphoreSlim = new SemaphoreSlim(maxParallelRequests, numberOfRequests);
-
-        _bearerToken = await GetBearerToken();
-        _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-        
-        var hierarchies = new List<Task<Hierarchy>>();
-        for (int i = 0; i < numberOfRequests; ++i)
+        var hierarchies = new Dictionary<string, Hierarchy>();
+        for (var i = 0; i < odsCodes.Count(); i++)
         {
-            hierarchies.Add(GetOrganisationHierarchy(odsCodes[i], semaphoreSlim));
+            hierarchies.Add(odsCodes[i], await GetOrganisationHierarchy(odsCodes[i]));
         }
-        var returnData = await Task.WhenAll(hierarchies.ToArray());
-        return returnData;
+        return hierarchies;
     }
 
-    public async Task<Hierarchy> GetOrganisationHierarchy(string odsCode, SemaphoreSlim? semaphoreSlim = null)
+    public async Task<Hierarchy> GetOrganisationHierarchy(string odsCode)
     {
         try
         {
-            await semaphoreSlim.WaitAsync();
-
             var organisation = await GetOrganisation(odsCode);
             var hierarchy = new Hierarchy()
             {
@@ -115,10 +105,6 @@ public class OrganisationService : IOrganisationService
         {
             _logger.LogError(ex, "An error has occurred while trying to obtain the organisation hierarchy");
             throw;
-        }
-        finally
-        {
-            semaphoreSlim.Release();
         }
     }
 

@@ -8,6 +8,7 @@ public class ReportInteraction
     public string? InteractionId { get; set; } = null;
 
     public string InteractionKey => $"gpconnect_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.xlsx".ToLower();
+    public string InteractionKeyJson => $"transient_{ Guid.NewGuid() }_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.json".ToLower();
 
     public string? ReportName { get; set; } = null;
     public string? PreSignedUrl { get; set; } = null;

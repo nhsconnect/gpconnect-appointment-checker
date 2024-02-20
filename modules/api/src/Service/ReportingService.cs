@@ -9,12 +9,15 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Threading;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -59,7 +62,7 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<Stream> ExportInteractionReport(ReportInteractionRequest reportInteractionRequest)
+    public async Task<Stream> CreateInteractionReport(ReportInteractionRequest reportInteractionRequest)
     {
         reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).Take(10).ToList();
         string? jsonData = null;
@@ -75,8 +78,8 @@ public class ReportingService : IReportingService
 
             for (int i = 0; i < numberOfRequests; ++i)
             {
-                var hierarchy = organisationHierarchy.FirstOrDefault(x => x.OdsCode == reportInteractionRequest.OdsCodes[i]);
-                capabilityReportInstance.Add(GetCapabilityReportInstance(reportInteractionRequest.OdsCodes[i], reportInteractionRequest.InteractionId, hierarchy, semaphoreSlim));
+                //var hierarchy = organisationHierarchy.FirstOrDefault(x => x.OdsCode == reportInteractionRequest.OdsCodes[i]);
+                //capabilityReportInstance.Add(GetCapabilityReportInstance(reportInteractionRequest.OdsCodes[i], reportInteractionRequest.InteractionId, hierarchy, semaphoreSlim));
             }
             var capabilityStatements = await Task.WhenAll(capabilityReportInstance.ToArray());
             jsonData = JsonConvert.SerializeObject(capabilityStatements);
@@ -86,49 +89,48 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    private async Task<IDictionary<string, object>> GetCapabilityReportInstance(string odsCode, string interactionId, Hierarchy hierarchy, SemaphoreSlim semaphoreSlim)
+    public async Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest)
     {
-        try
+        reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
+        string? jsonData = null;
+        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
+        var capabilityStatements = new List<IDictionary<string, object>>();
+
+        if (reportInteractionRequest.OdsCodes.Count > 0)
         {
-            await semaphoreSlim.WaitAsync();
-            _logger.LogInformation("Processing ODS Code in ExportInteractionReport {odsCode}", odsCode);
-            var capabilityStatementReporting = new CapabilityStatementReporting()
+            await Parallel.ForEachAsync(reportInteractionRequest.OdsCodes, async (odsCode, ct) =>
             {
-                Hierarchy = hierarchy
-            };
-
-            var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
-            if (providerSpineDetails != null)
-            {
-                var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+                var capabilityStatementReporting = new CapabilityStatementReporting()
                 {
-                    RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
-                    ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                    ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode }
-                });
+                    Hierarchy = organisationHierarchy[odsCode]
+                };
 
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interactionId);
-                if (capabilityStatement != null && capabilityStatement.NoIssues)
+                var providerSpineDetails = await _spineService.GetProviderDetails(odsCode);
+                if (providerSpineDetails != null)
                 {
-                    capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                    capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
-                    capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+                    var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+                    {
+                        RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
+                        ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
+                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode }
+                    });
+
+                    var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
+                    if (capabilityStatement != null && capabilityStatement.NoIssues)
+                    {
+                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
+                        capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
+                        capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
+                    }
                 }
-            }
 
-            var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
-            var jObject = JObject.Parse(jsonString);
-            return jObject.Flatten();
+                var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
+                var jObject = JObject.Parse(jsonString);
+                capabilityStatements.Add(jObject.Flatten());
+            });
+            jsonData = JsonConvert.SerializeObject(capabilityStatements);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error has occurred while trying to obtain the report instance");
-            throw;
-        }
-        finally
-        {
-            semaphoreSlim.Release();
-        }
+        return jsonData;
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)

@@ -45,6 +45,8 @@ public class CapabilityReportScheduledEventFunction
     public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
+        _lambdaContext.Logger.LogInformation("Firing CapabilityReportScheduledEventFunction");
+
         _distributionList = input.DistributionList;
         _additionalOdsCodes = input.OdsCodes;
         await AddMessagesToQueue();
