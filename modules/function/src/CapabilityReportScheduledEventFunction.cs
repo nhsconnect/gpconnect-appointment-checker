@@ -73,8 +73,9 @@ public class CapabilityReportScheduledEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
             response.EnsureSuccessStatusCode();
+            await Task.CompletedTask;
         }
-        await Task.CompletedTask;
+        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
     }
 
     private async Task<List<string>?> LoadSource()
