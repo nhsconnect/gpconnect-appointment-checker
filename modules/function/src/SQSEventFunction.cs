@@ -46,15 +46,14 @@ public class SQSEventFunction
     {
         _lambdaContext = lambdaContext;
         _lambdaContext.Logger.LogInformation("Firing SQSEventFunction");
-        //_distributionList = input.DistributionList;
 
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
         foreach (var message in evnt.Records)
-        {
-            _lambdaContext.Logger.LogInformation("Processing message: " + message.Body);
+        {            
             try
             {
-                await ProcessMessageAsync(message);
+                _lambdaContext.Logger.LogInformation("Processing message: " + message.Body);
+                //await ProcessMessageAsync(message);
             }
             catch (Exception)
             {
