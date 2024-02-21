@@ -6,6 +6,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using NotificationConfiguration = GpConnect.AppointmentChecker.Function.Configuration.NotificationConfiguration;
@@ -73,12 +74,18 @@ public class SQSEventFunction
                 {
                     _lambdaContext.Logger.LogInformation($"OdsCode: {odsCode}");
                 }
-                //await GenerateCapabilityReport(new ReportInteraction()
+                var reportInteraction = new ReportInteraction()
+                {
+                    OdsCodes = messageRequest.OdsCodes,
+                    ReportName = messageRequest.ReportName,
+                    InteractionId = messageRequest.InteractionId
+                };
+                //var response = await GenerateCapabilityReport(reportInteraction);
+                //if (response.IsSuccessStatusCode)
                 //{
-                //    OdsCodes = messageRequest.OdsCodes,
-                //    ReportName = messageRequest.ReportName,
-                //    InteractionId = messageRequest.InteractionId
-                //});
+                //    var inputBytes = await GetByteArray(response);
+                //    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, inputBytes);
+                //}
             }
             await Task.CompletedTask;
 
@@ -90,7 +97,7 @@ public class SQSEventFunction
         }
     }
 
-    private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
+    private async Task<HttpResponseMessage?> GenerateCapabilityReport(ReportInteraction reportInteraction)
     {
         try
         {
@@ -104,10 +111,7 @@ public class SQSEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
 
-            if (response.IsSuccessStatusCode)
-            {
-                await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
-            }
+            return response;
         }
         catch (Exception e)
         {
@@ -116,11 +120,10 @@ public class SQSEventFunction
         }
     }
 
-    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? response)
+    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, byte[]? inputBytes)
     {
-        if (response != null)
+        if (inputBytes != null)
         {
-            var inputBytes = await GetByteArray(response);
             var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
