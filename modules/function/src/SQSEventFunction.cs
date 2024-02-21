@@ -60,6 +60,7 @@ public class SQSEventFunction
                 //    var inputBytes = await GetByteArray(response);
                 //    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, inputBytes);
                 //}
+                await Task.CompletedTask;
             }
             catch (Exception)
             {
@@ -84,7 +85,6 @@ public class SQSEventFunction
                     InteractionId = messageRequest.InteractionId
                 };                
             }
-            await Task.CompletedTask;
             return reportInteraction;
         }
         catch (Exception e)
@@ -109,7 +109,6 @@ public class SQSEventFunction
             }, json);
 
             _lambdaContext.Logger.LogLine($"StatusCode from GenerateCapabilityReport: {response.StatusCode}");
-            await Task.CompletedTask;
             return response;
         }
         catch (Exception e)
