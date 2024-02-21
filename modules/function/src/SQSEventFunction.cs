@@ -53,7 +53,13 @@ public class SQSEventFunction
         {
             try
             {
-                await ProcessMessageAsync(message);
+                var reportInteraction = await ProcessMessageAsync(message);                
+                var response = await GenerateCapabilityReport(reportInteraction);
+                //if (response.IsSuccessStatusCode)
+                //{
+                //    var inputBytes = await GetByteArray(response);
+                //    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, inputBytes);
+                //}
             }
             catch (Exception)
             {
@@ -63,28 +69,23 @@ public class SQSEventFunction
         return new SQSBatchResponse(batchItemFailures);
     }
 
-    private async Task ProcessMessageAsync(SQSEvent.SQSMessage message)
+    private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
     {
         try
         {
+            ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                var reportInteraction = new ReportInteraction()
+                reportInteraction = new ReportInteraction()
                 {
                     OdsCodes = messageRequest.OdsCodes,
                     ReportName = messageRequest.ReportName,
                     InteractionId = messageRequest.InteractionId
-                };
-                var response = await GenerateCapabilityReport(reportInteraction);
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    var inputBytes = await GetByteArray(response);
-                //    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, inputBytes);
-                //}
+                };                
             }
             await Task.CompletedTask;
-
+            return reportInteraction;
         }
         catch (Exception e)
         {
@@ -108,6 +109,7 @@ public class SQSEventFunction
             }, json);
 
             _lambdaContext.Logger.LogLine($"StatusCode from GenerateCapabilityReport: {response.StatusCode}");
+            await Task.CompletedTask;
             return response;
         }
         catch (Exception e)
