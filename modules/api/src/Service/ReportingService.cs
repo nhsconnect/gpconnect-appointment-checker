@@ -53,7 +53,10 @@ public class ReportingService : IReportingService
             Formatting = Formatting.Indented
         });
 
-        await _messageService.SendMessageToQueue(new SendMessageRequest() { MessageBody = request });
+        await _messageService.SendMessageToQueue(new SendMessageRequest() { 
+            MessageGroupId = reportInteractionRequest.MessageGroupId.ToString(), 
+            MessageBody = request }
+        );
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
