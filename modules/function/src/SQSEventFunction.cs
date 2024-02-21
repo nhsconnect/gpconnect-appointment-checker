@@ -70,14 +70,13 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                _lambdaContext.Logger.LogLine($"Total number of OdsCodes: {messageRequest.OdsCodes.Count}");
                 var reportInteraction = new ReportInteraction()
                 {
                     OdsCodes = messageRequest.OdsCodes,
                     ReportName = messageRequest.ReportName,
                     InteractionId = messageRequest.InteractionId
                 };
-                //var response = await GenerateCapabilityReport(reportInteraction);
+                var response = await GenerateCapabilityReport(reportInteraction);
                 //if (response.IsSuccessStatusCode)
                 //{
                 //    var inputBytes = await GetByteArray(response);
@@ -108,11 +107,12 @@ public class SQSEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
 
+            _lambdaContext.Logger.LogLine($"StatusCode from GenerateCapabilityReport: {response.StatusCode}");
             return response;
         }
         catch (Exception e)
         {
-            _lambdaContext.Logger.LogError(e.StackTrace);
+            _lambdaContext.Logger.LogError(e.Message);
             throw;
         }
     }
