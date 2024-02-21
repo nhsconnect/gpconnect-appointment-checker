@@ -9,6 +9,7 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
@@ -122,8 +123,9 @@ public class ReportingService : IReportingService
                     {
                         RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                         ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] }                        
-                    }, reportInteractionRequest.InteractionId);
+                        ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] },
+                        SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData
+                    });
 
                     if (requestParameters != null)
                     {
@@ -134,7 +136,7 @@ public class ReportingService : IReportingService
                         _logger.LogInformation($"requestParameters.BearerToken is {requestParameters.BearerToken}");
                         _logger.LogInformation($"requestParameters.EndpointAddressWithSpineSecureProxy is {requestParameters.EndpointAddressWithSpineSecureProxy}");
 
-                        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
+                        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
 
                         _logger.LogInformation($"capabilityStatement is {providerSpineDetails.OdsCode}");
                         _logger.LogInformation($"providerSpineDetails.OrganisationName are {providerSpineDetails.OrganisationName}");
