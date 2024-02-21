@@ -73,15 +73,41 @@ public class SQSEventFunction
                 {
                     _lambdaContext.Logger.LogInformation($"OdsCode: {odsCode}");
                 }
-                await GenerateCapabilityReport(new ReportInteraction()
-                {
-                    OdsCodes = messageRequest.OdsCodes,
-                    ReportName = messageRequest.ReportName,
-                    InteractionId = messageRequest.InteractionId
-                });
+                //await GenerateCapabilityReport(new ReportInteraction()
+                //{
+                //    OdsCodes = messageRequest.OdsCodes,
+                //    ReportName = messageRequest.ReportName,
+                //    InteractionId = messageRequest.InteractionId
+                //});
             }
             await Task.CompletedTask;
 
+        }
+        catch (Exception e)
+        {
+            _lambdaContext.Logger.LogError(e.StackTrace);
+            throw;
+        }
+    }
+
+    private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
+    {
+        try
+        {
+            var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+            }
         }
         catch (Exception e)
         {
@@ -104,24 +130,6 @@ public class SQSEventFunction
             return url;
         }
         return null;
-    }
-
-    private async Task GenerateCapabilityReport(ReportInteraction reportInteraction)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/interaction", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-        response.EnsureSuccessStatusCode();
-
-        var preSignedUrl = await PostCapabilityReport(reportInteraction.InteractionKey, response);
-        reportInteraction.PreSignedUrl = preSignedUrl;
-        await EmailCapabilityReport(reportInteraction);
     }
 
     private async Task<string?> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
