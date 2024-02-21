@@ -1,12 +1,10 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using NotificationConfiguration = GpConnect.AppointmentChecker.Function.Configuration.NotificationConfiguration;

@@ -109,9 +109,15 @@ public class ReportingService : IReportingService
                     Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
                 };
 
-                var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
+                _logger.LogInformation($"Checking spine details for {reportInteractionRequest.OdsCodes[i]}");
+
+                var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);               
+
                 if (providerSpineDetails != null)
                 {
+                    _logger.LogInformation($"providerSpineDetails.OdsCode are {providerSpineDetails.OdsCode}");
+                    _logger.LogInformation($"providerSpineDetails.OrganisationName are {providerSpineDetails.OrganisationName}");
+
                     var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
                     {
                         RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
@@ -120,12 +126,27 @@ public class ReportingService : IReportingService
                     });
 
                     var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
+
+                    _logger.LogInformation($"capabilityStatement is  are {providerSpineDetails.OdsCode}");
+                    _logger.LogInformation($"providerSpineDetails.OrganisationName are {providerSpineDetails.OrganisationName}");
+
                     if (capabilityStatement != null && capabilityStatement.NoIssues)
                     {
+                        _logger.LogInformation($"capabilityStatementReporting.Profile are {capabilityStatement.Profile}");
+                        _logger.LogInformation($"capabilityStatementReporting.Version are {capabilityStatement.Version}");
+
                         capabilityStatementReporting.Profile = capabilityStatement.Profile;
                         capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
                         capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
                     }
+                    else
+                    {
+                        _logger.LogInformation($"No capabilityStatement for {reportInteractionRequest.OdsCodes[i]}");
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation($"No providerSpineDetails for {reportInteractionRequest.OdsCodes[i]}");
                 }
 
                 var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
