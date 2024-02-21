@@ -70,10 +70,7 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                foreach (var odsCode in messageRequest.OdsCodes)
-                {
-                    _lambdaContext.Logger.LogInformation($"OdsCode: {odsCode}");
-                }
+                _lambdaContext.Logger.LogLine($"Total number of OdsCodes: {messageRequest.OdsCodes.Count}");
                 var reportInteraction = new ReportInteraction()
                 {
                     OdsCodes = messageRequest.OdsCodes,
