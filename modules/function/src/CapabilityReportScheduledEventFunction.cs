@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -39,12 +40,12 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
         _additionalOdsCodes = input.OdsCodes;
         var messages = await AddMessagesToQueue();
-        await GenerateMessages(messages);
+        return await GenerateMessages(messages);
     }
 
     public async Task<List<CapabilityReport>> GetCapabilityReports()
@@ -59,7 +60,7 @@ public class CapabilityReportScheduledEventFunction
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
     }
 
-    private async Task GenerateMessages(List<MessagingRequest> messagingRequests)
+    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequests)
     {
         for (var i = 0; i < messagingRequests.Count; i++)
         {
@@ -73,9 +74,9 @@ public class CapabilityReportScheduledEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
             response.EnsureSuccessStatusCode();
-            await Task.CompletedTask;
         }
         _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
+        return HttpStatusCode.OK;
     }
 
     private async Task<List<string>?> LoadSource()
