@@ -55,11 +55,10 @@ public class SQSEventFunction
             {
                 var reportInteraction = await ProcessMessageAsync(message);                
                 var response = await GenerateCapabilityReport(reportInteraction);
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    var inputBytes = await GetByteArray(response);
-                //    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, inputBytes);
-                //}
+                if (response.IsSuccessStatusCode)
+                {
+                    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+                }
                 await Task.CompletedTask;
             }
             catch (Exception)
@@ -118,10 +117,11 @@ public class SQSEventFunction
         }
     }
 
-    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, byte[]? inputBytes)
+    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? httpResponseMessage)
     {
-        if (inputBytes != null)
+        if (httpResponseMessage != null)
         {
+            var inputBytes = await GetByteArray(httpResponseMessage);
             var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
