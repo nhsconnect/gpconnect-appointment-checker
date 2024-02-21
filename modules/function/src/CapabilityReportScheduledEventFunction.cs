@@ -74,6 +74,7 @@ public class CapabilityReportScheduledEventFunction
             }, json);
             response.EnsureSuccessStatusCode();
         }
+        await Task.CompletedTask;
     }
 
     private async Task<List<string>?> LoadSource()
