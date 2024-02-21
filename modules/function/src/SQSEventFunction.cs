@@ -49,11 +49,10 @@ public class SQSEventFunction
 
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
         foreach (var message in evnt.Records)
-        {            
+        {
             try
             {
-                _lambdaContext.Logger.LogInformation("Processing message: " + message.Body);
-                //await ProcessMessageAsync(message);
+                await ProcessMessageAsync(message);
             }
             catch (Exception)
             {
@@ -70,6 +69,10 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
+                foreach (var odsCode in messageRequest.OdsCodes)
+                {
+                    _lambdaContext.Logger.LogInformation($"OdsCode: {odsCode}");
+                }
                 await GenerateCapabilityReport(new ReportInteraction()
                 {
                     OdsCodes = messageRequest.OdsCodes,
