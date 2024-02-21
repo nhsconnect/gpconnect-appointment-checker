@@ -22,11 +22,11 @@ public class TokenService : ITokenService
         _tokenDependencies = tokenDependencies;
     }
 
-    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request)
+    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request, string? interactionId = null)
     {
         try
         {            
-            var spineMessageType = await _configurationService.GetSpineMessageType(request.SpineMessageTypeId);
+            var spineMessageType = await _configurationService.GetSpineMessageType(request.SpineMessageTypeId, interactionId);
 
             var userGuid = Guid.NewGuid().ToString();
             var tokenHandler = new JwtSecurityTokenHandler

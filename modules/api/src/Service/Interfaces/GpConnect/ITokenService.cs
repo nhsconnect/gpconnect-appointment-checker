@@ -2,5 +2,5 @@
 
 public interface ITokenService
 {
-    Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters requestParameters);
+    Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters requestParameters, string? interactionId = null);
 }
