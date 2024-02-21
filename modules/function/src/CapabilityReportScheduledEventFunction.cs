@@ -94,7 +94,7 @@ public class CapabilityReportScheduledEventFunction
         var sourceOdsCodes = await LoadSource();
         var messages = new List<MessagingRequest>();
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
-        {
+        {            
             sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
 
@@ -102,6 +102,7 @@ public class CapabilityReportScheduledEventFunction
             var iterationCount = sourceOdsCodes.Count / batchSize;
             var x = 0;
             var y = 0;
+            var messageGroupId = Guid.NewGuid();
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
@@ -111,7 +112,8 @@ public class CapabilityReportScheduledEventFunction
                     {
                         OdsCodes = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
-                        InteractionId = capabilityReports[i].InteractionId
+                        InteractionId = capabilityReports[i].InteractionId,
+                        MessageGroupId = messageGroupId
                     });
                     x += batchSize;
                     y++;
