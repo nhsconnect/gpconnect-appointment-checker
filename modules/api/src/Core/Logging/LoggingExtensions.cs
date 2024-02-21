@@ -17,7 +17,7 @@ public static class LoggingExtensions
         var databaseTarget = AddDatabaseTarget(configuration);
 
         nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, consoleTarget);
-        nLogConfiguration.AddRule(NLog.LogLevel.Warn, NLog.LogLevel.Fatal, databaseTarget);
+        nLogConfiguration.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, databaseTarget);
 
         nLogConfiguration.AddTarget(consoleTarget);
         nLogConfiguration.AddTarget(databaseTarget);
