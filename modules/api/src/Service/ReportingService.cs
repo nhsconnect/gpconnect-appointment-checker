@@ -60,6 +60,21 @@ public class ReportingService : IReportingService
         );
     }
 
+    public async Task CreateCompletionMessage(ReportCompletionRequest reportCompletionRequest)
+    {
+        var request = JsonConvert.SerializeObject(reportCompletionRequest, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented
+        });
+
+        await _messageService.SendMessageToQueue(new SendMessageRequest()
+        {
+            MessageBody = request
+        }
+        );
+    }
+
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
     {
         DataTable? dataTable = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);

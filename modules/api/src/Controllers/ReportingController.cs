@@ -43,6 +43,13 @@ public class ReportingController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("createcompletionmessage")]
+    public async Task<IActionResult> CreateCompletionMessage([FromBody] ReportCompletionRequest reportCompletionRequest)
+    {
+        await _service.CreateCompletionMessage(reportCompletionRequest);
+        return Ok();
+    }
+
     [HttpPost("createinteractionmessage")]
     public async Task<IActionResult> SendMessageToCreateInteractionReportContentAsync([FromBody] ReportInteractionRequest reportInteractionRequest)
     {
