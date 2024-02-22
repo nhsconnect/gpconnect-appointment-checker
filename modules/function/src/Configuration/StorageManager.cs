@@ -36,6 +36,34 @@ public static class StorageManager
         }
     }
 
+    public static async Task Purge(StoragePurgeRequest storagePurgeRequest)
+    {
+        try
+        {
+            var listRequest = new ListObjectsRequest
+            {
+                BucketName = storagePurgeRequest.BucketName,
+                Prefix = storagePurgeRequest.ObjectPrefix
+            };
+            var listResponse = await s3Client.ListObjectsAsync(listRequest);
+
+            var deleteRequest = new DeleteObjectsRequest
+            {
+                BucketName = storagePurgeRequest.BucketName
+            };
+
+            for(var i = 0; i< listResponse.S3Objects.Count; i++) {
+                deleteRequest.AddKey(listResponse.S3Objects[i].Key);
+            }            
+            await s3Client.DeleteObjectsAsync(deleteRequest);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("The purge request has resulted in an error: " + e.Message);
+            throw;
+        }
+    }
+
     public static async Task<string> Post(StorageUploadRequest storageUploadRequest)
     {
         try

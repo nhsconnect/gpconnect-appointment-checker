@@ -7,8 +7,8 @@ public class ReportInteraction
     public List<string>? OdsCodes { get; set; } = null;
     public string? InteractionId { get; set; } = null;
 
-    public string InteractionKey => $"gpconnect_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }.xlsx".ToLower();
-    public string InteractionKeyJson => $"transient_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ Guid.NewGuid() }_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }.json".ToLower();
+    public string InteractionKey => $"{Helpers.Constants.Objects.GpConnect}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }.xlsx".ToLower();
+    public string InteractionKeyJson => $"{Helpers.Constants.Objects.Transient}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ Guid.NewGuid() }_{ ReportName?.ReplaceNonAlphanumeric() }_{ InteractionId?.ReplaceNonAlphanumeric() }.json".ToLower();
 
     public string? ReportName { get; set; } = null;
     public string? PreSignedUrl { get; set; } = null;
