@@ -1,4 +1,6 @@
 using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response.Message;
@@ -42,43 +44,75 @@ public class CompletionFunction
     }
 
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
+    public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
     {
-        //_distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
-        bool processedAllMessages = false;
-        _lambdaContext.Logger.LogLine("Checkikng processedAllMessages: " + processedAllMessages);
-        while (!processedAllMessages)
-        {
-            var messageStatus = await CheckForMessagesInFlight();
-            _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesAvailable: " + messageStatus.MessagesAvailable);
-            _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesInFlight: " + messageStatus.MessagesInFlight);
 
-            processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
-            if (processedAllMessages)
+        _lambdaContext.Logger.LogLine("Firing CompletionFunction");
+
+        var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
+        foreach (var message in evnt.Records)
+        {
+            try
             {
-                _lambdaContext.Logger.LogInformation("FINISHED!");
+                _lambdaContext.Logger.LogLine("In CompletionFunction");
+                _lambdaContext.Logger.LogLine(message.Body.ToString());
+                await Task.CompletedTask;
             }
-            _lambdaContext.Logger.LogLine("Sleeping for 10 secs");
-            Thread.Sleep(TimeSpan.FromSeconds(10));
+            catch (Exception)
+            {
+                batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
+            }
         }
-        await BundleUpJsonResponsesAndSendReport();
-        return HttpStatusCode.OK;
+        return new SQSBatchResponse(batchItemFailures);
     }
+    
+    //public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
+    //{
+    //    //_distributionList = functionRequest.DistributionList;
+    //    _lambdaContext = lambdaContext;
+    //    bool processedAllMessages = false;
+    //    _lambdaContext.Logger.LogLine("Checkikng processedAllMessages: " + processedAllMessages);
+    //    while (!processedAllMessages)
+    //    {
+    //        var messageStatus = await CheckForMessagesInFlight();
+    //        _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesAvailable: " + messageStatus.MessagesAvailable);
+    //        _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesInFlight: " + messageStatus.MessagesInFlight);
 
-    private async Task BundleUpJsonResponsesAndSendReport()
-    {
-        var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
-        {
-            BucketName = _storageConfiguration.BucketName,
-            ObjectPrefix = Objects.Transient
-        });
+    //        processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
+    //        if (processedAllMessages)
+    //        {
+    //            _lambdaContext.Logger.LogInformation("FINISHED!");
+    //        }
+    //        _lambdaContext.Logger.LogLine("Sleeping for 10 secs");
+    //        Thread.Sleep(TimeSpan.FromSeconds(10));
+    //    }
+    //    await BundleUpJsonResponsesAndSendReport();
+    //    return HttpStatusCode.OK;
+    //}
 
-        foreach (var item in bucketObjects)
-        {
-            _lambdaContext.Logger.LogInformation(item.Key);
-        }
-    }
+    //private async Task BundleUpJsonResponsesAndSendReport()
+    //{
+    //    var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
+    //    {
+    //        BucketName = _storageConfiguration.BucketName,
+    //        ObjectPrefix = Objects.Transient
+    //    });
+
+    //    foreach (var item in bucketObjects)
+    //    {
+    //        var request = new GetObjectRequest() { 
+    //            Key = item.Key, 
+    //            BucketName = item.BucketName 
+    //        };
+    //        var response = S3AccessControlList;
+
+    //        _lambdaContext.Logger.LogInformation(item.Key);
+
+
+
+    //    }
+    //}
 
     private async Task<MessageStatus> CheckForMessagesInFlight()
     {

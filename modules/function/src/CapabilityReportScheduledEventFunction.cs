@@ -78,7 +78,25 @@ public class CapabilityReportScheduledEventFunction
             response.EnsureSuccessStatusCode();
         }
         _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
+        await AddCompletionMessage();
         return HttpStatusCode.OK;
+    }
+
+    private async Task AddCompletionMessage()
+    {
+        _lambdaContext.Logger.LogLine($"Adding completion message");
+
+        var json = new StringContent("{ \"ReportingStatus\" : [ \"OK\" ] } }", Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostWithHeadersAsync("/message", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+        response.EnsureSuccessStatusCode();
+
+        _lambdaContext.Logger.LogLine($"Finished adding completion message");
+
     }
 
     private async Task<List<string>?> LoadSource()
