@@ -68,7 +68,7 @@ public class SQSEventFunction
 
         bool processedAllMessages = false;
 
-        while(processedAllMessages)
+        while(!processedAllMessages)
         {
             var messageStatus = await CheckForMessagesInFlight();
             processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
