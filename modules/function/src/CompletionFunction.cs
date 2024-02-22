@@ -60,10 +60,10 @@ public class CompletionFunction
 
         foreach (var item in bucketObjects)
         {
-            var bucketObject = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+            var bucketObject = await StorageManager.Get<List<object>>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
 
             foreach(var bucket in bucketObject) {
-                _lambdaContext.Logger.LogLine(bucket);
+                _lambdaContext.Logger.LogLine(bucket.ToString());
             }
         }
     }
