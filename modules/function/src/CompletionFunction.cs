@@ -62,14 +62,12 @@ public class CompletionFunction
 
         foreach (var item in bucketObjects)
         {
-            var request = new GetObjectRequest()
-            {
-                Key = item.Key,
-                BucketName = item.BucketName
-            };
             _lambdaContext.Logger.LogLine(item.Key);
             _lambdaContext.Logger.LogLine(item.BucketName);
             _lambdaContext.Logger.LogLine(item.Size.ToString());
+
+            var bucketObject = await StorageManager.Get<string>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+            _lambdaContext.Logger.LogLine(bucketObject);
         }
     }
 
