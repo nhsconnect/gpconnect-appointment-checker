@@ -111,6 +111,7 @@ public class SQSEventFunction
 
     private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? httpResponseMessage)
     {
+        _lambdaContext.Logger.LogLine("Posting " + interactionKeyJson + " to S3 bucket");
         if (httpResponseMessage != null)
         {
             var inputBytes = await StreamExtensions.GetByteArray(httpResponseMessage);

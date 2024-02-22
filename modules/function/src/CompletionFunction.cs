@@ -47,14 +47,19 @@ public class CompletionFunction
         //_distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
         bool processedAllMessages = false;
-        while(!processedAllMessages)
+        _lambdaContext.Logger.LogLine("Checkikng processedAllMessages: " + processedAllMessages);
+        while (!processedAllMessages)
         {
             var messageStatus = await CheckForMessagesInFlight();
+            _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesAvailable: " + messageStatus.MessagesAvailable);
+            _lambdaContext.Logger.LogLine("Checkikng messageStatus.MessagesInFlight: " + messageStatus.MessagesInFlight);
+
             processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
             if (processedAllMessages)
             {
                 _lambdaContext.Logger.LogInformation("FINISHED!");
             }
+            _lambdaContext.Logger.LogLine("Sleeping for 10 secs");
             Thread.Sleep(TimeSpan.FromSeconds(10));
         }
         await BundleUpJsonResponsesAndSendReport();
