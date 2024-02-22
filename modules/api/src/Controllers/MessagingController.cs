@@ -1,3 +1,4 @@
+using Amazon.SQS.Model;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,5 +20,13 @@ public class MessagingController : ControllerBase
     {
         var result = await _service.GetMessageStatus();
         return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SendMessageToQueue([FromBody] string messageBody)
+    {        
+        var request = new SendMessageRequest { MessageBody = messageBody };
+        var response = await _service.SendMessageToQueue(request);
+        return Ok(response);
     }
 }
