@@ -40,12 +40,12 @@ public static class StorageManager
     {
         try
         {
-            var listRequest = new ListObjectsRequest
+            var listRequest = new ListObjectsV2Request
             {
                 BucketName = storagePurgeRequest.BucketName,
                 Prefix = storagePurgeRequest.ObjectPrefix
             };
-            var listResponse = await s3Client.ListObjectsAsync(listRequest);
+            var listResponse = await s3Client.ListObjectsV2Async(listRequest);
 
             var deleteRequest = new DeleteObjectsRequest
             {
