@@ -1,5 +1,6 @@
 using Amazon.SQS.Model;
 using GpConnect.AppointmentChecker.Api.Core.Factories.Interfaces;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using System.Net;
 
@@ -26,5 +27,30 @@ public class MessageService : IMessageService
             return response.HttpStatusCode;
         }
         return HttpStatusCode.ServiceUnavailable;
+    }
+
+    public async Task<MessageStatus> GetMessageStatus()
+    {
+        var messageStatus = new MessageStatus()
+        {
+            MessagesInFlight = -1,
+            MessagesAvailable = -1,
+        };
+        var sqsClient = _sqsClientFactory.GetSqsClient();
+        if (sqsClient != null)
+        {            
+            var queueUrl = _sqsClientFactory.GetSqsQueue();
+            _logger.LogInformation("QueueUrl is " + queueUrl);
+            var queueAttributes = await sqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible" });
+            if (queueAttributes != null)
+            {
+                _logger.LogInformation("In queueAttributes");
+                _logger.LogInformation("queueAttributes.ApproximateNumberOfMessages is " + queueAttributes.ApproximateNumberOfMessages);
+                _logger.LogInformation("queueAttributes.ApproximateNumberOfMessagesNotVisible is " + queueAttributes.ApproximateNumberOfMessagesNotVisible);
+                messageStatus.MessagesAvailable = queueAttributes.ApproximateNumberOfMessages;
+                messageStatus.MessagesInFlight = queueAttributes.ApproximateNumberOfMessagesNotVisible;
+            }
+        }
+        return messageStatus;
     }
 }

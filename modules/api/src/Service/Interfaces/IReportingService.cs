@@ -11,7 +11,7 @@ public interface IReportingService
     public Task<Stream> CreateInteractionReport(ReportInteractionRequest reportInteractionRequest);
     public Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest);
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
-    public Task<List<Report>> GetReports();
+    public Task<List<Report>> GetReports();    
     public Task<List<CapabilityReport>> GetCapabilityReports();
     public Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName);
     public MemoryStream CreateReport(DataTable result, string reportName);
