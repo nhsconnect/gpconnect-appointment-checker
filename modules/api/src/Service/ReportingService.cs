@@ -70,9 +70,9 @@ public class ReportingService : IReportingService
 
         await _messageService.SendMessageToQueue(new SendMessageRequest()
         {
+            MessageGroupId = Guid.NewGuid().ToString(),
             MessageBody = request
-        }
-        );
+        });
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
