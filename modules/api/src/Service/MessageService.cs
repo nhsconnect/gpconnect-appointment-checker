@@ -40,13 +40,9 @@ public class MessageService : IMessageService
         if (sqsClient != null)
         {            
             var queueUrl = _sqsClientFactory.GetSqsQueue();
-            _logger.LogInformation("QueueUrl is " + queueUrl);
             var queueAttributes = await sqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible" });
             if (queueAttributes != null)
             {
-                _logger.LogInformation("In queueAttributes");
-                _logger.LogInformation("queueAttributes.ApproximateNumberOfMessages is " + queueAttributes.ApproximateNumberOfMessages);
-                _logger.LogInformation("queueAttributes.ApproximateNumberOfMessagesNotVisible is " + queueAttributes.ApproximateNumberOfMessagesNotVisible);
                 messageStatus.MessagesAvailable = queueAttributes.ApproximateNumberOfMessages;
                 messageStatus.MessagesInFlight = queueAttributes.ApproximateNumberOfMessagesNotVisible;
             }
