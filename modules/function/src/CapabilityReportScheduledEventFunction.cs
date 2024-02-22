@@ -86,13 +86,16 @@ public class CapabilityReportScheduledEventFunction
     {
         _lambdaContext.Logger.LogLine($"Adding completion message");
 
-        var json = new StringContent("{ \"ReportingStatus\" : [ \"OK\" ] } }", Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json").MediaType);
+        var json = new StringContent("{ \"ReportingStatus\" : [ \"OK\" ] }", Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        var response = await _httpClient.PostWithHeadersAsync("/message", new Dictionary<string, string>()
+        var response = await _httpClient.PostWithHeadersAsync("/messaging", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
+
+        _lambdaContext.Logger.LogLine("Response from AddCompletionMessage");
+        _lambdaContext.Logger.LogLine(await response.Content.ReadAsStringAsync());
         response.EnsureSuccessStatusCode();
 
         _lambdaContext.Logger.LogLine($"Finished adding completion message");
