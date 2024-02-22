@@ -58,16 +58,13 @@ public class CompletionFunction
             ObjectPrefix = Objects.Transient
         });
 
-        _lambdaContext.Logger.LogLine(bucketObjects.Count.ToString());
-
         foreach (var item in bucketObjects)
         {
-            _lambdaContext.Logger.LogLine(item.Key);
-            _lambdaContext.Logger.LogLine(item.BucketName);
-            _lambdaContext.Logger.LogLine(item.Size.ToString());
+            var bucketObject = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
 
-            var bucketObject = await StorageManager.Get<string>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-            _lambdaContext.Logger.LogLine(bucketObject);
+            foreach(var bucket in bucketObject) {
+                _lambdaContext.Logger.LogLine(bucket);
+            }
         }
     }
 
