@@ -43,42 +43,13 @@ public class CompletionFunction
         };
     }
 
-    //[LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-    //public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
-    //{
-    //    _lambdaContext = lambdaContext;
-
-    //    _lambdaContext.Logger.LogLine("Firing CompletionFunction");
-
-    //    var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
-    //    foreach (var message in evnt.Records)
-    //    {
-    //        try
-    //        {
-    //            _lambdaContext.Logger.LogLine("In CompletionFunction");
-    //            _lambdaContext.Logger.LogLine(message.Body.ToString());
-    //            await Task.CompletedTask;
-    //        }
-    //        catch (Exception)
-    //        {
-    //            batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
-    //        }
-    //    }
-    //    return new SQSBatchResponse(batchItemFailures);
-    //}
-
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
     public async Task<HttpStatusCode> FunctionHandler(FunctionRequest functionRequest, ILambdaContext lambdaContext)
     {
         _distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
 
-        var messageStatus = await CheckForMessagesInFlight();
-        bool processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
-        if (processedAllMessages)
-        {
-            _lambdaContext.Logger.LogInformation("FINISHED!");
-        }
+        _lambdaContext.Logger.LogInformation("FINISHED!");
 
         //await BundleUpJsonResponsesAndSendReport();
         return HttpStatusCode.OK;
