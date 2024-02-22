@@ -2,6 +2,8 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
+using GpConnect.AppointmentChecker.Function.DTO.Response;
+using GpConnect.AppointmentChecker.Function.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
@@ -44,7 +46,6 @@ public class SQSEventFunction
     public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        _lambdaContext.Logger.LogInformation("Firing SQSEventFunction");
 
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
         foreach (var message in evnt.Records)
@@ -64,7 +65,26 @@ public class SQSEventFunction
                 batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
             }
         }
+        await CheckForMessagesInFlight();
         return new SQSBatchResponse(batchItemFailures);
+    }
+
+    private async Task CheckForMessagesInFlight()
+    {
+        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        var messageStatus = JsonConvert.DeserializeObject<MessageStatus> (body, _options);
+
+        if (messageStatus != null)
+        {
+            _lambdaContext.Logger.LogInformation($"Number of messages in flight: {messageStatus.MessagesInFlight}");
+            _lambdaContext.Logger.LogInformation($"Number of messages not yet processed: {messageStatus.MessagesAvailable}");
+        }
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
