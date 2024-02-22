@@ -42,8 +42,9 @@ public class CapabilityReportScheduledEventFunction
 
     public async Task<HttpStatusCode> FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
-        await Reset(Objects.Transient);
         _lambdaContext = lambdaContext;
+        _lambdaContext.Logger.LogLine("Firing up CapabilityReportScheduledEventFunction");
+        await Reset(Objects.Transient);
         _additionalOdsCodes = input.OdsCodes;
         var messages = await AddMessagesToQueue();
         return await GenerateMessages(messages);
@@ -92,6 +93,8 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task Reset(string objectPrefix)
     {
+        _lambdaContext.Logger.LogLine("Purging S3 bucket");
+
         await StorageManager.Purge(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
@@ -130,6 +133,7 @@ public class CapabilityReportScheduledEventFunction
                 }
             }
         }
+        _lambdaContext.Logger.LogLine("Adding " + messages.Count + " to queue");
         return messages;
     }
 }
