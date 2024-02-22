@@ -59,34 +59,7 @@ public class SQSEventFunction
                 batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
             }
         }
-
-        await AddCompletionMessage();
         return new SQSBatchResponse(batchItemFailures);
-    }
-
-
-    private async Task AddCompletionMessage()
-    {
-        _lambdaContext.Logger.LogLine($"Adding completion message");
-
-        var reportingStatus = new ReportingStatusRequest() { ReportingStatus = new List<string>() { "OK" } };
-
-        var json = new StringContent(JsonConvert.SerializeObject(reportingStatus, null, _options),
-                Encoding.UTF8,
-                MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createcompletionmessage", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-
-        _lambdaContext.Logger.LogLine("Response from AddCompletionMessage");
-        _lambdaContext.Logger.LogLine(await response.Content.ReadAsStringAsync());
-        response.EnsureSuccessStatusCode();
-
-        _lambdaContext.Logger.LogLine($"Finished adding completion message");
-
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)

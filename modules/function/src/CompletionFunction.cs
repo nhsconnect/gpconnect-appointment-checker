@@ -1,9 +1,7 @@
 using Amazon.Lambda.Core;
-using Amazon.Lambda.SQSEvents;
 using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
-using GpConnect.AppointmentChecker.Function.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
@@ -43,81 +41,34 @@ public class CompletionFunction
         };
     }
 
-    //[LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-    //public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
-    //{
-    //    _lambdaContext = lambdaContext;
-
-    //    _lambdaContext.Logger.LogLine("Firing CompletionFunction");
-
-    //    var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
-    //    foreach (var message in evnt.Records)
-    //    {
-    //        try
-    //        {
-    //            _lambdaContext.Logger.LogLine("In CompletionFunction");
-    //            _lambdaContext.Logger.LogLine(message.Body.ToString());
-    //            await Task.CompletedTask;
-    //        }
-    //        catch (Exception)
-    //        {
-    //            batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
-    //        }
-    //    }
-    //    return new SQSBatchResponse(batchItemFailures);
-    //}
-
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
     public async Task<HttpStatusCode> FunctionHandler(FunctionRequest functionRequest, ILambdaContext lambdaContext)
     {
         _distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
-
-        var messageStatus = await CheckForMessagesInFlight();
-        bool processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
-        if (processedAllMessages)
-        {
-            _lambdaContext.Logger.LogInformation("FINISHED!");
-        }
-
-        //await BundleUpJsonResponsesAndSendReport();
+        await BundleUpJsonResponsesAndSendReport();
         return HttpStatusCode.OK;
     }
 
-    //private async Task BundleUpJsonResponsesAndSendReport()
-    //{
-    //    var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
-    //    {
-    //        BucketName = _storageConfiguration.BucketName,
-    //        ObjectPrefix = Objects.Transient
-    //    });
-
-    //    foreach (var item in bucketObjects)
-    //    {
-    //        var request = new GetObjectRequest() { 
-    //            Key = item.Key, 
-    //            BucketName = item.BucketName 
-    //        };
-    //        var response = S3AccessControlList;
-
-    //        _lambdaContext.Logger.LogInformation(item.Key);
-
-
-
-    //    }
-    //}
-
-    private async Task<MessageStatus> CheckForMessagesInFlight()
+    private async Task BundleUpJsonResponsesAndSendReport()
     {
-        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
+        var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
         {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            BucketName = _storageConfiguration.BucketName,
+            ObjectPrefix = Objects.Transient
         });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-        var messageStatus = JsonConvert.DeserializeObject<MessageStatus> (body, _options);        
-        return messageStatus;
+
+        _lambdaContext.Logger.LogLine(bucketObjects.Count.ToString());
+
+        foreach (var item in bucketObjects)
+        {
+            _lambdaContext.Logger.LogLine(item.Key);
+            _lambdaContext.Logger.LogLine(item.BucketName);
+            _lambdaContext.Logger.LogLine(item.Size.ToString());
+
+            var bucketObject = await StorageManager.Get<string>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+            _lambdaContext.Logger.LogLine(bucketObject);
+        }
     }
 
     private async Task<string?> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
