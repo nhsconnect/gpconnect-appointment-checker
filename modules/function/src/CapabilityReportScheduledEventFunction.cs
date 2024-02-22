@@ -92,9 +92,7 @@ public class CapabilityReportScheduledEventFunction
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        _lambdaContext.Logger.LogLine(json.ToString());
-
-        var response = await _httpClient.PostWithHeadersAsync("/messaging", new Dictionary<string, string>()
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/createcompletionmessage", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey

@@ -1,6 +1,7 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using System.Data;
+using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 
@@ -11,6 +12,7 @@ public interface IReportingService
     public Task<Stream> CreateInteractionReport(ReportInteractionRequest reportInteractionRequest);
     public Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest);
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
+    public Task CreateCompletionMessage(ReportCompletionRequest reportCompletionRequest);
     public Task<List<Report>> GetReports();    
     public Task<List<CapabilityReport>> GetCapabilityReports();
     public Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName);
