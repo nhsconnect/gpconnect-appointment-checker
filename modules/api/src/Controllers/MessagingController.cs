@@ -1,4 +1,5 @@
 using Amazon.SQS.Model;
+using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
