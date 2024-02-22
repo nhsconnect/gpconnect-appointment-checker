@@ -92,7 +92,7 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task Reset(string objectPrefix)
     {
-        await StorageManager.Purge(new StoragePurgeRequest()
+        await StorageManager.Purge(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
             ObjectPrefix = objectPrefix

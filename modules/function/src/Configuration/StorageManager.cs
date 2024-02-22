@@ -36,24 +36,29 @@ public static class StorageManager
         }
     }
 
-    public static async Task Purge(StoragePurgeRequest storagePurgeRequest)
+    public static async Task<List<S3Object>> GetObjects(StorageListRequest storageListRequest)
+    {
+        var listRequest = new ListObjectsV2Request
+        {
+            BucketName = storageListRequest.BucketName,
+            Prefix = storageListRequest.ObjectPrefix
+        };
+        return (await s3Client.ListObjectsV2Async(listRequest)).S3Objects;
+    }
+
+
+    public static async Task Purge(StorageListRequest storageListRequest)
     {
         try
         {
-            var listRequest = new ListObjectsV2Request
-            {
-                BucketName = storagePurgeRequest.BucketName,
-                Prefix = storagePurgeRequest.ObjectPrefix
-            };
-            var listResponse = await s3Client.ListObjectsV2Async(listRequest);
-
+            var listResponse = await GetObjects(storageListRequest);
             var deleteRequest = new DeleteObjectsRequest
             {
-                BucketName = storagePurgeRequest.BucketName
+                BucketName = storageListRequest.BucketName
             };
 
-            for(var i = 0; i< listResponse.S3Objects.Count; i++) {
-                deleteRequest.AddKey(listResponse.S3Objects[i].Key);
+            for(var i = 0; i< listResponse.Count; i++) {
+                deleteRequest.AddKey(listResponse[i].Key);
             }            
             await s3Client.DeleteObjectsAsync(deleteRequest);
         }
