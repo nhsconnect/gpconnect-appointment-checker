@@ -65,11 +65,27 @@ public class SQSEventFunction
                 batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
             }
         }
-        await CheckForMessagesInFlight();
+
+        bool processedAllMessages = false;
+
+        while(processedAllMessages)
+        {
+            var messageStatus = await CheckForMessagesInFlight();
+            processedAllMessages = messageStatus.MessagesAvailable == 0 && messageStatus.MessagesInFlight == 0;
+            if (messageStatus != null)
+            {
+                _lambdaContext.Logger.LogInformation($"Number of messages in flight: {messageStatus.MessagesInFlight}");
+                _lambdaContext.Logger.LogInformation($"Number of messages not yet processed: {messageStatus.MessagesAvailable}");
+            }
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+        }
+
+        _lambdaContext.Logger.LogInformation("FINISHED!");
+
         return new SQSBatchResponse(batchItemFailures);
     }
 
-    private async Task CheckForMessagesInFlight()
+    private async Task<MessageStatus> CheckForMessagesInFlight()
     {
         var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
         {
@@ -79,12 +95,8 @@ public class SQSEventFunction
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         var messageStatus = JsonConvert.DeserializeObject<MessageStatus> (body, _options);
-
-        if (messageStatus != null)
-        {
-            _lambdaContext.Logger.LogInformation($"Number of messages in flight: {messageStatus.MessagesInFlight}");
-            _lambdaContext.Logger.LogInformation($"Number of messages not yet processed: {messageStatus.MessagesAvailable}");
-        }
+        
+        return messageStatus;
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
