@@ -60,7 +60,6 @@ public class SQSEventFunction
             }
         }
 
-        _lambdaContext.Logger.LogLine("evnt.Records.Count is " + evnt.Records.Count);
         await AddCompletionMessage();
         return new SQSBatchResponse(batchItemFailures);
     }
