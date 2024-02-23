@@ -62,12 +62,12 @@ public class CompletionFunction
         foreach (var item in bucketObjects)
         {
             var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-            stringBuilder.Append(bucketObject);
+            stringBuilder.Append(bucketObject + ",");
         }
-        await CreateReport(stringBuilder);
+        await CreateReport($"[{stringBuilder}]");
     }
 
-    private async Task CreateReport(StringBuilder stringBuilder)
+    private async Task CreateReport(string jsonData)
     {
         var interactionDetails = await StorageManager.GetObjects(new StorageListRequest
         {
@@ -79,7 +79,7 @@ public class CompletionFunction
 
         var reportCreationRequest = new ReportCreationRequest
         {
-            JsonData = $"[{stringBuilder}]",
+            JsonData = jsonData,
             ReportName = interactionObject.ReportName
         };
 
