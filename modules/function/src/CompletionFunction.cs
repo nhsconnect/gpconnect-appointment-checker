@@ -61,8 +61,8 @@ public class CompletionFunction
         var stringBuilder = new StringBuilder();
         foreach (var item in bucketObjects)
         {
-            var bucketObject = await StorageManager.Get<object>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-            stringBuilder.Append(bucketObject.ToString());
+            var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+            stringBuilder.Append(bucketObject);
         }
         await CreateReport(reportName, stringBuilder);
     }
@@ -96,7 +96,7 @@ public class CompletionFunction
         {
             BucketName = _storageConfiguration.BucketName,
             InputBytes = reportCreationRequest.ReportBytes,
-            Key = reportCreationRequest.ReportName
+            Key = reportCreationRequest.ReportKey
         });
         await EmailCapabilityReport(reportCreationRequest, getUrl);
     }

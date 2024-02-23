@@ -43,7 +43,6 @@ public class CapabilityReportScheduledEventFunction
     public async Task<HttpStatusCode> FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        _lambdaContext.Logger.LogLine("Firing up CapabilityReportScheduledEventFunction");
         await Reset(Objects.Transient);
         _additionalOdsCodes = input.OdsCodes;
         var messages = await AddMessagesToQueue();
@@ -93,8 +92,6 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task Reset(string objectPrefix)
     {
-        _lambdaContext.Logger.LogLine("Purging S3 bucket");
-
         await StorageManager.Purge(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
@@ -115,10 +112,20 @@ public class CapabilityReportScheduledEventFunction
             var iterationCount = sourceOdsCodes.Count / batchSize;
             var x = 0;
             var y = 0;
-            var messageGroupId = Guid.NewGuid();
+            var messageGroupId = Guid.NewGuid();            
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
+                var interactionRequest = new InteractionRequest { InteractionId = capabilityReports[i].InteractionId, ReportName = capabilityReports[i].ReportName };
+                var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
+
+                await StorageManager.Post(new StorageUploadRequest
+                {
+                    BucketName = _storageConfiguration.BucketName,
+                    Key = capabilityReports[i].InteractionKey,
+                    InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
+                });
+
                 while (y <= iterationCount)
                 {
                     messages.Add(new MessagingRequest()
@@ -133,7 +140,6 @@ public class CapabilityReportScheduledEventFunction
                 }
             }
         }
-        _lambdaContext.Logger.LogLine("Adding " + messages.Count + " to queue");
         return messages;
     }
 }
