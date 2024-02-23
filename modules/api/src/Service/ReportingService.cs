@@ -60,21 +60,6 @@ public class ReportingService : IReportingService
         );
     }
 
-    public async Task CreateCompletionMessage(ReportCompletionRequest reportCompletionRequest)
-    {
-        var request = JsonConvert.SerializeObject(reportCompletionRequest, new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented
-        });
-
-        await _messageService.SendMessageToQueue(new SendMessageRequest()
-        {
-            MessageGroupId = Guid.NewGuid().ToString(),
-            MessageBody = request
-        });
-    }
-
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
     {
         DataTable? dataTable = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);
@@ -82,38 +67,17 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<Stream> CreateInteractionReport(ReportInteractionRequest reportInteractionRequest)
+    public async Task<byte[]> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).Take(10).ToList();
-        string? jsonData = null;
-        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
-
-        if (reportInteractionRequest.OdsCodes.Count > 0)
-        {
-            int numberOfRequests = reportInteractionRequest.OdsCodes.Count;
-            int maxParallelRequests = 100;
-            var semaphoreSlim = new SemaphoreSlim(maxParallelRequests, numberOfRequests);
-
-            var capabilityReportInstance = new List<Task<IDictionary<string, object>>>();
-
-            for (int i = 0; i < numberOfRequests; ++i)
-            {
-                //var hierarchy = organisationHierarchy.FirstOrDefault(x => x.OdsCode == reportInteractionRequest.OdsCodes[i]);
-                //capabilityReportInstance.Add(GetCapabilityReportInstance(reportInteractionRequest.OdsCodes[i], reportInteractionRequest.InteractionId, hierarchy, semaphoreSlim));
-            }
-            var capabilityStatements = await Task.WhenAll(capabilityReportInstance.ToArray());
-            jsonData = JsonConvert.SerializeObject(capabilityStatements);
-        }
-        
-        var memoryStream = CreateReport(jsonData.ConvertJsonDataToDataTable(), reportInteractionRequest.ReportName);
-        return memoryStream;
+        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName);
+        return memoryStream.ToArray();
     }
 
     public async Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest)
     {
-        reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
+        //reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
         string? jsonData = null;
-        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes);
+        var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList());
         var capabilityStatements = new List<IDictionary<string, object>>();
 
         if (reportInteractionRequest.OdsCodes.Count > 0)
@@ -125,15 +89,10 @@ public class ReportingService : IReportingService
                     Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
                 };
 
-                _logger.LogInformation($"Checking spine details for {reportInteractionRequest.OdsCodes[i]}");
-
                 var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);               
 
                 if (providerSpineDetails != null)
                 {
-                    _logger.LogInformation($"providerSpineDetails.OdsCode are {providerSpineDetails.OdsCode}");
-                    _logger.LogInformation($"providerSpineDetails.EndpointAddress are {providerSpineDetails.EndpointAddress}");
-
                     var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
                     {
                         RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
@@ -145,50 +104,24 @@ public class ReportingService : IReportingService
 
                     if (requestParameters != null)
                     {
-                        _logger.LogInformation($"requestParameters.SpineMessageTypeId is {requestParameters.SpineMessageTypeId}");
-                        _logger.LogInformation($"requestParameters.SspFrom is {requestParameters.SspFrom}");
-                        _logger.LogInformation($"requestParameters.SspTo is {requestParameters.SspTo}");
-                        _logger.LogInformation($"requestParameters.InteractionId is {requestParameters.InteractionId}");
-                        _logger.LogInformation($"requestParameters.BearerToken is {requestParameters.BearerToken}");
-                        _logger.LogInformation($"requestParameters.EndpointAddressWithSpineSecureProxy is {requestParameters.EndpointAddressWithSpineSecureProxy}");
-
                         var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
-
-                        _logger.LogInformation($"capabilityStatement is {providerSpineDetails.OdsCode}");
-                        _logger.LogInformation($"providerSpineDetails.OrganisationName are {providerSpineDetails.OrganisationName}");
 
                         if (capabilityStatement != null && capabilityStatement.NoIssues)
                         {
-                            _logger.LogInformation($"capabilityStatementReporting.Profile are {capabilityStatement.Profile}");
-                            _logger.LogInformation($"capabilityStatementReporting.Version are {capabilityStatement.Version}");
-
                             capabilityStatementReporting.Profile = capabilityStatement.Profile;
                             capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
                             capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"No capabilityStatement for {reportInteractionRequest.OdsCodes[i]}");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"No requestParameters for {reportInteractionRequest.OdsCodes[i]}");
-                    }
+                        }                        
+                    }                    
                 }
-                else
-                {
-                    _logger.LogInformation($"No providerSpineDetails for {reportInteractionRequest.OdsCodes[i]}");
-                }
-
+                
                 var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                 var jObject = JObject.Parse(jsonString);
                 capabilityStatements.Add(jObject.Flatten());
             }
-
             jsonData = JsonConvert.SerializeObject(capabilityStatements);
         }
-        return jsonData;
+        return jsonData.Substring(1, jsonData.Length - 2);
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)

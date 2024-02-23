@@ -1,9 +1,9 @@
 using Amazon.Lambda.Core;
-using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
@@ -46,11 +46,11 @@ public class CompletionFunction
     {
         _distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
-        await BundleUpJsonResponsesAndSendReport();
+        await BundleUpJsonResponsesAndSendReport(functionRequest.ReportName);
         return HttpStatusCode.OK;
     }
 
-    private async Task BundleUpJsonResponsesAndSendReport()
+    private async Task BundleUpJsonResponsesAndSendReport(string reportName)
     {
         var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
         {
@@ -58,33 +58,50 @@ public class CompletionFunction
             ObjectPrefix = Objects.Transient
         });
 
+        var stringBuilder = new StringBuilder();
         foreach (var item in bucketObjects)
         {
-            var bucketObject = await StorageManager.Get<List<object>>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-
-            foreach(var bucket in bucketObject) {
-                _lambdaContext.Logger.LogLine(bucket.ToString());
-            }
+            var bucketObject = await StorageManager.Get<object>(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+            stringBuilder.Append(bucketObject.ToString());
         }
+        await CreateReport(reportName, stringBuilder);
     }
 
-    private async Task<string?> PostCapabilityReport(string interactionKey, HttpResponseMessage? response)
+    private async Task CreateReport(string reportName, StringBuilder stringBuilder)
     {
-        if (response != null)
+        var reportCreationRequest = new ReportCreationRequest
         {
-            var inputBytes = await StreamExtensions.GetByteArray(response);
-            var url = await StorageManager.Post(new StorageUploadRequest()
-            {
-                BucketName = _storageConfiguration.BucketName,
-                Key = interactionKey,
-                InputBytes = inputBytes
-            });
-            return url;
-        }
-        return null;
+            JsonData = $"[{stringBuilder}]",
+            ReportName = reportName
+        };
+
+        var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+
+        response.EnsureSuccessStatusCode();
+        reportCreationRequest.ReportBytes = await response.Content.ReadAsByteArrayAsync();
+        await PostReport(reportCreationRequest);
     }
 
-    private async Task EmailCapabilityReport(ReportInteraction reportInteraction)
+    private async Task PostReport(ReportCreationRequest reportCreationRequest)
+    {
+        var getUrl = await StorageManager.Post(new StorageUploadRequest
+        {
+            BucketName = _storageConfiguration.BucketName,
+            InputBytes = reportCreationRequest.ReportBytes,
+            Key = reportCreationRequest.ReportName
+        });
+        await EmailCapabilityReport(reportCreationRequest, getUrl);
+    }
+
+    private async Task EmailCapabilityReport(ReportCreationRequest reportCreationRequest, string preSignedUrl)
     {
         var notification = new MessagingNotificationFunctionRequest()
         {
@@ -92,9 +109,8 @@ public class CompletionFunction
             EmailAddresses = _distributionList,
             TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
             TemplateParameters = new Dictionary<string, dynamic> {
-                { "report_name", reportInteraction.ReportName },
-                { "interaction_id", reportInteraction.InteractionId },
-                { "pre_signed_url", reportInteraction.PreSignedUrl },
+                { "report_name", reportCreationRequest.ReportName },
+                { "pre_signed_url", preSignedUrl },
                 { "date_generated", DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss") }
             }
         };
@@ -111,5 +127,4 @@ public class CompletionFunction
 
         response.EnsureSuccessStatusCode();
     }
-
 }
