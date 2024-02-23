@@ -15,14 +15,7 @@ public static class StorageManager
     {
         try
         {
-            var request = new GetObjectRequest
-            {
-                BucketName = storageDownloadRequest.BucketName,
-                Key = storageDownloadRequest.Key
-            };
-
-            using GetObjectResponse response = await s3Client.GetObjectAsync(request);
-            var responseBody = await new StreamReader(response.ResponseStream).ReadToEndAsync();
+            var responseBody = await GetResponseStream(storageDownloadRequest);
             if (responseBody != null)
             {
                 return JsonConvert.DeserializeObject<T>(responseBody);
@@ -40,25 +33,27 @@ public static class StorageManager
     {
         try
         {
-            var request = new GetObjectRequest
-            {
-                BucketName = storageDownloadRequest.BucketName,
-                Key = storageDownloadRequest.Key
-            };
-
-            using GetObjectResponse response = await s3Client.GetObjectAsync(request);
-            var responseBody = await new StreamReader(response.ResponseStream).ReadToEndAsync();
-            if (responseBody != null)
-            {
-                return responseBody;
-            }
-            return null;
+            var responseBody = await GetResponseStream(storageDownloadRequest);
+            return responseBody;
         }
         catch (Exception e)
         {
             Console.WriteLine("The download request has resulted in an error: " + e.Message);
             throw;
         }
+    }
+
+    private static async Task<string?> GetResponseStream(StorageDownloadRequest storageDownloadRequest)
+    {
+        var request = new GetObjectRequest
+        {
+            BucketName = storageDownloadRequest.BucketName,
+            Key = storageDownloadRequest.Key
+        };
+
+        using GetObjectResponse response = await s3Client.GetObjectAsync(request);
+        var responseBody = await new StreamReader(response.ResponseStream).ReadToEndAsync();
+        return responseBody;
     }
 
     public static async Task<List<S3Object>> GetObjects(StorageListRequest storageListRequest)
