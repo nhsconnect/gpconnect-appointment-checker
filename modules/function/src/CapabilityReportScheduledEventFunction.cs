@@ -43,7 +43,7 @@ public class CapabilityReportScheduledEventFunction
     public async Task<HttpStatusCode> FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Transient);
+        await Reset(Objects.Interaction, Objects.Interaction);
         _additionalOdsCodes = input.OdsCodes;
         var messages = await AddMessagesToQueue();
         return await GenerateMessages(messages);
@@ -90,13 +90,16 @@ public class CapabilityReportScheduledEventFunction
         return sourceOdsCodes;
     }
 
-    private async Task Reset(string objectPrefix)
+    private async Task Reset(params string[] objectPrefix)
     {
-        await StorageManager.Purge(new StorageListRequest
+        foreach (var key in objectPrefix)
         {
-            BucketName = _storageConfiguration.BucketName,
-            ObjectPrefix = objectPrefix
-        });
+            await StorageManager.Purge(new StorageListRequest
+            {
+                BucketName = _storageConfiguration.BucketName,
+                ObjectPrefix = key
+            });
+        }
     }
 
     private async Task<List<MessagingRequest>> AddMessagesToQueue()

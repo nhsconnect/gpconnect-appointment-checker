@@ -46,11 +46,11 @@ public class CompletionFunction
     {
         _distributionList = functionRequest.DistributionList;
         _lambdaContext = lambdaContext;
-        await BundleUpJsonResponsesAndSendReport(functionRequest.ReportName);
+        await BundleUpJsonResponsesAndSendReport();
         return HttpStatusCode.OK;
     }
 
-    private async Task BundleUpJsonResponsesAndSendReport(string reportName)
+    private async Task BundleUpJsonResponsesAndSendReport()
     {
         var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
         {
@@ -64,16 +64,27 @@ public class CompletionFunction
             var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
             stringBuilder.Append(bucketObject);
         }
-        await CreateReport(reportName, stringBuilder);
+        await CreateReport(stringBuilder);
     }
 
-    private async Task CreateReport(string reportName, StringBuilder stringBuilder)
+    private async Task CreateReport(StringBuilder stringBuilder)
     {
+        var interactionDetails = await StorageManager.GetObjects(new StorageListRequest
+        {
+            BucketName = _storageConfiguration.BucketName,
+            ObjectPrefix = Objects.Interaction
+        });
+
+        var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
+
         var reportCreationRequest = new ReportCreationRequest
         {
             JsonData = $"[{stringBuilder}]",
-            ReportName = reportName
+            ReportName = interactionObject.ReportName
         };
+
+        _lambdaContext.Logger.LogLine("reportCreationRequest.JsonData is");
+        _lambdaContext.Logger.LogLine(reportCreationRequest.JsonData);
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
