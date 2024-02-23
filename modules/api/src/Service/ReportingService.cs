@@ -67,10 +67,10 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<byte[]> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
+    public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
         var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName);
-        return memoryStream.ToArray();
+        return memoryStream;
     }
 
     public async Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest)

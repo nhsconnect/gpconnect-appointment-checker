@@ -8,7 +8,7 @@ public interface IReportingService
 {
     public Task<string> GetReport(string functionName);
     public Task<Stream> ExportReport(ReportRequest reportRequest);
-    public Task<byte[]> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
+    public Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
     public Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest);
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
     public Task<List<Report>> GetReports();    

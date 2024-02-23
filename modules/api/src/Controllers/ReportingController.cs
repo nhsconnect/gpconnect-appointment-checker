@@ -1,6 +1,7 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace GpConnect.AppointmentChecker.Api.Controllers;
 
@@ -33,7 +34,14 @@ public class ReportingController : ControllerBase
     public async Task<IActionResult> CreateInteractionReport([FromBody] ReportCreationRequest reportCreationRequest)
     {
         var result = await _service.CreateInteractionReport(reportCreationRequest);
-        return Ok(result);
+        var fileStream = SendReport(result);
+        if (fileStream != null)
+        {
+            var outputBytes = new byte[fileStream.FileStream.Length];
+            fileStream.FileStream.Read(outputBytes, 0, outputBytes.Length);
+            return Ok(outputBytes);
+        }
+        return BadRequest();
     }
 
     [HttpPost("createinteractiondata")]
@@ -50,11 +58,11 @@ public class ReportingController : ControllerBase
         return Ok();
     }
 
-    private IActionResult SendReport(Stream result)
+    private FileStreamResult? SendReport(Stream result)
     {
         if (result == null)
         {
-            return NotFound();
+            return null;
         }
         return File(result, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
