@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Newtonsoft.Json;
+using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -83,9 +84,6 @@ public class CompletionFunction
             ReportName = interactionObject.ReportName
         };
 
-        _lambdaContext.Logger.LogLine("reportCreationRequest.JsonData is");
-        _lambdaContext.Logger.LogLine(reportCreationRequest.JsonData);
-
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
@@ -94,10 +92,13 @@ public class CompletionFunction
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-
+        }, json);        
         response.EnsureSuccessStatusCode();
-        reportCreationRequest.ReportBytes = await response.Content.ReadAsByteArrayAsync();
+
+        var fileStream = await response.Content.ReadAsStreamAsync();
+        var byteArray = StreamExtensions.UseBufferedStream(fileStream);
+
+        reportCreationRequest.ReportBytes = byteArray;
         await PostReport(reportCreationRequest);
     }
 
