@@ -46,7 +46,7 @@ public class SQSEventFunction
         {
             try
             {
-                var reportInteraction = await ProcessMessageAsync(message);                
+                var reportInteraction = await ProcessMessageAsync(message);
                 var response = await GenerateCapabilityReport(reportInteraction);
                 if (response.IsSuccessStatusCode)
                 {
@@ -77,6 +77,7 @@ public class SQSEventFunction
                     InteractionId = messageRequest.InteractionId
                 };                
             }
+            _lambdaContext.Logger.LogLine($"{reportInteraction.InteractionId} - Generating data for ODS Codes {string.Join(", ", reportInteraction.OdsCodes.Select(x => x).ToArray())}");
             return reportInteraction;
         }
         catch (Exception e)
@@ -89,7 +90,7 @@ public class SQSEventFunction
     private async Task<HttpResponseMessage?> GenerateCapabilityReport(ReportInteraction reportInteraction)
     {
         try
-        {
+        {            
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);

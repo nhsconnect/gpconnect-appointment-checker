@@ -59,6 +59,8 @@ public class CompletionFunction
             ObjectPrefix = Objects.Transient
         });
 
+        _lambdaContext.Logger.LogLine($"Bundling up JSON from the objects {string.Join(", ", bucketObjects.Select(x => x.Key).ToArray())}");
+
         var stringBuilder = new StringBuilder();
         foreach (var item in bucketObjects)
         {
@@ -89,7 +91,9 @@ public class CompletionFunction
         else
         {
             reportCreationRequest.ReportName = _reportName;
-        }        
+        }
+
+        _lambdaContext.Logger.LogLine($"Generating report with the key {reportCreationRequest.ReportKey}");
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
