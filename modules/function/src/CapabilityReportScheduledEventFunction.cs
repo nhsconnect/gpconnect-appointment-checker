@@ -20,7 +20,6 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
-    private List<string> _additionalOdsCodes = new List<string>();
 
     public CapabilityReportScheduledEventFunction()
     {
@@ -40,11 +39,10 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task<HttpStatusCode> FunctionHandler(FunctionRequest input, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Interaction, Objects.Interaction);
-        _additionalOdsCodes = input.OdsCodes;
+        await Reset(Objects.Interaction, Objects.Transient);
         var messages = await AddMessagesToQueue();
         return await GenerateMessages(messages);
     }
@@ -108,7 +106,6 @@ public class CapabilityReportScheduledEventFunction
         var messages = new List<MessagingRequest>();
         if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
         {            
-            sourceOdsCodes.AddRange(_additionalOdsCodes);
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
