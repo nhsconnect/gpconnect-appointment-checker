@@ -48,6 +48,12 @@ public class SQSEventFunction
             {
                 var reportInteraction = await ProcessMessageAsync(message);
                 var response = await GenerateCapabilityReport(reportInteraction);
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                _lambdaContext.Logger.LogLine("Response from GenerateCapabilityReport: " + response.StatusCode.ToString());
+                _lambdaContext.Logger.LogLine(content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
