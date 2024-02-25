@@ -3,9 +3,7 @@ using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Newtonsoft.Json;
-using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -23,6 +21,7 @@ public class CompletionFunction
     private readonly SecretManager _secretManager;
     private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
+    private string _reportName;
 
     public CompletionFunction()
     {
@@ -43,9 +42,10 @@ public class CompletionFunction
     }
 
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-    public async Task<HttpStatusCode> FunctionHandler(FunctionRequest functionRequest, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(CompletionFunctionRequest completionFunctionRequest, ILambdaContext lambdaContext)
     {
-        _distributionList = functionRequest.DistributionList;
+        _reportName = completionFunctionRequest.ReportName;
+        _distributionList = completionFunctionRequest.DistributionList;
         _lambdaContext = lambdaContext;
         await BundleUpJsonResponsesAndSendReport();
         return HttpStatusCode.OK;
@@ -76,13 +76,20 @@ public class CompletionFunction
             ObjectPrefix = Objects.Interaction
         });
 
-        var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
-
         var reportCreationRequest = new ReportCreationRequest
         {
-            JsonData = jsonData,
-            ReportName = interactionObject.ReportName
+            JsonData = jsonData
         };
+
+        if (interactionDetails != null && interactionDetails.Count > 0)
+        {
+            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
+            reportCreationRequest.ReportName = interactionObject.ReportName;
+        }
+        else
+        {
+            reportCreationRequest.ReportName = _reportName;
+        }        
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
