@@ -53,8 +53,7 @@ public class ReportingService : IReportingService
         {
             MessageGroupId = reportInteractionRequest.MessageGroupId.ToString(),
             MessageBody = request
-        }
-        );
+        });
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
@@ -74,21 +73,22 @@ public class ReportingService : IReportingService
     {
         try
         {
-            reportInteractionRequest.OdsCodes = reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList();
+            var odsCodesInScope = reportInteractionRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
-            var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(reportInteractionRequest.OdsCodes.DistinctBy(x => x).ToList());
+            var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var capabilityStatements = new List<IDictionary<string, object>>();
 
-            if (reportInteractionRequest.OdsCodes.Count > 0)
+            if (odsCodesInScope.Count > 0)
             {
-                for (var i = 0; i < reportInteractionRequest.OdsCodes.Count; i++)
+                for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
-                        Hierarchy = organisationHierarchy[reportInteractionRequest.OdsCodes[i]]
+                        Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                        SupplierName = reportInteractionRequest.ReportSource[i].SupplierName
                     };
 
-                    var providerSpineDetails = await _spineService.GetProviderDetails(reportInteractionRequest.OdsCodes[i]);
+                    var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i]);
 
                     if (providerSpineDetails != null)
                     {
@@ -96,7 +96,7 @@ public class ReportingService : IReportingService
                         {
                             RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                             ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                            ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = reportInteractionRequest.OdsCodes[i] },
+                            ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
                             SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData,
                             Sid = Guid.NewGuid().ToString()
                         });

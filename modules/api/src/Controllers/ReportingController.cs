@@ -1,8 +1,6 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 
 namespace GpConnect.AppointmentChecker.Api.Controllers;
 
