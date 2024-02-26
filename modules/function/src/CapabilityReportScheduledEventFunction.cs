@@ -78,14 +78,14 @@ public class CapabilityReportScheduledEventFunction
         return HttpStatusCode.OK;
     }
 
-    private async Task<List<string>?> LoadSource()
+    private async Task<List<ReportSource>> LoadReportSource()
     {
-        var sourceOdsCodes = await StorageManager.Get<List<string>>(new StorageDownloadRequest()
+        var reportSource = await StorageManager.Get<List<ReportSource>>(new StorageDownloadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
             Key = _storageConfiguration.SourceObject
         });
-        return sourceOdsCodes;
+        return reportSource;
     }
 
     private async Task Reset(params string[] objectPrefix)
@@ -102,14 +102,14 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task<List<MessagingRequest>> AddMessagesToQueue()
     {
-        var sourceOdsCodes = await LoadSource();
+        var reportSource = await LoadReportSource();
         var messages = new List<MessagingRequest>();
-        if (sourceOdsCodes != null && sourceOdsCodes.Count > 0)
+        if (reportSource != null && reportSource.Count > 0)
         {            
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
-            var iterationCount = sourceOdsCodes.Count / batchSize;
+            var iterationCount = reportSource.Count / batchSize;
             var x = 0;
             var y = 0;
             var messageGroupId = Guid.NewGuid();            
@@ -130,7 +130,7 @@ public class CapabilityReportScheduledEventFunction
                 {
                     messages.Add(new MessagingRequest()
                     {
-                        OdsCodes = sourceOdsCodes.GetRange(x, x + batchSize > sourceOdsCodes.Count ? sourceOdsCodes.Count - x : batchSize),
+                        ReportSource = reportSource.GetRange(x, x + batchSize > reportSource.Count ? reportSource.Count - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         InteractionId = capabilityReports[i].InteractionId,
                         MessageGroupId = messageGroupId

@@ -72,15 +72,19 @@ public static class StorageManager
         try
         {
             var listResponse = await GetObjects(storageListRequest);
-            var deleteRequest = new DeleteObjectsRequest
+            if (listResponse.Count > 0)
             {
-                BucketName = storageListRequest.BucketName
-            };
+                var deleteRequest = new DeleteObjectsRequest
+                {
+                    BucketName = storageListRequest.BucketName
+                };
 
-            for(var i = 0; i< listResponse.Count; i++) {
-                deleteRequest.AddKey(listResponse[i].Key);
-            }            
-            await s3Client.DeleteObjectsAsync(deleteRequest);
+                for (var i = 0; i < listResponse.Count; i++)
+                {
+                    deleteRequest.AddKey(listResponse[i].Key);
+                }
+                await s3Client.DeleteObjectsAsync(deleteRequest);
+            }
         }
         catch (Exception e)
         {

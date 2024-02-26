@@ -11,6 +11,9 @@ public class CapabilityStatementReporting
     [JsonProperty("ODS_Code")]
     public string OdsCode => Hierarchy.OdsCode;
 
+    [JsonProperty("Supplier_Name")]
+    public string SupplierName { get; set; }
+
     [JsonProperty("Site_Name")]
     public string SiteName => Hierarchy.SiteName;
 
@@ -26,7 +29,7 @@ public class CapabilityStatementReporting
     [JsonProperty("Commissioning_Region")]
     public string NationalGrouping => string.Format("{0}{1}", Hierarchy.NationalGroupingName, Hierarchy.NationalGroupingCode != null ? $" ({Hierarchy.NationalGroupingCode})" : string.Empty);
 
-    public string Version { get; set; }
+    public string Version { get; set; }    
 
     [JsonIgnore]
     public List<Profile> Profile { get; set; }

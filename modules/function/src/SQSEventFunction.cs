@@ -49,11 +49,6 @@ public class SQSEventFunction
                 var reportInteraction = await ProcessMessageAsync(message);
                 var response = await GenerateCapabilityReport(reportInteraction);
 
-                var content = await response.Content.ReadAsStringAsync();
-
-                _lambdaContext.Logger.LogLine("Response from GenerateCapabilityReport: " + response.StatusCode.ToString());
-                _lambdaContext.Logger.LogLine(content);
-
                 if (response.IsSuccessStatusCode)
                 {
                     await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
@@ -78,12 +73,12 @@ public class SQSEventFunction
             {
                 reportInteraction = new ReportInteraction()
                 {
-                    OdsCodes = messageRequest.OdsCodes,
+                    ReportSource = messageRequest.ReportSource,
                     ReportName = messageRequest.ReportName,
                     InteractionId = messageRequest.InteractionId
                 };                
             }
-            _lambdaContext.Logger.LogLine($"{reportInteraction.InteractionId} - Generating data for ODS Codes {string.Join(", ", reportInteraction.OdsCodes.Select(x => x).ToArray())}");
+            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
         catch (Exception e)
