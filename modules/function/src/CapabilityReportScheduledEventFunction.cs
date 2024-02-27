@@ -81,6 +81,7 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task<List<ReportSource>> LoadReportSource()
     {
+        _lambdaContext.Logger.LogInformation("In LoadReportSource");
         var reportSource = await StorageManager.Get<List<ReportSource>>(new StorageDownloadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
@@ -100,10 +101,12 @@ public class CapabilityReportScheduledEventFunction
                 ObjectPrefix = key
             });
         }
+        _lambdaContext.Logger.LogInformation("Finished In Reset");
     }
 
     private async Task<List<MessagingRequest>> AddMessagesToQueue()
     {
+        _lambdaContext.Logger.LogInformation("In AddMessagesToQueue");
         var reportSource = await LoadReportSource();
         var messages = new List<MessagingRequest>();
 
