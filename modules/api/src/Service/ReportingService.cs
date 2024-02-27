@@ -103,7 +103,7 @@ public class ReportingService : IReportingService
 
                         if (requestParameters != null)
                         {
-                            var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname);
+                            var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
 
                             if (capabilityStatement != null && capabilityStatement.NoIssues)
                             {
