@@ -23,12 +23,8 @@ public class CapabilityReportScheduledEventFunction
 
     public CapabilityReportScheduledEventFunction()
     {
-        Console.WriteLine("In CapabilityReportScheduledEventFunction");
-
         _secretManager = new SecretManager();
-        Console.WriteLine("Retrieving _secretManager.Get(enduser-configuration");
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
-        Console.WriteLine("Retrieving _secretManager.Get(storage-configuration");
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
@@ -46,6 +42,7 @@ public class CapabilityReportScheduledEventFunction
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
+        _lambdaContext.Logger.LogInformation("In FunctionHandler");
         await Reset(Objects.Interaction, Objects.Transient);
         var messages = await AddMessagesToQueue();
         return await GenerateMessages(messages);
@@ -94,6 +91,7 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task Reset(params string[] objectPrefix)
     {
+        _lambdaContext.Logger.LogInformation("In Reset");
         foreach (var key in objectPrefix)
         {
             await StorageManager.Purge(new StorageListRequest
@@ -108,8 +106,11 @@ public class CapabilityReportScheduledEventFunction
     {
         var reportSource = await LoadReportSource();
         var messages = new List<MessagingRequest>();
+
+        _lambdaContext.Logger.LogInformation($"Number of ODS Codes is {reportSource.Count}");
+
         if (reportSource != null && reportSource.Count > 0)
-        {            
+        {
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
@@ -120,6 +121,8 @@ public class CapabilityReportScheduledEventFunction
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
+                _lambdaContext.Logger.LogInformation("In FunctionHandler");
+
                 var interactionRequest = new InteractionRequest { InteractionId = capabilityReports[i].InteractionId, ReportName = capabilityReports[i].ReportName };
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
 
