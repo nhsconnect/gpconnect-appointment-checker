@@ -19,6 +19,7 @@
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.305.24" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.302.12" />
+    <PackageReference Include="CsvHelper" Version="31.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />

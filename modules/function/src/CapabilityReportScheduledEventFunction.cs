@@ -6,7 +6,6 @@ using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
-using System.Formats.Asn1;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
