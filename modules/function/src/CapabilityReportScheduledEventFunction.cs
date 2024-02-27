@@ -26,7 +26,9 @@ public class CapabilityReportScheduledEventFunction
         Console.WriteLine("In CapabilityReportScheduledEventFunction");
 
         _secretManager = new SecretManager();
+        Console.WriteLine("Retrieving _secretManager.Get(enduser-configuration");
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
+        Console.WriteLine("Retrieving _secretManager.Get(storage-configuration");
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");

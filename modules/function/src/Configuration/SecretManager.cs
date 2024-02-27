@@ -8,6 +8,7 @@ public class SecretManager
 {
     public string Get(string secretName)
     {
+        Console.WriteLine("In SecretManager Get");
         var config = new AmazonSecretsManagerConfig { RegionEndpoint = RegionEndpoint.EUWest2 };
         var client = new AmazonSecretsManagerClient(config);
 
@@ -19,6 +20,7 @@ public class SecretManager
         GetSecretValueResponse response = null;
         try
         {
+            Console.WriteLine($"Execuiting get for {request.SecretId}");
             response = Task.Run(async () => await client.GetSecretValueAsync(request)).Result;
         }
         catch (ResourceNotFoundException)
