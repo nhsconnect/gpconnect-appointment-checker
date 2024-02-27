@@ -23,6 +23,8 @@ public class CapabilityReportScheduledEventFunction
 
     public CapabilityReportScheduledEventFunction()
     {
+        Console.WriteLine("In CapabilityReportScheduledEventFunction");
+
         _secretManager = new SecretManager();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
