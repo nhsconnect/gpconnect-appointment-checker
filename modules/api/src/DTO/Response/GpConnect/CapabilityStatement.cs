@@ -39,7 +39,7 @@ public class CapabilityStatement
     public List<Rest> Rest { get; set; }
 
     [JsonProperty("issue")]
-    public List<Issue?> Issue { get; set; }
+    public List<Issue?> Issue { get; set; } = new List<Issue?>();
 
     public bool NoIssues => Issue?.Count == 0 || Issue == null;
 
