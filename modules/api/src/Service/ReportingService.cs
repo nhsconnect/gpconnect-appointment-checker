@@ -97,7 +97,8 @@ public class ReportingService : IReportingService
                             RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                             ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
                             ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
-                            SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData,
+                            //SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData,
+                            SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaDataAccessRecordStructured,
                             Sid = Guid.NewGuid().ToString()
                         });
 
