@@ -1,10 +1,13 @@
 using Amazon.Lambda.Core;
+using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Formats.Asn1;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -80,12 +83,16 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task<List<ReportSource>> LoadReportSource()
     {
-        var reportSource = await StorageManager.Get<List<ReportSource>>(new StorageDownloadRequest()
+        var reportSource = await StorageManager.Get(new StorageDownloadRequest()
         {
             BucketName = _storageConfiguration.BucketName,
             Key = _storageConfiguration.SourceObject
         });
-        return reportSource;
+
+        using var reader = new StringReader(reportSource);
+        using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+        var records = csvReader.GetRecords<ReportSource>().ToList();
+        return records;
     }
 
     private async Task Reset(params string[] objectPrefix)
