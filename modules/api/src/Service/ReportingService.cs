@@ -12,6 +12,7 @@ using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
@@ -25,16 +26,18 @@ public class ReportingService : IReportingService
     private readonly IDataService _dataService;
     private readonly ISpineService _spineService;
     private readonly IOrganisationService _organisationService;
+    private readonly IConfigurationService _configurationService;
     private readonly IMessageService _messageService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ReportingService(ILogger<ReportingService> logger, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public ReportingService(ILogger<ReportingService> logger, IConfigurationService configurationService, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenService = tokenService;
         _spineService = spineService;
         _organisationService = organisationService;
+        _configurationService = configurationService;
         _capabilityStatement = capabilityStatement;
         _messageService = messageService;
         _dataService = dataService;
@@ -92,13 +95,14 @@ public class ReportingService : IReportingService
 
                     if (providerSpineDetails != null)
                     {
+                        var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, reportInteractionRequest.InteractionId);
+
                         var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
                         {
                             RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                             ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
                             ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
-                            //SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaData,
-                            SpineMessageTypeId = SpineMessageTypes.GpConnectReadMetaDataAccessRecordStructured,
+                            SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
                             Sid = Guid.NewGuid().ToString()
                         });
 
