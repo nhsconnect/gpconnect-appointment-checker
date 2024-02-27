@@ -22,6 +22,8 @@ public class SecretManager
         {
             Console.WriteLine($"Execuiting get for {request.SecretId}");
             response = Task.Run(async () => await client.GetSecretValueAsync(request)).Result;
+            Console.WriteLine($"Response is {response?.ARN}");
+            Console.WriteLine($"Response is {response?.SecretString}");
         }
         catch (ResourceNotFoundException)
         {
