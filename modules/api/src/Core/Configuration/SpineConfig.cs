@@ -29,4 +29,5 @@ public class SpineConfig
     public string SpineFhirApiSystemsRegisterFqdn { get; set; }
     public string SpineFhirApiDirectoryServicesFqdn { get; set; }
     public string SpineFhirApiKey { get; set; }
+    public string DefaultInteraction { get; set; }
 }

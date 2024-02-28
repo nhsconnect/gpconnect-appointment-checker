@@ -6,6 +6,6 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 public interface ISpineService
 {
     public Task<Organisation> GetOrganisationDetailsByOdsCodeAsync(string odsCode);
-    public Task<Spine> GetProviderDetails(string odsCode);
+    public Task<Spine> GetProviderDetails(string odsCode, string? interactionId = null);
     public Task<Spine> GetConsumerDetails(string odsCode);
 }

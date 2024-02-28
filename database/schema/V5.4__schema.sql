@@ -1,0 +1,2 @@
+UPDATE configuration.fhir_api_query SET query_text='/spine-directory/FHIR/R4/Endpoint?organization=https://fhir.nhs.uk/Id/ods-organization-code|{odsCode}&identifier=https://fhir.nhs.uk/Id/nhsServiceInteractionId|{interactionId}'
+where query_name='GetRoutingReliabilityDetailsFromSDS';
