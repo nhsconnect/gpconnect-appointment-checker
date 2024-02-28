@@ -60,11 +60,10 @@ public class FhirService : IFhirService
         return null;
     }
 
-    public async Task<Spine> GetProviderDetails(string odsCode)
+    public async Task<Spine> GetProviderDetails(string odsCode, string interactionId)
     {
         var fhirApiQuery = await _configurationService.GetFhirApiQueryConfiguration(FhirQueryTypes.GetRoutingReliabilityDetailsFromSDS.ToString());
-        var query = fhirApiQuery.QueryText.SearchAndReplace(new Dictionary<string, string> { { "{odsCode}", Regex.Escape(odsCode) } });
-
+        var query = fhirApiQuery.QueryText.SearchAndReplace(new Dictionary<string, string> { { "{odsCode}", Regex.Escape(odsCode) }, { "{interactionId}", Regex.Escape(interactionId) } });
         var tokenSource = new CancellationTokenSource();
         var token = tokenSource.Token;
 

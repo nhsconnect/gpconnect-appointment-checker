@@ -30,11 +30,11 @@ public class SpineService : ISpineService
         return await _ldapService.GetOrganisation(odsCode);
     }
 
-    public async Task<Spine> GetProviderDetails(string odsCode)
+    public async Task<Spine> GetProviderDetails(string odsCode, string? interactionId = null)
     {
         if (_spineOptionsDelegate.Value.SdsUseFhirApi)
         {
-            var spineProviderDetails = await _fhirService.GetProviderDetails(odsCode);
+            var spineProviderDetails = await _fhirService.GetProviderDetails(odsCode, interactionId ?? _spineOptionsDelegate.Value.DefaultInteraction);
             return LoadAdditionalDependencies(spineProviderDetails);
         }
         else

@@ -5,7 +5,6 @@ using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Newtonsoft.Json;
-using NLog;
 using SearchGroup = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Api.DTO.Request.Application.SearchResult;
 
@@ -29,7 +28,7 @@ public class SearchService : ISearchService
         _gpConnectQueryExecutionService = gpConnectQueryExecutionService;
         _applicationService = applicationService;
         _configurationService = configurationService;
-        _logger = logger;        
+        _logger = logger;
     }
 
     public async Task<SearchResponse> ExecuteFreeSlotSearchFromDatabase(SearchFromDatabaseRequest searchFromDatabaseRequest)

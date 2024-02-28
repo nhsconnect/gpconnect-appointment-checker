@@ -91,7 +91,7 @@ public class ReportingService : IReportingService
                         SupplierName = reportInteractionRequest.ReportSource[i].SupplierName
                     };
 
-                    var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i]);
+                    var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], reportInteractionRequest.InteractionId);
 
                     if (providerSpineDetails != null)
                     {

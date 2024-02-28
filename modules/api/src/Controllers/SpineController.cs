@@ -26,10 +26,10 @@ public class SpineController : ControllerBase
         return Ok(site);
     }
 
-    [HttpGet("provider/{odsCode}", Name = "GetProviderDetails")]
-    public async Task<IActionResult> GetProviderDetails([FromRoute] string odsCode)
+    [HttpGet("provider/{odsCode}/{interactionId?}", Name = "GetProviderDetails")]
+    public async Task<IActionResult> GetProviderDetails([FromRoute] string odsCode, string? interactionId = null)
     {
-        var provider = await _service.GetProviderDetails(odsCode);
+        var provider = await _service.GetProviderDetails(odsCode, interactionId);
 
         if (provider == null)
         {
