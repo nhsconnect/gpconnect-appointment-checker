@@ -67,9 +67,6 @@ public class FhirService : IFhirService
         var fhirApiQuery = await _configurationService.GetFhirApiQueryConfiguration(FhirQueryTypes.GetRoutingReliabilityDetailsFromSDS.ToString());
         var query = fhirApiQuery.QueryText.SearchAndReplace(new Dictionary<string, string> { { "{odsCode}", Regex.Escape(odsCode) }, { "{interactionId}", Regex.Escape(interactionId) } });
 
-        _logger.LogInformation("GetProviderDetails");
-        _logger.LogInformation(query);
-
         var tokenSource = new CancellationTokenSource();
         var token = tokenSource.Token;
 
