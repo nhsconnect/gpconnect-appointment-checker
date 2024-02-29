@@ -76,7 +76,14 @@ public class SQSEventFunction
                     ReportSource = messageRequest.ReportSource,
                     ReportName = messageRequest.ReportName,
                     InteractionId = messageRequest.InteractionId
-                };                
+                };
+
+                _lambdaContext.Logger.LogLine("Dumping out message contents in SQSEventFunction");
+                _lambdaContext.Logger.LogLine(messageRequest.ReportName);
+                _lambdaContext.Logger.LogLine(messageRequest.InteractionId);
+                _lambdaContext.Logger.LogLine(messageRequest.ReportSource[0].OdsCode);
+                _lambdaContext.Logger.LogLine(messageRequest.ReportSource[0].SupplierName);
+
             }
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
@@ -101,6 +108,13 @@ public class SQSEventFunction
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
+
+            _lambdaContext.Logger.LogLine(reportInteraction.ReportName);
+            _lambdaContext.Logger.LogLine(reportInteraction.PreSignedUrl);
+            _lambdaContext.Logger.LogLine(reportInteraction.InteractionKeyJson);
+            _lambdaContext.Logger.LogLine(reportInteraction.ReportSource[0].SupplierName);
+            _lambdaContext.Logger.LogLine(reportInteraction.ReportSource[0].OdsCode);
+            _lambdaContext.Logger.LogLine(reportInteraction.InteractionId);
 
             return response;
         }
