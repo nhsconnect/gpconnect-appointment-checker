@@ -4,6 +4,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -22,10 +23,12 @@ public class CompletionFunction
     private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
     private string _reportName;
+    private Stopwatch _stopwatch;
 
     public CompletionFunction()
     {
         _secretManager = new SecretManager();
+        _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _notificationConfiguration = JsonConvert.DeserializeObject<NotificationConfiguration>(_secretManager.Get("notification-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
@@ -44,10 +47,13 @@ public class CompletionFunction
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
     public async Task<HttpStatusCode> FunctionHandler(CompletionFunctionRequest completionFunctionRequest, ILambdaContext lambdaContext)
     {
+        _stopwatch.Start();
+        _lambdaContext = lambdaContext;
         _reportName = completionFunctionRequest.ReportName;
         _distributionList = completionFunctionRequest.DistributionList;
-        _lambdaContext = lambdaContext;
         await BundleUpJsonResponsesAndSendReport();
+        _stopwatch.Stop();
+        _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed.TotalSeconds} to process.");
         return HttpStatusCode.OK;
     }
 
