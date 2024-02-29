@@ -6,6 +6,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -22,10 +23,12 @@ public class CapabilityReportScheduledEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
+    private Stopwatch _stopwatch;
 
     public CapabilityReportScheduledEventFunction()
     {
         _secretManager = new SecretManager();
+        _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
@@ -43,10 +46,14 @@ public class CapabilityReportScheduledEventFunction
 
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
+        _stopwatch.Start();
         _lambdaContext = lambdaContext;
         await Reset(Objects.Interaction, Objects.Transient);
         var messages = await AddMessagesToQueue();
-        return await GenerateMessages(messages);
+        var list = await GenerateMessages(messages);
+        _stopwatch.Stop();
+        _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed.TotalSeconds} to process.");
+        return list;
     }
 
     public async Task<List<CapabilityReport>> GetCapabilityReports()

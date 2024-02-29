@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -18,10 +19,12 @@ public class SQSEventFunction
     private readonly JsonSerializerSettings _options;
     private readonly SecretManager _secretManager;
     private ILambdaContext _lambdaContext;
+    private Stopwatch _stopwatch;
 
     public SQSEventFunction()
     {
         _secretManager = new SecretManager();
+        _stopwatch = new Stopwatch();
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
 
@@ -40,7 +43,7 @@ public class SQSEventFunction
     public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-
+        _stopwatch.Start();
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
         foreach (var message in evnt.Records)
         {
@@ -60,7 +63,10 @@ public class SQSEventFunction
                 batchItemFailures.Add(new SQSBatchResponse.BatchItemFailure { ItemIdentifier = message.MessageId });
             }
         }
-        return new SQSBatchResponse(batchItemFailures);
+        var batchResponse = new SQSBatchResponse(batchItemFailures);
+        _stopwatch.Stop();
+        _lambdaContext.Logger.LogInformation($"SQSEventFunction with {evnt.Records.Count} records took {_stopwatch.Elapsed.TotalSeconds} to process.");
+        return batchResponse;
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
