@@ -12,7 +12,7 @@ using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
-using Microsoft.VisualBasic;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
@@ -85,11 +85,22 @@ public class ReportingService : IReportingService
             {
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
+                    _logger.LogInformation("Dumping out reportInteractionRequest in CreateInteractionData");
+                    _logger.LogInformation(reportInteractionRequest.InteractionId);
+                    _logger.LogInformation(reportInteractionRequest.ReportName);
+                    _logger.LogInformation(reportInteractionRequest.MessageGroupId.ToString());
+                    _logger.LogInformation(reportInteractionRequest.ReportSource[0].OdsCode);
+                    _logger.LogInformation(reportInteractionRequest.ReportSource[0].SupplierName);
+
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]],
                         SupplierName = reportInteractionRequest.ReportSource[i].SupplierName
                     };
+
+                    _logger.LogInformation("Getting Provider Details");
+                    _logger.LogInformation(odsCodesInScope[i]);
+                    _logger.LogInformation(reportInteractionRequest.InteractionId);
 
                     var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], reportInteractionRequest.InteractionId);
 

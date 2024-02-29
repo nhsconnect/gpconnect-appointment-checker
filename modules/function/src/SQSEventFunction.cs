@@ -78,7 +78,7 @@ public class SQSEventFunction
                     InteractionId = messageRequest.InteractionId
                 };
 
-                _lambdaContext.Logger.LogLine("Dumping out message contents in SQSEventFunction");
+                _lambdaContext.Logger.LogLine("Dumping out message contents in SQSEventFunction ProcessMessageAsync");
                 _lambdaContext.Logger.LogLine(messageRequest.ReportName);
                 _lambdaContext.Logger.LogLine(messageRequest.InteractionId);
                 _lambdaContext.Logger.LogLine(messageRequest.ReportSource[0].OdsCode);
@@ -109,6 +109,7 @@ public class SQSEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
 
+            _lambdaContext.Logger.LogLine("Dumping out message contents in SQSEventFunction GenerateCapabilityReport");
             _lambdaContext.Logger.LogLine(reportInteraction.ReportName);
             _lambdaContext.Logger.LogLine(reportInteraction.PreSignedUrl);
             _lambdaContext.Logger.LogLine(reportInteraction.InteractionKeyJson);
