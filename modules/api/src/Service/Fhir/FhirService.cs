@@ -17,9 +17,11 @@ public class FhirService : IFhirService
     private readonly IApplicationService _applicationService;
     private readonly IFhirRequestExecution _fhirRequestExecution;
     private readonly IOptions<SpineConfig> _spineOptionsDelegate;
+    private readonly ILogger<FhirService> _logger;
 
-    public FhirService(IApplicationService applicationService, IConfigurationService configurationService, IFhirRequestExecution fhirRequestExecution, IOptions<SpineConfig> spineOptionsDelegate)
+    public FhirService(ILogger<FhirService> logger, IApplicationService applicationService, IConfigurationService configurationService, IFhirRequestExecution fhirRequestExecution, IOptions<SpineConfig> spineOptionsDelegate)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _applicationService = applicationService ?? throw new ArgumentNullException(nameof(applicationService));
         _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         _fhirRequestExecution = fhirRequestExecution ?? throw new ArgumentNullException(nameof(fhirRequestExecution));
@@ -64,6 +66,10 @@ public class FhirService : IFhirService
     {
         var fhirApiQuery = await _configurationService.GetFhirApiQueryConfiguration(FhirQueryTypes.GetRoutingReliabilityDetailsFromSDS.ToString());
         var query = fhirApiQuery.QueryText.SearchAndReplace(new Dictionary<string, string> { { "{odsCode}", Regex.Escape(odsCode) }, { "{interactionId}", Regex.Escape(interactionId) } });
+
+        _logger.LogInformation("GetProviderDetails");
+        _logger.LogInformation(query);
+
         var tokenSource = new CancellationTokenSource();
         var token = tokenSource.Token;
 
