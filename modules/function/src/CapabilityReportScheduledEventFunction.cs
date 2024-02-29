@@ -76,10 +76,12 @@ public class CapabilityReportScheduledEventFunction
             }, json);
             response.EnsureSuccessStatusCode();
 
-            var body = await response.Content.ReadAsStringAsync();
 
             _lambdaContext.Logger.LogLine("Dumping out message contents");
-            _lambdaContext.Logger.LogLine(body);
+            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportName);
+            _lambdaContext.Logger.LogLine(messagingRequests[i].InteractionId);
+            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportSource[0].OdsCode);
+            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportSource[0].SupplierName);
 
         }
         _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");        
