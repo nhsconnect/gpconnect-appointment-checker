@@ -12,7 +12,6 @@ using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
@@ -106,6 +105,8 @@ public class ReportingService : IReportingService
 
                     if (providerSpineDetails != null)
                     {
+                        _logger.LogInformation("providerSpineDetails != null");
+
                         var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, reportInteractionRequest.InteractionId);
 
                         var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
@@ -128,6 +129,10 @@ public class ReportingService : IReportingService
                                 capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
                             }
                         }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("providerSpineDetails are null");
                     }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
