@@ -84,29 +84,16 @@ public class ReportingService : IReportingService
             {
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
-                    _logger.LogInformation("Dumping out reportInteractionRequest in CreateInteractionData");
-                    _logger.LogInformation(reportInteractionRequest.InteractionId);
-                    _logger.LogInformation(reportInteractionRequest.ReportName);
-                    _logger.LogInformation(reportInteractionRequest.MessageGroupId.ToString());
-                    _logger.LogInformation(reportInteractionRequest.ReportSource[0].OdsCode);
-                    _logger.LogInformation(reportInteractionRequest.ReportSource[0].SupplierName);
-
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]],
                         SupplierName = reportInteractionRequest.ReportSource[i].SupplierName
                     };
 
-                    _logger.LogInformation("Getting Provider Details");
-                    _logger.LogInformation(odsCodesInScope[i]);
-                    _logger.LogInformation(reportInteractionRequest.InteractionId);
-
                     var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], reportInteractionRequest.InteractionId);
 
                     if (providerSpineDetails != null)
                     {
-                        _logger.LogInformation("providerSpineDetails != null");
-
                         var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, reportInteractionRequest.InteractionId);
 
                         var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
@@ -129,10 +116,6 @@ public class ReportingService : IReportingService
                                 capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
                             }
                         }
-                    }
-                    else
-                    {
-                        _logger.LogInformation("providerSpineDetails are null");
                     }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);

@@ -75,15 +75,6 @@ public class CapabilityReportScheduledEventFunction
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
             response.EnsureSuccessStatusCode();
-
-
-            _lambdaContext.Logger.LogLine("Dumping out message contents");
-            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportName);
-            _lambdaContext.Logger.LogLine(messagingRequests[i].InteractionId);
-            _lambdaContext.Logger.LogLine(messagingRequests[i].MessageGroupId.ToString());
-            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportSource[0].OdsCode);
-            _lambdaContext.Logger.LogLine(messagingRequests[i].ReportSource[0].SupplierName);
-
         }
         _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");        
         return HttpStatusCode.OK;
