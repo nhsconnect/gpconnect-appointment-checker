@@ -1,0 +1,2 @@
+INSERT INTO configuration.spine_message_type(spine_message_type_id, spine_message_type_name, interaction_id)
+VALUES (7, 'GP Connect - Read metadata (Access Document)', 'urn:nhs:names:services:gpconnect:documents:fhir:rest:read:metadata-1');
