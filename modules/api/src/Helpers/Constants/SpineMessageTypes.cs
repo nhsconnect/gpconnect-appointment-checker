@@ -7,5 +7,6 @@ public enum SpineMessageTypes
     GpConnectSearchFreeSlots = 3,
     SpineFhirApiSDSQuery = 4,
     SpineFhirApiOrganisationQuery = 5,
-    GpConnectReadMetaDataAccessRecordStructured = 6
+    GpConnectReadMetaDataAccessRecordStructured = 6,
+    GpConnectReadMetaDataAccessDocument = 7
 }
