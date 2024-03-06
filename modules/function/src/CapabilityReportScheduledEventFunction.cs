@@ -51,8 +51,8 @@ public class CapabilityReportScheduledEventFunction
         await Reset(Objects.Interaction, Objects.Transient);
         var messages = await AddMessagesToQueue();
         var list = await GenerateMessages(messages);
-        _stopwatch.Stop();
-        _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed.TotalSeconds} to process.");
+        _stopwatch.Stop();        
+        _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%ss} seconds to process");
         return list;
     }
 
@@ -126,7 +126,7 @@ public class CapabilityReportScheduledEventFunction
             var iterationCount = reportSource.Count / batchSize;
             var x = 0;
             var y = 0;
-            var messageGroupId = Guid.NewGuid();            
+            var messageGroupId = Guid.NewGuid();
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
