@@ -103,8 +103,8 @@ public class SQSEventFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            _lambdaContext.Logger.LogError("GenerateCapabilityReport JSON");
-            _lambdaContext.Logger.LogError(await json.ReadAsStringAsync());
+            _lambdaContext.Logger.LogLine("GenerateCapabilityReport JSON");
+            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
             var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
             {
