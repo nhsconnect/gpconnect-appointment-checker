@@ -11,5 +11,5 @@ public class Rest
     [JsonProperty("resource")]
     public List<CapabilityResource> Resource { get; set; }
     [JsonProperty("operation")]
-    public List<Operation> Operation { get; set; }
+    public List<Operation>? Operation { get; set; }
 }

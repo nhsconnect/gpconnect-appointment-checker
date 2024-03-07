@@ -99,7 +99,7 @@ public class ReportingService : IReportingService
                     if (capabilityStatementDocuments != null)
                     {
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
-                        capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                        //capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
                     }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
@@ -107,18 +107,19 @@ public class ReportingService : IReportingService
                     capabilityStatements.Add(jObject.Flatten());
                 }
                 jsonData = JsonConvert.SerializeObject(capabilityStatements);
+                _logger.LogInformation("Creating jsonData");
+                _logger.LogInformation(jsonData);
             }
             return jsonData.Substring(1, jsonData.Length - 2);
         }
         catch (Exception exc)
         {
-            _logger?.LogInformation(exc.Message.ToString());
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
     }
 
-    private async Task<DTO.Response.GpConnect.CapabilityStatement?> GetInteractionData(string interaction, string odsCode, CapabilityStatementReporting capabilityStatementReporting)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, CapabilityStatementReporting capabilityStatementReporting)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
 
