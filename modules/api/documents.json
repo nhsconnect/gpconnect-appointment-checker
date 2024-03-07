@@ -1,0 +1,77 @@
+{
+  "resourceType": "CapabilityStatement",
+  "version": "1.5.0",
+  "name": "GP Connect API - Access Document",
+  "status": "active",
+  "date": "2020-02-10",
+  "publisher": "EMIS Health",
+  "contact": [ { "name": "EMIS Support" } ],
+  "description": "This server implements the GP Connect API - Access Document version 1.5.0",
+  "copyright": "Copyright NHS Digital 2016-20",
+  "kind": "capability",
+  "software": {
+    "name": "Emis Health Open Platform",
+    "version": "1.0.0.0",
+    "releaseDate": "2023-12-05"
+  },
+  "fhirVersion": "3.0.1",
+  "acceptUnknown": "both",
+  "format": [ "application/fhir+json", "application/fhir+xml" ],
+  "profile": [
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Patient-1/_history/1.8" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Organization-1/_history/1.4" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Practitioner-1/_history/1.2" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-PractitionerRole-1/_history/1.2" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/GPConnect-OperationOutcome-1/_history/1.2" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-DocumentReference-1/_history/1.3" },
+    { "reference": "https://fhir.nhs.uk/STU3/StructureDefinition/GPConnect-Searchset-Bundle-1/_history/1.3" }
+  ],
+  "rest": [
+    {
+      "mode": "server",
+      "security": { "cors": true },
+      "resource": [
+        {
+          "type": "Patient",
+          "interaction": [
+            { "code": "read" },
+            { "code": "search-type" }
+          ],
+          "updateCreate": false,
+          "searchParam": [
+            {
+              "name": "identifier",
+              "type": "token",
+              "documentation": "NHS Number (i.e. https://fhir.nhs.uk/Id/nhs-number|123456789)"
+            }
+          ]
+        },
+        {
+          "type": "Binary",
+          "interaction": [ { "code": "read" } ]
+        },
+        {
+          "type": "DocumentReference",
+          "interaction": [ { "code": "search-type" } ],
+          "updateCreate": false,
+          "searchInclude": [ "DocumentReference:subject:Patient", "DocumentReference:custodian:Organization", "DocumentReference:author:Organization", "DocumentReference:author:Practitioner" ],
+          "searchRevInclude": [ "PractitionerRole:practitioner" ],
+          "searchParam": [
+            {
+              "name": "created",
+              "type": "date"
+            },
+            {
+              "name": "author",
+              "type": "token"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

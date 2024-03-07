@@ -129,8 +129,8 @@ public class CapabilityReportScheduledEventFunction
             var messageGroupId = Guid.NewGuid();
 
             for (var i = 0; i < capabilityReports.Count; i++)
-            {
-                var interactionRequest = new InteractionRequest { InteractionId = capabilityReports[i].InteractionId, ReportName = capabilityReports[i].ReportName };
+            {                
+                var interactionRequest = new InteractionRequest { InteractionId = capabilityReports[i].Interaction[0], ReportName = capabilityReports[i].ReportName };
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
 
                 await StorageManager.Post(new StorageUploadRequest
@@ -146,7 +146,7 @@ public class CapabilityReportScheduledEventFunction
                     {
                         ReportSource = reportSource.GetRange(x, x + batchSize > reportSource.Count ? reportSource.Count - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
-                        InteractionId = capabilityReports[i].InteractionId,
+                        Interaction = capabilityReports[i].Interaction,
                         MessageGroupId = messageGroupId
                     });
                     x += batchSize;

@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using GpConnect.AppointmentChecker.Api.Core;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
@@ -9,12 +10,14 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
+using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -86,37 +89,14 @@ public class ReportingService : IReportingService
                 {
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
-                        Hierarchy = organisationHierarchy[odsCodesInScope[i]],
-                        SupplierName = reportInteractionRequest.ReportSource[i].SupplierName
+                        Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
+                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope, i, capabilityStatementReporting);
+                    capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
 
-                    var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], reportInteractionRequest.InteractionId);
-
-                    if (providerSpineDetails != null)
-                    {
-                        var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, reportInteractionRequest.InteractionId);
-
-                        var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
-                        {
-                            RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
-                            ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                            ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
-                            SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
-                            Sid = Guid.NewGuid().ToString()
-                        });
-
-                        if (requestParameters != null)
-                        {
-                            var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, reportInteractionRequest.InteractionId);
-
-                            if (capabilityStatement != null && capabilityStatement.NoIssues)
-                            {
-                                capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                                capabilityStatementReporting.Version = $"v{capabilityStatement.Version}";
-                                capabilityStatementReporting.Rest = capabilityStatement.Rest.FirstOrDefault()?.Operation.Select(x => x.Name);
-                            }
-                        }
-                    }
+                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope, i, capabilityStatementReporting);
+                    capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
+                    capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                     var jObject = JObject.Parse(jsonString);
@@ -131,6 +111,37 @@ public class ReportingService : IReportingService
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
+    }
+
+    private async Task<DTO.Response.GpConnect.CapabilityStatement?> GetInteractionData(string interaction, List<string> odsCodesInScope, int i, CapabilityStatementReporting capabilityStatementReporting)
+    {
+        var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], interaction);
+
+        if (providerSpineDetails != null)
+        {
+            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
+            var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+            {
+                RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
+                ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
+                ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
+                SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
+                Sid = Guid.NewGuid().ToString()
+            });
+
+            if (requestParameters != null)
+            {
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction);
+
+                if (capabilityStatement != null && capabilityStatement.NoIssues)
+                {
+                    capabilityStatementReporting.Profile = capabilityStatement.Profile;
+                    capabilityStatementReporting.Rest = capabilityStatement.Rest;
+                }
+                return capabilityStatement;
+            }
+        }
+        return null;
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)

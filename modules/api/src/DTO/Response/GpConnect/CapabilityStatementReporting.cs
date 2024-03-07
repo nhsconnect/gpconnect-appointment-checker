@@ -5,7 +5,7 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 
 public class CapabilityStatementReporting
 {
-    [JsonIgnore] 
+    [JsonIgnore]
     public Hierarchy Hierarchy { get; set; }
 
     [JsonProperty("ODS_Code")]
@@ -29,10 +29,29 @@ public class CapabilityStatementReporting
     [JsonProperty("Commissioning_Region")]
     public string NationalGrouping => string.Format("{0}{1}", Hierarchy.NationalGroupingName, Hierarchy.NationalGroupingCode != null ? $" ({Hierarchy.NationalGroupingCode})" : string.Empty);
 
-    public string Version { get; set; }    
+    private string _StructuredVersion;
+
+    [JsonProperty("Structured_Version")]
+    public string StructuredVersion
+    {
+        get { return !string.IsNullOrWhiteSpace(_StructuredVersion) ? $"v{_StructuredVersion}" : ""; }
+        set { _StructuredVersion = value; }
+    }
+
+    private string _DocumentsVersion;
+
+    [JsonProperty("Documents_Version")]
+    public string DocumentsVersion
+    {
+        get { return !string.IsNullOrWhiteSpace(_DocumentsVersion) ? $"v{_DocumentsVersion}" : ""; }
+        set { _DocumentsVersion = value; }
+    }
 
     [JsonIgnore]
     public List<Profile> Profile { get; set; }
+
+    [JsonIgnore]
+    public List<Rest> Rest { get; set; }
 
     [JsonProperty("Allergies")]
     public string AllergiesInProfile => Profile?.Count(x => x.reference.ToUpper().Contains("ALLERGYINTOLERANCE")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
@@ -69,10 +88,10 @@ public class CapabilityStatementReporting
     public string ReferralsInProfile => Profile?.Count(x => x.reference.ToUpper().Contains("REFERRALREQUEST")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
 
     [JsonProperty("Documents")]
-    public string DocumentsInProfile => Profile?.Count(x => x.reference.ToUpper().Contains("DOCUMENTREFERENCE")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+    public string DocumentsInProfile { get; set; }
 
     [JsonProperty("Operation")]
-    public IEnumerable<string> Rest { get; set; }
+    public IEnumerable<string> Operation => Rest.FirstOrDefault()?.Operation?.Select(x => x.Name);
 }
 
 public class ActiveInactiveConstants
