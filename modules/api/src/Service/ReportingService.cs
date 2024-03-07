@@ -2,7 +2,6 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using GpConnect.AppointmentChecker.Api.Core;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
@@ -10,14 +9,12 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
-using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
-using System.Reflection.Metadata.Ecma335;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -92,16 +89,11 @@ public class ReportingService : IReportingService
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
 
-                    _logger.LogInformation($"reportInteractionRequest.Interaction[0] {reportInteractionRequest.Interaction[0]}");
-                    _logger.LogInformation($"odsCodesInScope[i] {odsCodesInScope[i]}");
                     var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i], capabilityStatementReporting);
-
                     if (capabilityStatement != null)
                     {
                         capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
                     }
-
-                    _logger.LogInformation("reportInteractionRequest.Interaction[1]" + reportInteractionRequest.Interaction[1]);
 
                     var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i], capabilityStatementReporting);
                     if (capabilityStatementDocuments != null)
@@ -109,8 +101,6 @@ public class ReportingService : IReportingService
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
                     }
-
-                    _logger.LogInformation("Creating JSON object");
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                     var jObject = JObject.Parse(jsonString);
@@ -122,6 +112,7 @@ public class ReportingService : IReportingService
         }
         catch (Exception exc)
         {
+            _logger?.LogInformation(exc.Message.ToString());
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
