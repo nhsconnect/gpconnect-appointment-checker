@@ -84,6 +84,7 @@ public class SQSEventFunction
                     Interaction = messageRequest.Interaction
                 };
             }
+            
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
@@ -101,6 +102,9 @@ public class SQSEventFunction
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            _lambdaContext.Logger.LogError("GenerateCapabilityReport JSON");
+            _lambdaContext.Logger.LogError(await json.ReadAsStringAsync());
 
             var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
             {

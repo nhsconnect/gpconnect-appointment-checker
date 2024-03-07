@@ -91,10 +91,15 @@ public class ReportingService : IReportingService
                     {
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
-                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope, i, capabilityStatementReporting);
+
+                    _logger.LogInformation("reportInteractionRequest.Interaction[0]" + reportInteractionRequest.Interaction[0]);
+                    _logger.LogInformation("odsCodesInScope[i]" + odsCodesInScope[i]);
+                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i], capabilityStatementReporting);
                     capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
 
-                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope, i, capabilityStatementReporting);
+                    _logger.LogInformation("reportInteractionRequest.Interaction[1]" + reportInteractionRequest.Interaction[1]);
+
+                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i], capabilityStatementReporting);
                     capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
                     capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
 
@@ -113,9 +118,9 @@ public class ReportingService : IReportingService
         }
     }
 
-    private async Task<DTO.Response.GpConnect.CapabilityStatement?> GetInteractionData(string interaction, List<string> odsCodesInScope, int i, CapabilityStatementReporting capabilityStatementReporting)
+    private async Task<DTO.Response.GpConnect.CapabilityStatement?> GetInteractionData(string interaction, string odsCode, CapabilityStatementReporting capabilityStatementReporting)
     {
-        var providerSpineDetails = await _spineService.GetProviderDetails(odsCodesInScope[i], interaction);
+        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
 
         if (providerSpineDetails != null)
         {
@@ -124,7 +129,7 @@ public class ReportingService : IReportingService
             {
                 RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
                 ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCodesInScope[i] },
+                ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode },
                 SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
                 Sid = Guid.NewGuid().ToString()
             });
