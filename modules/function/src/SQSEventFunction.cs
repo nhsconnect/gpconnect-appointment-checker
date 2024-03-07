@@ -81,7 +81,7 @@ public class SQSEventFunction
                 {
                     ReportSource = messageRequest.ReportSource,
                     ReportName = messageRequest.ReportName,
-                    InteractionId = messageRequest.InteractionId
+                    Interaction = messageRequest.Interaction
                 };
             }
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
