@@ -92,16 +92,25 @@ public class ReportingService : IReportingService
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
 
-                    _logger.LogInformation("reportInteractionRequest.Interaction[0]" + reportInteractionRequest.Interaction[0]);
-                    _logger.LogInformation("odsCodesInScope[i]" + odsCodesInScope[i]);
+                    _logger.LogInformation($"reportInteractionRequest.Interaction[0] {reportInteractionRequest.Interaction[0]}");
+                    _logger.LogInformation($"odsCodesInScope[i] {odsCodesInScope[i]}");
                     var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i], capabilityStatementReporting);
-                    capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
+
+                    if (capabilityStatement != null)
+                    {
+                        capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
+                    }
 
                     _logger.LogInformation("reportInteractionRequest.Interaction[1]" + reportInteractionRequest.Interaction[1]);
 
                     var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i], capabilityStatementReporting);
-                    capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
-                    capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                    if (capabilityStatementDocuments != null)
+                    {
+                        capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
+                        capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                    }
+
+                    _logger.LogInformation("Creating JSON object");
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                     var jObject = JObject.Parse(jsonString);

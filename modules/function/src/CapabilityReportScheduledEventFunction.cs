@@ -52,7 +52,7 @@ public class CapabilityReportScheduledEventFunction
         var messages = await AddMessagesToQueue();
         var list = await GenerateMessages(messages);
         _stopwatch.Stop();        
-        _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%ss} seconds to process");
+        _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
         return list;
     }
 
