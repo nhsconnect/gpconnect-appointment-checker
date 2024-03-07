@@ -257,3 +257,5 @@ paket-files/
 .cr/
 
 appsettings.local.json
+documents.json
+test.json
