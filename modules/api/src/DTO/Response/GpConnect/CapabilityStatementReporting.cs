@@ -29,29 +29,17 @@ public class CapabilityStatementReporting
     [JsonProperty("Commissioning_Region")]
     public string NationalGrouping => string.Format("{0}{1}", Hierarchy.NationalGroupingName, Hierarchy.NationalGroupingCode != null ? $" ({Hierarchy.NationalGroupingCode})" : string.Empty);
 
-    private string _StructuredVersion;
-
     [JsonProperty("Structured_Version")]
-    public string StructuredVersion
-    {
-        get { return !string.IsNullOrWhiteSpace(_StructuredVersion) ? $"v{_StructuredVersion}" : ""; }
-        set { _StructuredVersion = value; }
-    }
-
-    private string _DocumentsVersion;
+    public string StructuredVersion { get; set; }
 
     [JsonProperty("Documents_Version")]
-    public string DocumentsVersion
-    {
-        get { return !string.IsNullOrWhiteSpace(_DocumentsVersion) ? $"v{_DocumentsVersion}" : ""; }
-        set { _DocumentsVersion = value; }
-    }
+    public string DocumentsVersion { get; set; }
 
     [JsonIgnore]
-    public List<Profile> Profile { get; set; }
+    public List<Profile>? Profile { get; set; }
 
     [JsonIgnore]
-    public List<Rest> Rest { get; set; }
+    public List<Rest>? Rest { get; set; }
 
     [JsonProperty("Allergies")]
     public string AllergiesInProfile => CheckProfileSegment("ALLERGYINTOLERANCE");
