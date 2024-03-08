@@ -89,7 +89,7 @@ public class CapabilityStatementReporting
     public string ReferralsInProfile => Profile?.Count(x => x.reference.ToUpper().Contains("REFERRALREQUEST")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
 
     [JsonProperty("Documents")]
-    public string DocumentsInProfile => Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+    public string DocumentsInProfile { get; set; }
 
     [JsonProperty("Operation")]
     public IEnumerable<string> Operation => Rest?.FirstOrDefault()?.Operation?.Select(x => x.Name);

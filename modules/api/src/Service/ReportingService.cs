@@ -99,8 +99,8 @@ public class ReportingService : IReportingService
                     if (capabilityStatementDocuments != null)
                     {
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
-                        //capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                    }
+                        capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                    }                    
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                     var jObject = JObject.Parse(jsonString);
