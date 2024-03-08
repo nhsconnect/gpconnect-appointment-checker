@@ -86,6 +86,7 @@ public class ReportingService : IReportingService
                 {
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
+                        SupplierName = reportInteractionRequest.ReportSource[i].SupplierName,
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]],
                         DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
                         DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
