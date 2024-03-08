@@ -58,15 +58,15 @@ public class CapabilityStatementReporting
 
     private string CheckProfileSegment(string profileValue)
     {
-        return Profile != null ? Profile?.Count(x => x.reference.ToUpper().Contains(profileValue)) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
+        return Profile != null ? (Profile?.Count(x => x.reference.ToUpper().Contains(profileValue)) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
     }
 
     [JsonProperty("Medications")]
-    public string MedicationsInProfile => Profile != null ? (
+    public string MedicationsInProfile => Profile != null ? ((
         Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATION")) > 0 && 
         Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATIONSTATEMENT")) > 0 && 
         Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATIONREQUEST")) > 0
-        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
+        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
 
     [JsonProperty("Immunisations")]
     public string ImmunisationsInProfile => CheckProfileSegment("IMMUNIZATION");
@@ -81,10 +81,10 @@ public class CapabilityStatementReporting
     public string UncategorisedDataInProfile => CheckProfileSegment("OBSERVATION");
 
     [JsonProperty("Investigations")]
-    public string InvestigationsInProfile => Profile != null ? (
+    public string InvestigationsInProfile => Profile != null ? ((
         Profile?.Count(x => x.reference.ToUpper().Contains("DIAGNOSTICREPORT")) > 0 &&
         Profile?.Count(x => x.reference.ToUpper().Contains("SPECIMEN")) > 0
-        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
+        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
 
     [JsonProperty("Diary_Entries")]
     public string DiaryEntriesInProfile => CheckProfileSegment("PROCEDUREREQUEST");

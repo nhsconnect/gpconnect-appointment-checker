@@ -95,7 +95,7 @@ public class ReportingService : IReportingService
                         capabilityStatementReporting.Profile = capabilityStatement.Profile;
                         capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
                     }
-                    else if (!capabilityStatement.NoIssues)
+                    else
                     {
                         capabilityStatementReporting.Profile = null;
                         capabilityStatementReporting.StructuredVersion = null;
@@ -107,7 +107,7 @@ public class ReportingService : IReportingService
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
                     }
-                    else if (!capabilityStatementDocuments.NoIssues)
+                    else
                     {
                         capabilityStatementReporting.DocumentsVersion = null;
                         capabilityStatementReporting.DocumentsInProfile = null;
