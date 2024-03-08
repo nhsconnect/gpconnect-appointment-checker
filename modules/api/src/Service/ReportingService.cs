@@ -89,14 +89,15 @@ public class ReportingService : IReportingService
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
 
-                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i], capabilityStatementReporting);
-                    if (capabilityStatement != null)
-                    {
+                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i]);
+                    if (capabilityStatement != null && capabilityStatement.NoIssues)
+                    {                        
+                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
                         capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
                     }
 
-                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i], capabilityStatementReporting);
-                    if (capabilityStatementDocuments != null)
+                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i]);
+                    if (capabilityStatementDocuments != null && capabilityStatementDocuments.NoIssues)
                     {
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
@@ -119,7 +120,7 @@ public class ReportingService : IReportingService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, CapabilityStatementReporting capabilityStatementReporting)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
 
@@ -138,12 +139,6 @@ public class ReportingService : IReportingService
             if (requestParameters != null)
             {
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction);
-
-                if (capabilityStatement != null && capabilityStatement.NoIssues)
-                {
-                    capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                    capabilityStatementReporting.Rest = capabilityStatement.Rest;
-                }
                 return capabilityStatement;
             }
         }

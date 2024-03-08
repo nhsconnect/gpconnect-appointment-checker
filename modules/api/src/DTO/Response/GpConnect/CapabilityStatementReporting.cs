@@ -1,5 +1,4 @@
 ﻿using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
-using GpConnect.AppointmentChecker.Api.Service.GpConnect;
 using Newtonsoft.Json;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
@@ -37,15 +36,6 @@ public class CapabilityStatementReporting
     {
         get { return !string.IsNullOrWhiteSpace(_StructuredVersion) ? $"v{_StructuredVersion}" : ""; }
         set { _StructuredVersion = value; }
-    }
-
-    private string _DocumentsVersion;
-
-    [JsonProperty("Documents_Version")]
-    public string DocumentsVersion
-    {
-        get { return !string.IsNullOrWhiteSpace(_DocumentsVersion) ? $"v{_DocumentsVersion}" : ""; }
-        set { _DocumentsVersion = value; }
     }
 
     [JsonIgnore]
@@ -88,11 +78,20 @@ public class CapabilityStatementReporting
     [JsonProperty("Referrals")]
     public string ReferralsInProfile => Profile?.Count(x => x.reference.ToUpper().Contains("REFERRALREQUEST")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
 
-    [JsonProperty("Documents")]
-    public string DocumentsInProfile { get; set; }
-
     [JsonProperty("Operation")]
     public IEnumerable<string> Operation => Rest?.FirstOrDefault()?.Operation?.Select(x => x.Name);
+
+    private string _DocumentsVersion;
+
+    [JsonProperty("Documents_Version")]
+    public string DocumentsVersion
+    {
+        get { return !string.IsNullOrWhiteSpace(_DocumentsVersion) ? $"v{_DocumentsVersion}" : ""; }
+        set { _DocumentsVersion = value; }
+    }
+
+    [JsonProperty("Documents")]
+    public string DocumentsInProfile { get; set; }
 }
 
 public class ActiveInactiveConstants
