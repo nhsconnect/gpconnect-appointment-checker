@@ -112,7 +112,6 @@ public class ReportingService : IReportingService
                     capabilityStatements.Add(jObject.Flatten());
                 }
                 jsonData = JsonConvert.SerializeObject(capabilityStatements);
-                _logger.LogInformation(jsonData);
             }
             return jsonData.Substring(1, jsonData.Length - 2);
         }

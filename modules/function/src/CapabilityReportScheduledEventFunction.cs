@@ -97,8 +97,7 @@ public class CapabilityReportScheduledEventFunction
 
         using var reader = new StringReader(reportSource);
         using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
-        var records = csvReader.GetRecords<ReportSource>().ToList();
-        return records;
+        return csvReader.GetRecords<ReportSource>().DistinctBy(x => x.OdsCode).OrderBy(x => x.OdsCode).ToList();
     }
 
     private async Task Reset(params string[] objectPrefix)
@@ -118,12 +117,13 @@ public class CapabilityReportScheduledEventFunction
         var reportSource = await LoadReportSource();
         var messages = new List<MessagingRequest>();
 
-        if (reportSource != null && reportSource.Count > 0)
+        if (reportSource != null && reportSource.Any())
         {
+            var reportSourceCount = reportSource.Count();
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
-            var iterationCount = reportSource.Count / batchSize;
+            var iterationCount = reportSourceCount / batchSize;
             var x = 0;
             var y = 0;
             var messageGroupId = Guid.NewGuid();
@@ -144,7 +144,7 @@ public class CapabilityReportScheduledEventFunction
                 {
                     messages.Add(new MessagingRequest()
                     {
-                        ReportSource = reportSource.GetRange(x, x + batchSize > reportSource.Count ? reportSource.Count - x : batchSize),
+                        ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         Interaction = capabilityReports[i].Interaction,
                         MessageGroupId = messageGroupId
