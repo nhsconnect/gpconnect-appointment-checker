@@ -86,31 +86,25 @@ public class ReportingService : IReportingService
                 {
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
-                        Hierarchy = organisationHierarchy[odsCodesInScope[i]]
+                        Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                        DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
+                        DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
+                        Profile = null,
+                        StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE
                     };
 
                     var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i]);
                     if (capabilityStatement != null && capabilityStatement.NoIssues)
-                    {                        
-                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                        capabilityStatementReporting.StructuredVersion = capabilityStatement.Version;
-                    }
-                    else
                     {
-                        capabilityStatementReporting.Profile = null;
-                        capabilityStatementReporting.StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE;
+                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
+                        capabilityStatementReporting.StructuredVersion = $"v{capabilityStatement.Version}";
                     }
 
                     var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i]);
                     if (capabilityStatementDocuments != null && capabilityStatementDocuments.NoIssues)
                     {
-                        capabilityStatementReporting.DocumentsVersion = capabilityStatementDocuments.Version;
+                        capabilityStatementReporting.DocumentsVersion = $"v{capabilityStatementDocuments.Version}";
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                    }
-                    else
-                    {
-                        capabilityStatementReporting.DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE;
-                        capabilityStatementReporting.DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE;
                     }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
@@ -118,7 +112,6 @@ public class ReportingService : IReportingService
                     capabilityStatements.Add(jObject.Flatten());
                 }
                 jsonData = JsonConvert.SerializeObject(capabilityStatements);
-                _logger.LogInformation("Creating jsonData");
                 _logger.LogInformation(jsonData);
             }
             return jsonData.Substring(1, jsonData.Length - 2);
