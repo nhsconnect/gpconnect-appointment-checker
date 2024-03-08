@@ -119,7 +119,7 @@ public class CapabilityReportScheduledEventFunction
 
         if (reportSource != null && reportSource.Any())
         {
-            var reportSourceCount = reportSource.Count();
+            var reportSourceCount = reportSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
