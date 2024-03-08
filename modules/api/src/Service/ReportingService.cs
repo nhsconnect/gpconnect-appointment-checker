@@ -95,13 +95,23 @@ public class ReportingService : IReportingService
                         capabilityStatementReporting.Profile = capabilityStatement.Profile;
                         capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
                     }
+                    else if (!capabilityStatement.NoIssues)
+                    {
+                        capabilityStatementReporting.Profile = null;
+                        capabilityStatementReporting.StructuredVersion = null;
+                    }
 
                     var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i]);
                     if (capabilityStatementDocuments != null && capabilityStatementDocuments.NoIssues)
                     {
                         capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                    }                    
+                    }
+                    else if (!capabilityStatementDocuments.NoIssues)
+                    {
+                        capabilityStatementReporting.DocumentsVersion = null;
+                        capabilityStatementReporting.DocumentsInProfile = null;
+                    }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
                     var jObject = JObject.Parse(jsonString);
