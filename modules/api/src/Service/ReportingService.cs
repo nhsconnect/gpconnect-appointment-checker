@@ -67,7 +67,7 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName);
+        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportTabs);
         return memoryStream;
     }
 
@@ -180,7 +180,7 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    public MemoryStream CreateReport(DataTable result, string reportName = "")
+    public MemoryStream CreateReport(DataTable result, string reportName = "", List<string>? reportTabs = null)
     {
         var memoryStream = new MemoryStream();
         var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
@@ -211,6 +211,19 @@ public class ReportingService : IReportingService
         };
 
         sheets.AppendChild(sheet);
+
+        if (reportTabs != null)
+        {
+            for (var i = 0; i < reportTabs.Count; i++)
+            {
+                sheets.AppendChild(new Sheet
+                {
+                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
+                    SheetId = Convert.ToUInt32(i + 2),
+                    Name = reportTabs[i].SearchAndReplace(new Dictionary<string, string>() { { ":", string.Empty } })
+                });
+            }
+        }
 
         BuildWorksheetHeader(sheetData, reportName);
         BuildHeaderRow(sheetData, result.Columns);
