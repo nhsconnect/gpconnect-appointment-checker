@@ -93,24 +93,24 @@ public class ReportingService : IReportingService
                     if (capabilityStatement != null && capabilityStatement.NoIssues)
                     {                        
                         capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                        capabilityStatementReporting.StructuredVersion = $"{capabilityStatement.Version}";
+                        capabilityStatementReporting.StructuredVersion = capabilityStatement.Version;
                     }
                     else
                     {
                         capabilityStatementReporting.Profile = null;
-                        capabilityStatementReporting.StructuredVersion = null;
+                        capabilityStatementReporting.StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE;
                     }
 
                     var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i]);
                     if (capabilityStatementDocuments != null && capabilityStatementDocuments.NoIssues)
                     {
-                        capabilityStatementReporting.DocumentsVersion = $"{capabilityStatementDocuments.Version}";
+                        capabilityStatementReporting.DocumentsVersion = capabilityStatementDocuments.Version;
                         capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
                     }
                     else
                     {
-                        capabilityStatementReporting.DocumentsVersion = null;
-                        capabilityStatementReporting.DocumentsInProfile = null;
+                        capabilityStatementReporting.DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE;
+                        capabilityStatementReporting.DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE;
                     }
 
                     var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
