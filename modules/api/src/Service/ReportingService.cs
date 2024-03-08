@@ -212,6 +212,19 @@ public class ReportingService : IReportingService
 
         sheets.AppendChild(sheet);
 
+        if (reportTabs != null)
+        {
+            for (var i = 0; i < reportTabs.Count; i++)
+            {
+                sheets.AppendChild(new Sheet
+                {
+                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
+                    SheetId = Convert.ToUInt32(i + 2),
+                    Name = reportTabs[i].SearchAndReplace(new Dictionary<string, string>() { { ":", string.Empty } })
+                });
+            }
+        }
+
         BuildWorksheetHeader(sheetData, reportName);
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
