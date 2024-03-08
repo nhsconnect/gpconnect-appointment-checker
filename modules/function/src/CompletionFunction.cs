@@ -22,6 +22,7 @@ public class CompletionFunction
     private readonly SecretManager _secretManager;
     private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
+    private List<string> _reportTabs = new List<string>();
     private string _reportName;
     private Stopwatch _stopwatch;
 
@@ -50,6 +51,7 @@ public class CompletionFunction
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
         _reportName = completionFunctionRequest.ReportName;
+        _reportTabs = completionFunctionRequest.ReportTabs;
         _distributionList = completionFunctionRequest.DistributionList;
         await BundleUpJsonResponsesAndSendReport();
         _stopwatch.Stop();
@@ -65,15 +67,24 @@ public class CompletionFunction
             ObjectPrefix = Objects.Transient
         });
 
-        _lambdaContext.Logger.LogLine($"Bundling up JSON from the objects {string.Join(", ", bucketObjects.Select(x => x.Key).ToArray())}");
-
         var stringBuilder = new StringBuilder();
         foreach (var item in bucketObjects)
         {
             var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
             stringBuilder.Append(bucketObject + ",");
         }
+        await PostSourceJsonData($"[{stringBuilder}]");
         await CreateReport($"[{stringBuilder}]");
+    }
+
+    private async Task PostSourceJsonData(string jsonData)
+    {
+        await StorageManager.Post(new StorageUploadRequest
+        {
+            BucketName = _storageConfiguration.BucketName,
+            InputBytes = Encoding.UTF8.GetBytes(jsonData),
+            Key = $"transient_complete_{DateTime.UtcNow.Ticks}.json"
+        });
     }
 
     private async Task CreateReport(string jsonData)
@@ -86,7 +97,8 @@ public class CompletionFunction
 
         var reportCreationRequest = new ReportCreationRequest
         {
-            JsonData = jsonData
+            JsonData = jsonData,
+            ReportTabs = _reportTabs
         };
 
         if (interactionDetails != null && interactionDetails.Count > 0)
@@ -98,8 +110,6 @@ public class CompletionFunction
         {
             reportCreationRequest.ReportName = _reportName;
         }
-
-        _lambdaContext.Logger.LogLine($"Generating report with the key {reportCreationRequest.ReportKey}");
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,

@@ -67,7 +67,7 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName);
+        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportTabs);
         return memoryStream;
     }
 
@@ -180,7 +180,7 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    public MemoryStream CreateReport(DataTable result, string reportName = "")
+    public MemoryStream CreateReport(DataTable result, string reportName = "", List<string>? reportTabs = null)
     {
         var memoryStream = new MemoryStream();
         var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
