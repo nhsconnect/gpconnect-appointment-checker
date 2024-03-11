@@ -13,6 +13,12 @@ public static class DateTimeExtensions
         return valueIn.HasValue ? valueIn.Value.ToString(dateFormat) : string.Empty;
     }
 
+    public static string IsDateTime(string valueIn, string dateTimeFormat = "dd/MMM/yyyy HH:mm:ss")
+    {
+        DateTime dateValue;
+        return DateTime.TryParse(valueIn, out dateValue) ? dateValue.ToString(dateTimeFormat) : valueIn;
+    }
+
     public static string TimeZoneConverter(this DateTime valueIn, string timeZoneId, string dateTimeFormat = "d MMM yyyy HH:mm:ss")
     {
         DateTime currentTimeZoneInfoLocal = valueIn;
