@@ -65,7 +65,7 @@ public class SQSEventFunction
         }
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
-        _lambdaContext.Logger.LogInformation($"SQSEventFunction with {evnt.Records.Count} records took {_stopwatch.Elapsed.TotalSeconds} to process.");
+        _lambdaContext.Logger.LogInformation($"SQSEventFunction with {evnt.Records.Count} records took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
         return batchResponse;
     }
 

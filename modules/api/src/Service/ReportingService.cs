@@ -15,6 +15,7 @@ using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Linq.Dynamic.Core;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -67,8 +68,7 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        var memoryStream = CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportTabs);
-        return memoryStream;
+        return CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
     public async Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest)
@@ -86,6 +86,7 @@ public class ReportingService : IReportingService
                 {
                     var capabilityStatementReporting = new CapabilityStatementReporting()
                     {
+                        SupplierName = reportInteractionRequest.ReportSource[i].SupplierName,
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]],
                         DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
                         DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
@@ -180,63 +181,78 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    public MemoryStream CreateReport(DataTable result, string reportName = "", List<string>? reportTabs = null)
+    public MemoryStream CreateReport(DataTable result, string reportName = "", List<ReportFilterRequest>? reportFilterRequest = null)
     {
-        var memoryStream = new MemoryStream();
-        var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
-        var workbookPart = spreadsheetDocument.AddWorkbookPart();
-        workbookPart.Workbook = new Workbook();
-        var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+        try
+        {
+            var memoryStream = new MemoryStream();
+            reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
 
+            using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
+            {
+                var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
+
+                var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+                workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
+                workbookStylesPart.Stylesheet.Save();
+
+                if (reportFilterRequest != null)
+                {
+                    for (var i = 0; i < reportFilterRequest.Count; i++)
+                    {
+                        var filteredList = result.AsEnumerable().Where(r => r.Field<string>(reportFilterRequest[i].FilterColumn) == reportFilterRequest[i].FilterValue);
+                        if (filteredList.Any())
+                        {
+                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue);
+                            var toDelete = new List<DataRow>();
+                            toDelete.AddRange(filteredList.AsEnumerable());
+                            toDelete.ForEach(dr => result.Rows.Remove(dr));
+                        }
+                    }
+                    CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
+                }
+                else
+                {
+                    CreateSheet(result, reportName, spreadsheetDocument, 1);
+                }
+
+                spreadsheetDocument.WorkbookPart.Workbook.Save();
+                spreadsheetDocument.Dispose();
+            }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            return memoryStream;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Messed up");
+            throw;
+        }
+    }
+
+    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null)
+    {
+        var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
-
-        WorkbookStylesPart workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
-        workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
-        workbookStylesPart.Stylesheet.Save();
-
-        var workSheet = new Worksheet();
+        worksheetPart.Worksheet = new Worksheet();
 
         var columns = BuildColumns(result);
-        workSheet.Append(columns);
-        workSheet.Append(sheetData);
+        worksheetPart.Worksheet.Append(columns);
+        worksheetPart.Worksheet.Append(sheetData);
 
-        worksheetPart.Worksheet = workSheet;
+        var sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>() ?? spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
+        var relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart);        
 
-        var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
-        var sheet = new Sheet
-        {
-            Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
-            SheetId = 1,
-            Name = reportName.SearchAndReplace(new Dictionary<string, string>() { { ":", string.Empty } })
-        };
-
-        sheets.AppendChild(sheet);
-
-        if (reportTabs != null)
-        {
-            for (var i = 0; i < reportTabs.Count; i++)
-            {
-                sheets.AppendChild(new Sheet
-                {
-                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
-                    SheetId = Convert.ToUInt32(i + 2),
-                    Name = reportTabs[i].SearchAndReplace(new Dictionary<string, string>() { { ":", string.Empty } })
-                });
-            }
-        }
-
-        BuildWorksheetHeader(sheetData, reportName);
+        BuildWorksheetHeader(sheetData, filterValue != null ? $"{reportName} - {filterValue}" : $"{reportName}");
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
 
-        workbookPart.Workbook.Save();
-        spreadsheetDocument.Close();
-
-        memoryStream.Seek(0, SeekOrigin.Begin);
-        return memoryStream;
+        Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = filterValue != null ? $"{filterValue.ReplaceNonAlphanumeric()}" : "Other" };
+        sheets.Append(sheet);
     }
 
-    private Columns BuildColumns(DataTable result)
+    private static Columns BuildColumns(DataTable result)
     {
         var columns = new Columns();
         for (var i = 0; i < result.Columns.Count; i++)
@@ -255,7 +271,7 @@ public class ReportingService : IReportingService
         return columns;
     }
 
-    private void BuildDataRows(SheetData sheetData, DataRowCollection dataRowCollection)
+    private static void BuildDataRows(SheetData sheetData, DataRowCollection dataRowCollection)
     {
         for (var i = 0; i < dataRowCollection.Count; i++)
         {
@@ -268,7 +284,7 @@ public class ReportingService : IReportingService
                 var cell = new Cell
                 {
                     DataType = cellValue.GetCellDataType(),
-                    CellValue = cellValue?.Length > 0 ? new CellValue(IsDateTime(cellValue)) : null
+                    CellValue = cellValue?.Length > 0 ? new CellValue(DateTimeExtensions.IsDateTime(cellValue)) : null
                 };
                 row.AppendChild(cell);
             }
@@ -276,13 +292,7 @@ public class ReportingService : IReportingService
         }
     }
 
-    private string IsDateTime(string cellValue)
-    {
-        DateTime dateValue;
-        return DateTime.TryParse(cellValue, out dateValue) ? dateValue.ToString("dd/MMM/yyyy HH:mm:ss") : cellValue;
-    }
-
-    private void BuildHeaderRow(SheetData sheetData, DataColumnCollection dataColumnCollection)
+    private static void BuildHeaderRow(SheetData sheetData, DataColumnCollection dataColumnCollection)
     {
         var headerRow = new Row();
         for (var j = 0; j < dataColumnCollection.Count; j++)
@@ -298,7 +308,7 @@ public class ReportingService : IReportingService
         sheetData.AppendChild(headerRow);
     }
 
-    private void BuildWorksheetHeader(SheetData sheetData, string reportName)
+    private static void BuildWorksheetHeader(SheetData sheetData, string reportName)
     {
         var row1 = new Row { Height = 55 };
         var titleCell = new Cell

@@ -88,7 +88,7 @@ public class DataService : IDataService
 
             try
             {
-                _dt = _ds.Tables[0];
+                _dt = _ds.Tables[0];                
             }
             catch (PostgresException exc)
             {

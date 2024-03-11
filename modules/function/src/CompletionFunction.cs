@@ -55,7 +55,7 @@ public class CompletionFunction
         _distributionList = completionFunctionRequest.DistributionList;
         await BundleUpJsonResponsesAndSendReport();
         _stopwatch.Stop();
-        _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed.TotalSeconds} to process.");
+        _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
         return HttpStatusCode.OK;
     }
 

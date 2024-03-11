@@ -1,11 +1,19 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace GpConnect.AppointmentChecker.Api.Helpers;
 
 public static class StringExtensions
 {
+    public static string ReplaceNonAlphanumeric(this string input, string replacementCharacter = "_") =>
+        input switch
+        {
+            null or "" => string.Empty,
+            _ => Regex.Replace(input, "[^a-zA-Z0-9]", replacementCharacter)
+        };
+
     public static string FirstCharToUpper(this string input, bool restToLower = false) =>
         input switch
         {
