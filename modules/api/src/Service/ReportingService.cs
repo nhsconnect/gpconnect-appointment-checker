@@ -204,7 +204,7 @@ public class ReportingService : IReportingService
                         var filteredList = result.AsEnumerable().Where(r => r.Field<string>(reportFilterRequest[i].FilterColumn) == reportFilterRequest[i].FilterValue);
                         if (filteredList.Any())
                         {
-                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue);
+                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
                             var toDelete = new List<DataRow>();
                             toDelete.AddRange(filteredList.AsEnumerable());
                             toDelete.ForEach(dr => result.Rows.Remove(dr));
@@ -231,7 +231,7 @@ public class ReportingService : IReportingService
         }
     }
 
-    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null)
+    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null, string? filterTab = null)
     {
         var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
@@ -248,7 +248,7 @@ public class ReportingService : IReportingService
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
 
-        Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = filterValue != null ? $"{filterValue.ReplaceNonAlphanumeric()}" : "Other" };
+        Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other") };
         sheets.Append(sheet);
     }
 
