@@ -22,7 +22,7 @@ public class CompletionFunction
     private readonly SecretManager _secretManager;
     private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
-    private List<string> _reportTabs = new List<string>();
+    private List<ReportFilterRequest> _reportFilterRequest = new List<ReportFilterRequest>();
     private string _reportName;
     private Stopwatch _stopwatch;
 
@@ -51,7 +51,7 @@ public class CompletionFunction
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
         _reportName = completionFunctionRequest.ReportName;
-        _reportTabs = completionFunctionRequest.ReportTabs;
+        _reportFilterRequest = completionFunctionRequest.ReportFilter;
         _distributionList = completionFunctionRequest.DistributionList;
         await BundleUpJsonResponsesAndSendReport();
         _stopwatch.Stop();
@@ -73,18 +73,7 @@ public class CompletionFunction
             var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
             stringBuilder.Append(bucketObject + ",");
         }
-        await PostSourceJsonData($"[{stringBuilder}]");
         await CreateReport($"[{stringBuilder}]");
-    }
-
-    private async Task PostSourceJsonData(string jsonData)
-    {
-        await StorageManager.Post(new StorageUploadRequest
-        {
-            BucketName = _storageConfiguration.BucketName,
-            InputBytes = Encoding.UTF8.GetBytes(jsonData),
-            Key = $"transient_complete_{DateTime.UtcNow.Ticks}.json"
-        });
     }
 
     private async Task CreateReport(string jsonData)
@@ -98,7 +87,7 @@ public class CompletionFunction
         var reportCreationRequest = new ReportCreationRequest
         {
             JsonData = jsonData,
-            ReportTabs = _reportTabs
+            ReportFilter = _reportFilterRequest
         };
 
         if (interactionDetails != null && interactionDetails.Count > 0)
