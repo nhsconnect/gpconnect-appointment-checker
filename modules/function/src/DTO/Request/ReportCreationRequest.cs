@@ -7,6 +7,6 @@ public class ReportCreationRequest
     public string JsonData { get; set; }
     public string ReportName { get; set; }
     public string ReportKey => $"{Helpers.Constants.Objects.GpConnect}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ReportName?.ReplaceNonAlphanumeric()}.xlsx".ToLower();
-    public List<string> ReportTabs { get; set; }
+    public List<ReportFilterRequest> ReportFilter { get; set; }
     public byte[]? ReportBytes { get; set; } = null;
 }
