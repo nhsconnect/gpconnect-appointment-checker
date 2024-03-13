@@ -17,7 +17,7 @@ begin
 	from 
 		reporting.list r
 	where 
-		r.interaction_id is null
+		r.interaction is null
 		and r.function_name is not null
 	order by 
 		r.report_name;	
