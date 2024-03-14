@@ -80,7 +80,7 @@ public class OrganisationService : IOrganisationService
                 const string ICB = "ICB";
                 const string NHSER = "NHSER";
 
-                var baseCodeSystem = await GetResponse($"authoring/fhir/CodeSystem/$lookup?system=https://fhir.nhs.uk/Id/ods-organization-code&code={odsCode}&property={RE6}");
+                var baseCodeSystem = await GetResponse($"{_config.Value.HierarchyFhirBaseUrl}&code={odsCode}&property={RE6}");
                 if (baseCodeSystem != null)
                 {
                     var partValue = (baseCodeSystem.Parameter.Where(x => x.Part != null && x.Part.Count(y => y.ValueCode == RE6) > 0)).ElementAtOrDefault(0);
@@ -88,7 +88,7 @@ public class OrganisationService : IOrganisationService
                     hierarchy.IcbName = (await GetOrganisation(hierarchy.IcbCode))?.OrganisationName;
                 }
 
-                baseCodeSystem = await GetResponse($"authoring/fhir/CodeSystem/$lookup?system=https://ods-prototype/postcode&code={postCode}&property={ICB}&property={NHSER}");
+                baseCodeSystem = await GetResponse($"{_config.Value.HierarchyOdsBaseUrl}&code={postCode}&property={ICB}&property={NHSER}");
 
                 if (baseCodeSystem != null)
                 {

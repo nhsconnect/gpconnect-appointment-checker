@@ -7,4 +7,6 @@ public class OrganisationConfig
     public string HierarchyOdsApiUrl { get; set; } = "";
     public string HierarchyOdsApiClientId { get; set; } = "";
     public string HierarchyOdsApiClientSecret { get; set; } = "";
+    public string HierarchyFhirBaseUrl { get; set; } = "";
+    public string HierarchyOdsBaseUrl { get; set; } = "";
 }
