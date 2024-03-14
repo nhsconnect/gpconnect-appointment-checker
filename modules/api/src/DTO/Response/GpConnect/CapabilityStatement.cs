@@ -43,7 +43,7 @@ public class CapabilityStatement
 
     public bool NoIssues => Issue?.Count == 0 || Issue == null;
 
-    public string ProviderError => Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Display;
-    public string ProviderErrorCode => Issue?.FirstOrDefault()?.Details.Coding.FirstOrDefault()?.Code;
+    public string ProviderError => Issue?.FirstOrDefault()?.Details.Coding?.FirstOrDefault()?.Display;
+    public string ProviderErrorCode => Issue?.FirstOrDefault()?.Details.Coding?.FirstOrDefault()?.Code;
     public string ProviderErrorDiagnostics => StringExtensions.Coalesce(Issue?.FirstOrDefault()?.Diagnostics, Issue?.FirstOrDefault()?.Details.Text);
 }

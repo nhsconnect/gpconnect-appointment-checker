@@ -28,7 +28,7 @@ public class CapabilityStatement : ICapabilityStatement
         _spineMessage = new SpineMessage();
     }
 
-    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string? interactionId = null)
+    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string? interactionId = null, TimeSpan? timeoutOverride = null)
     {
         var getRequest = new HttpRequestMessage();
         var stopWatch = new Stopwatch();
@@ -43,6 +43,8 @@ public class CapabilityStatement : ICapabilityStatement
             _spineMessage.SpineMessageTypeId = (int)requestParameters.SpineMessageTypeId;
 
             var client = _httpClientFactory.CreateClient("GpConnectClient");
+            client.Timeout = timeoutOverride ?? client.Timeout;
+
             _slotSearchDependencies.AddRequiredRequestHeaders(requestParameters, client);
             _spineMessage.RequestHeaders = client.DefaultRequestHeaders.ToString();
 
@@ -68,7 +70,7 @@ public class CapabilityStatement : ICapabilityStatement
             else
             {
                 capabilityStatement = new DTO.Response.GpConnect.CapabilityStatement();
-                capabilityStatement.Issue.Add(new Issue() { Details = new Detail() { Text = "Response was not valid" } });
+                capabilityStatement.Issue.Add(new Issue() { Details = new Detail() { Coding = new List<Coding>() { new() { Code = response.StatusCode.ToString(), Display = "Response was not valid" } } } });
             }
             return capabilityStatement;
 
