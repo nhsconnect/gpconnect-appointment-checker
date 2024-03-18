@@ -9,4 +9,5 @@ public class OrganisationConfig
     public string HierarchyOdsApiClientSecret { get; set; } = "";
     public string HierarchyFhirBaseUrl { get; set; } = "";
     public string HierarchyOdsBaseUrl { get; set; } = "";
+    public int RecordLimit { get; set; }
 }

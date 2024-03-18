@@ -6,5 +6,6 @@ public interface IOrganisationService
 {
     public Task<DTO.Response.Organisation.Organisation> GetOrganisation(string odsCode);
     public Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes);
+    public Task<List<string>> GetOrganisationsFromOdsByRole(string[] roles);
     public Task<Hierarchy> GetOrganisationHierarchy(string odsCode);
 }

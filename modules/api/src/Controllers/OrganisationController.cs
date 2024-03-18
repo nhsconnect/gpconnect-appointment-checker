@@ -1,5 +1,6 @@
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Emit;
 
 namespace GpConnect.AppointmentChecker.Api.Controllers;
 
@@ -24,6 +25,18 @@ public class OrganisationController : ControllerBase
             return NotFound();
         }
         return Ok(site);
+    }
+
+    [HttpGet("ods", Name = "GetOrganisationsFromOdsByRole")]
+    public async Task<IActionResult> GetOrganisationsFromOdsByRoleAsync([FromQuery] string roles)
+    {
+        var sites = await _service.GetOrganisationsFromOdsByRole(roles.Split(","));
+
+        if (sites == null)
+        {
+            return NotFound();
+        }
+        return Ok(sites);
     }
 
     [HttpGet]

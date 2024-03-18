@@ -1,9 +1,10 @@
 ﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Fhir;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Net.Http.Headers;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
@@ -49,6 +50,36 @@ public class OrganisationService : IOrganisationService
         return null;
     }
 
+    public async Task<List<string>> GetOrganisationsFromOdsByRole(string[] roles)
+    {
+        var bundle = new List<string>();
+        var queryStringBuilder = new QueryBuilder();
+        for (int i = 0; i < roles.Length; i++)
+        {
+            queryStringBuilder.Add("ods-org-role", roles[i]);
+        }
+        var page = 1;
+        var hasNext = true;
+        queryStringBuilder.Add("_count", _config.Value.RecordLimit.ToString());        
+
+        while (hasNext)
+        {
+            var response = await _fhirReadClient.GetAsync($"{queryStringBuilder}&_page={page}");
+            if (response.IsSuccessStatusCode)
+            {
+              var body = await response.Content.ReadAsStringAsync();
+                var resource = JsonConvert.DeserializeObject<Organisation>(body, _options);
+                if (resource != null)
+                {
+                    bundle.AddRange(from entry in resource.Entries select entry.Resource.OdsCode);
+                    hasNext = resource.HasNext;
+                }
+            }
+            page++;
+        }
+        return bundle;
+    }
+
     public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
         _bearerToken = await GetBearerToken();
@@ -74,7 +105,7 @@ public class OrganisationService : IOrganisationService
             {
                 var postCode = organisation.PostalAddress.PostCode;
                 hierarchy.Postcode = postCode;
-                hierarchy.SiteName = organisation.OrganisationName;                
+                hierarchy.SiteName = organisation.OrganisationName;
 
                 const string RE6 = "RE6";
                 const string ICB = "ICB";

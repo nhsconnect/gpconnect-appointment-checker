@@ -8,6 +8,7 @@ public class Bundle
     public string id { get; set; }
     public RootMeta meta { get; set; }
     public string type { get; set; }
+    public List<RootLink> link { get; set; }
     public List<RootEntry> entry { get; set; }
     [JsonProperty("issue")]
     public List<Issue> Issue { get; set; }
