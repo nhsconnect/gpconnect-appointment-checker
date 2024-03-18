@@ -64,6 +64,8 @@ public class Spine
         [JsonProperty("address")]
         public string Address { get; set; }
 
+        [JsonProperty("id")]
+        public string Id { get; set; }
     }
 
     public class Entry

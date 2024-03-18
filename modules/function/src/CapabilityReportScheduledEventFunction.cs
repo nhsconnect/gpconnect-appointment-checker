@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
+using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
@@ -44,12 +45,13 @@ public class CapabilityReportScheduledEventFunction
         };
     }
 
-    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(ScheduledFunctionRequest scheduledFunctionRequest, ILambdaContext lambdaContext)
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
         await Reset(Objects.Interaction, Objects.Transient);
-        var messages = await AddMessagesToQueue();
+        var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
+        var messages = await AddMessagesToQueue(odsList);        
         var list = await GenerateMessages(messages);
         _stopwatch.Stop();        
         _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
@@ -66,6 +68,22 @@ public class CapabilityReportScheduledEventFunction
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
+    }
+
+    public async Task<string[]> GetOdsData(string[] roles)
+    {
+        var queryBuilder = new QueryBuilder
+        {
+            { "roles", roles.ToString() }
+        };
+        var response = await _httpClient.GetWithHeadersAsync($"/organisation/ods{queryBuilder.ToQueryString}", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
     private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequests)
@@ -112,9 +130,11 @@ public class CapabilityReportScheduledEventFunction
         }
     }
 
-    private async Task<List<MessagingRequest>> AddMessagesToQueue()
+    private async Task<List<MessagingRequest>> AddMessagesToQueue(string[] odsList)
     {
-        var reportSource = await LoadReportSource();
+        var codesSuppliers = await LoadReportSource();
+        var reportSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
+
         var messages = new List<MessagingRequest>();
 
         if (reportSource != null && reportSource.Any())

@@ -26,6 +26,18 @@ public class OrganisationController : ControllerBase
         return Ok(site);
     }
 
+    [HttpGet("ods", Name = "GetOrganisationsFromOdsByRole")]
+    public async Task<IActionResult> GetOrganisationsFromOdsByRoleAsync([FromQuery] string roles)
+    {
+        var sites = await _service.GetOrganisationsFromOdsByRole(roles.Split(","));
+
+        if (sites == null)
+        {
+            return NotFound();
+        }
+        return Ok(sites);
+    }
+
     [HttpGet]
     [Route("{odsCode}/hierarchy")]
     public async Task<IActionResult> GetSiteHierarchyAsync([FromRoute] string odsCode)
