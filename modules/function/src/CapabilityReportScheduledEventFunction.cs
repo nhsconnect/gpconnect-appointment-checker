@@ -77,8 +77,6 @@ public class CapabilityReportScheduledEventFunction
             { "roles", string.Join(",", roles) }
         };
 
-        _lambdaContext.Logger.LogLine($"/organisation/ods{queryBuilder.ToQueryString()}");
-
         var response = await _httpClient.GetWithHeadersAsync($"/organisation/ods{queryBuilder.ToQueryString()}", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
