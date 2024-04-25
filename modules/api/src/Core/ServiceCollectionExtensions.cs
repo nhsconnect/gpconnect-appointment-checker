@@ -65,6 +65,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IExportService, ExportService>();
         services.AddScoped<IMessageService, MessageService>();
+        services.AddScoped<IWorkflowService, WorkflowService>();
+        services.AddScoped<IInteractionService, InteractionService>();
 
         services.AddResponseCaching();
         services.AddResponseCompression();
