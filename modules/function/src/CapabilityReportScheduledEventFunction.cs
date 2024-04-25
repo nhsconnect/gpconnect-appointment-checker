@@ -152,8 +152,8 @@ public class CapabilityReportScheduledEventFunction
             for (var i = 0; i < capabilityReports.Count; i++)
             {                
                 var interactionRequest = new InteractionRequest { 
-                    WorkflowId = capabilityReports[i].Workflow.FirstOrDefault(), 
-                    InteractionId = capabilityReports[i].Interaction.FirstOrDefault(), 
+                    WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
+                    InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
                     ReportName = capabilityReports[i].ReportName 
                 };
 
