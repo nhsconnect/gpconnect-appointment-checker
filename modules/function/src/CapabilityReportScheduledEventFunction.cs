@@ -157,7 +157,7 @@ public class CapabilityReportScheduledEventFunction
                 await StorageManager.Post(new StorageUploadRequest
                 {
                     BucketName = _storageConfiguration.BucketName,
-                    Key = capabilityReports[i].InteractionKey,
+                    Key = capabilityReports[i].ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
@@ -168,6 +168,7 @@ public class CapabilityReportScheduledEventFunction
                         ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         Interaction = capabilityReports[i].Interaction,
+                        Workflow = capabilityReports[i].Workflow,
                         MessageGroupId = messageGroupId
                     });
                     x += batchSize;

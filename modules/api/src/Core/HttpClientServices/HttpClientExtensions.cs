@@ -12,17 +12,23 @@ public static class HttpClientExtensions
 {
     public static void AddHttpClientServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
-        GetHttpClient(services, configuration, env, "FhirReadClient", false);
-        GetHttpClient(services, configuration, env, "HierarchyClient", false);
-        GetHttpClient(services, configuration, env, "GpConnectClient", true);
+        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.FHIRREADCLIENT, false);
+        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.HIERARCHYCLIENT, false);
+        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.GPCONNECTCLIENT, true);
+        GetMeshClient(services, configuration, env);
     }
 
-    private static void GetHttpClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env, string clientName, bool handleSSP)
+    private static void GetMeshClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    {
+        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.MESHCLIENT, true, "application/vnd.mesh.v2+json");
+    }
+
+    private static void GetHttpClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env, string clientName, bool handleSSP, string mediaType = "application/fhir+json")
     {
         services.AddHttpClient(clientName, options =>
         {
             options.Timeout = TimeSpan.FromSeconds(60);
-            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
+            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }).AugmentHttpClientBuilder(env, configuration, handleSSP);
     }

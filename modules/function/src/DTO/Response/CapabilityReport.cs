@@ -11,6 +11,9 @@ public class CapabilityReport
     [JsonProperty("interactions")]
     public List<string> Interaction { get; set; }
 
-    public string InteractionKey => $"{Helpers.Constants.Objects.Interaction}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.json".ToLower();
+    [JsonProperty("workflows")]
+    public List<string> Workflow { get; set; }
+
+    public string ObjectKey => $"{ReportName.ReplaceNonAlphanumeric()}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.json".ToLower();
 
 }

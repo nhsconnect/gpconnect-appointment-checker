@@ -36,7 +36,7 @@ public class FhirRequestExecution : IFhirRequestExecution
             var sw = new Stopwatch();
             sw.Start();
 
-            var client = _httpClientFactory.CreateClient("GpConnectClient");
+            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);
             client.DefaultRequestHeaders.Add(Headers.ApiKey, _spineOptionsDelegate.Value.SpineFhirApiKey);
 
             getRequest.Method = HttpMethod.Get;

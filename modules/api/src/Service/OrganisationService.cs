@@ -1,6 +1,7 @@
 ﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Fhir;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
@@ -25,8 +26,8 @@ public class OrganisationService : IOrganisationService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory;
 
-        _fhirReadClient = _httpClientFactory.CreateClient("FhirReadClient");
-        _hierarchyClient = _httpClientFactory.CreateClient("HierarchyClient");
+        _fhirReadClient = _httpClientFactory.CreateClient(Clients.FHIRREADCLIENT);
+        _hierarchyClient = _httpClientFactory.CreateClient(Clients.HIERARCHYCLIENT);
 
         _options = new JsonSerializerSettings
         {
