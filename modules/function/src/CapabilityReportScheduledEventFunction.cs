@@ -151,7 +151,12 @@ public class CapabilityReportScheduledEventFunction
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {                
-                var interactionRequest = new InteractionRequest { InteractionId = capabilityReports[i].Interaction[0], ReportName = capabilityReports[i].ReportName };
+                var interactionRequest = new InteractionRequest { 
+                    WorkflowId = capabilityReports[i].Workflow.FirstOrDefault(), 
+                    InteractionId = capabilityReports[i].Interaction.FirstOrDefault(), 
+                    ReportName = capabilityReports[i].ReportName 
+                };
+
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
 
                 await StorageManager.Post(new StorageUploadRequest
