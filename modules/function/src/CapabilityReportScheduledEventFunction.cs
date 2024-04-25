@@ -51,7 +51,7 @@ public class CapabilityReportScheduledEventFunction
         _lambdaContext = lambdaContext;
         await Reset(Objects.Interaction, Objects.Transient);
         var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
-        var messages = await AddMessagesToQueue(odsList);        
+        var messages = await AddMessagesToQueue(odsList);
         var list = await GenerateMessages(messages);
         _stopwatch.Stop();        
         _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");

@@ -4,16 +4,10 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
-using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
-using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
-using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
-using JsonFlatten;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Linq.Dynamic.Core;
 
@@ -22,30 +16,18 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 public class ReportingService : IReportingService
 {
     private readonly ILogger<ReportingService> _logger;
-    private readonly ITokenService _tokenService;
     private readonly IDataService _dataService;
-    private readonly ISpineService _spineService;
-    private readonly IOrganisationService _organisationService;
-    private readonly IConfigurationService _configurationService;
     private readonly IMessageService _messageService;
     private readonly IWorkflowService _workflowService;
     private readonly IInteractionService _interactionService;
-    private readonly ICapabilityStatement _capabilityStatement;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ReportingService(ILogger<ReportingService> logger, IConfigurationService configurationService, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IInteractionService interactionService, IWorkflowService workflowService, IHttpContextAccessor httpContextAccessor)
+    public ReportingService(ILogger<ReportingService> logger, IMessageService messageService, IDataService dataService, IInteractionService interactionService, IWorkflowService workflowService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _tokenService = tokenService;
-        _spineService = spineService;
-        _organisationService = organisationService;
-        _configurationService = configurationService;
-        _capabilityStatement = capabilityStatement;
-        _messageService = messageService;
-        _dataService = dataService;
-        _workflowService = workflowService;
-        _interactionService = interactionService;
-        _httpContextAccessor = httpContextAccessor;
+        _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+        _dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
+        _workflowService = workflowService ?? throw new ArgumentNullException(nameof(workflowService));
+        _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
     }
 
     public async Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest)
