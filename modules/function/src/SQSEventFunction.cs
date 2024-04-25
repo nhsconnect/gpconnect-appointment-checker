@@ -4,6 +4,7 @@ using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -49,12 +50,12 @@ public class SQSEventFunction
         {
             try
             {
-                var reportInteraction = await ProcessMessageAsync(message);
-                var response = await GenerateCapabilityReport(reportInteraction);
+                var reportRequest = await ProcessMessageAsync(message);                
+                var response = await RouteReportRequest(reportRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    await GenerateTransientJsonForReport(reportInteraction.InteractionKeyJson, response);
+                    await GenerateTransientJsonForReport(reportRequest.ObjectKeyJson, response);
                 }
                 await Task.CompletedTask;
             }
@@ -81,7 +82,8 @@ public class SQSEventFunction
                 {
                     ReportSource = messageRequest.ReportSource,
                     ReportName = messageRequest.ReportName,
-                    Interaction = messageRequest.Interaction
+                    Interaction = messageRequest.Interaction,
+                    Workflow = messageRequest.Workflow
                 };
             }
             
@@ -95,7 +97,7 @@ public class SQSEventFunction
         }
     }
 
-    private async Task<HttpResponseMessage?> GenerateCapabilityReport(ReportInteraction reportInteraction)
+    private async Task<HttpResponseMessage?> RouteReportRequest(ReportInteraction reportInteraction)
     {
         try
         {            
@@ -103,7 +105,7 @@ public class SQSEventFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractiondata", new Dictionary<string, string>()
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/routereportrequest", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
@@ -118,7 +120,7 @@ public class SQSEventFunction
         }
     }
 
-    private async Task<string?> GenerateTransientJsonForReport(string interactionKeyJson, HttpResponseMessage? httpResponseMessage)
+    private async Task<string?> GenerateTransientJsonForReport(string objectKeyJson, HttpResponseMessage? httpResponseMessage)
     {
         if (httpResponseMessage != null)
         {
@@ -126,7 +128,7 @@ public class SQSEventFunction
             var url = await StorageManager.Post(new StorageUploadRequest()
             {
                 BucketName = _storageConfiguration.BucketName,
-                Key = interactionKeyJson,
+                Key = objectKeyJson,
                 InputBytes = inputBytes
             });
             return url;

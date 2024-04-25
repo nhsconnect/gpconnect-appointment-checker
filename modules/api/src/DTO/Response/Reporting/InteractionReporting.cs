@@ -1,9 +1,10 @@
-﻿using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
+﻿using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using Newtonsoft.Json;
 
-namespace GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
+namespace gpconnect_appointment_checker.api.DTO.Response.Reporting;
 
-public class CapabilityStatementReporting
+public class InteractionReporting
 {
     [JsonIgnore]
     public Hierarchy Hierarchy { get; set; }
@@ -46,15 +47,15 @@ public class CapabilityStatementReporting
 
     private string CheckProfileSegment(string profileValue)
     {
-        return Profile != null ? (Profile?.Count(x => x.reference.ToUpper().Contains(profileValue)) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
+        return Profile != null ? Profile?.Count(x => x.reference.ToUpper().Contains(profileValue)) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
     }
 
     [JsonProperty("Medications")]
-    public string MedicationsInProfile => Profile != null ? ((
-        Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATION")) > 0 && 
-        Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATIONSTATEMENT")) > 0 && 
+    public string MedicationsInProfile => Profile != null ? 
+        Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATION")) > 0 &&
+        Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATIONSTATEMENT")) > 0 &&
         Profile?.Count(x => x.reference.ToUpper().Contains("MEDICATIONREQUEST")) > 0
-        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
+         ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
 
     [JsonProperty("Immunisations")]
     public string ImmunisationsInProfile => CheckProfileSegment("IMMUNIZATION");
@@ -69,10 +70,10 @@ public class CapabilityStatementReporting
     public string UncategorisedDataInProfile => CheckProfileSegment("OBSERVATION");
 
     [JsonProperty("Investigations")]
-    public string InvestigationsInProfile => Profile != null ? ((
+    public string InvestigationsInProfile => Profile != null ? 
         Profile?.Count(x => x.reference.ToUpper().Contains("DIAGNOSTICREPORT")) > 0 &&
         Profile?.Count(x => x.reference.ToUpper().Contains("SPECIMEN")) > 0
-        ) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE) : ActiveInactiveConstants.NOTAVAILABLE;
+         ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE : ActiveInactiveConstants.NOTAVAILABLE;
 
     [JsonProperty("Diary_Entries")]
     public string DiaryEntriesInProfile => CheckProfileSegment("PROCEDUREREQUEST");

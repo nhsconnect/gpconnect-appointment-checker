@@ -77,8 +77,6 @@ public class CapabilityReportScheduledEventFunction
             { "roles", string.Join(",", roles) }
         };
 
-        _lambdaContext.Logger.LogLine($"/organisation/ods{queryBuilder.ToQueryString()}");
-
         var response = await _httpClient.GetWithHeadersAsync($"/organisation/ods{queryBuilder.ToQueryString()}", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
@@ -159,7 +157,7 @@ public class CapabilityReportScheduledEventFunction
                 await StorageManager.Post(new StorageUploadRequest
                 {
                     BucketName = _storageConfiguration.BucketName,
-                    Key = capabilityReports[i].InteractionKey,
+                    Key = capabilityReports[i].ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
@@ -170,6 +168,7 @@ public class CapabilityReportScheduledEventFunction
                         ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         Interaction = capabilityReports[i].Interaction,
+                        Workflow = capabilityReports[i].Workflow,
                         MessageGroupId = messageGroupId
                     });
                     x += batchSize;

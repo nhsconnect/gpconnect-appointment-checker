@@ -6,7 +6,10 @@ public class ReportInteraction
 {
     public List<ReportSource> ReportSource { get; set; } = null;
     public List<string> Interaction { get; set; }
-    public string InteractionKeyJson => $"{Helpers.Constants.Objects.Transient}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ Guid.NewGuid() }_{ ReportName?.ReplaceNonAlphanumeric()}_{Interaction[0]?.ReplaceNonAlphanumeric() }.json".ToLower();
+    public List<string> Workflow { get; set; }
+    public bool IsWorkflow => !Interaction.Any() && Workflow.Any();
+    public bool IsInteraction => Interaction.Any() && !Workflow.Any();
+    public string ObjectKeyJson => $"{Helpers.Constants.Objects.Transient}_{ReportName?.ReplaceNonAlphanumeric()}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{ Guid.NewGuid() }_{Interaction[0]?.ReplaceNonAlphanumeric() }.json".ToLower();
     public string? ReportName { get; set; } = null;
     public string? PreSignedUrl { get; set; } = null;
 }

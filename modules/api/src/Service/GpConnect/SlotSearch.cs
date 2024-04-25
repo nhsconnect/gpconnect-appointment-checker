@@ -43,7 +43,7 @@ public class SlotSearch : ISlotSearch
             stopWatch.Start();
             _spineMessage.SpineMessageTypeId = (int)requestParameters.SpineMessageTypeId;
 
-            var client = _httpClientFactory.CreateClient("GpConnectClient");
+            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);
 
             client.Timeout = new TimeSpan(0, 0, requestParameters.RequestTimeout);
             _slotSearchDependencies.AddRequiredRequestHeaders(requestParameters, client);

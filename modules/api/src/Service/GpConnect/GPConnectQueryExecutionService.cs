@@ -52,10 +52,4 @@ public class GpConnectQueryExecutionService : IGpConnectQueryExecutionService
         }
         return slotSimple;
     }
-
-    //public async Task<DTO.Response.GpConnect.CapabilityStatement> ExecuteFhirCapabilityStatement(RequestParameters requestParameters, string baseAddress)
-    //{
-    //    var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, baseAddress);
-    //    return capabilityStatement;
-    //}
 }

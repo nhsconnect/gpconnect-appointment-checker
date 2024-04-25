@@ -42,7 +42,7 @@ public class CapabilityStatement : ICapabilityStatement
 
             _spineMessage.SpineMessageTypeId = (int)requestParameters.SpineMessageTypeId;
 
-            var client = _httpClientFactory.CreateClient("GpConnectClient");
+            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);
             client.Timeout = timeoutOverride ?? client.Timeout;
 
             _slotSearchDependencies.AddRequiredRequestHeaders(requestParameters, client);

@@ -28,10 +28,12 @@ public class ReportingService : IReportingService
     private readonly IOrganisationService _organisationService;
     private readonly IConfigurationService _configurationService;
     private readonly IMessageService _messageService;
+    private readonly IWorkflowService _workflowService;
+    private readonly IInteractionService _interactionService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ReportingService(ILogger<ReportingService> logger, IConfigurationService configurationService, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public ReportingService(ILogger<ReportingService> logger, IConfigurationService configurationService, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IInteractionService interactionService, IWorkflowService workflowService, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenService = tokenService;
@@ -41,6 +43,8 @@ public class ReportingService : IReportingService
         _capabilityStatement = capabilityStatement;
         _messageService = messageService;
         _dataService = dataService;
+        _workflowService = workflowService;
+        _interactionService = interactionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -71,81 +75,23 @@ public class ReportingService : IReportingService
         return CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
-    public async Task<string> CreateInteractionData(ReportInteractionRequest reportInteractionRequest)
+    public async Task<string> RouteReportRequest(RouteReportRequest routeReportRequest)
     {
         try
         {
-            var odsCodesInScope = reportInteractionRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
-            string? jsonData = null;
-            var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
-            var capabilityStatements = new List<IDictionary<string, object>>();
-
-            if (odsCodesInScope.Count > 0)
+            switch (routeReportRequest.IsInteraction)
             {
-                for (var i = 0; i < odsCodesInScope.Count; i++)
-                {
-                    var capabilityStatementReporting = new CapabilityStatementReporting()
-                    {
-                        SupplierName = reportInteractionRequest.ReportSource[i].SupplierName,
-                        Hierarchy = organisationHierarchy[odsCodesInScope[i]],
-                        DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
-                        DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
-                        Profile = null,
-                        StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE
-                    };
-
-                    var capabilityStatement = await GetInteractionData(reportInteractionRequest.Interaction[0], odsCodesInScope[i]);
-                    if (capabilityStatement != null && capabilityStatement.NoIssues)
-                    {
-                        capabilityStatementReporting.Profile = capabilityStatement.Profile;
-                        capabilityStatementReporting.StructuredVersion = $"v{capabilityStatement.Version}";
-                    }
-
-                    var capabilityStatementDocuments = await GetInteractionData(reportInteractionRequest.Interaction[1], odsCodesInScope[i]);
-                    if (capabilityStatementDocuments != null && capabilityStatementDocuments.NoIssues)
-                    {
-                        capabilityStatementReporting.DocumentsVersion = $"v{capabilityStatementDocuments.Version}";
-                        capabilityStatementReporting.DocumentsInProfile = capabilityStatementDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                    }
-
-                    var jsonString = JsonConvert.SerializeObject(capabilityStatementReporting);
-                    var jObject = JObject.Parse(jsonString);
-                    capabilityStatements.Add(jObject.Flatten());
-                }
-                jsonData = JsonConvert.SerializeObject(capabilityStatements);
+                case true:
+                    return await _interactionService.CreateInteractionData(routeReportRequest);
+                case false:
+                    return await _workflowService.CreateWorkflowData(routeReportRequest);
             }
-            return jsonData.Substring(1, jsonData.Length - 2);
         }
         catch (Exception exc)
         {
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
-    }
-
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode)
-    {
-        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
-
-        if (providerSpineDetails != null)
-        {
-            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
-            var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
-            {
-                RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
-                ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode },
-                SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
-                Sid = Guid.NewGuid().ToString()
-            });
-
-            if (requestParameters != null)
-            {
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(2));
-                return capabilityStatement;
-            }
-        }
-        return null;
     }
 
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)

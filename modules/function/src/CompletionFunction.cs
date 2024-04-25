@@ -64,7 +64,7 @@ public class CompletionFunction
         var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
-            ObjectPrefix = Objects.Transient
+            ObjectPrefix = $"{Objects.Transient}_{_reportName.ReplaceNonAlphanumeric()}"
         });
 
         var stringBuilder = new StringBuilder();
