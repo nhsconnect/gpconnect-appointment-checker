@@ -81,7 +81,7 @@ public class WorkflowService : IWorkflowService
 
         try
         {
-            var client = _httpClientFactory.CreateClient(Clients.MESHCLIENT);            
+            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);            
             getRequest.Method = HttpMethod.Get;
             getRequest.RequestUri = new Uri($"{_meshOptionsDelegate.Value.MeshHostname}/{_meshOptionsDelegate.Value.EndpointAddress}/{odsCode}/{workflow}");
 
@@ -103,7 +103,7 @@ public class WorkflowService : IWorkflowService
         }
         catch (Exception exc)
         {
-            _logger.LogError(exc, $"An error occurred in trying to execute a GET request - {getRequest}");
+            _logger.LogError(exc, $"An error occurred in trying to execute a GetWorkflowData request - {getRequest}");
             throw;
         }
     }
