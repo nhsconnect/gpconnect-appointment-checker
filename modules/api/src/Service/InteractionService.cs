@@ -40,6 +40,8 @@ public class InteractionService : IInteractionService
     {
         try
         {
+            _logger.LogInformation("Trying to generate InteractionService.CreateInteractionData: " + routeReportRequest.ReportName);
+
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
@@ -58,6 +60,9 @@ public class InteractionService : IInteractionService
                         Profile = null,
                         StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE
                     };
+
+                    _logger.LogInformation("Executing GetInteractionData: " + routeReportRequest.Interaction[0]);
+                    _logger.LogInformation("Executing GetInteractionData: " + odsCodesInScope[i]);
 
                     var interactionData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                     if (interactionData != null && interactionData.NoIssues)

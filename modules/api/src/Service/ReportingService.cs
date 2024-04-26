@@ -38,6 +38,8 @@ public class ReportingService : IReportingService
             Formatting = Formatting.Indented
         });
 
+        _logger.LogInformation("SendMessageToCreateInteractionReportContent: " + request.ToString());
+
         await _messageService.SendMessageToQueue(new SendMessageRequest()
         {
             MessageGroupId = reportInteractionRequest.MessageGroupId.ToString(),
@@ -64,8 +66,10 @@ public class ReportingService : IReportingService
             switch (routeReportRequest.IsInteraction)
             {
                 case true:
+                    _logger.LogInformation("_interactionService.CreateInteractionData: " + routeReportRequest.ReportName);
                     return await _interactionService.CreateInteractionData(routeReportRequest);
                 case false:
+                    _logger.LogInformation("_workflowService.CreateWorkflowData: " + routeReportRequest.ReportName);
                     return await _workflowService.CreateWorkflowData(routeReportRequest);
             }
         }
