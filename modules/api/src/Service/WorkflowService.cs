@@ -81,7 +81,7 @@ public class WorkflowService : IWorkflowService
 
         try
         {
-            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);            
+            var client = _httpClientFactory.CreateClient(Clients.MESHCLIENT);
             getRequest.Method = HttpMethod.Get;
             getRequest.RequestUri = new Uri($"{_meshOptionsDelegate.Value.MeshHostname}/{_meshOptionsDelegate.Value.EndpointAddress}/{odsCode}/{workflow}");
 
