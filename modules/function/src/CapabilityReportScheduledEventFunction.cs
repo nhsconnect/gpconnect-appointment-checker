@@ -95,6 +95,10 @@ public class CapabilityReportScheduledEventFunction
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
 
+            _lambdaContext.Logger.LogLine("In CapabilityReportScheduledEventFunction - GenerateMessages");
+            _lambdaContext.Logger.LogLine(json.ToString());
+            
+
             var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
@@ -146,11 +150,12 @@ public class CapabilityReportScheduledEventFunction
             var batchSize = 20;
             var iterationCount = reportSourceCount / batchSize;
             var x = 0;
-            var y = 0;
-            var messageGroupId = Guid.NewGuid();
+            var y = 0;            
 
             for (var i = 0; i < capabilityReports.Count; i++)
-            {                
+            {
+                var messageGroupId = Guid.NewGuid();
+
                 var interactionRequest = new InteractionRequest { 
                     WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
                     InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
@@ -165,6 +170,11 @@ public class CapabilityReportScheduledEventFunction
                     Key = capabilityReports[i].ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
+
+                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].ReportName " + capabilityReports[i].ReportName);
+                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Interaction " + capabilityReports[i].Interaction);
+                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Workflow " + capabilityReports[i].Workflow);
+                _lambdaContext.Logger.LogLine("Generating messages for messageGroupId " + messageGroupId);
 
                 while (y <= iterationCount)
                 {
