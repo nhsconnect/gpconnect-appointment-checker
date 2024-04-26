@@ -4,12 +4,9 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Response.Mesh;
 
 public class Result
 {
-    [JsonProperty("endpoint_type")]
-    public string EndPointType { get; set; }
+    [JsonProperty("mailbox_id")]
+    public string MailboxId { get; set; }
 
-    [JsonProperty("description")]
-    public string Description { get; set; }
-
-    [JsonProperty("address")]
-    public string Address { get; set; }
+    [JsonProperty("mailbox_name")]
+    public string MailboxName { get; set; }
 }
