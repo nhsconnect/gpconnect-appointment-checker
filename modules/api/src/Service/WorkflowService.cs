@@ -34,6 +34,8 @@ public class WorkflowService : IWorkflowService
     {
         try
         {
+            _logger.LogInformation("Trying to generate WorkflowService.CreateWorkflowData: " + routeReportRequest.ReportName);
+
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
@@ -48,6 +50,9 @@ public class WorkflowService : IWorkflowService
                         SupplierName = routeReportRequest.ReportSource[i].SupplierName,
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
+
+                    _logger.LogInformation("Executing GetWorkflowData: " + routeReportRequest.Workflow[0]);
+                    _logger.LogInformation("Executing GetWorkflowData: " + odsCodesInScope[i]);
 
                     var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
                     if (workflowData != null)
@@ -72,7 +77,6 @@ public class WorkflowService : IWorkflowService
 
     private async Task<DTO.Response.Mesh.Root?> GetWorkflowData(string workflow, string odsCode)
     {
-
         var getRequest = new HttpRequestMessage();
 
         try
@@ -81,8 +85,12 @@ public class WorkflowService : IWorkflowService
             getRequest.Method = HttpMethod.Get;
             getRequest.RequestUri = new Uri($"{_meshOptionsDelegate.Value.MeshHostname}/{_meshOptionsDelegate.Value.EndpointAddress}/{odsCode}/{workflow}");
 
+            _logger.LogInformation("Executing GetWorkflowData Request: " + getRequest.RequestUri.ToString());            
+
             var response = await client.SendAsync(getRequest);
             var responseStream = await response.Content.ReadAsStringAsync();
+
+            _logger.LogInformation("Getting GetWorkflowData Response: " + responseStream);
 
             var meshResponse = default(DTO.Response.Mesh.Root);
 
