@@ -148,12 +148,13 @@ public class CapabilityReportScheduledEventFunction
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
-            var iterationCount = reportSourceCount / batchSize;
-            var x = 0;
-            var y = 0;            
+            var iterationCount = reportSourceCount / batchSize;            
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
+                var x = 0;
+                var y = 0;
+
                 var messageGroupId = Guid.NewGuid();
 
                 var interactionRequest = new InteractionRequest { 
@@ -172,12 +173,14 @@ public class CapabilityReportScheduledEventFunction
                 });
 
                 _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].ReportName " + capabilityReports[i].ReportName);
-                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Interaction " + capabilityReports[i].Interaction);
-                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Workflow " + capabilityReports[i].Workflow);
+                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Interaction " + capabilityReports[i].Interaction?.FirstOrDefault());
+                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Workflow " + capabilityReports[i].Workflow?.FirstOrDefault());
                 _lambdaContext.Logger.LogLine("Generating messages for messageGroupId " + messageGroupId);
 
                 while (y <= iterationCount)
                 {
+                    _lambdaContext.Logger.LogLine($"Iteration {y} of {iterationCount} {capabilityReports[i].ReportName}");
+
                     messages.Add(new MessagingRequest()
                     {
                         ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
@@ -190,6 +193,8 @@ public class CapabilityReportScheduledEventFunction
                     y++;
                 }
             }
+
+            _lambdaContext.Logger.LogLine("message count " + messages.Count);
         }
         return messages;
     }
