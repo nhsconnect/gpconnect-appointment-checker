@@ -11,15 +11,16 @@ public class ReportInteraction
 
     private string GetTypeLabel(List<string>? interaction, List<string>? workflow)
     {
+        var typeLabel = string.Empty;
         if (interaction != null && interaction[0] != null)
         {
-            return interaction[0].ReplaceNonAlphanumeric();
+            typeLabel = interaction[0].ReplaceNonAlphanumeric();
         }
         if (workflow != null && workflow[0] != null)
         {
-            return workflow[0].ReplaceNonAlphanumeric();
+            typeLabel = workflow[0].ReplaceNonAlphanumeric();
         }
-        return string.Empty;
+        return typeLabel;
     }
 
     public string? ReportName { get; set; } = null;

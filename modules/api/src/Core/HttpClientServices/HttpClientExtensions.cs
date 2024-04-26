@@ -15,13 +15,13 @@ public static class HttpClientExtensions
         GetHttpClient(services, configuration, env, Helpers.Constants.Clients.FHIRREADCLIENT, false);
         GetHttpClient(services, configuration, env, Helpers.Constants.Clients.HIERARCHYCLIENT, false);
         GetHttpClient(services, configuration, env, Helpers.Constants.Clients.GPCONNECTCLIENT, true);
-        GetMeshClient(services, configuration, env);
+        //GetMeshClient(services, configuration, env);
     }
 
-    private static void GetMeshClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
-    {
-        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.MESHCLIENT, true, "application/vnd.mesh.v2+json");
-    }
+    //private static void GetMeshClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    //{
+    //    GetHttpClient(services, configuration, env, Helpers.Constants.Clients.MESHCLIENT, true, "application/vnd.mesh.v2+json");
+    //}
 
     private static void GetHttpClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env, string clientName, bool handleSSP, string mediaType = "application/fhir+json")
     {
