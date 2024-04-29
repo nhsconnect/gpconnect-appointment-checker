@@ -104,6 +104,11 @@ public class CompletionFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
+        var jsonString = await json.ReadAsStringAsync();
+
+        _lambdaContext.Logger.Log("Posting to reporting/createinteractionreport");
+        _lambdaContext.Logger.Log(jsonString);
+
         var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
