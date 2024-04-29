@@ -10,31 +10,33 @@ namespace GpConnect.AppointmentChecker.Api.Core.HttpClientServices;
 
 public static class MeshClientExtensions
 {
-    public static void AddMeshClientServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    private static IConfigurationSection _meshConfig;
+
+    public static void AddMeshClientServices(this IServiceCollection services, IConfiguration configuration)
     {
-        GetMeshClient(services, configuration, env);
+        _meshConfig = configuration.GetSection("MeshConfig");
+        GetMeshClient(services);
     }
 
-    private static void GetMeshClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    private static void GetMeshClient(IServiceCollection services)
     {
         services.AddHttpClient(Helpers.Constants.Clients.MESHCLIENT, options =>
         {
-            var meshConfig = configuration.GetSection("MeshConfig");
-            var uriBuilder = new UriBuilder(meshConfig.GetValue<string>("MeshHostname"));
-            uriBuilder.Path = meshConfig.GetValue<string>("EndpointAddress");
+            var uriBuilder = new UriBuilder(_meshConfig.GetValue<string>("MeshHostname"));
+            uriBuilder.Path = _meshConfig.GetValue<string>("EndpointAddress");
 
             options.Timeout = TimeSpan.FromSeconds(60);
             options.BaseAddress = uriBuilder.Uri;
             options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.mesh.v2+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        }).AugmentHttpClientBuilder(configuration);
+        }).AugmentHttpClientBuilder();
     }
 
-    private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder, IConfiguration configuration)
+    private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder)
     {
         return httpClientBuilder.AddPolicyHandler(GetRetryPolicy())
             .SetHandlerLifetime(Timeout.InfiniteTimeSpan)
-            .ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(configuration));
+            .ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler());
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -44,21 +46,20 @@ public static class MeshClientExtensions
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(1));
     }
 
-    private static HttpMessageHandler CreateHttpMessageHandler(IConfiguration configuration)
+    private static HttpMessageHandler CreateHttpMessageHandler()
     {
-        var spineConfig = configuration.GetSection("SpineConfig");
         var httpClientHandler = new HttpClientHandler();
         httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12;
 
-        var clientCertData = CertificateHelper.ExtractCertInstances(spineConfig.GetValue<string>("ClientCert"));
-        var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(spineConfig.GetValue<string>("ClientPrivateKey"));
+        var clientCertData = CertificateHelper.ExtractCertInstances(_meshConfig.GetValue<string>("ClientCert"));
+        var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_meshConfig.GetValue<string>("ClientPrivateKey"));
         var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
         var privateKey = RSA.Create();
         privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
         var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
         var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
-        var serverCertData = CertificateHelper.ExtractCertInstances(spineConfig.GetValue<string>("ServerCACertChain"));
+        var serverCertData = CertificateHelper.ExtractCertInstances(_meshConfig.GetValue<string>("ServerCACertChain"));
         var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
         var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
 
