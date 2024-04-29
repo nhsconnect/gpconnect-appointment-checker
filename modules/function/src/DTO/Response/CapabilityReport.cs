@@ -1,4 +1,5 @@
 using GpConnect.AppointmentChecker.Function.Helpers;
+using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
 
 namespace GpConnect.AppointmentChecker.Function.DTO.Response;
@@ -14,6 +15,6 @@ public class CapabilityReport
     [JsonProperty("workflows")]
     public List<string> Workflow { get; set; }
 
-    public string ObjectKey => $"{ReportName.ReplaceNonAlphanumeric()}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}.json".ToLower();
+    public string ObjectKey => $"{Objects.Key}_{ReportName.ReplaceNonAlphanumeric()}.json".ToLower();
 
 }
