@@ -77,6 +77,7 @@ public static class ServiceCollectionExtensions
         services.AddSwaggerGen();
 
         services.AddHttpClientServices(configuration, env);
+        services.AddMeshClientServices(configuration, env);
 
         return services;
     }
