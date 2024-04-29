@@ -19,7 +19,7 @@ namespace GpConnect.AppointmentChecker.Api.Core;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -76,7 +76,8 @@ public static class ServiceCollectionExtensions
         services.AddControllers();
         services.AddSwaggerGen();
 
-        services.AddHttpClientServices(configuration, env);
+        services.AddHttpClientServices(configuration);
+        services.AddMeshClientServices(configuration);
 
         return services;
     }

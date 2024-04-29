@@ -10,29 +10,32 @@ namespace GpConnect.AppointmentChecker.Api.Core.HttpClientServices;
 
 public static class HttpClientExtensions
 {
-    public static void AddHttpClientServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    private static IConfigurationSection _spineConfig;
+
+    public static void AddHttpClientServices(this IServiceCollection services, IConfiguration configuration)
     {
-        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.FHIRREADCLIENT, false);
-        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.HIERARCHYCLIENT, false);
-        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.GPCONNECTCLIENT, true);
-        GetHttpClient(services, configuration, env, Helpers.Constants.Clients.MESHCLIENT, false, "application/vnd.mesh.v2+json");
+        _spineConfig = configuration.GetSection("SpineConfig");
+
+        GetHttpClient(services, Helpers.Constants.Clients.FHIRREADCLIENT, false);
+        GetHttpClient(services, Helpers.Constants.Clients.HIERARCHYCLIENT, false);
+        GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENT, true);
     }
 
-    private static void GetHttpClient(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env, string clientName, bool handleSSP, string acceptHeader = "application/fhir+json")
+    private static void GetHttpClient(IServiceCollection services, string clientName, bool handleSSP)
     {
         services.AddHttpClient(clientName, options =>
         {
             options.Timeout = TimeSpan.FromSeconds(60);
-            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(acceptHeader));
+            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        }).AugmentHttpClientBuilder(env, configuration, handleSSP);
+        }).AugmentHttpClientBuilder(handleSSP);
     }
 
-    private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder, IWebHostEnvironment env, IConfiguration configuration, bool handleSSP)
+    private static IHttpClientBuilder AugmentHttpClientBuilder(this IHttpClientBuilder httpClientBuilder, bool handleSSP)
     {
         return httpClientBuilder.AddPolicyHandler(GetRetryPolicy())
             .SetHandlerLifetime(Timeout.InfiniteTimeSpan)
-            .ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(env, configuration, handleSSP));
+            .ConfigurePrimaryHttpMessageHandler(() => CreateHttpMessageHandler(handleSSP));
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -42,7 +45,7 @@ public static class HttpClientExtensions
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(1));
     }
 
-    private static HttpMessageHandler CreateHttpMessageHandler(IWebHostEnvironment env, IConfiguration configuration, bool handleSSP)
+    private static HttpMessageHandler CreateHttpMessageHandler(bool handleSSP)
     {
         var httpClientHandler = new HttpClientHandler();
 
@@ -53,21 +56,19 @@ public static class HttpClientExtensions
 
         if (handleSSP)
         {
-            var spineConfig = configuration.GetSection("SpineConfig");
-
-            if (spineConfig.GetValue<bool>("UseSSP"))
+            if (_spineConfig.GetValue<bool>("UseSSP"))
             {
                 httpClientHandler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12;
 
-                var clientCertData = CertificateHelper.ExtractCertInstances(spineConfig.GetValue<string>("ClientCert"));
-                var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(spineConfig.GetValue<string>("ClientPrivateKey"));
+                var clientCertData = CertificateHelper.ExtractCertInstances(_spineConfig.GetValue<string>("ClientCert"));
+                var clientPrivateKeyData = CertificateHelper.ExtractKeyInstance(_spineConfig.GetValue<string>("ClientPrivateKey"));
                 var x509ClientCertificate = new X509Certificate2(clientCertData.FirstOrDefault());
                 var privateKey = RSA.Create();
                 privateKey.ImportRSAPrivateKey(clientPrivateKeyData, out _);
                 var x509CertificateWithPrivateKey = x509ClientCertificate.CopyWithPrivateKey(privateKey);
                 var pfxFormattedCertificate = new X509Certificate2(x509CertificateWithPrivateKey.Export(X509ContentType.Pfx, string.Empty), string.Empty);
 
-                var serverCertData = CertificateHelper.ExtractCertInstances(spineConfig.GetValue<string>("ServerCACertChain"));
+                var serverCertData = CertificateHelper.ExtractCertInstances(_spineConfig.GetValue<string>("ServerCACertChain"));
                 var x509ServerCertificateSubCa = new X509Certificate2(serverCertData[0]);
                 var x509ServerCertificateRootCa = new X509Certificate2(serverCertData[1]);
 

@@ -1,13 +1,9 @@
-﻿using GpConnect.AppointmentChecker.Api.Core.Configuration;
-using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
-using GpConnect.AppointmentChecker.Api.DTO.Request;
+﻿using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
-using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using JsonFlatten;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
@@ -20,22 +16,18 @@ public class WorkflowService : IWorkflowService
     private readonly ILogger<WorkflowService> _logger;
     private readonly IOrganisationService _organisationService;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IOptions<MeshConfig> _meshOptionsDelegate;
 
-    public WorkflowService(ILogger<WorkflowService> logger, IOptions<MeshConfig> meshOptionsDelegate, IHttpClientFactory httpClientFactory, IOrganisationService organisationService, IHttpContextAccessor httpContextAccessor)
+    public WorkflowService(ILogger<WorkflowService> logger, IHttpClientFactory httpClientFactory, IOrganisationService organisationService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _organisationService = organisationService ?? throw new ArgumentNullException();
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException();
-        _meshOptionsDelegate = meshOptionsDelegate ?? throw new ArgumentNullException();
     }
 
     public async Task<string> CreateWorkflowData(RouteReportRequest routeReportRequest)
     {
         try
         {
-            _logger.LogInformation("Trying to generate WorkflowService.CreateWorkflowData: " + routeReportRequest.ReportName);
-
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
@@ -50,9 +42,6 @@ public class WorkflowService : IWorkflowService
                         SupplierName = routeReportRequest.ReportSource[i].SupplierName,
                         Hierarchy = organisationHierarchy[odsCodesInScope[i]]
                     };
-
-                    _logger.LogInformation("Executing GetWorkflowData: " + routeReportRequest.Workflow[0]);
-                    _logger.LogInformation("Executing GetWorkflowData: " + odsCodesInScope[i]);
 
                     var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
                     if (workflowData != null)
@@ -75,18 +64,12 @@ public class WorkflowService : IWorkflowService
         }
     }
 
-    private async Task<DTO.Response.Mesh.Root?> GetWorkflowData(string workflow, string odsCode)
+    public async Task<DTO.Response.Mesh.Root?> GetWorkflowData(string workflow, string odsCode)
     {
-        var getRequest = new HttpRequestMessage();
-
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{odsCode}/{workflow}");
         try
-        {
+        {            
             var client = _httpClientFactory.CreateClient(Clients.MESHCLIENT);
-            getRequest.Method = HttpMethod.Get;
-            getRequest.RequestUri = new Uri($"{_meshOptionsDelegate.Value.MeshHostname}/{_meshOptionsDelegate.Value.EndpointAddress}/{odsCode}/{workflow}");
-
-            _logger.LogInformation("Executing GetWorkflowData Request: " + getRequest.RequestUri.ToString());            
-
             var response = await client.SendAsync(getRequest);
             var responseStream = await response.Content.ReadAsStringAsync();
 
