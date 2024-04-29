@@ -69,24 +69,22 @@ public class CompletionFunction
         {
             _lambdaContext.Logger.LogLine("keyObject.Key is " + keyObject.Key);
 
-            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = $"{Objects.Transient}_{keyObject.Key}"
+                ObjectPrefix = $"{Objects.Transient}_{keyObject.Key.Replace(".json", string.Empty)}"
             });
 
             var stringBuilder = new StringBuilder();
             foreach (var item in bucketObjects)
             {
                 _lambdaContext.Logger.LogLine("item.Key is " + item.Key);
-
                 var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
                 stringBuilder.Append(bucketObject + ",");
             }
-            _lambdaContext.Logger.LogLine("interactionObject.ReportName is " + interactionObject.ReportName);
 
+            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
+            _lambdaContext.Logger.LogLine("interactionObject.ReportName is " + interactionObject.ReportName);
             await CreateReport($"[{stringBuilder}]", interactionObject.ReportName);
         }        
     }
