@@ -95,10 +95,6 @@ public class CapabilityReportScheduledEventFunction
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            _lambdaContext.Logger.LogLine("In CapabilityReportScheduledEventFunction - GenerateMessages");
-            _lambdaContext.Logger.LogLine(json.ToString());
-            
-
             var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
@@ -139,7 +135,6 @@ public class CapabilityReportScheduledEventFunction
     {
         var codesSuppliers = await LoadReportSource();
         var reportSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-
         var messages = new List<MessagingRequest>();
 
         if (reportSource != null && reportSource.Any())
@@ -172,15 +167,8 @@ public class CapabilityReportScheduledEventFunction
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
-                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].ReportName " + capabilityReports[i].ReportName);
-                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Interaction " + capabilityReports[i].Interaction?.FirstOrDefault());
-                _lambdaContext.Logger.LogLine("Generating messages for capabilityReports[i].Workflow " + capabilityReports[i].Workflow?.FirstOrDefault());
-                _lambdaContext.Logger.LogLine("Generating messages for messageGroupId " + messageGroupId);
-
                 while (y <= iterationCount)
                 {
-                    _lambdaContext.Logger.LogLine($"Iteration {y} of {iterationCount} {capabilityReports[i].ReportName}");
-
                     messages.Add(new MessagingRequest()
                     {
                         ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
@@ -193,8 +181,6 @@ public class CapabilityReportScheduledEventFunction
                     y++;
                 }
             }
-
-            _lambdaContext.Logger.LogLine("message count " + messages.Count);
         }
         return messages;
     }

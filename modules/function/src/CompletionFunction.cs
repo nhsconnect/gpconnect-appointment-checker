@@ -23,7 +23,6 @@ public class CompletionFunction
     private ILambdaContext _lambdaContext;
     private List<string> _distributionList = new List<string>();
     private List<ReportFilterRequest> _reportFilterRequest = new List<ReportFilterRequest>();
-    private string _reportName;
     private Stopwatch _stopwatch;
 
     public CompletionFunction()
@@ -50,7 +49,6 @@ public class CompletionFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        _reportName = completionFunctionRequest.ReportName;
         _reportFilterRequest = completionFunctionRequest.ReportFilter;
         _distributionList = completionFunctionRequest.DistributionList;
         await BundleUpJsonResponsesAndSendReport();
@@ -61,44 +59,58 @@ public class CompletionFunction
 
     private async Task BundleUpJsonResponsesAndSendReport()
     {
-        var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
+        var keyObjects = await StorageManager.GetObjects(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
-            ObjectPrefix = $"{Objects.Transient}_{_reportName.ReplaceNonAlphanumeric()}"
+            ObjectPrefix = $"{Objects.Key}"
         });
 
-        var stringBuilder = new StringBuilder();
-        foreach (var item in bucketObjects)
+        foreach (var keyObject in keyObjects)
         {
-            var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-            stringBuilder.Append(bucketObject + ",");
-        }
-        await CreateReport($"[{stringBuilder}]");
+            _lambdaContext.Logger.LogLine("keyObject.Key is " + keyObject.Key);
+
+            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
+
+            var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
+            {
+                BucketName = _storageConfiguration.BucketName,
+                ObjectPrefix = $"{Objects.Transient}_{keyObject.Key}"
+            });
+
+            var stringBuilder = new StringBuilder();
+            foreach (var item in bucketObjects)
+            {
+                _lambdaContext.Logger.LogLine("item.Key is " + item.Key);
+
+                var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+                stringBuilder.Append(bucketObject + ",");
+            }
+            _lambdaContext.Logger.LogLine("interactionObject.ReportName is " + interactionObject.ReportName);
+
+            await CreateReport($"[{stringBuilder}]", interactionObject.ReportName);
+        }        
     }
 
-    private async Task CreateReport(string jsonData)
+    private async Task CreateReport(string jsonData, string reportName)
     {
-        var interactionDetails = await StorageManager.GetObjects(new StorageListRequest
-        {
-            BucketName = _storageConfiguration.BucketName,
-            ObjectPrefix = Objects.Interaction
-        });
+        //var interactionDetails = await StorageManager.GetObjects(new StorageListRequest
+        //{
+        //    BucketName = _storageConfiguration.BucketName,
+        //    ObjectPrefix = Objects.Interaction
+        //});
 
         var reportCreationRequest = new ReportCreationRequest
         {
             JsonData = jsonData,
-            ReportFilter = _reportFilterRequest
+            ReportFilter = _reportFilterRequest,
+            ReportName = reportName
         };
 
-        if (interactionDetails != null && interactionDetails.Count > 0)
-        {
-            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
-            reportCreationRequest.ReportName = interactionObject.ReportName;
-        }
-        else
-        {
-            reportCreationRequest.ReportName = _reportName;
-        }
+        //if (interactionDetails != null && interactionDetails.Count > 0)
+        //{
+        //    var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
+        //    reportCreationRequest.ReportName = interactionObject.ReportName;
+        //}
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
@@ -106,8 +118,8 @@ public class CompletionFunction
 
         var jsonString = await json.ReadAsStringAsync();
 
-        _lambdaContext.Logger.Log("Posting to reporting/createinteractionreport");
-        _lambdaContext.Logger.Log(jsonString);
+        _lambdaContext.Logger.LogLine("Posting to reporting/createinteractionreport");
+        _lambdaContext.Logger.LogLine(jsonString);
 
         var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
         {
