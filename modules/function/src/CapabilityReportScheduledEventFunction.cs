@@ -49,7 +49,7 @@ public class CapabilityReportScheduledEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Interaction, Objects.Transient);
+        await Reset(Objects.Key, Objects.Transient);
         var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
         var messages = await AddMessagesToQueue(odsList);
         var list = await GenerateMessages(messages);
