@@ -10,4 +10,12 @@ public static class StringExtensions
             null or "" => string.Empty,
             _ => Regex.Replace(input, "[^a-zA-Z0-9]", replacementCharacter)
         };
+
+    public static string SearchAndReplace(this string input, Dictionary<string, string> replacementValues) =>
+       input switch
+       {
+           null or "" => string.Empty,
+           _ => replacementValues.Aggregate(input, (current, value) => current.Replace(value.Key, value.Value))
+       };
+
 }

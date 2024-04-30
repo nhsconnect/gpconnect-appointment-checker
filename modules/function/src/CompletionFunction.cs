@@ -67,12 +67,14 @@ public class CompletionFunction
 
         foreach (var keyObject in keyObjects)
         {
-            _lambdaContext.Logger.LogLine("keyObject.Key is " + keyObject.Key);
+            var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
 
+            _lambdaContext.Logger.LogLine("keyObject.Key is " + sourceKey);
+            
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = $"{Objects.Transient}_{keyObject.Key.Replace(".json", string.Empty)}"
+                ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
             });
 
             var stringBuilder = new StringBuilder();
