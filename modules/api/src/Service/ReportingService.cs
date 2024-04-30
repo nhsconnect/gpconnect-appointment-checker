@@ -66,10 +66,8 @@ public class ReportingService : IReportingService
             switch (routeReportRequest.IsInteraction)
             {
                 case true:
-                    _logger.LogInformation("_interactionService.CreateInteractionData: " + routeReportRequest.ReportName);
                     return await _interactionService.CreateInteractionData(routeReportRequest);
                 case false:
-                    _logger.LogInformation("_workflowService.CreateWorkflowData: " + routeReportRequest.ReportName);
                     return await _workflowService.CreateWorkflowData(routeReportRequest);
             }
         }

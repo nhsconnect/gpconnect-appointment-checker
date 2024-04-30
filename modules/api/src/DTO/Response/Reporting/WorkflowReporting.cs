@@ -29,6 +29,6 @@ public class WorkflowReporting
     [JsonProperty("Commissioning_Region")]
     public string NationalGrouping => string.Format("{0}{1}", Hierarchy.NationalGroupingName, Hierarchy.NationalGroupingCode != null ? $" ({Hierarchy.NationalGroupingCode})" : string.Empty);
 
-    [JsonProperty("Active")]
-    public bool Active { get; set; }
+    [JsonProperty("Status")]
+    public string Status { get; set; }
 }
