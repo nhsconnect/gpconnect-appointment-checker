@@ -1,5 +1,6 @@
 ﻿using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
+using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.api.DTO.Response.Reporting;
@@ -86,11 +87,4 @@ public class InteractionReporting
 
     [JsonProperty("Documents")]
     public string DocumentsInProfile { get; set; }
-}
-
-public class ActiveInactiveConstants
-{
-    public const string ACTIVE = "Active";
-    public const string INACTIVE = "Inactive";
-    public const string NOTAVAILABLE = "Not Available";
 }

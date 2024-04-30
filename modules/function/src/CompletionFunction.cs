@@ -69,8 +69,6 @@ public class CompletionFunction
         {
             var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
 
-            _lambdaContext.Logger.LogLine("keyObject.Key is " + sourceKey);
-            
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
@@ -80,25 +78,17 @@ public class CompletionFunction
             var stringBuilder = new StringBuilder();
             foreach (var item in bucketObjects)
             {
-                _lambdaContext.Logger.LogLine("item.Key is " + item.Key);
                 var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
                 stringBuilder.Append(bucketObject + ",");
             }
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-            _lambdaContext.Logger.LogLine("interactionObject.ReportName is " + interactionObject.ReportName);
             await CreateReport($"[{stringBuilder}]", interactionObject.ReportName);
         }        
     }
 
     private async Task CreateReport(string jsonData, string reportName)
     {
-        //var interactionDetails = await StorageManager.GetObjects(new StorageListRequest
-        //{
-        //    BucketName = _storageConfiguration.BucketName,
-        //    ObjectPrefix = Objects.Interaction
-        //});
-
         var reportCreationRequest = new ReportCreationRequest
         {
             JsonData = jsonData,
@@ -106,20 +96,11 @@ public class CompletionFunction
             ReportName = reportName
         };
 
-        //if (interactionDetails != null && interactionDetails.Count > 0)
-        //{
-        //    var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = interactionDetails[0].BucketName, Key = interactionDetails[0].Key });
-        //    reportCreationRequest.ReportName = interactionObject.ReportName;
-        //}
-
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
         var jsonString = await json.ReadAsStringAsync();
-
-        _lambdaContext.Logger.LogLine("Posting to reporting/createinteractionreport");
-        _lambdaContext.Logger.LogLine(jsonString);
 
         var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
         {

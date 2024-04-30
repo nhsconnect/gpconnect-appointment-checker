@@ -46,7 +46,11 @@ public class WorkflowService : IWorkflowService
                     var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
                     if (workflowData != null)
                     {
-                        workflowReporting.Active = workflowData.Active;
+                        workflowReporting.Status = workflowData.Status;
+                    }
+                    else
+                    {
+                        workflowReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
                     }
 
                     var jsonString = JsonConvert.SerializeObject(workflowReporting);
@@ -68,12 +72,10 @@ public class WorkflowService : IWorkflowService
     {
         var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{odsCode}/{workflow}");
         try
-        {            
+        {
             var client = _httpClientFactory.CreateClient(Clients.MESHCLIENT);
             var response = await client.SendAsync(getRequest);
             var responseStream = await response.Content.ReadAsStringAsync();
-
-            _logger.LogInformation("Getting GetWorkflowData Response: " + responseStream);
 
             var meshResponse = default(DTO.Response.Mesh.Root);
 
