@@ -36,55 +36,78 @@ public class InteractionService : IInteractionService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string> CreateInteractionData(RouteReportRequest routeReportRequest)
+    public async Task<string?> CreateInteractionData<T>(RouteReportRequest routeReportRequest) where T : class
     {
         try
         {
-            _logger.LogInformation("Trying to generate InteractionService.CreateInteractionData: " + routeReportRequest.ReportName);
-
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var interactions = new List<IDictionary<string, object>>();
+            string? jsonString = null;
 
             if (odsCodesInScope.Count > 0)
             {
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
-                    var interactionReporting = new InteractionReporting()
+                    switch (typeof(T))
                     {
-                        SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                        Hierarchy = organisationHierarchy[odsCodesInScope[i]],
-                        DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
-                        DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
-                        Profile = null,
-                        StructuredVersion = ActiveInactiveConstants.NOTAVAILABLE
-                    };
+                        case Type type when type == typeof(AccessRecordStructuredReporting):
 
-                    _logger.LogInformation("Executing GetInteractionData: " + routeReportRequest.Interaction[0]);
-                    _logger.LogInformation("Executing GetInteractionData: " + odsCodesInScope[i]);
+                            var accessRecordStructuredReporting = new AccessRecordStructuredReporting()
+                            {
+                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
+                                Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                                DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
+                                DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
+                                Profile = null,
+                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                            };
 
-                    var interactionData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
-                    if (interactionData != null && interactionData.NoIssues)
-                    {
-                        interactionReporting.Profile = interactionData.Profile;
-                        interactionReporting.StructuredVersion = $"v{interactionData.Version}";
+                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
+                            if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
+                            {
+                                accessRecordStructuredReporting.Profile = accessRecordStructuredReportingData.Profile;
+                                accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
+                            }
+
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i]);
+                            if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
+                            {
+                                accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
+                                accessRecordStructuredReporting.DocumentsInProfile = accessRecordStructuredReportingDataDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                            }
+
+                            jsonString = JsonConvert.SerializeObject(accessRecordStructuredReporting);
+                            break;
+
+                        case Type type when type == typeof(AccessRecordHtmlReporting):
+
+                            var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
+                            {
+                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
+                                Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                            };
+
+                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
+                            if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
+                            {
+                                accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
+                            }
+
+                            jsonString = JsonConvert.SerializeObject(accessRecordHtmlReporting);
+                            break;
                     }
-
-                    var interactionDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i]);
-                    if (interactionDataDocuments != null && interactionDataDocuments.NoIssues)
-                    {
-                        interactionReporting.DocumentsVersion = $"v{interactionDataDocuments.Version}";
-                        interactionReporting.DocumentsInProfile = interactionDataDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                    }
-
-                    var jsonString = JsonConvert.SerializeObject(interactionReporting);
+                }
+                if (!string.IsNullOrEmpty(jsonString))
+                {
                     var jObject = JObject.Parse(jsonString);
                     interactions.Add(jObject.Flatten());
+                    jsonData = JsonConvert.SerializeObject(interactions);
                 }
-                jsonData = JsonConvert.SerializeObject(interactions);
             }
-            return jsonData.Substring(1, jsonData.Length - 2);
+            return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
         }
         catch (Exception exc)
         {

@@ -1,0 +1,1 @@
+INSERT INTO reporting.list(report_name, interaction) VALUES ('Access Record: HTML', '[ "urn:nhs:names:services:gpconnect:fhir:rest:read:metadata" ]');

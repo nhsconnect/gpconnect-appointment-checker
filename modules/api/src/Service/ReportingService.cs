@@ -7,6 +7,7 @@ using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
+using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq.Dynamic.Core;
@@ -66,7 +67,7 @@ public class ReportingService : IReportingService
             switch (routeReportRequest.IsInteraction)
             {
                 case true:
-                    return await _interactionService.CreateInteractionData(routeReportRequest);
+                    return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
                 case false:
                     return await _workflowService.CreateWorkflowData(routeReportRequest);
             }
