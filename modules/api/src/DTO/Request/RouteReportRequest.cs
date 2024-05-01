@@ -7,5 +7,6 @@ public class RouteReportRequest
     public List<string>? Workflow { get; set; }
     public bool IsInteraction => Interaction != null && Interaction.Any() && Workflow == null;
     public string? ReportName { get; set; } = null;
+    public string? ReportId { get; set; } = null;
     public Guid? MessageGroupId { get; set; } = Guid.NewGuid();
 }

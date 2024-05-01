@@ -2,7 +2,7 @@
 
 namespace gpconnect_appointment_checker.api.DTO.Response.Reporting;
 
-public class WorkflowReporting : InteractionReporting
+public class UpdateRecordReporting : InteractionReporting
 {
     [JsonProperty("Status")]
     public string Status { get; set; }

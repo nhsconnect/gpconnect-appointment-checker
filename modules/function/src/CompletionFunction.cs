@@ -35,8 +35,10 @@ public class CompletionFunction
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
-        _httpClient = new HttpClient();
-        _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new UriBuilder(apiUrl).Uri
+        };
 
         _options = new JsonSerializerSettings
         {

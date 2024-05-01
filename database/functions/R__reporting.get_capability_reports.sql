@@ -5,7 +5,8 @@ create function reporting.get_capability_reports
 )
 returns table
 (
-	report_name varchar(100), 
+	report_name varchar(100),
+	report_id varchar(100), 
 	interaction json,
 	workflow json
 )
@@ -14,6 +15,7 @@ begin
 	return query
 	select
 		rl.report_name,
+		rl.report_id,
 		rl.interaction,
 		rl.workflow
 	from 

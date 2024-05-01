@@ -8,5 +8,6 @@ public class CapabilityReportMap : EntityMap<CapabilityReport>
     public CapabilityReportMap()
     {
         Map(p => p.ReportName).ToColumn("report_name");
+        Map(p => p.ReportId).ToColumn("report_id");
     }
 }

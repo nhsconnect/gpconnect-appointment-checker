@@ -4,7 +4,6 @@ using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -31,8 +30,11 @@ public class SQSEventFunction
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
-        _httpClient = new HttpClient();
-        _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new UriBuilder(apiUrl).Uri,
+            Timeout = TimeSpan.FromMinutes(15)
+        };
 
         _options = new JsonSerializerSettings
         {
@@ -50,7 +52,7 @@ public class SQSEventFunction
         {
             try
             {
-                var reportRequest = await ProcessMessageAsync(message);                
+                var reportRequest = await ProcessMessageAsync(message);
                 var response = await RouteReportRequest(reportRequest);
 
                 if (response.IsSuccessStatusCode)
@@ -83,10 +85,11 @@ public class SQSEventFunction
                     ReportSource = messageRequest.ReportSource,
                     ReportName = messageRequest.ReportName,
                     Interaction = messageRequest.Interaction,
-                    Workflow = messageRequest.Workflow
+                    Workflow = messageRequest.Workflow,
+                    ReportId = messageRequest.ReportId
                 };
             }
-            
+
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
@@ -100,7 +103,7 @@ public class SQSEventFunction
     private async Task<HttpResponseMessage?> RouteReportRequest(ReportInteraction reportInteraction)
     {
         try
-        {            
+        {
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);

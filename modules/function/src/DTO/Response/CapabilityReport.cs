@@ -9,6 +9,9 @@ public class CapabilityReport
     [JsonProperty("reportName")]
     public string ReportName { get; set; }
 
+    [JsonProperty("reportId")]
+    public string ReportId { get; set; }
+
     [JsonProperty("interactions")]
     public List<string> Interaction { get; set; }
 

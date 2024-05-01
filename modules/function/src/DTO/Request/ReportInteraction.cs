@@ -24,5 +24,5 @@ public class ReportInteraction
     }
 
     public string? ReportName { get; set; } = null;
-    public string? PreSignedUrl { get; set; } = null;
+    public string? ReportId { get; set; } = null;
 }
