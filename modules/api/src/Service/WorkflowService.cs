@@ -32,7 +32,6 @@ public class WorkflowService : IWorkflowService
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var workflows = new List<IDictionary<string, object>>();
-            string? jsonString = null;
 
             if (odsCodesInScope.Count > 0)
             {
@@ -56,17 +55,13 @@ public class WorkflowService : IWorkflowService
                             {
                                 updateRecordReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
                             }
-                            jsonString = JsonConvert.SerializeObject(updateRecordReporting);
+                            var jsonStringUR = JsonConvert.SerializeObject(updateRecordReporting);
+                            var jObjectUR = JObject.Parse(jsonStringUR);
+                            workflows.Add(jObjectUR.Flatten());
                             break;
-                    }                    
-
-                    if (!string.IsNullOrEmpty(jsonString))
-                    {                        
-                        var jObject = JObject.Parse(jsonString);
-                        workflows.Add(jObject.Flatten());
-                        jsonData = JsonConvert.SerializeObject(workflows);
                     }
                 }
+                jsonData = JsonConvert.SerializeObject(workflows);
             }
             return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
         }

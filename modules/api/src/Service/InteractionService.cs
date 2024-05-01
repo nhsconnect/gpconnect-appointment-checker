@@ -44,7 +44,6 @@ public class InteractionService : IInteractionService
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var interactions = new List<IDictionary<string, object>>();
-            string? jsonString = null;
 
             if (odsCodesInScope.Count > 0)
             {
@@ -78,7 +77,9 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.DocumentsInProfile = accessRecordStructuredReportingDataDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
                             }
 
-                            jsonString = JsonConvert.SerializeObject(accessRecordStructuredReporting);
+                            var jsonStringARS = JsonConvert.SerializeObject(accessRecordStructuredReporting);
+                            var jObjectARS = JObject.Parse(jsonStringARS);
+                            interactions.Add(jObjectARS.Flatten());
                             break;
 
                         case Type type when type == typeof(AccessRecordHtmlReporting):
@@ -96,16 +97,13 @@ public class InteractionService : IInteractionService
                                 accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
                             }
 
-                            jsonString = JsonConvert.SerializeObject(accessRecordHtmlReporting);
+                            var jsonStringARH = JsonConvert.SerializeObject(accessRecordHtmlReporting);
+                            var jObjectARH = JObject.Parse(jsonStringARH);
+                            interactions.Add(jObjectARH.Flatten());
                             break;
                     }
                 }
-                if (!string.IsNullOrEmpty(jsonString))
-                {
-                    var jObject = JObject.Parse(jsonString);
-                    interactions.Add(jObject.Flatten());
-                    jsonData = JsonConvert.SerializeObject(interactions);
-                }
+                jsonData = JsonConvert.SerializeObject(interactions);
             }
             return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
         }
