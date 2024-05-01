@@ -35,9 +35,11 @@ public class CapabilityReportScheduledEventFunction
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
-        _httpClient = new HttpClient();
-        _httpClient.BaseAddress = new UriBuilder(apiUrl).Uri;
-        _httpClient.Timeout = TimeSpan.FromMinutes(15);
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new UriBuilder(apiUrl).Uri,
+            Timeout = TimeSpan.FromMinutes(15)
+        };
 
         _options = new JsonSerializerSettings
         {
@@ -155,7 +157,8 @@ public class CapabilityReportScheduledEventFunction
                 var interactionRequest = new InteractionRequest { 
                     WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
                     InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
-                    ReportName = capabilityReports[i].ReportName 
+                    ReportName = capabilityReports[i].ReportName,
+                    ReportId = capabilityReports[i].ReportId
                 };
 
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
@@ -175,7 +178,8 @@ public class CapabilityReportScheduledEventFunction
                         ReportName = capabilityReports[i].ReportName,
                         Interaction = capabilityReports[i].Interaction,
                         Workflow = capabilityReports[i].Workflow,
-                        MessageGroupId = messageGroupId
+                        MessageGroupId = messageGroupId,
+                        ReportId = capabilityReports[i].ReportId
                     });
                     x += batchSize;
                     y++;

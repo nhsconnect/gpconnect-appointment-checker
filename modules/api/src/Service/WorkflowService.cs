@@ -24,7 +24,7 @@ public class WorkflowService : IWorkflowService
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException();
     }
 
-    public async Task<string> CreateWorkflowData(RouteReportRequest routeReportRequest)
+    public async Task<string?> CreateWorkflowData<T>(RouteReportRequest routeReportRequest) where T : class
     {
         try
         {
@@ -32,34 +32,43 @@ public class WorkflowService : IWorkflowService
             string? jsonData = null;
             var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var workflows = new List<IDictionary<string, object>>();
+            string? jsonString = null;
 
             if (odsCodesInScope.Count > 0)
             {
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
-                    var workflowReporting = new WorkflowReporting()
+                    switch (typeof(T))
                     {
-                        SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                        Hierarchy = organisationHierarchy[odsCodesInScope[i]]
-                    };
+                        case Type type when type == typeof(UpdateRecordReporting):
+                            var updateRecordReporting = new UpdateRecordReporting()
+                            {
+                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
+                                Hierarchy = organisationHierarchy[odsCodesInScope[i]]
+                            };
 
-                    var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
-                    if (workflowData != null)
-                    {
-                        workflowReporting.Status = workflowData.Status;
-                    }
-                    else
-                    {
-                        workflowReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
-                    }
+                            var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
+                            if (workflowData != null)
+                            {
+                                updateRecordReporting.Status = workflowData.Status;
+                            }
+                            else
+                            {
+                                updateRecordReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
+                            }
+                            jsonString = JsonConvert.SerializeObject(updateRecordReporting);
+                            break;
+                    }                    
 
-                    var jsonString = JsonConvert.SerializeObject(workflowReporting);
-                    var jObject = JObject.Parse(jsonString);
-                    workflows.Add(jObject.Flatten());
+                    if (!string.IsNullOrEmpty(jsonString))
+                    {                        
+                        var jObject = JObject.Parse(jsonString);
+                        workflows.Add(jObject.Flatten());
+                        jsonData = JsonConvert.SerializeObject(workflows);
+                    }
                 }
-                jsonData = JsonConvert.SerializeObject(workflows);
             }
-            return jsonData.Substring(1, jsonData.Length - 2);
+            return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
         }
         catch (Exception exc)
         {

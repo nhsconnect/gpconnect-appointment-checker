@@ -1,5 +1,6 @@
 ﻿using Amazon.SQS.Model;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
@@ -67,10 +68,27 @@ public class ReportingService : IReportingService
             switch (routeReportRequest.IsInteraction)
             {
                 case true:
-                    return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                    switch(routeReportRequest.ReportId.ToUpper())
+                    {
+                        case "ACCESSRECORDSTRUCTURED":
+                            return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                        case "ACCESSRECORDHTML":
+                            return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
+                        default:
+                            break;
+                    }
+                    break;                    
                 case false:
-                    return await _workflowService.CreateWorkflowData(routeReportRequest);
+                    switch (routeReportRequest.ReportId.ToUpper())
+                    {
+                        case "UPDATERECORD":
+                            return await _workflowService.CreateWorkflowData<UpdateRecordReporting>(routeReportRequest);
+                        default:
+                            break;
+                    }
+                    break;
             }
+            return null;
         }
         catch (Exception exc)
         {
