@@ -2,9 +2,7 @@ using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 
 namespace GpConnect.AppointmentChecker.Api.DTO.Request;
 
-public class ReportSource
+public class ReportSource : DataSource
 {
-    public string OdsCode { get; set; } = null;
-    public string SupplierName { get; set; } = null;
     public Hierarchy? OrganisationHierarchy { get; set; }
 }
