@@ -1,3 +1,4 @@
+using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +49,14 @@ public class OrganisationController : ControllerBase
             return NotFound();
         }
         return Ok(site);
+    }
+
+    [HttpPost]
+    [Route("hierarchy")]
+    public async Task<IActionResult> GetOrganisationHierarchiesAsync([FromBody] OrganisationHierarchyRequest organisationHierarchyRequest)
+    {
+        var result = await _service.GetOrganisationHierarchy(organisationHierarchyRequest.OdsCodes);
+        return Ok(result);
     }
 
     [HttpGet]
