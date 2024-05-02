@@ -55,7 +55,7 @@ public class CapabilityReportScheduledEventFunction
         var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
         var messages = await AddMessagesToQueue(odsList);
         var list = await GenerateMessages(messages);
-        _stopwatch.Stop();        
+        _stopwatch.Stop();
         _lambdaContext.Logger.LogInformation($"CapabilityReportScheduledEventFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
         return list;
     }
@@ -104,7 +104,7 @@ public class CapabilityReportScheduledEventFunction
             }, json);
             response.EnsureSuccessStatusCode();
         }
-        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");        
+        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
         return HttpStatusCode.OK;
     }
 
@@ -137,6 +137,8 @@ public class CapabilityReportScheduledEventFunction
     {
         var codesSuppliers = await LoadReportSource();
         var reportSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
+        await PersistOrganisationHierarchy(reportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
+
         var messages = new List<MessagingRequest>();
 
         if (reportSource != null && reportSource.Any())
@@ -145,7 +147,7 @@ public class CapabilityReportScheduledEventFunction
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
-            var iterationCount = reportSourceCount / batchSize;            
+            var iterationCount = reportSourceCount / batchSize;
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
@@ -154,7 +156,8 @@ public class CapabilityReportScheduledEventFunction
 
                 var messageGroupId = Guid.NewGuid();
 
-                var interactionRequest = new InteractionRequest { 
+                var interactionRequest = new InteractionRequest
+                {
                     WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
                     InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
                     ReportName = capabilityReports[i].ReportName,
@@ -187,5 +190,29 @@ public class CapabilityReportScheduledEventFunction
             }
         }
         return messages;
+    }
+
+    private async Task PersistOrganisationHierarchy(List<string> odsCodes)
+    {
+        var json = new StringContent(JsonConvert.SerializeObject(odsCodes, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+
+        response.EnsureSuccessStatusCode();
+        var fileStream = await response.Content.ReadAsStreamAsync();
+        var byteArray = StreamExtensions.UseBufferedStream(fileStream);
+
+        await StorageManager.Post(new StorageUploadRequest
+        {
+            BucketName = _storageConfiguration.BucketName,
+            InputBytes = byteArray,
+            Key = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower()
+        });
     }
 }

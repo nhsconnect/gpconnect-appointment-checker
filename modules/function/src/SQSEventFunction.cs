@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
+using ThirdParty.BouncyCastle.Utilities.IO.Pem;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -90,7 +91,7 @@ public class SQSEventFunction
                 };
             }
 
-            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", reportInteraction.ReportSource.Select(x => x.OdsCode).ToArray())}");
+            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.ReportSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
         catch (Exception e)
@@ -104,6 +105,8 @@ public class SQSEventFunction
     {
         try
         {
+            var hierarchyObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = Objects.Hierarchy });
+
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
