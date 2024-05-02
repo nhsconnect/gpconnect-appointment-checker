@@ -210,13 +210,13 @@ public class CapabilityReportScheduledEventFunction
         response.EnsureSuccessStatusCode();
         var fileStream = await response.Content.ReadAsStreamAsync();
         var byteArray = StreamExtensions.UseBufferedStream(fileStream);
-        var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}".ToLower();
+        var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower();
 
         await StorageManager.Post(new StorageUploadRequest
         {
             BucketName = _storageConfiguration.BucketName,
             InputBytes = byteArray,
-            Key = $"{hierarchyKey}.json"
+            Key = hierarchyKey
         });
 
         return hierarchyKey;
