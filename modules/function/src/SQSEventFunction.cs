@@ -1,11 +1,14 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
+using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using ThirdParty.BouncyCastle.Utilities.IO.Pem;
@@ -48,7 +51,8 @@ public class SQSEventFunction
     {
         _lambdaContext = lambdaContext;
         _stopwatch.Start();
-        var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
+        var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();        
+
         foreach (var message in evnt.Records)
         {
             try
@@ -87,9 +91,14 @@ public class SQSEventFunction
                     ReportName = messageRequest.ReportName,
                     Interaction = messageRequest.Interaction,
                     Workflow = messageRequest.Workflow,
-                    ReportId = messageRequest.ReportId,
-                    HierarchyKey = messageRequest.HierarchyKey
+                    ReportId = messageRequest.ReportId
                 };
+
+                var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
+                if (hierarchySource != null)
+                {
+                    reportInteraction.ReportSource.ForEach(x => x.OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode));
+                }
             }
 
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.ReportSource.Select(x => x.OdsCode).ToArray())}");
@@ -106,8 +115,6 @@ public class SQSEventFunction
     {
         try
         {
-            //var hierarchyObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = reportInteraction.HierarchyKey });
-
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);

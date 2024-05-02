@@ -81,14 +81,14 @@ public class OrganisationService : IOrganisationService
         return bundle;
     }
 
-    public async Task<Dictionary<string, Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
+    public async Task<List<Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
         _bearerToken = await GetBearerToken();
         _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-        var hierarchies = new Dictionary<string, Hierarchy>();
+        var hierarchies = new List<Hierarchy>();
         for (var i = 0; i < odsCodes.Count(); i++)
         {
-            hierarchies.Add(odsCodes[i], await GetOrganisationHierarchy(odsCodes[i]));
+            hierarchies.Add(await GetOrganisationHierarchy(odsCodes[i]));
         }
         return hierarchies;
     }

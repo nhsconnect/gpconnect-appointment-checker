@@ -25,5 +25,4 @@ public class ReportInteraction
 
     public string? ReportName { get; set; } = null;
     public string? ReportId { get; set; } = null;
-    public string HierarchyKey { get; set; }
 }
