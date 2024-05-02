@@ -106,7 +106,7 @@ public class SQSEventFunction
     {
         try
         {
-            var hierarchyObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = Objects.Hierarchy });
+            //var hierarchyObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = reportInteraction.HierarchyKey });
 
             var json = new StringContent(JsonConvert.SerializeObject(reportInteraction, null, _options),
                Encoding.UTF8,
