@@ -14,13 +14,11 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 public class WorkflowService : IWorkflowService
 {
     private readonly ILogger<WorkflowService> _logger;
-    private readonly IOrganisationService _organisationService;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public WorkflowService(ILogger<WorkflowService> logger, IHttpClientFactory httpClientFactory, IOrganisationService organisationService)
+    public WorkflowService(ILogger<WorkflowService> logger, IHttpClientFactory httpClientFactory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _organisationService = organisationService ?? throw new ArgumentNullException();
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException();
     }
 
@@ -30,7 +28,6 @@ public class WorkflowService : IWorkflowService
         {
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
-            var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var workflows = new List<IDictionary<string, object>>();
 
             if (odsCodesInScope.Count > 0)
@@ -43,7 +40,7 @@ public class WorkflowService : IWorkflowService
                             var updateRecordReporting = new UpdateRecordReporting()
                             {
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = organisationHierarchy[odsCodesInScope[i]]
+                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy
                             };
 
                             var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);

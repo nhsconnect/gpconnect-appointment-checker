@@ -1,5 +1,4 @@
 ﻿using DocumentFormat.OpenXml;
-using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
 using GpConnect.AppointmentChecker.Api.DTO.Response.GpConnect;
@@ -20,17 +19,15 @@ public class InteractionService : IInteractionService
     private readonly ILogger<InteractionService> _logger;
     private readonly ITokenService _tokenService;
     private readonly ISpineService _spineService;
-    private readonly IOrganisationService _organisationService;
     private readonly IConfigurationService _configurationService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public InteractionService(ILogger<InteractionService> logger, IConfigurationService configurationService, IMessageService messageService, IDataService dataService, ISpineService spineService, IOrganisationService organisationService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public InteractionService(ILogger<InteractionService> logger, IConfigurationService configurationService, ISpineService spineService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _tokenService = tokenService;
         _spineService = spineService;
-        _organisationService = organisationService;
         _configurationService = configurationService;
         _capabilityStatement = capabilityStatement;
         _httpContextAccessor = httpContextAccessor;
@@ -42,7 +39,6 @@ public class InteractionService : IInteractionService
         {
             var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
-            var organisationHierarchy = await _organisationService.GetOrganisationHierarchy(odsCodesInScope);
             var interactions = new List<IDictionary<string, object>>();
 
             if (odsCodesInScope.Count > 0)
@@ -56,7 +52,7 @@ public class InteractionService : IInteractionService
                             var accessRecordStructuredReporting = new AccessRecordStructuredReporting()
                             {
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
                                 DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
                                 DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
                                 Profile = null,
@@ -87,7 +83,7 @@ public class InteractionService : IInteractionService
                             var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
                             {
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = organisationHierarchy[odsCodesInScope[i]],
+                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
