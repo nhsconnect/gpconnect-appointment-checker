@@ -1,6 +1,5 @@
 ﻿using Amazon.SQS.Model;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
@@ -39,8 +38,6 @@ public class ReportingService : IReportingService
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.Indented
         });
-
-        _logger.LogInformation("SendMessageToCreateInteractionReportContent: " + request.ToString());
 
         await _messageService.SendMessageToQueue(new SendMessageRequest()
         {

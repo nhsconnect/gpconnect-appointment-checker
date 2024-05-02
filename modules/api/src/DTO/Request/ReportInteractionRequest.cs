@@ -8,4 +8,5 @@ public class ReportInteractionRequest
     public string? ReportName { get; set; } = null;
     public string? ReportId { get; set; } = null;
     public Guid? MessageGroupId { get; set; } = Guid.NewGuid();
+    public string HierarchyKey { get; set; }
 }

@@ -87,7 +87,8 @@ public class SQSEventFunction
                     ReportName = messageRequest.ReportName,
                     Interaction = messageRequest.Interaction,
                     Workflow = messageRequest.Workflow,
-                    ReportId = messageRequest.ReportId
+                    ReportId = messageRequest.ReportId,
+                    HierarchyKey = messageRequest.HierarchyKey
                 };
             }
 
