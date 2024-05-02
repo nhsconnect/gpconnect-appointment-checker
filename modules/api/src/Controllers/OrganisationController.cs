@@ -53,9 +53,9 @@ public class OrganisationController : ControllerBase
 
     [HttpPost]
     [Route("hierarchy")]
-    public async Task<IActionResult> GetOrganisationHierarchiesAsync([FromBody] OrganisationHierarchyRequest organisationHierarchyRequest)
+    public async Task<IActionResult> GetOrganisationHierarchiesAsync([FromBody] List<string> odsCodes)
     {
-        var result = await _service.GetOrganisationHierarchy(organisationHierarchyRequest.OdsCodes);
+        var result = await _service.GetOrganisationHierarchy(odsCodes);
         return Ok(result);
     }
 
