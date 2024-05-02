@@ -97,6 +97,8 @@ public class CapabilityReportScheduledEventFunction
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
 
+            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
+
             var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
@@ -137,7 +139,7 @@ public class CapabilityReportScheduledEventFunction
     {
         var codesSuppliers = await LoadReportSource();
         var reportSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        await PersistOrganisationHierarchy(reportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
+        var hierarchyKey = await PersistOrganisationHierarchy(reportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
 
         var messages = new List<MessagingRequest>();
 
@@ -182,7 +184,8 @@ public class CapabilityReportScheduledEventFunction
                         Interaction = capabilityReports[i].Interaction,
                         Workflow = capabilityReports[i].Workflow,
                         MessageGroupId = messageGroupId,
-                        ReportId = capabilityReports[i].ReportId
+                        ReportId = capabilityReports[i].ReportId,
+                        HierarchyKey = hierarchyKey
                     });
                     x += batchSize;
                     y++;
@@ -192,7 +195,7 @@ public class CapabilityReportScheduledEventFunction
         return messages;
     }
 
-    private async Task PersistOrganisationHierarchy(List<string> odsCodes)
+    private async Task<string> PersistOrganisationHierarchy(List<string> odsCodes)
     {
         var json = new StringContent(JsonConvert.SerializeObject(odsCodes, null, _options),
                Encoding.UTF8,
@@ -207,12 +210,15 @@ public class CapabilityReportScheduledEventFunction
         response.EnsureSuccessStatusCode();
         var fileStream = await response.Content.ReadAsStreamAsync();
         var byteArray = StreamExtensions.UseBufferedStream(fileStream);
+        var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}".ToLower();
 
         await StorageManager.Post(new StorageUploadRequest
         {
             BucketName = _storageConfiguration.BucketName,
             InputBytes = byteArray,
-            Key = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower()
+            Key = $"{hierarchyKey}.json"
         });
+
+        return hierarchyKey;
     }
 }
