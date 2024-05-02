@@ -85,23 +85,19 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
+                var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
+
                 reportInteraction = new ReportInteraction()
                 {
-                    ReportSource = messageRequest.ReportSource,
+                    ReportSource = messageRequest.DataSource.Select(x => new ReportSource() { OdsCode = x.OdsCode, SupplierName = x.SupplierName, OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode) }).ToList(),
                     ReportName = messageRequest.ReportName,
                     Interaction = messageRequest.Interaction,
                     Workflow = messageRequest.Workflow,
                     ReportId = messageRequest.ReportId
                 };
-
-                var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
-                if (hierarchySource != null)
-                {
-                    reportInteraction.ReportSource.ForEach(x => x.OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode));
-                }
             }
 
-            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.ReportSource.Select(x => x.OdsCode).ToArray())}");
+            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.DataSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
         catch (Exception e)

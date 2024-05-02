@@ -110,7 +110,7 @@ public class CapabilityReportScheduledEventFunction
         return HttpStatusCode.OK;
     }
 
-    private async Task<List<ReportSource>> LoadReportSource()
+    private async Task<List<DataSource>> LoadDataSource()
     {
         var reportSource = await StorageManager.Get(new StorageDownloadRequest()
         {
@@ -120,7 +120,7 @@ public class CapabilityReportScheduledEventFunction
 
         using var reader = new StringReader(reportSource);
         using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
-        return csvReader.GetRecords<ReportSource>().DistinctBy(x => x.OdsCode).OrderBy(x => x.OdsCode).ToList();
+        return csvReader.GetRecords<DataSource>().DistinctBy(x => x.OdsCode).OrderBy(x => x.OdsCode).ToList();
     }
 
     private async Task Reset(params string[] objectPrefix)
@@ -137,19 +137,19 @@ public class CapabilityReportScheduledEventFunction
 
     private async Task<List<MessagingRequest>> AddMessagesToQueue(string[] odsList)
     {
-        var codesSuppliers = await LoadReportSource();
-        var reportSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        var hierarchyKey = await PersistOrganisationHierarchy(reportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
+        var codesSuppliers = await LoadDataSource();
+        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
+        var hierarchyKey = await PersistOrganisationHierarchy(dataSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
 
         var messages = new List<MessagingRequest>();
 
-        if (reportSource != null && reportSource.Any())
+        if (dataSource != null && dataSource.Any())
         {
-            var reportSourceCount = reportSource.Count;
+            var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
             var batchSize = 20;
-            var iterationCount = reportSourceCount / batchSize;
+            var iterationCount = dataSourceCount / batchSize;
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
@@ -179,7 +179,7 @@ public class CapabilityReportScheduledEventFunction
                 {
                     messages.Add(new MessagingRequest()
                     {
-                        ReportSource = reportSource.GetRange(x, x + batchSize > reportSourceCount ? reportSourceCount - x : batchSize),
+                        DataSource = dataSource.GetRange(x, x + batchSize > dataSourceCount ? dataSourceCount - x : batchSize),
                         ReportName = capabilityReports[i].ReportName,
                         Interaction = capabilityReports[i].Interaction,
                         Workflow = capabilityReports[i].Workflow,
