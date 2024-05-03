@@ -4,4 +4,5 @@ internal class StorageConfiguration
 {
     public string BucketName { get; set; }
     public string SourceObject { get; set; }
+    public string RolesObject { get; set; }
 }

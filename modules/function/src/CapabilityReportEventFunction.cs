@@ -43,10 +43,11 @@ public class CapabilityReportEventFunction
         };
     }
 
-    public async Task<HttpStatusCode> FunctionHandler(ScheduledFunctionRequest scheduledFunctionRequest, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
+        var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
+        var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
         var statusCode = await GenerateMessages(messages);
         return statusCode;

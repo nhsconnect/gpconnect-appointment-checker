@@ -43,12 +43,15 @@ public class OrganisationHierarchyScheduledEventFunction
         };
     }
 
-    public async Task<HttpStatusCode> FunctionHandler(ScheduledFunctionRequest scheduledFunctionRequest, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
         await Reset(Objects.Key, Objects.Transient);
         var codesSuppliers = await LoadDataSource();
-        var odsList = await GetOdsData(scheduledFunctionRequest.OdsRoles);
+        
+        var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
+        var odsList = await GetOdsData(rolesSource);
+
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
         var hierarchyKey = await PersistOrganisationHierarchy(dataSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
         _lambdaContext.Logger.LogLine("Organisation Hierarchy created");
@@ -74,19 +77,21 @@ public class OrganisationHierarchyScheduledEventFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
+        _lambdaContext.Logger.Log("List<string> odsCodes in PersistOrganisationHierarchy");
+        _lambdaContext.Logger.Log(await json.ReadAsStringAsync());
+
         var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
+        }, json);        
 
-        response.EnsureSuccessStatusCode();
-        var fileStream = await response.Content.ReadAsStreamAsync();
-        var byteArray = StreamExtensions.UseBufferedStream(fileStream);
-        var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower();
-
-        if (byteArray != null)
+        if (response.IsSuccessStatusCode)
         {
+            var fileStream = await response.Content.ReadAsStreamAsync();
+            var byteArray = StreamExtensions.UseBufferedStream(fileStream);
+            var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower();
+
             await Reset(Objects.Hierarchy);
             await StorageManager.Post(new StorageUploadRequest
             {
@@ -99,7 +104,7 @@ public class OrganisationHierarchyScheduledEventFunction
         return null;        
     }
 
-    private async Task<string[]> GetOdsData(string[] roles)
+    private async Task<string[]> GetOdsData(List<string> roles)
     {
         var queryBuilder = new QueryBuilder
         {
