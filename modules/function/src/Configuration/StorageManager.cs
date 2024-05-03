@@ -56,6 +56,17 @@ public static class StorageManager
         return responseBody;
     }
 
+    public static async Task<string?> GetObjectKey(StorageListRequest storageListRequest)
+    {
+        var listRequest = new ListObjectsV2Request
+        {
+            BucketName = storageListRequest.BucketName,
+            Prefix = storageListRequest.ObjectPrefix
+        };
+        var s3Object = (await s3Client.ListObjectsV2Async(listRequest)).S3Objects;
+        return s3Object.FirstOrDefault()?.Key;
+    }
+
     public static async Task<List<S3Object>> GetObjects(StorageListRequest storageListRequest)
     {
         var listRequest = new ListObjectsV2Request
