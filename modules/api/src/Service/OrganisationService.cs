@@ -86,7 +86,9 @@ public class OrganisationService : IOrganisationService
         _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
         var hierarchies = new List<Hierarchy>();
 
-        await Parallel.ForEachAsync(odsCodes, async (odsCode, ct) =>
+        var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 100 };
+
+        await Parallel.ForEachAsync(odsCodes, parallelOptions, async (odsCode, ct) =>
         {
             hierarchies.Add(await GetOrganisationHierarchy(odsCode));
         });

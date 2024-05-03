@@ -46,28 +46,16 @@ public class OrganisationHierarchyScheduledEventFunction
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Key, Objects.Transient);
-        _lambdaContext.Logger.LogLine("START: Loading DataSource");
-        var codesSuppliers = await LoadDataSource();
-        _lambdaContext.Logger.LogLine("FINISH: Loading DataSource");
+        
+        //var codesSuppliers = await LoadDataSource();
 
-        _lambdaContext.Logger.LogLine("START: Loading Roles");
-        var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
-        _lambdaContext.Logger.LogLine("FINISH: Loading Roles");
+        //var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
+        //var odsList = await GetOdsData(rolesSource);
+        //var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
 
-        _lambdaContext.Logger.LogLine("START: Loading Ods Data");
-        var odsList = await GetOdsData(rolesSource);
-        _lambdaContext.Logger.LogLine("FINISH: Loading Ods Data");
+        //var hierarchyKey = await PersistOrganisationHierarchy(dataSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
 
-        _lambdaContext.Logger.LogLine("START: Setting DataSource");
-        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        _lambdaContext.Logger.LogLine("FINISH: Setting DataSource");
-
-        _lambdaContext.Logger.LogLine("START: PersistOrganisationHierarchy");
-        var hierarchyKey = await PersistOrganisationHierarchy(dataSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
-        _lambdaContext.Logger.LogLine("FINISH: PersistOrganisationHierarchy"); 
-        ;
-        return hierarchyKey != null ? HttpStatusCode.Created : HttpStatusCode.BadRequest;        
+        return HttpStatusCode.OK;
     }
 
     private async Task<List<DataSource>> LoadDataSource()
@@ -89,9 +77,6 @@ public class OrganisationHierarchyScheduledEventFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        _lambdaContext.Logger.Log("List<string> odsCodes in PersistOrganisationHierarchy");
-        _lambdaContext.Logger.Log(await json.ReadAsStringAsync());
-
         var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
@@ -104,7 +89,6 @@ public class OrganisationHierarchyScheduledEventFunction
             var byteArray = StreamExtensions.UseBufferedStream(fileStream);
             var hierarchyKey = $"{Objects.Hierarchy}_{DateTime.UtcNow.Ticks}.json".ToLower();
 
-            await Reset(Objects.Hierarchy);
             await StorageManager.Post(new StorageUploadRequest
             {
                 BucketName = _storageConfiguration.BucketName,
@@ -131,17 +115,5 @@ public class OrganisationHierarchyScheduledEventFunction
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<string[]>(body, _options);
-    }
-
-    private async Task Reset(params string[] objectPrefix)
-    {
-        foreach (var key in objectPrefix)
-        {
-            await StorageManager.Purge(new StorageListRequest
-            {
-                BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = key
-            });
-        }
     }
 }
