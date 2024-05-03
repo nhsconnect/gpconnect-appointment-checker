@@ -54,14 +54,13 @@ public class OrganisationService : IOrganisationService
     public async Task<List<string>> GetOrganisationsFromOdsByRole(string[] roles)
     {
         var bundle = new List<string>();
-        var queryStringBuilder = new QueryBuilder();
-        for (int i = 0; i < roles.Length; i++)
+        var queryStringBuilder = new QueryBuilder
         {
-            queryStringBuilder.Add("ods-org-role", roles[i]);
-        }
+            { "ods-org-role", roles.AsEnumerable().Select(role => role.ToString()) },
+            { "_count", _config.Value.RecordLimit.ToString() }
+        };
         var page = 1;
         var hasNext = true;
-        queryStringBuilder.Add("_count", _config.Value.RecordLimit.ToString());
 
         while (hasNext)
         {
