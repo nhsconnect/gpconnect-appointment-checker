@@ -1,6 +1,5 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
@@ -8,10 +7,8 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
-using ThirdParty.BouncyCastle.Utilities.IO.Pem;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -51,7 +48,7 @@ public class SQSEventFunction
     {
         _lambdaContext = lambdaContext;
         _stopwatch.Start();
-        var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();        
+        var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
 
         foreach (var message in evnt.Records)
         {
@@ -85,16 +82,35 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
+                //var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
 
-                reportInteraction = new ReportInteraction()
+                var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options), 
+                    Encoding.UTF8, 
+                    MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+                var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
                 {
-                    ReportSource = messageRequest.DataSource.Select(x => new ReportSource() { OdsCode = x.OdsCode, SupplierName = x.SupplierName, OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode) }).ToList(),
-                    ReportName = messageRequest.ReportName,
-                    Interaction = messageRequest.Interaction,
-                    Workflow = messageRequest.Workflow,
-                    ReportId = messageRequest.ReportId
-                };
+                    [Headers.UserId] = _endUserConfiguration.UserId,
+                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
+                }, json);
+
+                response.EnsureSuccessStatusCode();
+
+                if (response != null)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    var hierarchySource = JsonConvert.DeserializeObject<List<OrganisationHierarchy>>(body, _options);
+
+                    reportInteraction = new ReportInteraction()
+                    {
+                        ReportSource = messageRequest.DataSource.Select(x => new ReportSource() { OdsCode = x.OdsCode, SupplierName = x.SupplierName, OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode) }).ToList(),
+                        ReportName = messageRequest.ReportName,
+                        Interaction = messageRequest.Interaction,
+                        Workflow = messageRequest.Workflow,
+                        ReportId = messageRequest.ReportId
+                    };
+
+                }
             }
 
             _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.DataSource.Select(x => x.OdsCode).ToArray())}");

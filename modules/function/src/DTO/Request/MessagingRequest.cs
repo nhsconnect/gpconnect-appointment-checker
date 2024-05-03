@@ -8,5 +8,4 @@ public class MessagingRequest
     public string? ReportName { get; set; } = null;
     public string? ReportId { get; set; } = null;
     public Guid MessageGroupId { get; set; }
-    public string HierarchyKey { get; set; }
 }

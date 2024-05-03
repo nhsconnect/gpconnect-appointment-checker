@@ -46,6 +46,7 @@ public class CapabilityReportEventFunction
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
+        await Reset(Objects.Key, Objects.Transient);
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
@@ -74,7 +75,7 @@ public class CapabilityReportEventFunction
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        var hierarchyKey = await StorageManager.GetObjectKey(new StorageListRequest() { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Hierarchy });
+        //var hierarchyKey = await StorageManager.GetObjectKey(new StorageListRequest() { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Hierarchy });
 
         var messages = new List<MessagingRequest>();
 
@@ -119,8 +120,8 @@ public class CapabilityReportEventFunction
                         Interaction = capabilityReports[i].Interaction,
                         Workflow = capabilityReports[i].Workflow,
                         MessageGroupId = messageGroupId,
-                        ReportId = capabilityReports[i].ReportId,
-                        HierarchyKey = hierarchyKey
+                        ReportId = capabilityReports[i].ReportId
+                        //HierarchyKey = hierarchyKey
                     });
                     x += batchSize;
                     y++;
@@ -174,5 +175,17 @@ public class CapabilityReportEventFunction
         using var reader = new StringReader(reportSource);
         using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
         return csvReader.GetRecords<DataSource>().DistinctBy(x => x.OdsCode).OrderBy(x => x.OdsCode).ToList();
+    }
+
+    private async Task Reset(params string[] objectPrefix)
+    {
+        foreach (var key in objectPrefix)
+        {
+            await StorageManager.Purge(new StorageListRequest
+            {
+                BucketName = _storageConfiguration.BucketName,
+                ObjectPrefix = key
+            });
+        }
     }
 }
