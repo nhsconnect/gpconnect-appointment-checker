@@ -61,14 +61,14 @@ public class OrganisationService : IOrganisationService
         }
         var page = 1;
         var hasNext = true;
-        queryStringBuilder.Add("_count", _config.Value.RecordLimit.ToString());        
+        queryStringBuilder.Add("_count", _config.Value.RecordLimit.ToString());
 
         while (hasNext)
         {
             var response = await _fhirReadClient.GetAsync($"{queryStringBuilder}&_page={page}");
             if (response.IsSuccessStatusCode)
             {
-              var body = await response.Content.ReadAsStringAsync();
+                var body = await response.Content.ReadAsStringAsync();
                 var resource = JsonConvert.DeserializeObject<Organisation>(body, _options);
                 if (resource != null)
                 {
@@ -86,10 +86,11 @@ public class OrganisationService : IOrganisationService
         _bearerToken = await GetBearerToken();
         _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
         var hierarchies = new List<Hierarchy>();
-        for (var i = 0; i < odsCodes.Count(); i++)
+
+        await Parallel.ForEachAsync(odsCodes, async (odsCode, ct) =>
         {
-            hierarchies.Add(await GetOrganisationHierarchy(odsCodes[i]));
-        }
+            hierarchies.Add(await GetOrganisationHierarchy(odsCode));
+        });
         return hierarchies;
     }
 
@@ -161,10 +162,10 @@ public class OrganisationService : IOrganisationService
         {
             var request = new[]
             {
-            new KeyValuePair<string, string>("grant_type", "client_credentials"),
-            new KeyValuePair<string, string>("client_id", _config.Value.HierarchyOdsApiClientId),
-            new KeyValuePair<string, string>("client_secret", _config.Value.HierarchyOdsApiClientSecret)
-        };
+                new KeyValuePair<string, string>("grant_type", "client_credentials"),
+                new KeyValuePair<string, string>("client_id", _config.Value.HierarchyOdsApiClientId),
+                new KeyValuePair<string, string>("client_secret", _config.Value.HierarchyOdsApiClientSecret)
+            };
 
             var response = await _hierarchyClient.PostAsync("authorisation/auth/realms/terminology/protocol/openid-connect/token", new FormUrlEncodedContent(request));
 
