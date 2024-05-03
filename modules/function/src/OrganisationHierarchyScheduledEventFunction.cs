@@ -47,14 +47,26 @@ public class OrganisationHierarchyScheduledEventFunction
     {
         _lambdaContext = lambdaContext;
         await Reset(Objects.Key, Objects.Transient);
+        _lambdaContext.Logger.LogLine("START: Loading DataSource");
         var codesSuppliers = await LoadDataSource();
-        
-        var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
-        var odsList = await GetOdsData(rolesSource);
+        _lambdaContext.Logger.LogLine("FINISH: Loading DataSource");
 
+        _lambdaContext.Logger.LogLine("START: Loading Roles");
+        var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
+        _lambdaContext.Logger.LogLine("FINISH: Loading Roles");
+
+        _lambdaContext.Logger.LogLine("START: Loading Ods Data");
+        var odsList = await GetOdsData(rolesSource);
+        _lambdaContext.Logger.LogLine("FINISH: Loading Ods Data");
+
+        _lambdaContext.Logger.LogLine("START: Setting DataSource");
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
+        _lambdaContext.Logger.LogLine("FINISH: Setting DataSource");
+
+        _lambdaContext.Logger.LogLine("START: PersistOrganisationHierarchy");
         var hierarchyKey = await PersistOrganisationHierarchy(dataSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList());
-        _lambdaContext.Logger.LogLine("Organisation Hierarchy created");
+        _lambdaContext.Logger.LogLine("FINISH: PersistOrganisationHierarchy"); 
+        ;
         return hierarchyKey != null ? HttpStatusCode.Created : HttpStatusCode.BadRequest;        
     }
 
