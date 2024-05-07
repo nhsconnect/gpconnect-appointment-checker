@@ -7,6 +7,7 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -22,10 +23,12 @@ public class CapabilityReportEventFunction
     private readonly EndUserConfiguration _endUserConfiguration;
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
+    private Stopwatch _stopwatch;
 
     public CapabilityReportEventFunction()
     {
         _secretManager = new SecretManager();
+        _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
 
@@ -45,6 +48,7 @@ public class CapabilityReportEventFunction
 
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
+        _stopwatch.Start();
         _lambdaContext = lambdaContext;
         await Reset(Objects.Key, Objects.Transient);
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
@@ -160,7 +164,8 @@ public class CapabilityReportEventFunction
             }, json);
         });
 
-        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
+        _stopwatch.Stop();
+        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages in {_stopwatch.Elapsed:mm':'ss' minutes'}");
         return HttpStatusCode.OK;
     }
 
