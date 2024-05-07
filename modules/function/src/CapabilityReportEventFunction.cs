@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -75,7 +76,6 @@ public class CapabilityReportEventFunction
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        //var hierarchyKey = await StorageManager.GetObjectKey(new StorageListRequest() { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Hierarchy });
 
         var messages = new List<MessagingRequest>();
 
@@ -87,7 +87,9 @@ public class CapabilityReportEventFunction
             var batchSize = 20;
             var iterationCount = dataSourceCount / batchSize;
 
-            for (var i = 0; i < capabilityReports.Count; i++)
+            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = capabilityReports.Count };
+
+            await Parallel.ForEachAsync(capabilityReports, parallelOptions, async (capabilityReport, ct) =>
             {
                 var x = 0;
                 var y = 0;
@@ -96,10 +98,10 @@ public class CapabilityReportEventFunction
 
                 var interactionRequest = new InteractionRequest
                 {
-                    WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
-                    InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
-                    ReportName = capabilityReports[i].ReportName,
-                    ReportId = capabilityReports[i].ReportId
+                    WorkflowId = capabilityReport.Workflow != null ? capabilityReport.Workflow.FirstOrDefault() : null,
+                    InteractionId = capabilityReport.Interaction != null ? capabilityReport.Interaction.FirstOrDefault() : null,
+                    ReportName = capabilityReport.ReportName,
+                    ReportId = capabilityReport.ReportId
                 };
 
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
@@ -107,7 +109,7 @@ public class CapabilityReportEventFunction
                 await StorageManager.Post(new StorageUploadRequest
                 {
                     BucketName = _storageConfiguration.BucketName,
-                    Key = capabilityReports[i].ObjectKey,
+                    Key = capabilityReport.ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
@@ -116,17 +118,16 @@ public class CapabilityReportEventFunction
                     messages.Add(new MessagingRequest()
                     {
                         DataSource = dataSource.GetRange(x, x + batchSize > dataSourceCount ? dataSourceCount - x : batchSize),
-                        ReportName = capabilityReports[i].ReportName,
-                        Interaction = capabilityReports[i].Interaction,
-                        Workflow = capabilityReports[i].Workflow,
+                        ReportName = capabilityReport.ReportName,
+                        Interaction = capabilityReport.Interaction,
+                        Workflow = capabilityReport.Workflow,
                         MessageGroupId = messageGroupId,
-                        ReportId = capabilityReports[i].ReportId
-                        //HierarchyKey = hierarchyKey
+                        ReportId = capabilityReport.ReportId
                     });
                     x += batchSize;
                     y++;
                 }
-            }
+            });
         }
         return messages;
     }

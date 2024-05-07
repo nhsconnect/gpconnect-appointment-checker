@@ -82,8 +82,6 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                //var hierarchySource = await StorageManager.Get<List<OrganisationHierarchy>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = messageRequest.HierarchyKey });
-
                 var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options), 
                     Encoding.UTF8, 
                     MediaTypeHeaderValue.Parse("application/json").MediaType);
