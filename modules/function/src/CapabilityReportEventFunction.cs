@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Reflection.Emit;
 using System.Text;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -146,21 +145,21 @@ public class CapabilityReportEventFunction
 
     private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequests)
     {
-        for (var i = 0; i < messagingRequests.Count; i++)
+        var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 100 };
+
+        await Parallel.ForEachAsync(messagingRequests, parallelOptions, async (messagingRequest, ct) =>
         {
-            var json = new StringContent(JsonConvert.SerializeObject(messagingRequests[i], null, _options),
+            var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
-
-            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
-            response.EnsureSuccessStatusCode();
-        }
+        });
+
         _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages");
         return HttpStatusCode.OK;
     }
