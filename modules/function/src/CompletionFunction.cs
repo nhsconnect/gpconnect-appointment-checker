@@ -21,7 +21,7 @@ public class CompletionFunction
     private readonly JsonSerializerSettings _options;
     private readonly SecretManager _secretManager;
     private ILambdaContext _lambdaContext;
-    private List<string> _distributionList = new List<string>();
+    private DistributionListRequest _distributionList = new DistributionListRequest();
     private List<ReportFilterRequest> _reportFilterRequest = new List<ReportFilterRequest>();
     private Stopwatch _stopwatch;
 
@@ -68,7 +68,7 @@ public class CompletionFunction
         });
 
         foreach (var keyObject in keyObjects)
-        {
+        {            
             var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
 
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
@@ -85,17 +85,18 @@ public class CompletionFunction
             }
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-            await CreateReport($"[{stringBuilder}]", interactionObject.ReportName);
+            await CreateReport($"[{stringBuilder}]", interactionObject);
         }        
     }
 
-    private async Task CreateReport(string jsonData, string reportName)
+    private async Task CreateReport(string jsonData, ReportInteraction interactionObject)
     {
         var reportCreationRequest = new ReportCreationRequest
         {
             JsonData = jsonData,
             ReportFilter = _reportFilterRequest,
-            ReportName = reportName
+            ReportName = interactionObject.ReportName,
+            ReportId = interactionObject.ReportId
         };
 
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
@@ -131,10 +132,16 @@ public class CompletionFunction
 
     private async Task EmailCapabilityReport(ReportCreationRequest reportCreationRequest, string preSignedUrl)
     {
+        var selectedEmailAddresses = _distributionList.SelectedRecipients?.Where(x => x.ReportId.ToUpper() == reportCreationRequest.ReportId.ToUpper()).SelectMany(x => x.ReportRecipients);
+        if (selectedEmailAddresses != null)
+        {
+            _distributionList.AllRecipients.AddRange(selectedEmailAddresses);
+        }
+
         var notification = new MessagingNotificationFunctionRequest()
         {
             ApiKey = _notificationConfiguration.CapabilityReportingApiKey,
-            EmailAddresses = _distributionList,
+            EmailAddresses = _distributionList.AllRecipients,
             TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
             TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportCreationRequest.ReportName },
