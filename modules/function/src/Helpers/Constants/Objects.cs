@@ -7,4 +7,5 @@ public class Objects
     public const string Workflow = "workflow";
     public const string GpConnect = "gpconnect";
     public const string Key = "key";
+    public const string Completion = "completion";
 }
