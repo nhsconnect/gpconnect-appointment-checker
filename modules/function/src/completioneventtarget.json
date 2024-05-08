@@ -1,0 +1,42 @@
+{
+  "DistributionList": {
+    "AllRecipients": [
+      "a.b@nhs.net"
+    ],
+    "SelectedRecipients": [
+      {
+        "ReportId": "AccessRecordStructured",
+        "ReportRecipients": [
+          "c.d@nhs.net",
+          "e.f@nhs.net"
+        ]
+      },
+      {
+        "ReportId": "AccessRecordHtml",
+        "ReportRecipients": [
+          "g.h@nhs.net",
+          "i.j@nhs.net"
+        ]
+      },
+      {
+        "ReportId": "UpdateRecord",
+        "ReportRecipients": [
+          "k.l@nhs.net",
+          "m.n@nhs.net"
+        ]
+      }
+    ]
+  },
+  "ReportFilter": [
+    {
+      "FilterColumn": "Supplier_Name",
+      "FilterValue": "THE PHOENIX PARTNERSHIP",
+      "FilterTab": "TPP"
+    },
+    {
+      "FilterColumn": "Supplier_Name",
+      "FilterValue": "EGTON MEDICAL INFORMATION SYSTEMS LTD (EMIS)",
+      "FilterTab": "EMIS"
+    }
+  ]
+}
