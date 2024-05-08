@@ -141,7 +141,7 @@ public class CompletionFunction
         var notification = new MessagingNotificationFunctionRequest()
         {
             ApiKey = _notificationConfiguration.CapabilityReportingApiKey,
-            EmailAddresses = _distributionList.AllRecipients,
+            EmailAddresses = _distributionList.AllRecipients.DistinctBy(x => x).ToList(),
             TemplateId = _notificationConfiguration.CapabilityReportingTemplateId,
             TemplateParameters = new Dictionary<string, dynamic> {
                 { "report_name", reportCreationRequest.ReportName },
