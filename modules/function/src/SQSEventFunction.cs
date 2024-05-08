@@ -71,11 +71,16 @@ public class SQSEventFunction
         }
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
-        _lambdaContext.Logger.LogInformation($"SQSEventFunction with {evnt.Records.Count} records took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
 
         var messageStatus = await GetMessageStatus();
-        _lambdaContext.Logger.LogInformation($"messageStatus.MessagesAvailable: {messageStatus.MessagesAvailable}");
-        _lambdaContext.Logger.LogInformation($"messageStatus.MessagesInFlight: {messageStatus.MessagesInFlight}");
+        if(messageStatus != null && messageStatus.MessagesAvailable == 0) {
+            await StorageManager.Post(new StorageUploadRequest()
+            {
+                BucketName = _storageConfiguration.BucketName,
+                Key = Objects.Completion,
+                InputBytes = BitConverter.GetBytes(DateTime.UtcNow.Ticks),
+            });
+        }
 
         return batchResponse;
     }
@@ -129,7 +134,6 @@ public class SQSEventFunction
                 }
             }
 
-            _lambdaContext.Logger.LogLine($"Generating data for ODS Codes {string.Join(", ", messageRequest.DataSource.Select(x => x.OdsCode).ToArray())}");
             return reportInteraction;
         }
         catch (Exception e)
