@@ -3,6 +3,7 @@ using Amazon.Lambda.SQSEvents;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
+using GpConnect.AppointmentChecker.Function.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
@@ -71,13 +72,32 @@ public class SQSEventFunction
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
         _lambdaContext.Logger.LogInformation($"SQSEventFunction with {evnt.Records.Count} records took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
+
+        var messageStatus = await GetMessageStatus();
+        _lambdaContext.Logger.LogInformation($"messageStatus.MessagesAvailable: {messageStatus.MessagesAvailable}");
+        _lambdaContext.Logger.LogInformation($"messageStatus.MessagesInFlight: {messageStatus.MessagesInFlight}");
+
         return batchResponse;
+    }
+
+
+
+    private async Task<MessageStatus> GetMessageStatus()
+    {
+        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<MessageStatus> (body, _options);
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
     {
         try
-        {
+        {            
             ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
