@@ -80,8 +80,6 @@ public class SQSEventFunction
         return batchResponse;
     }
 
-
-
     private async Task<MessageStatus> GetMessageStatus()
     {
         var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()

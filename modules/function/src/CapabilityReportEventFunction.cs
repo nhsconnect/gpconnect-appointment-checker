@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 namespace GpConnect.AppointmentChecker.Function;
 
 public class CapabilityReportEventFunction
