@@ -1,5 +1,6 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Amazon.SecretsManager.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
@@ -74,14 +75,19 @@ public class SQSEventFunction
 
         var messageStatus = await GetMessageStatus();
         if(messageStatus != null && messageStatus.MessagesAvailable == 0) {
-            await StorageManager.Post(new StorageUploadRequest()
-            {
-                BucketName = _storageConfiguration.BucketName,
-                Key = Objects.Completion,
-                InputBytes = Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString()),
-            });
-        }
 
+            var completionRequest = new CompletionRequest() { CompletionCode = new List<string>() { "OK" } };
+
+            var json = new StringContent(JsonConvert.SerializeObject(completionRequest, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            await _httpClient.PostWithHeadersAsync("/messaging", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+        }
         return batchResponse;
     }
 
