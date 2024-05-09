@@ -12,5 +12,7 @@ public enum SpineMessageTypes
     [InteractionId("urn:nhs:names:services:gpconnect:structured:fhir:rest:read:metadata-1")]
     GpConnectReadMetaDataAccessRecordStructured = 6,
     [InteractionId("urn:nhs:names:services:gpconnect:documents:fhir:rest:read:metadata-1")]
-    GpConnectReadMetaDataAccessDocument = 7
+    GpConnectReadMetaDataAccessDocument = 7,
+    [InteractionId("urn:nhs:names:services:gpconnect:fhir:rest:read:metadata")]
+    GpConnectReadMetaDataAccessRecordHtml = 8
 }
