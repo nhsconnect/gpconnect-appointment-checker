@@ -13,7 +13,6 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 namespace GpConnect.AppointmentChecker.Function;
 
 public class CapabilityReportEventFunction
@@ -47,6 +46,7 @@ public class CapabilityReportEventFunction
         };
     }
 
+    [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
     public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _stopwatch.Start();

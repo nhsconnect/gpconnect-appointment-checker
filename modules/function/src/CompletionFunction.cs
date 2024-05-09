@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using ThirdParty.BouncyCastle.Utilities.IO.Pem;
 using NotificationConfiguration = GpConnect.AppointmentChecker.Function.Configuration.NotificationConfiguration;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -47,16 +48,21 @@ public class CompletionFunction
     }
 
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-    public async Task<HttpStatusCode> FunctionHandler(CompletionFunctionRequest completionFunctionRequest, ILambdaContext lambdaContext)
+    public async Task<HttpStatusCode> FunctionHandler(ILambdaContext lambdaContext)
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        _reportFilterRequest = completionFunctionRequest.ReportFilter;
-        _distributionList = completionFunctionRequest.DistributionList;
-        await BundleUpJsonResponsesAndSendReport();
-        _stopwatch.Stop();
-        _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
-        return HttpStatusCode.OK;
+        var completionFunctionRequest = await StorageManager.Get<CompletionFunctionRequest>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = $"{Objects.Distribution}.json" });
+        if (completionFunctionRequest != null)
+        {
+            _reportFilterRequest = completionFunctionRequest.ReportFilter;
+            _distributionList = completionFunctionRequest.DistributionList;
+            await BundleUpJsonResponsesAndSendReport();
+            _stopwatch.Stop();
+            _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
+            return HttpStatusCode.OK;
+        }
+        return HttpStatusCode.BadRequest;
     }
 
     private async Task BundleUpJsonResponsesAndSendReport()
