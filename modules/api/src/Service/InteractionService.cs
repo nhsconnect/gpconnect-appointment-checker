@@ -105,24 +105,6 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            if (routeReportRequest?.Interaction?[0] == null)
-                            {
-                                _logger?.LogInformation("AccessRecordHtmlReporting routeReportRequest?.Interaction?[0] is null");
-                            }
-                            else
-                            {
-                                _logger?.LogInformation("AccessRecordHtmlReporting routeReportRequest?.Interaction?[0] is not null");
-                            }
-
-                            if (odsCodesInScope?[0] == null)
-                            {
-                                _logger?.LogInformation("AccessRecordHtmlReporting odsCodesInScope?[0] is null");
-                            }
-                            else
-                            {
-                                _logger?.LogInformation("AccessRecordHtmlReporting odsCodesInScope?[0] is not null");
-                            }
-
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
@@ -157,14 +139,24 @@ public class InteractionService : IInteractionService
             var spineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId };
             var organisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode };
 
-            var input = new DTO.Request.GpConnect.RequestParameters()
+            _logger?.LogInformation("START var input = new DTO.Request.GpConnect.RequestParameters();");
+            var input = new DTO.Request.GpConnect.RequestParameters();
+            _logger?.LogInformation("FINISH var input = new DTO.Request.GpConnect.RequestParameters();");
+
+            if (input != null)
             {
-                RequestUri = requestUri,
-                ProviderSpineDetails = spineDetails,
-                ProviderOrganisationDetails = organisationDetails,
-                SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
-                Sid = Guid.NewGuid().ToString()
-            };
+                _logger?.LogInformation($"input is not null {interaction} {odsCode}");
+            }
+            else
+            {
+                _logger?.LogInformation($"input is null {interaction} {odsCode}");
+            }
+
+            input.RequestUri = requestUri;
+            input.ProviderSpineDetails = spineDetails;
+            input.ProviderOrganisationDetails = organisationDetails;
+            input.SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId;
+            input.Sid = Guid.NewGuid().ToString();
 
             var requestParameters = await _tokenService.ConstructRequestParameters(input);
 
