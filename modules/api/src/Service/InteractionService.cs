@@ -59,10 +59,23 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            _logger?.LogInformation("CreateInteractionData AccessRecordStructuredReporting");
-                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting routeReportRequest.Interaction[0] {routeReportRequest.Interaction[0]}");
-                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting routeReportRequest.Interaction[1] {routeReportRequest.Interaction[1]}");
-                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting odsCodesInScope {odsCodesInScope[i]}");
+                            if (routeReportRequest?.Interaction?[0] == null)
+                            {
+                                _logger?.LogInformation("AccessRecordStructuredReporting routeReportRequest?.Interaction?[0] is null");
+                            }
+                            else
+                            {
+                                _logger?.LogInformation("AccessRecordStructuredReporting routeReportRequest?.Interaction?[0] is not null");
+                            }
+
+                            if (odsCodesInScope?[0] == null)
+                            {
+                                _logger?.LogInformation("AccessRecordStructuredReporting odsCodesInScope?[0] is null");
+                            }
+                            else
+                            {
+                                _logger?.LogInformation("AccessRecordStructuredReporting odsCodesInScope?[0] is not null");
+                            }
 
                             var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
@@ -92,9 +105,23 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            _logger?.LogInformation("CreateInteractionData AccessRecordHtmlReporting");
-                            _logger?.LogInformation($"CreateInteractionData AccessRecordHtmlReporting routeReportRequest.Interaction {routeReportRequest.Interaction[0]}");
-                            _logger?.LogInformation($"CreateInteractionData AccessRecordHtmlReporting odsCodesInScope {odsCodesInScope[i]}");
+                            if (routeReportRequest?.Interaction?[0] == null)
+                            {
+                                _logger?.LogInformation("AccessRecordHtmlReporting routeReportRequest?.Interaction?[0] is null");
+                            }
+                            else
+                            {
+                                _logger?.LogInformation("AccessRecordHtmlReporting routeReportRequest?.Interaction?[0] is not null");
+                            }
+
+                            if (odsCodesInScope?[0] == null)
+                            {
+                                _logger?.LogInformation("AccessRecordHtmlReporting odsCodesInScope?[0] is null");
+                            }
+                            else
+                            {
+                                _logger?.LogInformation("AccessRecordHtmlReporting odsCodesInScope?[0] is not null");
+                            }
 
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
@@ -125,26 +152,24 @@ public class InteractionService : IInteractionService
 
         if (providerSpineDetails != null)
         {
-            _logger?.LogInformation($"GetInteractionData providerSpineDetails OdsCode {providerSpineDetails.OdsCode}");
-            _logger?.LogInformation($"GetInteractionData providerSpineDetails EndpointAddress {providerSpineDetails.EndpointAddress}");
-            _logger?.LogInformation($"GetInteractionData providerSpineDetails AsId {providerSpineDetails.AsId}");
-
             var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
-            var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
+            var requestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}");
+            var spineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId };
+            var organisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode };
+
+            var input = new DTO.Request.GpConnect.RequestParameters()
             {
-                RequestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}"),
-                ProviderSpineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId },
-                ProviderOrganisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode },
+                RequestUri = requestUri,
+                ProviderSpineDetails = spineDetails,
+                ProviderOrganisationDetails = organisationDetails,
                 SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
                 Sid = Guid.NewGuid().ToString()
-            });
+            };
+
+            var requestParameters = await _tokenService.ConstructRequestParameters(input);
 
             if (requestParameters != null)
             {
-                _logger?.LogInformation($"GetInteractionData requestParameters not null");
-                _logger?.LogInformation($"GetInteractionData requestParameters providerSpineDetails.SspHostname {providerSpineDetails.SspHostname}");
-                _logger?.LogInformation($"GetInteractionData requestParameters interaction {interaction}");
-
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(2));
                 return capabilityStatement;
             }
