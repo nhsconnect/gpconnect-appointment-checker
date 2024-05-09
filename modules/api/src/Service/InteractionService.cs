@@ -141,6 +141,10 @@ public class InteractionService : IInteractionService
 
             if (requestParameters != null)
             {
+                _logger?.LogInformation($"GetInteractionData requestParameters not null");
+                _logger?.LogInformation($"GetInteractionData requestParameters providerSpineDetails.SspHostname {providerSpineDetails.SspHostname}");
+                _logger?.LogInformation($"GetInteractionData requestParameters interaction {interaction}");
+
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(2));
                 return capabilityStatement;
             }
