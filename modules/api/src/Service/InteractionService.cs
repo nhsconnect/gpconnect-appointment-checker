@@ -30,7 +30,7 @@ public class InteractionService : IInteractionService
         _spineService = spineService;
         _configurationService = configurationService;
         _capabilityStatement = capabilityStatement;
-        _httpContextAccessor = httpContextAccessor;
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
     public async Task<string?> CreateInteractionData<T>(RouteReportRequest routeReportRequest) where T : class
@@ -58,6 +58,11 @@ public class InteractionService : IInteractionService
                                 Profile = null,
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
+
+                            _logger?.LogInformation("CreateInteractionData AccessRecordStructuredReporting");
+                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting routeReportRequest.Interaction[0] {routeReportRequest.Interaction[0]}");
+                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting routeReportRequest.Interaction[1] {routeReportRequest.Interaction[1]}");
+                            _logger?.LogInformation($"CreateInteractionData AccessRecordStructuredReporting odsCodesInScope {odsCodesInScope[i]}");
 
                             var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
@@ -87,6 +92,10 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
+                            _logger?.LogInformation("CreateInteractionData AccessRecordHtmlReporting");
+                            _logger?.LogInformation($"CreateInteractionData AccessRecordHtmlReporting routeReportRequest.Interaction {routeReportRequest.Interaction[0]}");
+                            _logger?.LogInformation($"CreateInteractionData AccessRecordHtmlReporting odsCodesInScope {odsCodesInScope[i]}");
+
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
@@ -112,10 +121,14 @@ public class InteractionService : IInteractionService
 
     private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode)
     {
-        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
+        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
         if (providerSpineDetails != null)
         {
+            _logger?.LogInformation($"GetInteractionData providerSpineDetails OdsCode {providerSpineDetails.OdsCode}");
+            _logger?.LogInformation($"GetInteractionData providerSpineDetails EndpointAddress {providerSpineDetails.EndpointAddress}");
+            _logger?.LogInformation($"GetInteractionData providerSpineDetails AsId {providerSpineDetails.AsId}");
+
             var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
             var requestParameters = await _tokenService.ConstructRequestParameters(new DTO.Request.GpConnect.RequestParameters()
             {
