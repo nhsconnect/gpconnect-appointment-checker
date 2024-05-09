@@ -3,9 +3,9 @@
 public class Objects
 {
     public const string Transient = "transient";
-    public const string Hierarchy = "hierarchy";
     public const string Workflow = "workflow";
     public const string GpConnect = "gpconnect";
     public const string Key = "key";
     public const string Completion = "completion";
+    public const string Distribution = "distribution";
 }
