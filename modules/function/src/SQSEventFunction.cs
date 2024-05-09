@@ -78,7 +78,7 @@ public class SQSEventFunction
             {
                 BucketName = _storageConfiguration.BucketName,
                 Key = Objects.Completion,
-                InputBytes = BitConverter.GetBytes(DateTime.UtcNow.Ticks),
+                InputBytes = Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString()),
             });
         }
 
