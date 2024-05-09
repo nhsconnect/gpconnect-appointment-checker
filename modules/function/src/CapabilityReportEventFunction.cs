@@ -51,7 +51,7 @@ public class CapabilityReportEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Key, Objects.Transient);
+        await Reset(Objects.Key, Objects.Transient, Objects.Completion);
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
