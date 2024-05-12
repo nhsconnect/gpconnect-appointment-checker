@@ -107,7 +107,7 @@ public class InteractionService : IInteractionService
                                     _logger.LogInformation($"In AccessRecordHtmlReporting rest.Operation.Count is {rest.Operation.Count}");
                                     foreach (var item in rest?.Operation)
                                     {
-                                        _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation is {item.Name}");
+                                        _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation.Name is {item.Name}");
                                     }
                                 }
                                 accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
