@@ -59,29 +59,12 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting SupplierName is {accessRecordStructuredReporting.SupplierName}");
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting Hierarchy.OdsCode is {accessRecordStructuredReporting.Hierarchy.OdsCode}");
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting Hierarchy.SiteName is {accessRecordStructuredReporting.Hierarchy.SiteName}");
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting Hierarchy.IcbName is {accessRecordStructuredReporting.Hierarchy.IcbName}");
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting Hierarchy.HigherHealthAuthorityName is {accessRecordStructuredReporting.Hierarchy.HigherHealthAuthorityName}");
-                            _logger.LogInformation($"CreateInteractionData in API AccessRecordStructuredReporting Hierarchy.NationalGroupingName is {accessRecordStructuredReporting.Hierarchy.NationalGroupingName}");
-
-                            _logger.LogInformation($"GetInteractionData in API routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
-                            _logger.LogInformation($"GetInteractionData in API odsCodesInScope[i] is {odsCodesInScope[i]}");
-
                             var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);                            
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
-                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData.Version is {accessRecordStructuredReportingData.Version}");
-                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData.Profile.Count is {accessRecordStructuredReportingData.Profile.Count}");
-
                                 accessRecordStructuredReporting.Profile = accessRecordStructuredReportingData.Profile;
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
-                            }
-                            else
-                            {
-                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData is null OR Has Issues");
                             }
 
                             var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i]);
@@ -92,20 +75,10 @@ public class InteractionService : IInteractionService
                             }
 
                             var jsonStringARS = JsonConvert.SerializeObject(accessRecordStructuredReporting);
-
-                            _logger.LogInformation($"GetInteractionData in API jsonStringARS is {jsonStringARS}");
-                            _logger.LogInformation($"GetInteractionData in API jsonStringARS is {jsonStringARS}");
-
                             var jObjectARS = JObject.Parse(jsonStringARS);
-                            var jDictObj = jObjectARS.Flatten();
+                            var jDictObjARS = jObjectARS.Flatten();
 
-                            foreach(var item in jDictObj)
-                            {
-                                _logger.LogInformation($"GetInteractionData in API jDictObj.Key is {item.Key}");
-                                _logger.LogInformation($"GetInteractionData in API jDictObj.Value is {item.Value}");
-                            }
-
-                            interactions.Add(jDictObj);
+                            interactions.Add(jDictObjARS);
                             break;
 
                         case Type type when type == typeof(AccessRecordHtmlReporting):
@@ -125,7 +98,9 @@ public class InteractionService : IInteractionService
 
                             var jsonStringARH = JsonConvert.SerializeObject(accessRecordHtmlReporting);
                             var jObjectARH = JObject.Parse(jsonStringARH);
-                            interactions.Add(jObjectARH.Flatten());
+                            var jDictObjARH = jObjectARH.Flatten();
+
+                            interactions.Add(jDictObjARH);
                             break;
                     }
                 }
