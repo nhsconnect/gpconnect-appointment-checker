@@ -42,7 +42,6 @@ public class CapabilityStatement
     public List<Issue?> Issue { get; set; } = new List<Issue?>();
 
     public bool NoIssues => Issue?.Count == 0 || Issue == null;
-    public bool HasIssues => !NoIssues;
 
     public string ProviderError => Issue?.FirstOrDefault()?.Details.Coding?.FirstOrDefault()?.Display;
     public string ProviderErrorCode => Issue?.FirstOrDefault()?.Details.Coding?.FirstOrDefault()?.Code;

@@ -81,8 +81,7 @@ public class InteractionService : IInteractionService
                             }
                             else
                             {
-                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData is null");
-                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData is null OR accessRecordStructuredReportingData.HasIssues is {accessRecordStructuredReportingData.HasIssues}");
+                                _logger.LogInformation($"GetInteractionData in API accessRecordStructuredReportingData is null OR Has Issues");
                             }
 
                             var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i]);
