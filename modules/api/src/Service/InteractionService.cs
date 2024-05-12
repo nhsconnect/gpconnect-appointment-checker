@@ -7,6 +7,7 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using JsonFlatten;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
@@ -83,6 +84,8 @@ public class InteractionService : IInteractionService
 
                         case Type type when type == typeof(AccessRecordHtmlReporting):
 
+                            _logger.LogInformation($"In AccessRecordHtmlReporting");
+
                             var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
                             {
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
@@ -90,7 +93,18 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
+                            _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
+                            _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
+
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
+
+                            foreach(var rest in accessRecordHtmlReportingData.Rest) {
+                                _logger.LogInformation($"In AccessRecordHtmlReporting rest.Mode is {rest.Mode}");
+                                foreach (var item in rest.Operation) {
+                                    _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation is {item.Name}");
+                                }
+                            }
+
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
