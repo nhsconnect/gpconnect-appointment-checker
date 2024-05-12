@@ -26,7 +26,6 @@ public static class HttpClientExtensions
         services.AddHttpClient(clientName, options =>
         {
             options.Timeout = TimeSpan.FromSeconds(60);
-            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/fhir+json"));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }).AugmentHttpClientBuilder(handleSSP);
     }

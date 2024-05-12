@@ -96,7 +96,7 @@ public class InteractionService : IInteractionService
                             _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
                             _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
 
-                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
+                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], "application/fhir+json");
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
@@ -132,7 +132,7 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string? mediaType = null)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
@@ -156,7 +156,7 @@ public class InteractionService : IInteractionService
 
             if (requestParameters != null)
             {
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(3));
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(3), mediaType);
                 return capabilityStatement;
             }
         }
