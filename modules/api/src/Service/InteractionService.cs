@@ -98,9 +98,9 @@ public class InteractionService : IInteractionService
 
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
 
-                            foreach(var rest in accessRecordHtmlReportingData.Rest) {
+                            foreach(var rest in accessRecordHtmlReportingData?.Rest) {
                                 _logger.LogInformation($"In AccessRecordHtmlReporting rest.Mode is {rest.Mode}");
-                                foreach (var item in rest.Operation) {
+                                foreach (var item in rest?.Operation) {
                                     _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation is {item.Name}");
                                 }
                             }
