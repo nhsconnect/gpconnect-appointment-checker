@@ -82,10 +82,7 @@ public class OrganisationService : IOrganisationService
 
     public async Task<List<Hierarchy>> GetOrganisationHierarchy(List<string> odsCodes)
     {
-        _bearerToken = await GetBearerToken();
-        _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
         var hierarchies = new List<Hierarchy>();
-
         var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 5 };
 
         await Parallel.ForEachAsync(odsCodes, parallelOptions, async (odsCode, ct) =>
@@ -101,6 +98,8 @@ public class OrganisationService : IOrganisationService
     {
         try
         {
+            _bearerToken = await GetBearerToken();
+            _hierarchyClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
             var organisation = await GetOrganisation(odsCode);
             var hierarchy = new Hierarchy()
             {
