@@ -39,8 +39,9 @@ public class ReportingService : IReportingService
             Formatting = Formatting.Indented
         });
 
-        _logger.LogInformation("SendMessageToCreateInteractionReportContent in API");
+        _logger.LogInformation("START SendMessageToCreateInteractionReportContent in API");
         _logger.LogInformation(request);
+        _logger.LogInformation("FINISH SendMessageToCreateInteractionReportContent in API");
 
         await _messageService.SendMessageToQueue(new SendMessageRequest()
         {
