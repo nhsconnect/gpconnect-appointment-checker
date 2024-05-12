@@ -97,16 +97,19 @@ public class InteractionService : IInteractionService
                             _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
 
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);
-
-                            foreach(var rest in accessRecordHtmlReportingData?.Rest) {
-                                _logger.LogInformation($"In AccessRecordHtmlReporting rest.Mode is {rest.Mode}");
-                                foreach (var item in rest?.Operation) {
-                                    _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation is {item.Name}");
-                                }
-                            }
-
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
+                                _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
+                                _logger.LogInformation($"In AccessRecordHtmlReporting Rest.Count is {accessRecordHtmlReportingData.Rest.Count}");
+
+                                foreach (var rest in accessRecordHtmlReportingData.Rest)
+                                {
+                                    _logger.LogInformation($"In AccessRecordHtmlReporting rest.Operation.Count is {rest.Operation.Count}");
+                                    foreach (var item in rest?.Operation)
+                                    {
+                                        _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation is {item.Name}");
+                                    }
+                                }
                                 accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
                             }
 
