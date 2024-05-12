@@ -67,14 +67,15 @@ public class ReportingService : IReportingService
         {
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportName is {routeReportRequest.ReportName}");
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportId is {routeReportRequest.ReportId}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.Interaction is {string.Join(", ", routeReportRequest.Interaction)}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.Workflow is {string.Join(", ", routeReportRequest.Workflow)}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.Interaction is {(routeReportRequest.Interaction != null ? string.Join(", ", routeReportRequest.Interaction) : "routeReportRequest.Interaction is null")}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.Workflow is {(routeReportRequest.Workflow != null ? string.Join(", ", routeReportRequest.Workflow) : "routeReportRequest.Workflow is null")}");
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OdsCode is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OdsCode))}");
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.SupplierName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.SupplierName))}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.IcbName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy.IcbName))}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.SiteName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy.SiteName))}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.HigherHealthAuthorityName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy.HigherHealthAuthorityName))}");
-            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.NationalGroupingName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy.NationalGroupingName))}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.IcbName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.IcbName))}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.SiteName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.SiteName))}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.HigherHealthAuthorityName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.HigherHealthAuthorityName))}");
+            _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.NationalGroupingName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.NationalGroupingName))}");
+
             switch (routeReportRequest.IsInteraction)
             {
                 case true:
