@@ -54,7 +54,9 @@ public class WorkflowService : IWorkflowService
                             }
                             var jsonStringUR = JsonConvert.SerializeObject(updateRecordReporting);
                             var jObjectUR = JObject.Parse(jsonStringUR);
-                            workflows.Add(jObjectUR.Flatten());
+                            var jDictUR = jObjectUR.Flatten();
+
+                            workflows.Add(jDictUR);
                             break;
                     }
                 }
