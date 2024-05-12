@@ -76,27 +76,15 @@ public class ReportingService : IReportingService
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.HigherHealthAuthorityName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.HigherHealthAuthorityName))}");
             _logger.LogInformation($"RouteReportRequest in API routeReportRequest.ReportSource.OrganisationHierarchy.NationalGroupingName is {string.Join(", ", routeReportRequest.ReportSource.Select(x => x.OrganisationHierarchy?.NationalGroupingName))}");
 
-            switch (routeReportRequest.IsInteraction)
+            switch (routeReportRequest.ReportId.ToUpper())
             {
-                case true:
-                    switch(routeReportRequest.ReportId.ToUpper())
-                    {
-                        case "ACCESSRECORDSTRUCTURED":
-                            return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
-                        case "ACCESSRECORDHTML":
-                            return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
-                        default:
-                            break;
-                    }
-                    break;                    
-                case false:
-                    switch (routeReportRequest.ReportId.ToUpper())
-                    {
-                        case "UPDATERECORD":
-                            return await _workflowService.CreateWorkflowData<UpdateRecordReporting>(routeReportRequest);
-                        default:
-                            break;
-                    }
+                case "ACCESSRECORDSTRUCTURED":
+                    return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                case "ACCESSRECORDHTML":
+                    return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
+                case "UPDATERECORD":
+                    return await _workflowService.CreateWorkflowData<UpdateRecordReporting>(routeReportRequest);
+                default:
                     break;
             }
             return null;
@@ -202,7 +190,7 @@ public class ReportingService : IReportingService
         worksheetPart.Worksheet.Append(sheetData);
 
         var sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>() ?? spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
-        var relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart);        
+        var relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart);
 
         BuildWorksheetHeader(sheetData, filterValue != null ? $"{reportName} - {filterValue}" : $"{reportName}");
         BuildHeaderRow(sheetData, result.Columns);
