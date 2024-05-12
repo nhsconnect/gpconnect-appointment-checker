@@ -38,7 +38,7 @@ public class AccessRecordHtmlReporting
     public List<Rest>? Rest { get; set; }
 
     [JsonProperty("Operation")]
-    public IEnumerable<string> Operation => Rest?.FirstOrDefault()?.Operation?.Select(x => x.Name); 
+    public IEnumerable<string> Operation => Rest?.FirstOrDefault()?.Operation?.Select(x => x.Name);
     
     [JsonProperty("Status")]
     public string Status => Rest != null && Rest.Any(x => x.Operation != null) ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
