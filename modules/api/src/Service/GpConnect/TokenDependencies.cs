@@ -41,9 +41,14 @@ public class TokenDependencies : ITokenDependencies
         });
     }
 
-    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor)
+    public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor)
     {
-        tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+        AddRequestingOrganisationClaim(tokenDescriptor, "requested_record");
+    }
+
+    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string claimType)
+    {
+        tokenDescriptor.Claims.Add(claimType, new RequestingOrganisation
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
