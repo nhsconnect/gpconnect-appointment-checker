@@ -46,6 +46,8 @@ public class TokenDependencies : ITokenDependencies
         tokenDescriptor.Claims.Add("requested_record", new RequestingOrganisation
         {
             resourceType = "Organization",
+            name = _spineOptionsDelegate.Value.OrganisationName,
+            id = Guid.NewGuid().ToString(),
             identifier = new List<Identifier>
                 {
                     new Identifier
