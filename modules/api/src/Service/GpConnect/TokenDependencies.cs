@@ -43,22 +43,34 @@ public class TokenDependencies : ITokenDependencies
 
     public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor)
     {
-        AddRequestingOrganisationClaim(tokenDescriptor, "requested_record");
-    }
-
-    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string claimType)
-    {
-        tokenDescriptor.Claims.Add(claimType, new RequestingOrganisation
+        tokenDescriptor.Claims.Add("requested_record", new RequestingOrganisation
         {
             resourceType = "Organization",
-            name = _spineOptionsDelegate.Value.OrganisationName,
             identifier = new List<Identifier>
                 {
                     new Identifier
                     {
                         system = "https://fhir.nhs.uk/Id/ods-organization-code",
                         value = _spineOptionsDelegate.Value.OdsCode
-        }
+                    }
+                }
+        });
+    }
+
+    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor)
+    {
+        tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+        {
+            resourceType = "Organization",
+            name = _spineOptionsDelegate.Value.OrganisationName,
+            id = Guid.NewGuid().ToString(),
+            identifier = new List<Identifier>
+                {
+                    new Identifier
+                    {
+                        system = "https://fhir.nhs.uk/Id/ods-organization-code",
+                        value = _spineOptionsDelegate.Value.OdsCode
+                    }
                 }
         });
     }
