@@ -6,7 +6,6 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Net.Http.Headers;
 
 namespace GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
@@ -29,7 +28,7 @@ public class CapabilityStatement : ICapabilityStatement
         _spineMessage = new SpineMessage();
     }
 
-    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string mediaType, string? interactionId = null, TimeSpan? timeoutOverride = null)
+    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string httpClient, string? interactionId = null, TimeSpan? timeoutOverride = null)
     {
         var getRequest = new HttpRequestMessage();
         var stopWatch = new Stopwatch();
@@ -43,7 +42,7 @@ public class CapabilityStatement : ICapabilityStatement
 
             _spineMessage.SpineMessageTypeId = (int)requestParameters.SpineMessageTypeId;
 
-            var client = _httpClientFactory.CreateClient(Clients.GPCONNECTCLIENT);
+            var client = _httpClientFactory.CreateClient(httpClient);
             
             client.Timeout = timeoutOverride ?? client.Timeout;
 
@@ -52,8 +51,6 @@ public class CapabilityStatement : ICapabilityStatement
 
             getRequest.Method = HttpMethod.Get;
             getRequest.RequestUri = new Uri($"{requestParameters.EndpointAddressWithSpineSecureProxy}/metadata");
-            getRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
-
             _spineMessage.RequestPayload = getRequest.ToString();
 
             stopWatch.Start();
