@@ -29,7 +29,7 @@ public class CapabilityStatement : ICapabilityStatement
         _spineMessage = new SpineMessage();
     }
 
-    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string? interactionId = null, TimeSpan? timeoutOverride = null, string? mediaType = "application/fhir+json")
+    public async Task<DTO.Response.GpConnect.CapabilityStatement> GetCapabilityStatement(RequestParameters requestParameters, string baseAddress, string mediaType, string? interactionId = null, TimeSpan? timeoutOverride = null)
     {
         var getRequest = new HttpRequestMessage();
         var stopWatch = new Stopwatch();

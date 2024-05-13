@@ -60,7 +60,7 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i]);                            
+                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], "application/fhir+json");                            
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -68,7 +68,7 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i]);
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], "application/fhir+json");
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -96,7 +96,7 @@ public class InteractionService : IInteractionService
                             _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
                             _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
 
-                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], "application/fhir+json");
+                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], "application/json+fhir");
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
@@ -132,7 +132,7 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string? mediaType = null)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string mediaType)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
@@ -156,7 +156,7 @@ public class InteractionService : IInteractionService
 
             if (requestParameters != null)
             {
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interaction, TimeSpan.FromMinutes(3), mediaType);
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, mediaType, interaction, TimeSpan.FromMinutes(3));
                 return capabilityStatement;
             }
         }
