@@ -41,7 +41,7 @@ public class TokenDependencies : ITokenDependencies
         });
     }
 
-    public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor)
+    public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
         tokenDescriptor.Claims.Add("requested_record", new RequestingOrganisation
         {
@@ -50,14 +50,14 @@ public class TokenDependencies : ITokenDependencies
                 {
                     new Identifier
                     {
-                        system = "https://fhir.nhs.uk/Id/ods-organization-code",
+                        system = systemIdentifier,
                         value = _spineOptionsDelegate.Value.OdsCode
                     }
                 }
         });
     }
 
-    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor)
+    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
         tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
         {
@@ -68,7 +68,7 @@ public class TokenDependencies : ITokenDependencies
                 {
                     new Identifier
                     {
-                        system = "https://fhir.nhs.uk/Id/ods-organization-code",
+                        system = systemIdentifier,
                         value = _spineOptionsDelegate.Value.OdsCode
                     }
                 }

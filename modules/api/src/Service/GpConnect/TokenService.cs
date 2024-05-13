@@ -41,8 +41,8 @@ public class TokenService : ITokenService
 
             var tokenDescriptor = _tokenDependencies.BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
             _tokenDependencies.AddRequestingDeviceClaim(request.RequestUri, tokenDescriptor);
-            _tokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor);
-            _tokenDependencies.AddRequestingRecordClaim(tokenDescriptor);
+            _tokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor, request.SystemIdentifier);
+            _tokenDependencies.AddRequestingRecordClaim(tokenDescriptor, request.SystemIdentifier);
             await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid);
 
             var token = AddTokenHeader(tokenHandler, tokenDescriptor);

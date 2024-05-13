@@ -11,4 +11,5 @@ public class RequestParameters
     public SpineMessageTypes SpineMessageTypeId { get; set; }
     public string Sid { get; set; }
     public string ConsumerOrganisationType { get; set; }
+    public string SystemIdentifier { get; set; } = "https://fhir.nhs.uk/Id/ods-organization-code";
 }
