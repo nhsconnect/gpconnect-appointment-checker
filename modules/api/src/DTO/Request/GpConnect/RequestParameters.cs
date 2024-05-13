@@ -12,4 +12,5 @@ public class RequestParameters
     public string Sid { get; set; }
     public string ConsumerOrganisationType { get; set; }
     public string SystemIdentifier { get; set; } = "https://fhir.nhs.uk/Id/ods-organization-code";
+    public string? AuthenticationAudience { get; set; } = null;
 }
