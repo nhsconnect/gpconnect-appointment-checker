@@ -16,16 +16,18 @@ public static class HttpClientExtensions
     {
         _spineConfig = configuration.GetSection("SpineConfig");
 
-        GetHttpClient(services, Helpers.Constants.Clients.FHIRREADCLIENT, false);
-        GetHttpClient(services, Helpers.Constants.Clients.HIERARCHYCLIENT, false);
-        GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENT, true);
+        GetHttpClient(services, Helpers.Constants.Clients.FHIRREADCLIENT, false, "application/fhir+json");
+        GetHttpClient(services, Helpers.Constants.Clients.HIERARCHYCLIENT, false, "application/fhir+json");
+        GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENT, true, "application/fhir+json");
+        GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENTLEGACY, true, "application/json+fhir");
     }
 
-    private static void GetHttpClient(IServiceCollection services, string clientName, bool handleSSP)
+    private static void GetHttpClient(IServiceCollection services, string clientName, bool handleSSP, string mediaType)
     {
         services.AddHttpClient(clientName, options =>
         {
             options.Timeout = TimeSpan.FromSeconds(60);
+            options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             options.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }).AugmentHttpClientBuilder(handleSSP);
     }
