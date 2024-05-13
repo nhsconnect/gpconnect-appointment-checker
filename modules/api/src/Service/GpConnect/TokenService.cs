@@ -35,7 +35,7 @@ public class TokenService : ITokenService
             };
 
             var tokenIssuer = _spineOptionsDelegate.Value.SpineFqdn;
-            var tokenAudience = request.ProviderSpineDetails.EndpointAddress;
+            var tokenAudience = request.AuthenticationAudience ?? request.ProviderSpineDetails.EndpointAddress;
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
