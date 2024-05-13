@@ -8,5 +8,5 @@ public class RequestingOrganisation : BaseRequest
     public string name { get; set; }
 
     [JsonProperty("id")]
-    public string id { get; set; }
+    public string? id { get; set; } = null;
 }
