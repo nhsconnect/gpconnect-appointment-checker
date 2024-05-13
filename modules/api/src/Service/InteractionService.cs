@@ -60,7 +60,7 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT);
+                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code");
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -68,7 +68,7 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT);
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code");
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -96,7 +96,7 @@ public class InteractionService : IInteractionService
                             _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
                             _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
 
-                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY);
+                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code");
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
@@ -132,7 +132,7 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
@@ -149,7 +149,8 @@ public class InteractionService : IInteractionService
                 ProviderSpineDetails = spineDetails,
                 ProviderOrganisationDetails = organisationDetails,
                 SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
-                Sid = Guid.NewGuid().ToString()
+                Sid = Guid.NewGuid().ToString(),
+                SystemIdentifier = systemIdentifier
             };
 
             var requestParameters = await _tokenService.ConstructRequestParameters(input);

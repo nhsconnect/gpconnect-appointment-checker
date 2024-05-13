@@ -167,7 +167,8 @@ public class SearchService : ISearchService
                         ProviderOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = providerOrganisationDetails?.OdsCode },
                         ConsumerOrganisationDetails = new DTO.Request.GpConnect.OrganisationRequestParameters() { OdsCode = consumerOrganisationDetails?.OdsCode },
                         SpineMessageTypeId = SpineMessageTypes.GpConnectSearchFreeSlots,
-                        Sid = searchRequest.Sid
+                        Sid = searchRequest.Sid,
+                        SystemIdentifier = "https://fhir.nhs.uk/Id/ods-organization-code"
                     });
 
                     if (requestParameters != null)
