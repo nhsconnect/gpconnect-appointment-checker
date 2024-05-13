@@ -4,7 +4,7 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 
 public interface ITokenDependencies
 {
-    Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid);
+    Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid, string hostIdentifier);
     void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier);
     void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier);
     void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor);
