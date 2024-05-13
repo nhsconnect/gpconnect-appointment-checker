@@ -43,7 +43,7 @@ public class TokenDependencies : ITokenDependencies
 
     public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
-        tokenDescriptor.Claims.Add("requested_record", new RequestingOrganisation
+        tokenDescriptor.Claims.Add("requested_record", new RequestingRecord
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
@@ -64,7 +64,7 @@ public class TokenDependencies : ITokenDependencies
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
-            id = Guid.NewGuid().ToString(),
+            //id = Guid.NewGuid().ToString(),
             identifier = new List<Identifier>
                 {
                     new Identifier
