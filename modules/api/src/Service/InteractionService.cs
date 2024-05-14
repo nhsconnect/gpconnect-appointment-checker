@@ -27,11 +27,11 @@ public class InteractionService : IInteractionService
     public InteractionService(ILogger<InteractionService> logger, IConfigurationService configurationService, ISpineService spineService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IReportingTokenService reportingTokenService, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _reportingTokenService = reportingTokenService;
-        _tokenService = tokenService;
-        _spineService = spineService;
-        _configurationService = configurationService;
-        _capabilityStatement = capabilityStatement;
+        _reportingTokenService = reportingTokenService ?? throw new ArgumentNullException(nameof(reportingTokenService));
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+        _spineService = spineService ?? throw new ArgumentNullException(nameof(spineService)); ;
+        _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
+        _capabilityStatement = capabilityStatement ?? throw new ArgumentNullException(nameof(capabilityStatement));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
