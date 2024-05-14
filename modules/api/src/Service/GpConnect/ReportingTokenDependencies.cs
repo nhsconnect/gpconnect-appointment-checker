@@ -25,7 +25,7 @@ public class ReportingTokenDependencies : IReportingTokenDependencies
 
     public void AddRequestingDeviceClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor)
     {
-        tokenDescriptor.Claims.Add("requesting_device", new RequestingDevice
+        tokenDescriptor.Claims.Add("requesting_device", new ReportingRequestingDevice
         {
             resourceType = "Device",
             model = _generalOptionsDelegate.Value.ProductName,
