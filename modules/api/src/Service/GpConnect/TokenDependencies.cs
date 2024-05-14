@@ -115,7 +115,7 @@ public class TokenDependencies : ITokenDependencies
                         value = "UNK"
                     },
                     new() {
-                        system = $"{hostIdentifier}{(isID ? "Id/" : string.Empty)}sds-role-profile-id",
+                        system = $"{hostIdentifier}/{(isID ? "Id/" : string.Empty)}sds-role-profile-id",
                         value = "UNK"
                     },
                     new() {
@@ -127,14 +127,14 @@ public class TokenDependencies : ITokenDependencies
                         value = Sid
                     }
                 },
-            PractitionerRole = new PractitionerRole()
+            practitionerRole = new PractitionerRole()
             {
-                Role = new Role()
+                role = new Role()
                 {
-                    Coding = new List<Coding> { 
+                    coding = new List<Coding> { 
                         new Coding() { 
-                            System = $"{hostIdentifier}/ValueSet/sds-job-role-name-1", 
-                            Code = "UNK" 
+                            system = $"{hostIdentifier}/ValueSet/sds-job-role-name-1", 
+                            code = "UNK" 
                         } 
                     }
                 }

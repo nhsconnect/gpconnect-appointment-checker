@@ -9,27 +9,27 @@ public class RequestingPractitioner : BaseRequest
     [JsonProperty("id")]
     public string id { get; set; }
     [JsonProperty("practitionerRole")]
-    public PractitionerRole PractitionerRole { get; set; }
+    public PractitionerRole practitionerRole { get; set; }
 }
 
 public class PractitionerRole
 {
     [JsonProperty("role")]
-    public Role Role { get; set; }
+    public Role role { get; set; }
 }
 
 public class Role
 {
     [JsonProperty("coding")]
-    public List<Coding> Coding { get; set; }
+    public List<Coding> coding { get; set; }
 }
 
 public class Coding
 {
     [JsonProperty("system")]
-    public string System { get; set; }
+    public string system { get; set; }
     [JsonProperty("code")]
-    public string Code { get; set; }
+    public string code { get; set; }
 }
 
 public class Name
