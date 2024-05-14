@@ -5,11 +5,12 @@ namespace GpConnect.AppointmentChecker.Api.DTO.Request.GpConnect;
 public class RequestingPractitioner : BaseRequest
 {
     [JsonProperty("name")]
-    public List<Name> name { get; set; }
+    public Name name { get; set; }
+    //public List<Name> name { get; set; }
     [JsonProperty("id")]
     public string id { get; set; }
     [JsonProperty("practitionerRole")]
-    public PractitionerRole practitionerRole { get; set; }
+    public List<PractitionerRole> practitionerRole { get; set; }
 }
 
 public class PractitionerRole
@@ -35,7 +36,9 @@ public class Coding
 public class Name
 {
     [JsonProperty("family")]
-    public string family { get; set; }
+    public List<string> family { get; set; }
+    [JsonProperty("prefix")]
+    public List<string> prefix { get; set; }
     [JsonProperty("given")]
     public List<string> given { get; set; }
 }

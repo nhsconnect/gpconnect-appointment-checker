@@ -101,13 +101,12 @@ public class TokenDependencies : ITokenDependencies
         {
             resourceType = "Practitioner",
             id = userGuid,
-            name = new List<Name>
-                {
-                    new() {
-                        family = StringExtensions.Coalesce(user.DisplayName, nameParts[0].FirstCharToUpper(true)),
-                        given = new List<string> { StringExtensions.Coalesce(user.DisplayName, nameParts[1].FirstCharToUpper(true)) }
-                    }
-                },
+            name = new Name
+            {
+                family = new List<string>() { StringExtensions.Coalesce(user.DisplayName, nameParts[0].FirstCharToUpper(true)) },
+                given = new List<string> { StringExtensions.Coalesce(user.DisplayName, nameParts[1].FirstCharToUpper(true)) },
+                prefix = new List<string> { user.DisplayName }
+            },
             identifier = new List<Identifier>
                 {
                     new() {
@@ -127,15 +126,18 @@ public class TokenDependencies : ITokenDependencies
                         value = Sid
                     }
                 },
-            practitionerRole = new PractitionerRole()
+            practitionerRole = new List<PractitionerRole>
             {
-                role = new Role()
+                new()
                 {
-                    coding = new List<Coding> { 
-                        new Coding() { 
-                            system = $"{hostIdentifier}/ValueSet/sds-job-role-name-1", 
-                            code = "UNK" 
-                        } 
+                    role = new Role()
+                    {
+                        coding = new List<Coding> {
+                            new() {
+                                system = $"{hostIdentifier}/ValueSet/sds-job-role-name-1",
+                                code = "UNK"
+                            }
+                        }
                     }
                 }
             }
