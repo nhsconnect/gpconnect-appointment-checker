@@ -83,8 +83,6 @@ public class InteractionService : IInteractionService
 
                         case Type type when type == typeof(AccessRecordHtmlReporting):
 
-                            _logger.LogInformation($"In AccessRecordHtmlReporting");
-
                             var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
                             {
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
@@ -92,23 +90,10 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
-                            _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
-
                             var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token", false);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
-                                _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
-                                _logger.LogInformation($"In AccessRecordHtmlReporting Rest.Count is {accessRecordHtmlReportingData.Rest.Count}");
-
-                                foreach (var rest in accessRecordHtmlReportingData.Rest)
-                                {
-                                    _logger.LogInformation($"In AccessRecordHtmlReporting rest.Operation.Count is {rest.Operation.Count}");
-                                    foreach (var item in rest?.Operation)
-                                    {
-                                        _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData.Rest.Operation.Name is {item.Name}");
-                                    }
-                                }
+                                accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
                                 accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
                             }
 
