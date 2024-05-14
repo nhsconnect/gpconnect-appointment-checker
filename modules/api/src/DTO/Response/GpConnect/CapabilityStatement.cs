@@ -17,8 +17,8 @@ public class CapabilityStatement
     public string Date { get; set; }
     [JsonProperty("publisher")]
     public string Publisher { get; set; }
-    [JsonProperty("contact")]
-    public List<Contact> Contact { get; set; }
+    //[JsonProperty("contact")]
+    //public List<Contact> Contact { get; set; }
     [JsonProperty("description")]
     public string Description { get; set; }
     [JsonProperty("copyright")]
