@@ -88,7 +88,6 @@ public class OrganisationService : IOrganisationService
         await Parallel.ForEachAsync(odsCodes, parallelOptions, async (odsCode, ct) =>
         {
             var hierarchy = await GetOrganisationHierarchy(odsCode);
-            _logger.LogInformation($"GetOrganisationHierarchy for {odsCode} is {hierarchy.SiteName} {hierarchy.IcbName} {hierarchy.NationalGroupingName} {hierarchy.HigherHealthAuthorityName}");
             hierarchies.Add(hierarchy);
         });
         return hierarchies;

@@ -110,8 +110,7 @@ public class LdapRequestExecution : ILdapRequestExecution
 
         try
         {
-            string tlsVersion = GetTlsVersionInUse(ldapConnection);
-            _logger.LogInformation($"LDAP TLS version in use: {tlsVersion}");
+            var tlsVersion = GetTlsVersionInUse(ldapConnection);
         }
         finally
         {
