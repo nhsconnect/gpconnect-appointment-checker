@@ -45,8 +45,6 @@ public class InteractionService : IInteractionService
 
             if (odsCodesInScope.Count > 0)
             {
-                var interactionDataRequest = new InteractionDataRequest();
-
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
                     switch (typeof(T))
@@ -63,13 +61,14 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            interactionDataRequest.OdsCode = odsCodesInScope[i];
-                            interactionDataRequest.Interaction = routeReportRequest.Interaction[0];
-                            interactionDataRequest.Client = Clients.GPCONNECTCLIENT;
-                            interactionDataRequest.HostIdentifier = "https://fhir.nhs.uk";
-                            interactionDataRequest.HasId = true;
-
-                            var accessRecordStructuredReportingData = await GetInteractionData(interactionDataRequest);
+                            var accessRecordStructuredReportingData = await GetInteractionData(new InteractionDataRequest
+                            {
+                                OdsCode = odsCodesInScope[i],
+                                Interaction = routeReportRequest.Interaction[0],
+                                Client = Clients.GPCONNECTCLIENT,
+                                HostIdentifier = "https://fhir.nhs.uk",
+                                HasId = true
+                            });
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -77,9 +76,15 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            interactionDataRequest.Interaction = routeReportRequest.Interaction[1];
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(new InteractionDataRequest
+                            {
+                                OdsCode = odsCodesInScope[i],
+                                Interaction = routeReportRequest.Interaction[1],
+                                Client = Clients.GPCONNECTCLIENT,
+                                HostIdentifier = "https://fhir.nhs.uk",
+                                HasId = true
+                            });
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(interactionDataRequest);
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -102,14 +107,16 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            interactionDataRequest.OdsCode = odsCodesInScope[i];
-                            interactionDataRequest.Interaction = routeReportRequest.Interaction[0];
-                            interactionDataRequest.Client = Clients.GPCONNECTCLIENTLEGACY;
-                            interactionDataRequest.HostIdentifier = "http://fhir.nhs.net";
-                            interactionDataRequest.AuthenticationAudience = "https://authorize.fhir.nhs.net/token";
-                            interactionDataRequest.HasId = false;
+                            var accessRecordHtmlReportingData = await GetReportingInteractionData(new InteractionDataRequest()
+                            {
+                                OdsCode = odsCodesInScope[i],
+                                Interaction = routeReportRequest.Interaction[0],
+                                Client = Clients.GPCONNECTCLIENTLEGACY,
+                                HostIdentifier = "http://fhir.nhs.net",
+                                AuthenticationAudience = "https://authorize.fhir.nhs.net/token",
+                                HasId = false
+                            });
 
-                            var accessRecordHtmlReportingData = await GetReportingInteractionData(interactionDataRequest);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
