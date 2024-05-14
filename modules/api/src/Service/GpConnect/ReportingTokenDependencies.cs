@@ -59,7 +59,7 @@ public class ReportingTokenDependencies : IReportingTokenDependencies
 
     public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
-        tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+        tokenDescriptor.Claims.Add("requesting_organization", new ReportingRequestingOrganisation
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
