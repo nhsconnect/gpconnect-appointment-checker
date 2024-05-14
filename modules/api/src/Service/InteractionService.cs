@@ -18,14 +18,16 @@ public class InteractionService : IInteractionService
 {
     private readonly ILogger<InteractionService> _logger;
     private readonly ITokenService _tokenService;
+    private readonly IReportingTokenService _reportingTokenService;
     private readonly ISpineService _spineService;
     private readonly IConfigurationService _configurationService;
     private readonly ICapabilityStatement _capabilityStatement;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public InteractionService(ILogger<InteractionService> logger, IConfigurationService configurationService, ISpineService spineService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public InteractionService(ILogger<InteractionService> logger, IConfigurationService configurationService, ISpineService spineService, ICapabilityStatement capabilityStatement, ITokenService tokenService, IReportingTokenService reportingTokenService, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _reportingTokenService = reportingTokenService;
         _tokenService = tokenService;
         _spineService = spineService;
         _configurationService = configurationService;
@@ -90,7 +92,7 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token", false);
+                            var accessRecordHtmlReportingData = await GetReportingInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token", false);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
@@ -139,7 +141,41 @@ public class InteractionService : IInteractionService
                 HostIdentifier = hostIdentifier                
             };
 
-            var requestParameters = await _tokenService.ConstructRequestParameters(input, null, isID);
+            var requestParameters = await _tokenService.ConstructRequestParameters(input, null);
+
+            if (requestParameters != null)
+            {
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, client, interaction, TimeSpan.FromMinutes(3));
+                return capabilityStatement;
+            }
+        }
+        return null;
+    }
+
+    private async Task<CapabilityStatement?> GetReportingInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null, bool isID = true)
+    {
+        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
+
+        if (providerSpineDetails != null)
+        {
+            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
+            var requestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}");
+            var spineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId };
+            var organisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode };
+
+            var input = new DTO.Request.GpConnect.RequestParameters
+            {
+                RequestUri = requestUri,
+                ProviderSpineDetails = spineDetails,
+                ProviderOrganisationDetails = organisationDetails,
+                SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
+                Sid = Guid.NewGuid().ToString(),
+                SystemIdentifier = systemIdentifier,
+                AuthenticationAudience = authenticationAudience,
+                HostIdentifier = hostIdentifier
+            };
+
+            var requestParameters = await _reportingTokenService.ConstructRequestParameters(input, null, isID);
 
             if (requestParameters != null)
             {
