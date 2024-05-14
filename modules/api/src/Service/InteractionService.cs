@@ -59,7 +59,7 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk");
+                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null, true);
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -67,7 +67,7 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk");
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null, true);
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -95,7 +95,7 @@ public class InteractionService : IInteractionService
                             _logger.LogInformation($"In AccessRecordHtmlReporting routeReportRequest.Interaction[0] is {routeReportRequest.Interaction[0]}");
                             _logger.LogInformation($"In AccessRecordHtmlReporting odsCodesInScope[i] is {odsCodesInScope[i]}");
 
-                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token");
+                            var accessRecordHtmlReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token", false);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 _logger.LogInformation($"In AccessRecordHtmlReporting accessRecordHtmlReportingData is not null");
@@ -131,7 +131,7 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null, bool isID = true)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
@@ -154,7 +154,7 @@ public class InteractionService : IInteractionService
                 HostIdentifier = hostIdentifier                
             };
 
-            var requestParameters = await _tokenService.ConstructRequestParameters(input);
+            var requestParameters = await _tokenService.ConstructRequestParameters(input, null, isID);
 
             if (requestParameters != null)
             {

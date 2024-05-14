@@ -92,7 +92,7 @@ public class TokenDependencies : ITokenDependencies
         return tokenDescriptor;
     }
 
-    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid, string hostIdentifier)
+    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid, string hostIdentifier, bool isID = true)
     {
         var user = await _userService.GetUserById(LoggingHelper.GetIntegerValue(Headers.UserId));
         var nameParts = Regex.Split(user.DisplayName, @"[^a-zA-Z0-9]").Where(x => x != string.Empty).ToArray();
@@ -111,11 +111,11 @@ public class TokenDependencies : ITokenDependencies
             identifier = new List<Identifier>
                 {
                     new() {
-                        system = $"{hostIdentifier}/Id/sds-user-id",
+                        system = $"{hostIdentifier}/{(isID ? "Id/" : string.Empty)}sds-user-id",
                         value = "UNK"
                     },
                     new() {
-                        system = $"{hostIdentifier}/Id/sds-role-profile-id",
+                        system = $"{hostIdentifier}{(isID ? "Id/" : string.Empty)}sds-role-profile-id",
                         value = "UNK"
                     },
                     new() {
@@ -126,7 +126,19 @@ public class TokenDependencies : ITokenDependencies
                         system = "https://appointmentchecker.gpconnect.nhs.uk/Id/nhsmail-sid",
                         value = Sid
                     }
+                },
+            PractitionerRole = new PractitionerRole()
+            {
+                Role = new Role()
+                {
+                    Coding = new List<Coding> { 
+                        new Coding() { 
+                            System = $"{hostIdentifier}/ValueSet/sds-job-role-name-1", 
+                            Code = "UNK" 
+                        } 
+                    }
                 }
+            }
         });
     }
 }

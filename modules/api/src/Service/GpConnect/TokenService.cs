@@ -22,7 +22,7 @@ public class TokenService : ITokenService
         _tokenDependencies = tokenDependencies;
     }
 
-    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request, string? interactionId = null)
+    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request, string? interactionId = null, bool isID = true)
     {
         try
         {            
@@ -43,7 +43,7 @@ public class TokenService : ITokenService
             _tokenDependencies.AddRequestingDeviceClaim(request.RequestUri, tokenDescriptor);
             _tokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor, request.SystemIdentifier);
             _tokenDependencies.AddRequestingRecordClaim(tokenDescriptor, request.SystemIdentifier);
-            await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid, request.HostIdentifier);
+            await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid, request.HostIdentifier, isID);
 
             var token = AddTokenHeader(tokenHandler, tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
