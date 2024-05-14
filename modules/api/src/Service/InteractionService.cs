@@ -45,6 +45,8 @@ public class InteractionService : IInteractionService
 
             if (odsCodesInScope.Count > 0)
             {
+                var interactionDataRequest = new InteractionDataRequest();
+
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
                     switch (typeof(T))
@@ -61,7 +63,13 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null);
+                            interactionDataRequest.OdsCode = odsCodesInScope[i];
+                            interactionDataRequest.Interaction = routeReportRequest.Interaction[0];
+                            interactionDataRequest.Client = Clients.GPCONNECTCLIENT;
+                            interactionDataRequest.HostIdentifier = "https://fhir.nhs.uk";
+                            interactionDataRequest.HasId = true;
+
+                            var accessRecordStructuredReportingData = await GetInteractionData(interactionDataRequest);
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -69,7 +77,9 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null);
+                            interactionDataRequest.Interaction = routeReportRequest.Interaction[1];
+
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(interactionDataRequest);
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -92,7 +102,14 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordHtmlReportingData = await GetReportingInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENTLEGACY, "http://fhir.nhs.net/Id/ods-organization-code", "http://fhir.nhs.net", "https://authorize.fhir.nhs.net/token", false);
+                            interactionDataRequest.OdsCode = odsCodesInScope[i];
+                            interactionDataRequest.Interaction = routeReportRequest.Interaction[0];
+                            interactionDataRequest.Client = Clients.GPCONNECTCLIENTLEGACY;
+                            interactionDataRequest.HostIdentifier = "http://fhir.nhs.net";
+                            interactionDataRequest.AuthenticationAudience = "https://authorize.fhir.nhs.net/token";
+                            interactionDataRequest.HasId = false;
+
+                            var accessRecordHtmlReportingData = await GetReportingInteractionData(interactionDataRequest);
                             if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
                             {
                                 accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
@@ -118,16 +135,16 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null)
+    private async Task<CapabilityStatement?> GetInteractionData(InteractionDataRequest interactionDataRequest)
     {
-        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
+        var providerSpineDetails = await _spineService.GetProviderDetails(interactionDataRequest.OdsCode, interactionDataRequest.Interaction);        
 
         if (providerSpineDetails != null)
         {
-            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
+            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interactionDataRequest.Interaction);
             var requestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}");
             var spineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId };
-            var organisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode };
+            var organisationDetails = new OrganisationRequestParameters() { OdsCode = interactionDataRequest.OdsCode };
 
             var input = new DTO.Request.GpConnect.RequestParameters
             {
@@ -136,36 +153,32 @@ public class InteractionService : IInteractionService
                 ProviderOrganisationDetails = organisationDetails,
                 SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
                 Sid = Guid.NewGuid().ToString(),
-                SystemIdentifier = systemIdentifier,
-                AuthenticationAudience = authenticationAudience,
-                HostIdentifier = hostIdentifier                
+                SystemIdentifier = interactionDataRequest.SystemIdentifier,
+                AuthenticationAudience = interactionDataRequest.AuthenticationAudience,
+                HostIdentifier = interactionDataRequest.HostIdentifier
             };
 
             var requestParameters = await _tokenService.ConstructRequestParameters(input, null);
 
             if (requestParameters != null)
             {
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, client, interaction, TimeSpan.FromMinutes(3));
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interactionDataRequest.Client, interactionDataRequest.Interaction, TimeSpan.FromMinutes(3));
                 return capabilityStatement;
             }
-        }
-        else
-        {
-            _logger.LogInformation($"No providerSpineDetails for ODS Code {odsCode} and interaction {interaction}");
         }
         return null;
     }
 
-    private async Task<CapabilityStatement?> GetReportingInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null, bool isID = true)
+    private async Task<CapabilityStatement?> GetReportingInteractionData(InteractionDataRequest interactionDataRequest)
     {
-        var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);
+        var providerSpineDetails = await _spineService.GetProviderDetails(interactionDataRequest.OdsCode, interactionDataRequest.Interaction);
 
         if (providerSpineDetails != null)
         {
-            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interaction);
+            var spineMessageType = await _configurationService.GetSpineMessageType(SpineMessageTypes.GpConnectReadMetaData, interactionDataRequest.Interaction);
             var requestUri = new Uri($"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}");
             var spineDetails = new SpineProviderRequestParameters() { EndpointAddress = providerSpineDetails.EndpointAddress, AsId = providerSpineDetails.AsId };
-            var organisationDetails = new OrganisationRequestParameters() { OdsCode = odsCode };
+            var organisationDetails = new OrganisationRequestParameters() { OdsCode = interactionDataRequest.OdsCode };
 
             var input = new DTO.Request.GpConnect.RequestParameters
             {
@@ -174,16 +187,16 @@ public class InteractionService : IInteractionService
                 ProviderOrganisationDetails = organisationDetails,
                 SpineMessageTypeId = (SpineMessageTypes)spineMessageType.SpineMessageTypeId,
                 Sid = Guid.NewGuid().ToString(),
-                SystemIdentifier = systemIdentifier,
-                AuthenticationAudience = authenticationAudience,
-                HostIdentifier = hostIdentifier
+                SystemIdentifier = interactionDataRequest.SystemIdentifier,
+                AuthenticationAudience = interactionDataRequest.AuthenticationAudience,
+                HostIdentifier = interactionDataRequest.HostIdentifier
             };
 
-            var requestParameters = await _reportingTokenService.ConstructRequestParameters(input, null, isID);
+            var requestParameters = await _reportingTokenService.ConstructRequestParameters(input, null, interactionDataRequest.HasId);
 
             if (requestParameters != null)
             {
-                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, client, interaction, TimeSpan.FromMinutes(3));
+                var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, interactionDataRequest.Client, interactionDataRequest.Interaction, TimeSpan.FromMinutes(3));
                 return capabilityStatement;
             }
         }

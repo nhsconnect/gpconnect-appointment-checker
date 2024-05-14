@@ -19,9 +19,6 @@ public class MessageService : IMessageService
 
     public async Task<HttpStatusCode> SendMessageToQueue(SendMessageRequest sendMessageRequest)
     {
-        _logger.LogInformation($"SendMessageToQueue in API - sendMessageRequest.QueueUrl is {sendMessageRequest.QueueUrl}");
-        _logger.LogInformation($"SendMessageToQueue in API - sendMessageRequest.MessageBody is {sendMessageRequest.MessageBody}");
-
         var sqsClient = _sqsClientFactory.GetSqsClient();
         if (sqsClient != null)
         {
