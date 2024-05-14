@@ -111,7 +111,7 @@ public class TokenDependencies : ITokenDependencies
             identifier = new List<Identifier>
                 {
                     new() {
-                        system = $"{hostIdentifier}/{(isID ? "Id/" : string.Empty)}sds-user-id",
+                        system = $"{hostIdentifier}/Id/sds-user-id",
                         value = "UNK"
                     },
                     new() {
