@@ -30,6 +30,7 @@ public class TokenDependencies : ITokenDependencies
             resourceType = "Device",
             model = _generalOptionsDelegate.Value.ProductName,
             version = _generalOptionsDelegate.Value.ProductVersion,
+            id = Guid.NewGuid().ToString(),
             identifier = new List<Identifier>
                 {
                     new() {
