@@ -174,7 +174,7 @@ public class SearchService : ISearchService
 
                     if (requestParameters != null)
                     {
-                        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, "application/fhir+json");
+                        var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, Clients.GPCONNECTCLIENT);
                         if (capabilityStatement != null)
                         {
                             if (capabilityStatement.NoIssues)
