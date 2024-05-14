@@ -42,7 +42,7 @@ public class TokenDependencies : ITokenDependencies
 
     public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
-        tokenDescriptor.Claims.Add("requesting_record", new RequestingRecord
+        tokenDescriptor.Claims.Add("requested_record", new RequestingRecord
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
