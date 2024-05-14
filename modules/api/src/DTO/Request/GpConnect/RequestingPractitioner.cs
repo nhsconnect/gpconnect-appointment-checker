@@ -6,8 +6,6 @@ public class RequestingPractitioner : BaseRequest
 {
     [JsonProperty("name")]
     public List<Name> name { get; set; }
-    [JsonProperty("id")]
-    public string id { get; set; }
 }
 
 public class Name
