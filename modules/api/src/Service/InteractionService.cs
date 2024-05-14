@@ -61,7 +61,7 @@ public class InteractionService : IInteractionService
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
                             };
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null, true);
+                            var accessRecordStructuredReportingData = await GetInteractionData(routeReportRequest.Interaction[0], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null);
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
@@ -69,7 +69,7 @@ public class InteractionService : IInteractionService
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null, true);
+                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(routeReportRequest.Interaction[1], odsCodesInScope[i], Clients.GPCONNECTCLIENT, "https://fhir.nhs.uk/Id/ods-organization-code", "https://fhir.nhs.uk", null);
                             if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
                             {
                                 accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
@@ -118,7 +118,7 @@ public class InteractionService : IInteractionService
         }
     }
 
-    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null, bool isID = true)
+    private async Task<CapabilityStatement?> GetInteractionData(string interaction, string odsCode, string client, string systemIdentifier, string hostIdentifier, string? authenticationAudience = null)
     {
         var providerSpineDetails = await _spineService.GetProviderDetails(odsCode, interaction);        
 
@@ -148,6 +148,10 @@ public class InteractionService : IInteractionService
                 var capabilityStatement = await _capabilityStatement.GetCapabilityStatement(requestParameters, providerSpineDetails.SspHostname, client, interaction, TimeSpan.FromMinutes(3));
                 return capabilityStatement;
             }
+        }
+        else
+        {
+            _logger.LogInformation($"No providerSpineDetails for ODS Code {odsCode} and interaction {interaction}");
         }
         return null;
     }
