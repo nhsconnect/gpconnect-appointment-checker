@@ -10,13 +10,13 @@ using System.Text.RegularExpressions;
 
 namespace GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
-public class TokenDependencies : ITokenDependencies
+public class ReportingTokenDependencies : IReportingTokenDependencies
 {
     private readonly IOptions<SpineConfig> _spineOptionsDelegate;
     private readonly IOptions<GeneralConfig> _generalOptionsDelegate;
     private readonly IUserService _userService;
 
-    public TokenDependencies(IOptions<SpineConfig> spineOptionsDelegate, IOptions<GeneralConfig> generalOptionsDelegate, IUserService userService)
+    public ReportingTokenDependencies(IOptions<SpineConfig> spineOptionsDelegate, IOptions<GeneralConfig> generalOptionsDelegate, IUserService userService)
     {
         _spineOptionsDelegate = spineOptionsDelegate;
         _generalOptionsDelegate = generalOptionsDelegate;
@@ -30,10 +30,10 @@ public class TokenDependencies : ITokenDependencies
             resourceType = "Device",
             model = _generalOptionsDelegate.Value.ProductName,
             version = _generalOptionsDelegate.Value.ProductVersion,
+            id = Guid.NewGuid().ToString(),
             identifier = new List<Identifier>
                 {
-                    new Identifier
-                    {
+                    new() {
                         system = "https://appointmentchecker.gpconnect.nhs.uk/Id/device-identifier",
                         value = requestUri.Host
                     }
@@ -41,19 +41,35 @@ public class TokenDependencies : ITokenDependencies
         });
     }
 
-    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor)
+    public void AddRequestingRecordClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
     {
-        tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+        tokenDescriptor.Claims.Add("requested_record", new RequestingRecord
         {
             resourceType = "Organization",
             name = _spineOptionsDelegate.Value.OrganisationName,
             identifier = new List<Identifier>
                 {
-                    new Identifier
-                    {
-                        system = "https://fhir.nhs.uk/Id/ods-organization-code",
+                    new() {
+                        system = systemIdentifier,
                         value = _spineOptionsDelegate.Value.OdsCode
-        }
+                    }
+                }
+        });
+    }
+
+    public void AddRequestingOrganisationClaim(SecurityTokenDescriptor tokenDescriptor, string systemIdentifier)
+    {
+        tokenDescriptor.Claims.Add("requesting_organization", new RequestingOrganisation
+        {
+            resourceType = "Organization",
+            name = _spineOptionsDelegate.Value.OrganisationName,
+            id = Guid.NewGuid().ToString(),
+            identifier = new List<Identifier>
+                {
+                    new() {
+                        system = systemIdentifier,
+                        value = _spineOptionsDelegate.Value.OdsCode
+                    }
                 }
         });
     }
@@ -76,45 +92,55 @@ public class TokenDependencies : ITokenDependencies
         return tokenDescriptor;
     }
 
-    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid)
+    public async Task AddRequestingPractitionerClaim(Uri requestUri, SecurityTokenDescriptor tokenDescriptor, string userGuid, string Sid, string hostIdentifier, bool isID = true)
     {
         var user = await _userService.GetUserById(LoggingHelper.GetIntegerValue(Headers.UserId));
         var nameParts = Regex.Split(user.DisplayName, @"[^a-zA-Z0-9]").Where(x => x != string.Empty).ToArray();
 
-        tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
+        tokenDescriptor.Claims.Add("requesting_practitioner", new ReportingRequestingPractitioner
         {
             resourceType = "Practitioner",
-            name = new List<Name>
-                {
-                    new Name
-                    {
-                        family = StringExtensions.Coalesce(user.DisplayName, nameParts[0].FirstCharToUpper(true)),
-                        given = new List<string> { StringExtensions.Coalesce(user.DisplayName, nameParts[1].FirstCharToUpper(true)) }
-                    }
-                },
+            id = userGuid,
+            name = new ReportingName
+            {
+                family = new List<string>() { StringExtensions.Coalesce(user.DisplayName, nameParts[0].FirstCharToUpper(true)) },
+                given = new List<string> { StringExtensions.Coalesce(user.DisplayName, nameParts[1].FirstCharToUpper(true)) },
+                prefix = new List<string> { user.DisplayName }
+            },
             identifier = new List<Identifier>
                 {
-                    new Identifier
-                    {
-                        system = "https://fhir.nhs.uk/Id/sds-user-id",
+                    new() {
+                        system = $"{hostIdentifier}/Id/sds-user-id",
                         value = "UNK"
                     },
-                    new Identifier
-                    {
-                        system = "https://fhir.nhs.uk/Id/sds-role-profile-id",
+                    new() {
+                        system = $"{hostIdentifier}/{(isID ? "Id/" : string.Empty)}sds-role-profile-id",
                         value = "UNK"
                     },
-                    new Identifier
-                    {
+                    new() {
                         system = "https://appointmentchecker.gpconnect.nhs.uk/Id/email-address",
                         value = user.EmailAddress,
                     },
-                    new Identifier
-                    {
+                    new() {
                         system = "https://appointmentchecker.gpconnect.nhs.uk/Id/nhsmail-sid",
                         value = Sid
                     }
+                },
+            practitionerRole = new List<PractitionerRole>
+            {
+                new()
+                {
+                    role = new Role()
+                    {
+                        coding = new List<Coding> {
+                            new() {
+                                system = $"{hostIdentifier}/ValueSet/sds-job-role-name-1",
+                                code = "UNK"
+                            }
+                        }
+                    }
                 }
+            }
         });
     }
 }

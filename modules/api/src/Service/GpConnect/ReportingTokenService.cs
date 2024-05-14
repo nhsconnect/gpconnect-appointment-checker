@@ -7,22 +7,22 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace GpConnect.AppointmentChecker.Api.Service.GpConnect;
 
-public class TokenService : ITokenService
+public class ReportingTokenService : IReportingTokenService
 {
     private readonly ILogger<TokenService> _logger;
     private readonly IConfigurationService _configurationService;
-    private readonly ITokenDependencies _tokenDependencies;
+    private readonly IReportingTokenDependencies _reportingTokenDependencies;
     private readonly IOptions<SpineConfig> _spineOptionsDelegate;
 
-    public TokenService(ILogger<TokenService> logger, IConfigurationService configurationService, IOptions<SpineConfig> spineOptionsDelegate, ITokenDependencies tokenDependencies)
+    public ReportingTokenService(ILogger<TokenService> logger, IConfigurationService configurationService, IOptions<SpineConfig> spineOptionsDelegate, IReportingTokenDependencies reportingTokenDependencies)
     {
         _logger = logger;
         _configurationService = configurationService;
         _spineOptionsDelegate = spineOptionsDelegate;
-        _tokenDependencies = tokenDependencies;
+        _reportingTokenDependencies = reportingTokenDependencies;
     }
 
-    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request, string? interactionId = null)
+    public async Task<DTO.Response.GpConnect.RequestParameters> ConstructRequestParameters(DTO.Request.GpConnect.RequestParameters request, string? interactionId = null, bool isID = true)
     {
         try
         {            
@@ -39,10 +39,11 @@ public class TokenService : ITokenService
             var tokenIssuedAt = DateTimeOffset.Now;
             var tokenExpiration = DateTimeOffset.Now.AddMinutes(5);
 
-            var tokenDescriptor = _tokenDependencies.BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
-            _tokenDependencies.AddRequestingDeviceClaim(request.RequestUri, tokenDescriptor);
-            _tokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor);
-            await _tokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid);
+            var tokenDescriptor = _reportingTokenDependencies.BuildSecurityTokenDescriptor(tokenIssuer, tokenAudience, userGuid, tokenIssuedAt, tokenExpiration);
+            _reportingTokenDependencies.AddRequestingDeviceClaim(request.RequestUri, tokenDescriptor);
+            _reportingTokenDependencies.AddRequestingOrganisationClaim(tokenDescriptor, request.SystemIdentifier);
+            _reportingTokenDependencies.AddRequestingRecordClaim(tokenDescriptor, request.SystemIdentifier);
+            await _reportingTokenDependencies.AddRequestingPractitionerClaim(request.RequestUri, tokenDescriptor, userGuid, request.Sid, request.HostIdentifier, isID);
 
             var token = AddTokenHeader(tokenHandler, tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
