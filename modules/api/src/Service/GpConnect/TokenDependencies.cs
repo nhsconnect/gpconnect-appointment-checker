@@ -84,6 +84,7 @@ public class TokenDependencies : ITokenDependencies
         tokenDescriptor.Claims.Add("requesting_practitioner", new RequestingPractitioner
         {
             resourceType = "Practitioner",
+            id = userGuid,
             name = new List<Name>
                 {
                     new Name
