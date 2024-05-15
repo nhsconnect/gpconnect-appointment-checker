@@ -63,7 +63,7 @@ public class WorkflowService : IWorkflowService
                 }
                 jsonData = JsonConvert.SerializeObject(workflows);
             }
-            return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
+            return jsonData;
         }
         catch (Exception exc)
         {
