@@ -4,6 +4,7 @@ using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -83,15 +84,16 @@ public class CompletionFunction
                 ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
             });
 
-            var stringBuilder = new StringBuilder();
+            var combinedJson = new JObject();
             foreach (var item in bucketObjects)
             {
                 var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-                stringBuilder.Append(bucketObject + ",");
+                var parsedJson = JObject.Parse(bucketObject);
+                combinedJson.Merge(parsedJson);
             }
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-            await CreateReport($"[{stringBuilder}]", interactionObject);
+            await CreateReport(combinedJson.ToString(Formatting.None), interactionObject);
         }        
     }
 
