@@ -92,6 +92,12 @@ public class CompletionFunction
                 combinedJson.Merge(parsedJson);
             }
 
+            _lambdaContext.Logger.LogLine("combinedJson.ToString(Formatting.None)");
+            _lambdaContext.Logger.LogLine(combinedJson.ToString(Formatting.None));
+
+            _lambdaContext.Logger.LogLine("combinedJson.ToString(Formatting.Indented)");
+            _lambdaContext.Logger.LogLine(combinedJson.ToString(Formatting.Indented));
+
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
             await CreateReport(combinedJson.ToString(Formatting.None), interactionObject);
         }        
