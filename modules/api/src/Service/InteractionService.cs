@@ -53,6 +53,7 @@ public class InteractionService : IInteractionService
 
                             var accessRecordStructuredReporting = new AccessRecordStructuredReporting()
                             {
+                                OdsCode = odsCodesInScope[i],
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
                                 Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
                                 DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
@@ -102,6 +103,7 @@ public class InteractionService : IInteractionService
 
                             var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
                             {
+                                OdsCode = odsCodesInScope[i],
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
                                 Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
                                 ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
@@ -132,8 +134,8 @@ public class InteractionService : IInteractionService
                     }
                 }
                 jsonData = JsonConvert.SerializeObject(interactions);
-            }
-            return jsonData != null ? jsonData.Substring(1, jsonData.Length - 2) : null;
+            }            
+            return jsonData;
         }
         catch (Exception exc)
         {
