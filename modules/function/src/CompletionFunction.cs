@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using ThirdParty.BouncyCastle.Utilities.IO.Pem;
 using NotificationConfiguration = GpConnect.AppointmentChecker.Function.Configuration.NotificationConfiguration;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -74,6 +73,8 @@ public class CompletionFunction
             ObjectPrefix = $"{Objects.Key}"
         });
 
+        var responses = new List<string>();
+
         foreach (var keyObject in keyObjects)
         {            
             var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
@@ -84,29 +85,17 @@ public class CompletionFunction
                 ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
             });
 
-            var combinedJson = new JObject();
-            foreach (var item in bucketObjects)
+            for (var i = 0; i < bucketObjects.Count; i++)
             {
-                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-                _lambdaContext.Logger.LogLine("jsonData");
-                _lambdaContext.Logger.LogLine(jsonData);
-
-                var parsedJson = JObject.Parse(jsonData);
-
-                _lambdaContext.Logger.LogLine("parsedJson");
-                _lambdaContext.Logger.LogLine(parsedJson.ToString());
-
-                combinedJson.Merge(parsedJson);
+                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
+                responses.Add(jsonData);
             }
 
-            _lambdaContext.Logger.LogLine("combinedJson.ToString(Formatting.None)");
-            _lambdaContext.Logger.LogLine(combinedJson.ToString(Formatting.None));
-
-            _lambdaContext.Logger.LogLine("combinedJson.ToString(Formatting.Indented)");
-            _lambdaContext.Logger.LogLine(combinedJson.ToString(Formatting.Indented));
+            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token);
+            string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.None);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-            await CreateReport(combinedJson.ToString(Formatting.None), interactionObject);
+            await CreateReport(combinedJson, interactionObject);
         }        
     }
 
