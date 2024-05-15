@@ -39,6 +39,7 @@ public class WorkflowService : IWorkflowService
                         case Type type when type == typeof(UpdateRecordReporting):
                             var updateRecordReporting = new UpdateRecordReporting()
                             {
+                                OdsCode = odsCodesInScope[i],
                                 SupplierName = routeReportRequest.ReportSource[i].SupplierName,
                                 Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy
                             };

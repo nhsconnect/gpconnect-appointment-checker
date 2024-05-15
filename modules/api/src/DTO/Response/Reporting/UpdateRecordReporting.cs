@@ -10,7 +10,7 @@ public class UpdateRecordReporting
     public Hierarchy Hierarchy { get; set; }
 
     [JsonProperty("ODS_Code")]
-    public string OdsCode => Hierarchy != null ? Hierarchy.OdsCode : string.Empty;
+    public string OdsCode { get; set; }
 
     [JsonProperty("Supplier_Name")]
     public string SupplierName { get; set; }
