@@ -87,8 +87,15 @@ public class CompletionFunction
             var combinedJson = new JObject();
             foreach (var item in bucketObjects)
             {
-                var bucketObject = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
-                var parsedJson = JObject.Parse(bucketObject);
+                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = item.BucketName, Key = item.Key });
+                _lambdaContext.Logger.LogLine("jsonData");
+                _lambdaContext.Logger.LogLine(jsonData);
+
+                var parsedJson = JObject.Parse(jsonData);
+
+                _lambdaContext.Logger.LogLine("parsedJson");
+                _lambdaContext.Logger.LogLine(parsedJson.ToString());
+
                 combinedJson.Merge(parsedJson);
             }
 
