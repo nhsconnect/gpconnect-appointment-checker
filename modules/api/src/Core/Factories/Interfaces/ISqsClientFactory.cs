@@ -6,4 +6,5 @@ public interface ISqsClientFactory
 {
     public IAmazonSQS? GetSqsClient();
     public string GetSqsQueue();
+    public string GetSqsOutputQueue();
 }

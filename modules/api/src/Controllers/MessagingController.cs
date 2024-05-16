@@ -1,6 +1,5 @@
 using Amazon.SQS.Model;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.Service;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,16 +24,32 @@ public class MessagingController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> PostMessage([FromBody] CompletionRequest completionRequest)
+    [HttpPost("inputmessage")]
+    public async Task<IActionResult> PostMessage([FromBody] MessageRequest messageRequest)
     {
-        var request = JsonConvert.SerializeObject(completionRequest, new JsonSerializerSettings
+        var request = JsonConvert.SerializeObject(messageRequest, new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.Indented
         });
 
         var result = await _service.SendMessageToQueue(new SendMessageRequest()
+        {
+            MessageBody = request
+        });
+        return Ok(result);
+    }
+
+    [HttpPost("outputmessage")]
+    public async Task<IActionResult> PostOutputMessage([FromBody] MessageRequest messageRequest)
+    {
+        var request = JsonConvert.SerializeObject(messageRequest, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented
+        });
+
+        var result = await _service.SendMessageToOutputQueue(new SendMessageRequest()
         {
             MessageBody = request
         });

@@ -131,7 +131,7 @@ public class CapabilityReportEventFunction
                         Workflow = capabilityReport.Workflow,
                         MessageGroupId = messageGroupId,
                         ReportId = capabilityReport.ReportId
-                    }, Thread.CurrentThread.ManagedThreadId);
+                    }, Environment.CurrentManagedThreadId);
                     x += batchSize;
                     y++;
                 }

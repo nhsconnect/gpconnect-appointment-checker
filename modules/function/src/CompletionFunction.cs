@@ -95,7 +95,7 @@ public class CompletionFunction
             var parallelLoopResult = Parallel.ForEach(bucketObjects, options, async bucketObject =>
             {
                 var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObject.BucketName, Key = bucketObject.Key });
-                responses.TryAdd(jsonData, Thread.CurrentThread.ManagedThreadId);
+                responses.TryAdd(jsonData, Environment.CurrentManagedThreadId);
             });
 
             var responseObject = responses.Select(x => x.Key).Select(JArray.Parse).SelectMany(token => token);
