@@ -48,6 +48,7 @@ public class SQSEventFunction
     public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
+
         _stopwatch.Start();
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
 
@@ -76,17 +77,17 @@ public class SQSEventFunction
         if (messageStatus != null && messageStatus.MessagesAvailable == 0)
         {
             _lambdaContext.Logger.LogLine("No more messages available as at " + DateTime.UtcNow);
-            //var completionRequest = new CompletionRequest() { CompletionCode = new List<string>() { "OK" } };
+            var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, string> { { "StatusCode", "OK" } } };
 
-            //var json = new StringContent(JsonConvert.SerializeObject(completionRequest, null, _options),
-            //   Encoding.UTF8,
-            //   MediaTypeHeaderValue.Parse("application/json").MediaType);
+            var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
+               Encoding.UTF8,
+               MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            //await _httpClient.PostWithHeadersAsync("/messaging", new Dictionary<string, string>()
-            //{
-            //    [Headers.UserId] = _endUserConfiguration.UserId,
-            //    [Headers.ApiKey] = _endUserConfiguration.ApiKey
-            //}, json);
+            await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
         }
         return batchResponse;
     }

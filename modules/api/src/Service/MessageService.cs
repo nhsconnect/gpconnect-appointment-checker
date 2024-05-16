@@ -19,10 +19,21 @@ public class MessageService : IMessageService
 
     public async Task<HttpStatusCode> SendMessageToQueue(SendMessageRequest sendMessageRequest)
     {
+        sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsQueue();
+        return await SendMessage(sendMessageRequest);
+    }
+
+    public async Task<HttpStatusCode> SendMessageToOutputQueue(SendMessageRequest sendMessageRequest)
+    {
+        sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
+        return await SendMessage(sendMessageRequest);
+    }
+
+    private async Task<HttpStatusCode> SendMessage(SendMessageRequest sendMessageRequest)
+    {
         var sqsClient = _sqsClientFactory.GetSqsClient();
         if (sqsClient != null)
         {
-            sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsQueue();
             var response = await sqsClient.SendMessageAsync(sendMessageRequest, CancellationToken.None);
             return response.HttpStatusCode;
         }

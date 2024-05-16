@@ -7,5 +7,6 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 public interface IMessageService
 {
     public Task<HttpStatusCode> SendMessageToQueue(SendMessageRequest sendMessageRequest);
+    public Task<HttpStatusCode> SendMessageToOutputQueue(SendMessageRequest sendMessageRequest);
     public Task<MessageStatus> GetMessageStatus();
 }

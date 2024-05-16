@@ -6,4 +6,5 @@ public class MessageConfig
     public string RegionEndpoint { get; set; } = "";
     public string ServiceURL { get; set; } = "";
     public bool SendEnabled { get; set; }
+    public string ReportingOutputQueueUrl { get; set; } = "";
 }
