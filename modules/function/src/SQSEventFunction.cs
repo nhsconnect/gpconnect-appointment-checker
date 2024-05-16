@@ -72,7 +72,35 @@ public class SQSEventFunction
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
 
+        var messageStatus = await GetMessageStatus();
+        if (messageStatus != null && messageStatus.MessagesAvailable == 0)
+        {
+            _lambdaContext.Logger.LogLine("No more messages available as at " + DateTime.UtcNow);
+            //var completionRequest = new CompletionRequest() { CompletionCode = new List<string>() { "OK" } };
+
+            //var json = new StringContent(JsonConvert.SerializeObject(completionRequest, null, _options),
+            //   Encoding.UTF8,
+            //   MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            //await _httpClient.PostWithHeadersAsync("/messaging", new Dictionary<string, string>()
+            //{
+            //    [Headers.UserId] = _endUserConfiguration.UserId,
+            //    [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            //}, json);
+        }
         return batchResponse;
+    }
+
+    private async Task<MessageStatus> GetMessageStatus()
+    {
+        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<MessageStatus>(body, _options);
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
