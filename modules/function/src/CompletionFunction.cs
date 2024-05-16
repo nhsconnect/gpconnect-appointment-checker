@@ -3,8 +3,11 @@ using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -73,10 +76,14 @@ public class CompletionFunction
             ObjectPrefix = $"{Objects.Key}"
         });
 
-        var responses = new List<string>();
-
+        var options = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
+        };
+        
         foreach (var keyObject in keyObjects)
-        {            
+        {
+            var responses = new ConcurrentDictionary<string, int>();
             var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
 
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
@@ -85,13 +92,13 @@ public class CompletionFunction
                 ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
             });
 
-            for (var i = 0; i < bucketObjects.Count; i++)
+            var parallelLoopResult = Parallel.ForEach(bucketObjects, options, async bucketObject =>
             {
-                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
-                responses.Add(jsonData);
-            }
+                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObject.BucketName, Key = bucketObject.Key });
+                responses.TryAdd(jsonData, Thread.CurrentThread.ManagedThreadId);
+            });
 
-            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token);
+            var responseObject = responses.Select(x => x.Key).Select(JArray.Parse).SelectMany(token => token);
             string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.None);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
