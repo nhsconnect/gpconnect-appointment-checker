@@ -7,6 +7,7 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -76,12 +77,12 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<List<MessagingRequest>> AddMessagesToQueue(string[] odsList)
+    private async Task<IEnumerable<MessagingRequest>> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
 
-        var messages = new List<MessagingRequest>();
+        var messages = new ConcurrentDictionary<MessagingRequest, int>();
 
         if (dataSource != null && dataSource.Any())
         {
@@ -91,7 +92,10 @@ public class CapabilityReportEventFunction
             var batchSize = 20;
             var iterationCount = dataSourceCount / batchSize;
 
-            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = capabilityReports.Count };
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
+            };
 
             await Parallel.ForEachAsync(capabilityReports, parallelOptions, async (capabilityReport, ct) =>
             {
@@ -119,7 +123,7 @@ public class CapabilityReportEventFunction
 
                 while (y <= iterationCount)
                 {
-                    messages.Add(new MessagingRequest()
+                    messages.TryAdd(new MessagingRequest()
                     {
                         DataSource = dataSource.GetRange(x, x + batchSize > dataSourceCount ? dataSourceCount - x : batchSize),
                         ReportName = capabilityReport.ReportName,
@@ -127,13 +131,13 @@ public class CapabilityReportEventFunction
                         Workflow = capabilityReport.Workflow,
                         MessageGroupId = messageGroupId,
                         ReportId = capabilityReport.ReportId
-                    });
+                    }, Thread.CurrentThread.ManagedThreadId);
                     x += batchSize;
                     y++;
                 }
             });
         }
-        return messages;
+        return messages.Select(x => x.Key);
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
@@ -148,17 +152,18 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
     }    
 
-    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequests)
+    private async Task<HttpStatusCode> GenerateMessages(IEnumerable<MessagingRequest> messagingRequests)
     {
-        var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 100 };
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
+        };
 
         await Parallel.ForEachAsync(messagingRequests, parallelOptions, async (messagingRequest, ct) =>
         {
             var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-            _lambdaContext.Logger.LogLine($"MessagingRequest for {json.ReadAsStringAsync()}");
 
             await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
@@ -168,7 +173,7 @@ public class CapabilityReportEventFunction
         });
 
         _stopwatch.Stop();
-        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count} messages in {_stopwatch.Elapsed:mm':'ss' minutes'}");
+        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count()} messages in {_stopwatch.Elapsed:mm':'ss' minutes'}");
         return HttpStatusCode.OK;
     }
 
