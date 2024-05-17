@@ -73,51 +73,31 @@ public class SQSEventFunction
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
 
-        var messageStatus = await GetMessageStatus();
-        if (messageStatus != null && messageStatus.MessagesAvailable == 0)
-        {
-            Thread.Sleep(TimeSpan.FromMinutes(1));
-            if (messageStatus.MessagesInFlight == 0)
-            {
-                _lambdaContext.Logger.LogLine("No more messages available or in flight as at " + DateTime.UtcNow);
-                var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, string> { { "StatusCode", "OK" } } };
+        var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, string> { { "StatusCode", "OK" } } };
 
-                var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
-                   Encoding.UTF8,
-                   MediaTypeHeaderValue.Parse("application/json").MediaType);
+        var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
+           Encoding.UTF8,
+           MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-                await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
-                {
-                    [Headers.UserId] = _endUserConfiguration.UserId,
-                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
-                }, json);
-            }
-        }
-        return batchResponse;
-    }
-
-    private async Task<MessageStatus> GetMessageStatus()
-    {
-        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
+        await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<MessageStatus>(body, _options);
+        }, json);
+
+        return batchResponse;
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
     {
         try
-        {            
+        {
             ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options), 
-                    Encoding.UTF8, 
+                var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options),
+                    Encoding.UTF8,
                     MediaTypeHeaderValue.Parse("application/json").MediaType);
 
                 var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
