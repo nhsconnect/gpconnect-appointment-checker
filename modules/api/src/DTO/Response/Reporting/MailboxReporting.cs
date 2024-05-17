@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace gpconnect_appointment_checker.api.DTO.Response.Reporting;
 
-public class UpdateRecordReporting
+public class MailboxReporting
 {
     [JsonIgnore]
     public Hierarchy Hierarchy { get; set; }
