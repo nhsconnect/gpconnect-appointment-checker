@@ -35,7 +35,8 @@ public class MessagingController : ControllerBase
 
         var result = await _service.SendMessageToQueue(new SendMessageRequest()
         {
-            MessageBody = request
+            MessageBody = request,
+            MessageGroupId = messageRequest.MessageGroupId
         });
         return Ok(result);
     }
@@ -51,7 +52,8 @@ public class MessagingController : ControllerBase
 
         var result = await _service.SendMessageToOutputQueue(new SendMessageRequest()
         {
-            MessageBody = request
+            MessageBody = request,
+            MessageGroupId = messageRequest.MessageGroupId
         });
         return Ok(result);
     }
