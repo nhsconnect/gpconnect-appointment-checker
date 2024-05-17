@@ -33,7 +33,7 @@ public class MessageService : IMessageService
             sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
             return await SendMessage(sendMessageRequest);
         }
-        return HttpStatusCode.Forbidden;
+        return HttpStatusCode.OK;
     }
 
     private async Task<HttpStatusCode> SendMessage(SendMessageRequest sendMessageRequest)
