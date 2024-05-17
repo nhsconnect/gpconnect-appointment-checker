@@ -1,0 +1,1 @@
+INSERT INTO reporting.list(report_name, workflow, report_id) VALUES ('Send Document', '[ "GPFED_CONSULT_REPORT" ]', 'SendDocument');
