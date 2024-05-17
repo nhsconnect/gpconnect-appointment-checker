@@ -48,7 +48,6 @@ public class SQSEventFunction
     public async Task<SQSBatchResponse> FunctionHandler(SQSEvent evnt, ILambdaContext lambdaContext)
     {
         _lambdaContext = lambdaContext;
-
         _stopwatch.Start();
         var batchItemFailures = new List<SQSBatchResponse.BatchItemFailure>();
 
@@ -73,27 +72,18 @@ public class SQSEventFunction
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
 
-        var messageStatus = await GetMessageStatus();
-        if (messageStatus != null && messageStatus.MessagesAvailable == 0)
+        var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, int> { { "BatchFailureCount", batchResponse.BatchItemFailures.Count } } };
+
+        var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
+           Encoding.UTF8,
+           MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
         {
-            Thread.Sleep(TimeSpan.FromMinutes(1));
-            if (messageStatus.MessagesInFlight == 0)
-            {
-                _lambdaContext.Logger.LogLine("No more messages available or in flight as at " + DateTime.UtcNow);
-                var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, string> { { "StatusCode", "OK" } } };
-
-                var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
-                   Encoding.UTF8,
-                   MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-                await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
-                {
-                    [Headers.UserId] = _endUserConfiguration.UserId,
-                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
-                }, json);
-            }
-        }
-
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+        
         return batchResponse;
     }
 
