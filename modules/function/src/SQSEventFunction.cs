@@ -3,7 +3,6 @@ using Amazon.Lambda.SQSEvents;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.DTO.Response;
-using GpConnect.AppointmentChecker.Function.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
@@ -71,32 +70,7 @@ public class SQSEventFunction
         }
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
-
-        var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, int> { { "BatchFailureCount", batchResponse.BatchItemFailures.Count } } };
-
-        var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
-           Encoding.UTF8,
-           MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        await _httpClient.PostWithHeadersAsync("/messaging/outputmessage", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-        
         return batchResponse;
-    }
-
-    private async Task<MessageStatus> GetMessageStatus()
-    {
-        var response = await _httpClient.GetWithHeadersAsync("/messaging/getmessagestatus", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<MessageStatus>(body, _options);
     }
 
     private async Task<ReportInteraction?> ProcessMessageAsync(SQSEvent.SQSMessage message)
@@ -132,10 +106,8 @@ public class SQSEventFunction
                         Workflow = messageRequest.Workflow,
                         ReportId = messageRequest.ReportId
                     };
-
                 }
             }
-
             return reportInteraction;
         }
         catch (Exception e)

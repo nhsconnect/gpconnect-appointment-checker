@@ -30,5 +30,4 @@ public class SqsClientFactory : ISqsClientFactory
     }
 
     public string GetSqsQueue() => _config.Value.ReportingQueueUrl;
-    public string GetSqsOutputQueue() => _config.Value.ReportingOutputQueueUrl;
 }
