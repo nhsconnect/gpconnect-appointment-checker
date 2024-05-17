@@ -69,7 +69,8 @@ public class ReportingService : IReportingService
                 case "ACCESSRECORDHTML":
                     return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
                 case "UPDATERECORD":
-                    return await _workflowService.CreateWorkflowData<UpdateRecordReporting>(routeReportRequest);
+                case "SENDDOCUMENT":
+                    return await _workflowService.CreateWorkflowData<MailboxReporting>(routeReportRequest);
                 default:
                     break;
             }

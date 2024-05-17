@@ -34,32 +34,28 @@ public class WorkflowService : IWorkflowService
             {
                 for (var i = 0; i < odsCodesInScope.Count; i++)
                 {
-                    switch (typeof(T))
+                    var mailboxReporting = new MailboxReporting()
                     {
-                        case Type type when type == typeof(UpdateRecordReporting):
-                            var updateRecordReporting = new UpdateRecordReporting()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy
-                            };
+                        OdsCode = odsCodesInScope[i],
+                        SupplierName = routeReportRequest.ReportSource[i].SupplierName,
+                        Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy
+                    };
 
-                            var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
-                            if (workflowData != null)
-                            {
-                                updateRecordReporting.Status = workflowData.Status;
-                            }
-                            else
-                            {
-                                updateRecordReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
-                            }
-                            var jsonStringUR = JsonConvert.SerializeObject(updateRecordReporting);
-                            var jObjectUR = JObject.Parse(jsonStringUR);
-                            var jDictUR = jObjectUR.Flatten();
-
-                            workflows.Add(jDictUR);
-                            break;
+                    var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
+                    if (workflowData != null)
+                    {
+                        mailboxReporting.Status = workflowData.Status;
                     }
+                    else
+                    {
+                        mailboxReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
+                    }
+                    var jsonStringSD = JsonConvert.SerializeObject(mailboxReporting);
+                    var jObjectSD = JObject.Parse(jsonStringSD);
+                    var jDictSD = jObjectSD.Flatten();
+
+                    workflows.Add(jDictSD);
+                    break;
                 }
                 jsonData = JsonConvert.SerializeObject(workflows);
             }
