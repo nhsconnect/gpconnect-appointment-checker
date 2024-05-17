@@ -25,8 +25,17 @@ public class MessageService : IMessageService
 
     public async Task<HttpStatusCode> SendMessageToOutputQueue(SendMessageRequest sendMessageRequest)
     {
-        sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
-        return await SendMessage(sendMessageRequest);
+        var queueStatus = await GetMessageStatus();
+
+        _logger.LogInformation("queueStatus.MessagesInFlight.ToString()" + queueStatus.MessagesInFlight.ToString());
+        _logger.LogInformation("queueStatus.MessagesAvailable.ToString()" + queueStatus.MessagesAvailable.ToString());
+
+        if (queueStatus.MessagesAvailable == 0 && queueStatus.MessagesInFlight == 0)
+        {
+            sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
+            return await SendMessage(sendMessageRequest);
+        }
+        return HttpStatusCode.Forbidden;
     }
 
     private async Task<HttpStatusCode> SendMessage(SendMessageRequest sendMessageRequest)

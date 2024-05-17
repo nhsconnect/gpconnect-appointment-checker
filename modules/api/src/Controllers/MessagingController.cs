@@ -43,7 +43,7 @@ public class MessagingController : ControllerBase
 
     [HttpPost("outputmessage")]
     public async Task<IActionResult> PostOutputMessage([FromBody] MessageRequest messageRequest)
-    {
+    {        
         var request = JsonConvert.SerializeObject(messageRequest, new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
