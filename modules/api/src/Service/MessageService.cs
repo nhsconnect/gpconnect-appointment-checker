@@ -2,7 +2,6 @@ using Amazon.SQS.Model;
 using GpConnect.AppointmentChecker.Api.Core.Factories.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Message;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
-using Newtonsoft.Json;
 using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Service;

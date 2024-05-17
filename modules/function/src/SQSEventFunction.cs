@@ -72,6 +72,8 @@ public class SQSEventFunction
         var batchResponse = new SQSBatchResponse(batchItemFailures);
         _stopwatch.Stop();
 
+        _lambdaContext.Logger.LogLine("Sending output message");
+
         var messageRequest = new MessageRequest() { MessageBody = new Dictionary<string, int> { { "BatchFailureCount", batchResponse.BatchItemFailures.Count } } };
 
         var json = new StringContent(JsonConvert.SerializeObject(messageRequest, null, _options),
