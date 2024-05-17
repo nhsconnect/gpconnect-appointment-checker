@@ -26,14 +26,6 @@ public class MessageService : IMessageService
     public async Task<HttpStatusCode> SendMessageToOutputQueue(SendMessageRequest sendMessageRequest)
     {
         sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
-
-        _logger.LogInformation("Sending message to output queue: " + sendMessageRequest.QueueUrl);
-        _logger.LogInformation("Sending message: " + sendMessageRequest.MessageBody);
-
-        var messageStatus = await GetMessageStatus();
-        _logger.LogInformation("messageStatus.MessagesInFlight: " + messageStatus.MessagesInFlight);
-        _logger.LogInformation("messageStatus.MessagesAvailable: " + messageStatus.MessagesAvailable);
-
         return await SendMessage(sendMessageRequest);
     }
 
