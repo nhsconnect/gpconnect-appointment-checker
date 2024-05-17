@@ -26,18 +26,12 @@ public class MessageService : IMessageService
     public async Task<HttpStatusCode> SendMessageToOutputQueue(SendMessageRequest sendMessageRequest)
     {
         var queueStatus = await GetMessageStatus();
-                
-        _logger.LogInformation("queueStatus.MessagesAvailable.ToString()" + queueStatus.MessagesAvailable.ToString());
         if (queueStatus.MessagesAvailable == 0)
         {
             Thread.Sleep(TimeSpan.FromMinutes(1));
-            queueStatus = await GetMessageStatus();
-            _logger.LogInformation("queueStatus.MessagesInFlight.ToString()" + queueStatus.MessagesInFlight.ToString());
-            if (queueStatus.MessagesInFlight == 0)
-            {
-                sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
-                return await SendMessage(sendMessageRequest);
-            }
+            _logger.LogInformation("Outputtting final message");
+            sendMessageRequest.QueueUrl = _sqsClientFactory.GetSqsOutputQueue();
+            return await SendMessage(sendMessageRequest);
         }
         return HttpStatusCode.Forbidden;
     }
@@ -62,7 +56,7 @@ public class MessageService : IMessageService
         };
         var sqsClient = _sqsClientFactory.GetSqsClient();
         if (sqsClient != null)
-        {            
+        {
             var queueUrl = _sqsClientFactory.GetSqsQueue();
             var queueAttributes = await sqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible" });
             if (queueAttributes != null)
