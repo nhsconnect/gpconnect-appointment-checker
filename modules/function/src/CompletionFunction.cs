@@ -95,11 +95,16 @@ public class CompletionFunction
             var parallelLoopResult = Parallel.ForEach(bucketObjects, options, async bucketObject =>
             {
                 var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObject.BucketName, Key = bucketObject.Key });
+                _lambdaContext.Logger.LogLine("bucketObject.Key is " + bucketObject.Key);
+                _lambdaContext.Logger.LogLine("jsonData is " + jsonData);
                 responses.TryAdd(jsonData, Environment.CurrentManagedThreadId);
             });
 
             var responseObject = responses.Select(x => x.Key).Select(JArray.Parse).SelectMany(token => token);
-            string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.None);
+            string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
+
+            _lambdaContext.Logger.LogLine("combinedJson");
+            _lambdaContext.Logger.Log(combinedJson);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
             await CreateReport(combinedJson, interactionObject);
@@ -119,8 +124,6 @@ public class CompletionFunction
         var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var jsonString = await json.ReadAsStringAsync();
 
         var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
         {
