@@ -55,7 +55,6 @@ public class WorkflowService : IWorkflowService
                     var jDictSD = jObjectSD.Flatten();
 
                     workflows.Add(jDictSD);
-                    break;
                 }
                 jsonData = JsonConvert.SerializeObject(workflows);
             }
