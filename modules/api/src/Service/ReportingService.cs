@@ -122,8 +122,11 @@ public class ReportingService : IReportingService
         {
             var memoryStream = new MemoryStream();
             reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
-            
-            _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
+
+            if (result != null && result.Rows != null)
+            {
+                _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
+            }
 
             using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
             {
