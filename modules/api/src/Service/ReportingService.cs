@@ -145,6 +145,7 @@ public class ReportingService : IReportingService
                             toDelete.ForEach(dr => result.Rows.Remove(dr));
                         }
                     }
+                    _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
                     CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
                 }
                 else
@@ -167,7 +168,7 @@ public class ReportingService : IReportingService
     }
 
     private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null, string? filterTab = null)
-    {
+    {        
         var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
         worksheetPart.Worksheet = new Worksheet();

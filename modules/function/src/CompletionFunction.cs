@@ -75,11 +75,6 @@ public class CompletionFunction
             BucketName = _storageConfiguration.BucketName,
             ObjectPrefix = $"{Objects.Key}"
         });
-
-        var options = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
-        };
         
         foreach (var keyObject in keyObjects)
         {
@@ -95,17 +90,11 @@ public class CompletionFunction
             for( var i = 0; i < bucketObjects.Count; i++ )
             {
                 var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
-                _lambdaContext.Logger.LogLine("bucketObject.Key is " + bucketObjects[i].Key);
-                _lambdaContext.Logger.LogLine("jsonData is " + jsonData);
-
                 responses.Add(jsonData);
             }
 
             var responseObject = responses.Select(JArray.Parse).SelectMany(token => token);
             string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
-
-            _lambdaContext.Logger.LogLine("combinedJson");
-            _lambdaContext.Logger.Log(combinedJson);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
             await CreateReport(combinedJson, interactionObject);
