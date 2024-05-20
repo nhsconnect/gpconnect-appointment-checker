@@ -83,7 +83,7 @@ public class CompletionFunction
         
         foreach (var keyObject in keyObjects)
         {
-            var responses = new ConcurrentDictionary<string, int>();
+            var responses = new List<string>();
             var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
 
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
@@ -92,15 +92,16 @@ public class CompletionFunction
                 ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
             });
 
-            var parallelLoopResult = Parallel.ForEach(bucketObjects, options, async bucketObject =>
+            for( var i = 0; i < bucketObjects.Count; i++ )
             {
-                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObject.BucketName, Key = bucketObject.Key });
-                _lambdaContext.Logger.LogLine("bucketObject.Key is " + bucketObject.Key);
+                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
+                _lambdaContext.Logger.LogLine("bucketObject.Key is " + bucketObjects[i].Key);
                 _lambdaContext.Logger.LogLine("jsonData is " + jsonData);
-                responses.TryAdd(jsonData, Environment.CurrentManagedThreadId);
-            });
 
-            var responseObject = responses.Select(x => x.Key).Select(JArray.Parse).SelectMany(token => token);
+                responses.Add(jsonData);
+            }
+
+            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token);
             string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
 
             _lambdaContext.Logger.LogLine("combinedJson");
