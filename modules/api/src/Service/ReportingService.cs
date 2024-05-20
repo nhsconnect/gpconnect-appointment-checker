@@ -122,6 +122,8 @@ public class ReportingService : IReportingService
         {
             var memoryStream = new MemoryStream();
             reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
+            
+            _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
 
             using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
             {
@@ -145,7 +147,6 @@ public class ReportingService : IReportingService
                             toDelete.ForEach(dr => result.Rows.Remove(dr));
                         }
                     }
-                    _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
                     CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
                 }
                 else
