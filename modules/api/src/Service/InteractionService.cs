@@ -131,6 +131,37 @@ public class InteractionService : IInteractionService
 
                             interactions.Add(jDictObjARH);
                             break;
+                        case Type type when type == typeof(AppointmentManagementReporting):
+
+                            var appointmentManagementReporting = new AppointmentManagementReporting()
+                            {
+                                OdsCode = odsCodesInScope[i],
+                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
+                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
+                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                            };
+
+                            var appointmentManagementReportingData = await GetInteractionData(new InteractionDataRequest()
+                            {
+                                OdsCode = odsCodesInScope[i],
+                                Interaction = routeReportRequest.Interaction[0],
+                                Client = Clients.GPCONNECTCLIENT,
+                                HostIdentifier = "https://fhir.nhs.uk",
+                                HasId = true
+                            });
+
+                            if (appointmentManagementReportingData != null && appointmentManagementReportingData.NoIssues)
+                            {
+                                appointmentManagementReporting.Rest = appointmentManagementReportingData.Rest;
+                                appointmentManagementReporting.ApiVersion = $"v{appointmentManagementReportingData.Version}";
+                            }
+
+                            var jsonStringAM = JsonConvert.SerializeObject(appointmentManagementReporting);
+                            var jObjectAM = JObject.Parse(jsonStringAM);
+                            var jDictObjAM = jObjectAM.Flatten();
+
+                            interactions.Add(jDictObjAM);
+                            break;
                     }
                 }
                 jsonData = JsonConvert.SerializeObject(interactions);

@@ -5,6 +5,7 @@ namespace GpConnect.AppointmentChecker.Api.Helpers.Constants;
 public enum SpineMessageTypes
 {
     SpineLdapQuery = 1,
+    [InteractionId("urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1")]
     GpConnectReadMetaData = 2,
     GpConnectSearchFreeSlots = 3,
     SpineFhirApiSDSQuery = 4,
