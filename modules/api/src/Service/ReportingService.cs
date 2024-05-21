@@ -123,11 +123,6 @@ public class ReportingService : IReportingService
             var memoryStream = new MemoryStream();
             reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
 
-            if (result != null && result.Rows != null)
-            {
-                _logger.LogInformation($"Number of rows in sheet: {result.Rows.Count}");
-            }
-
             using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
             {
                 var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
@@ -188,8 +183,11 @@ public class ReportingService : IReportingService
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
 
-        Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other") };
-        sheets.Append(sheet);
+        if (result.Rows.Count > 0)
+        {
+            Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other") };
+            sheets.Append(sheet);
+        }
     }
 
     private static Columns BuildColumns(DataTable result)
