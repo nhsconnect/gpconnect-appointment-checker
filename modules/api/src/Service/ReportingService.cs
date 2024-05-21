@@ -66,6 +66,8 @@ public class ReportingService : IReportingService
             {
                 case "ACCESSRECORDSTRUCTURED":
                     return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                case "APPOINTMENTMANAGEMENT":
+                    return await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
                 case "ACCESSRECORDHTML":
                     return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
                 case "UPDATERECORD":
