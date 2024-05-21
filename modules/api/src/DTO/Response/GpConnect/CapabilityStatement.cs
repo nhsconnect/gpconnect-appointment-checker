@@ -37,7 +37,7 @@ public class CapabilityStatement
     public List<Profile> Profile { get; set; }
     [JsonProperty("rest")]
     public List<Rest> Rest { get; set; }
-
+    
     [JsonProperty("issue")]
     public List<Issue?> Issue { get; set; } = new List<Issue?>();
 
