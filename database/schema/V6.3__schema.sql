@@ -1,0 +1,1 @@
+INSERT INTO reporting.list(report_name, interaction, report_id) VALUES ('Appointment Management', '[ "urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1" ]', 'AppointmentManagement');
