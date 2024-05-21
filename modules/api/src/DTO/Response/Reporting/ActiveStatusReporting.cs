@@ -37,7 +37,7 @@ public abstract class ActiveStatusReporting
     [JsonIgnore]
     public List<Rest>? Rest { get; set; }
 
-    [JsonProperty("Operation")]
+    [JsonIgnore]
     public IEnumerable<string> Operation => Rest?.FirstOrDefault()?.Operation?.Select(x => x.Name);
     
     [JsonProperty("Status")]
