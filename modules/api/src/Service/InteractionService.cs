@@ -59,7 +59,8 @@ public class InteractionService : IInteractionService
                                 DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
                                 DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
                                 Profile = null,
-                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE,
+                                
                             };
 
                             var accessRecordStructuredReportingData = await GetInteractionData(new InteractionDataRequest
@@ -73,6 +74,7 @@ public class InteractionService : IInteractionService
 
                             if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
                             {
+                                accessRecordStructuredReporting.Rest = accessRecordStructuredReportingData.Rest;
                                 accessRecordStructuredReporting.Profile = accessRecordStructuredReportingData.Profile;
                                 accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
                             }
