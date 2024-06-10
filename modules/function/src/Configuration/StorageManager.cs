@@ -83,6 +83,7 @@ public static class StorageManager
         try
         {
             var listResponse = await GetObjects(storageListRequest);
+
             if (listResponse != null && listResponse.Count > 0)
             {
                 var deleteRequest = new DeleteObjectsRequest();
