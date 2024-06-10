@@ -52,12 +52,24 @@ public class CapabilityReportEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        await Reset(Objects.Key, Objects.Transient, Objects.Completion);
+        await PurgeObjects();
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
         var statusCode = await GenerateMessages(messages);
         return statusCode;
+    }
+
+    private async Task PurgeObjects()
+    {
+        var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
+        foreach (var keyObject in keyObjects)
+        {
+            var keyToDelete = $"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}_{DateTime.Now:yyyy_MM_dd}";
+            _lambdaContext.Logger.LogLine($"Key to delete is {keyToDelete}");
+            await Reset(keyToDelete);
+        }
+        await Reset(Objects.Key, Objects.Completion);
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -199,6 +211,9 @@ public class CapabilityReportEventFunction
                 BucketName = _storageConfiguration.BucketName,
                 ObjectPrefix = key
             });
+
+            _lambdaContext.Logger.LogLine($"key is {key}");
+
             if (purgeResponse != null && purgeResponse.DeletedObjects != null)
             {
                 _lambdaContext.Logger.LogLine($"Deleted object count {purgeResponse.DeletedObjects.Count}");
