@@ -194,13 +194,20 @@ public class CapabilityReportEventFunction
     {
         foreach (var key in objectPrefix)
         {
-            _lambdaContext.Logger.LogLine($"Attempting to purge {key}");
-
-            await StorageManager.Purge(new StorageListRequest
+            var purgeResponse = await StorageManager.Purge(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
                 ObjectPrefix = key
             });
+            if (purgeResponse != null && purgeResponse.DeletedObjects != null)
+            {
+                _lambdaContext.Logger.LogLine($"Deleted object count {purgeResponse.DeletedObjects.Count}");
+
+                for (int i = 0; i < purgeResponse.DeletedObjects.Count; i++)
+                {
+                    _lambdaContext.Logger.LogLine($"Deleted object {purgeResponse.DeletedObjects[i].Key}");
+                }
+            }
         }
     }
 }
