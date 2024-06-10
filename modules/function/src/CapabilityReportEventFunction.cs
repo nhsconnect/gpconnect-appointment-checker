@@ -105,7 +105,7 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var batchSize = 20;
+            var batchSize = 50;
             var iterationCount = dataSourceCount / batchSize;
 
             await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
