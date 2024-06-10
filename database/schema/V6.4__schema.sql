@@ -1,0 +1,1 @@
+create index if not exists logging_spinemessage_searchresultid_ix on logging.spine_message (search_result_id) where search_result_id is not null

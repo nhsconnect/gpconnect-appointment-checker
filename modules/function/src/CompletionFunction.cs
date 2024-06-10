@@ -84,7 +84,7 @@ public class CompletionFunction
             var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = $"{Objects.Transient}_{sourceKey}"
+                ObjectPrefix = $"{Objects.Transient}_{sourceKey}_{DateTime.Now:yyyy_mm_dd}"
             });
 
             for( var i = 0; i < bucketObjects.Count; i++ )
@@ -93,7 +93,7 @@ public class CompletionFunction
                 responses.Add(jsonData);
             }
 
-            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token);
+            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token).OrderBy(x => (string)x["ODS_Code"]);
             string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
