@@ -194,6 +194,8 @@ public class CapabilityReportEventFunction
     {
         foreach (var key in objectPrefix)
         {
+            _lambdaContext.Logger.LogLine($"Attempting to purge {key}");
+
             await StorageManager.Purge(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
