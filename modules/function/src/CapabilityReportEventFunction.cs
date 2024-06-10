@@ -25,6 +25,7 @@ public class CapabilityReportEventFunction
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
     private Stopwatch _stopwatch;
+    private ParallelOptions _parallelOptions;
 
     public CapabilityReportEventFunction()
     {
@@ -32,6 +33,11 @@ public class CapabilityReportEventFunction
         _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
+
+        _parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
+        };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
@@ -63,12 +69,10 @@ public class CapabilityReportEventFunction
     private async Task PurgeObjects()
     {
         var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
-        foreach (var keyObject in keyObjects)
+        await Parallel.ForEachAsync(keyObjects, _parallelOptions, async (keyObject, ct) =>
         {
-            var keyToDelete = $"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}_{DateTime.Now:yyyy_MM_dd}";
-            _lambdaContext.Logger.LogLine($"Key to delete is {keyToDelete}");
-            await Reset(keyToDelete);
-        }
+            await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}_{DateTime.Now:yyyy_MM_dd}");
+        });
         await Reset(Objects.Key, Objects.Completion);
     }
 
@@ -104,12 +108,7 @@ public class CapabilityReportEventFunction
             var batchSize = 20;
             var iterationCount = dataSourceCount / batchSize;
 
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
-            };
-
-            await Parallel.ForEachAsync(capabilityReports, parallelOptions, async (capabilityReport, ct) =>
+            await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
             {
                 var x = 0;
                 var y = 0;
@@ -162,16 +161,11 @@ public class CapabilityReportEventFunction
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
-    }    
+    }
 
     private async Task<HttpStatusCode> GenerateMessages(IEnumerable<MessagingRequest> messagingRequests)
     {
-        var parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
-        };
-
-        await Parallel.ForEachAsync(messagingRequests, parallelOptions, async (messagingRequest, ct) =>
+        await Parallel.ForEachAsync(messagingRequests, _parallelOptions, async (messagingRequest, ct) =>
         {
             var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
                 Encoding.UTF8,
@@ -204,25 +198,13 @@ public class CapabilityReportEventFunction
 
     private async Task Reset(params string[] objectPrefix)
     {
-        foreach (var key in objectPrefix)
+        for (int i = 0; i < objectPrefix.Length; i++)
         {
-            var purgeResponse = await StorageManager.Purge(new StorageListRequest
+            await StorageManager.Purge(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = key
+                ObjectPrefix = objectPrefix[i]
             });
-
-            _lambdaContext.Logger.LogLine($"key is {key}");
-
-            if (purgeResponse != null && purgeResponse.DeletedObjects != null)
-            {
-                _lambdaContext.Logger.LogLine($"Deleted object count {purgeResponse.DeletedObjects.Count}");
-
-                for (int i = 0; i < purgeResponse.DeletedObjects.Count; i++)
-                {
-                    _lambdaContext.Logger.LogLine($"Deleted object {purgeResponse.DeletedObjects[i].Key}");
-                }
-            }
         }
     }
 }
