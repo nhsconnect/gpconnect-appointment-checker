@@ -18,6 +18,7 @@ public static class HttpClientExtensions
 
         GetHttpClient(services, Helpers.Constants.Clients.FHIRREADCLIENT, false, "application/fhir+json");
         GetHttpClient(services, Helpers.Constants.Clients.HIERARCHYCLIENT, false, "application/fhir+json");
+        GetHttpClient(services, Helpers.Constants.Clients.ODSCLIENT, false, "application/fhir+json");
         GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENT, true, "application/fhir+json");
         GetHttpClient(services, Helpers.Constants.Clients.GPCONNECTCLIENTLEGACY, true, "application/json+fhir");
     }

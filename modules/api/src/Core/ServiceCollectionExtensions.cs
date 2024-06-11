@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.Configure<SecurityConfig>(configuration.GetSection("SecurityConfig"));
         services.Configure<MessageConfig>(configuration.GetSection("MessageConfig"));
         services.Configure<MeshConfig>(configuration.GetSection("MeshConfig"));
+        services.Configure<HierarchyConfig>(configuration.GetSection("HierarchyConfig"));
 
         services.AddSingleton<ISqsClientFactory, SqsClientFactory>();
 
@@ -49,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IConfigurationService, ConfigurationService>();
         services.AddScoped<IOrganisationService, OrganisationService>();
+        services.AddScoped<IHierarchyService, HierarchyService>();
         services.AddScoped<IFhirService, FhirService>();
         services.AddScoped<IFhirRequestExecution, FhirRequestExecution>();
         services.AddScoped<ILdapRequestExecution, LdapRequestExecution>();
