@@ -85,7 +85,7 @@ public class SQSEventFunction
                     Encoding.UTF8,
                     MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-                var response = await _httpClient.PostWithHeadersAsync("/organisation/hierarchy", new Dictionary<string, string>()
+                var response = await _httpClient.PostWithHeadersAsync("/hierarchy", new Dictionary<string, string>()
                 {
                     [Headers.UserId] = _endUserConfiguration.UserId,
                     [Headers.ApiKey] = _endUserConfiguration.ApiKey
