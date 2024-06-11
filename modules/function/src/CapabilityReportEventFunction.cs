@@ -71,7 +71,7 @@ public class CapabilityReportEventFunction
         var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
         await Parallel.ForEachAsync(keyObjects, _parallelOptions, async (keyObject, ct) =>
         {
-            await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}_{DateTime.Now:yyyy_MM_dd}");
+            await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}");
         });
         await Reset(Objects.Key, Objects.Completion);
     }
