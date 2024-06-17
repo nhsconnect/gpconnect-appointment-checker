@@ -27,4 +27,16 @@ public class MessageService : IMessageService
         }
         return HttpStatusCode.ServiceUnavailable;
     }
+
+    public async Task<HttpStatusCode> SendMessageBatchToQueue(SendMessageBatchRequest sendMessageBatchRequest)
+    {
+        sendMessageBatchRequest.QueueUrl = _sqsClientFactory.GetSqsQueue();
+        var sqsClient = _sqsClientFactory.GetSqsClient();
+        if (sqsClient != null)
+        {
+            var response = await sqsClient.SendMessageBatchAsync(sendMessageBatchRequest, CancellationToken.None);
+            return response.HttpStatusCode;
+        }
+        return HttpStatusCode.ServiceUnavailable;
+    }
 }

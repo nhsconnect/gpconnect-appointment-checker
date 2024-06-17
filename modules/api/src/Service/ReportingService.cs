@@ -31,19 +31,26 @@ public class ReportingService : IReportingService
         _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
     }
 
-    public async Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest)
+    public async Task SendMessageToCreateInteractionReportContent(List<ReportInteractionRequest> reportInteractionRequest)
     {
-        var request = JsonConvert.SerializeObject(reportInteractionRequest, new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented
-        });
+        var start = 0;
+        var finish = reportInteractionRequest.Count;
+        var increment = 10;
 
-        await _messageService.SendMessageToQueue(new SendMessageRequest()
+        while (start < finish)
         {
-            MessageGroupId = reportInteractionRequest.MessageGroupId.ToString(),
-            MessageBody = request
-        });
+            var requests = reportInteractionRequest.GetRange(start, increment);
+            var request = JsonConvert.SerializeObject(requests, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented
+            });
+
+            var batchRequest = new SendMessageBatchRequest();
+            batchRequest.Entries.AddRange(request.Select(x => new SendMessageBatchRequestEntry() { MessageBody = x.ToString(), MessageGroupId = requests[start].MessageGroupId.ToString() }));
+            await _messageService.SendMessageBatchToQueue(batchRequest);
+            start += increment;
+        }        
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)

@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.SecretsManager.Model.Internal.MarshallTransformations;
 using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -61,7 +62,7 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        return messages;
+        return await GenerateMessages(messages);
     }
 
     private async Task PurgeObjects()
@@ -91,7 +92,7 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
+    private async Task<List<MessagingRequest>> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
@@ -124,7 +125,7 @@ public class CapabilityReportEventFunction
 
                 for (var j = 0; j < dataSourceCount; j++)
                 {
-                    await GenerateMessages(new MessagingRequest()
+                    messages.Add(new MessagingRequest()
                     {
                         DataSource = new() { OdsCode = dataSource[j].OdsCode, SupplierName = dataSource[j].SupplierName },
                         ReportName = capabilityReports[i].ReportName,
@@ -135,9 +136,26 @@ public class CapabilityReportEventFunction
                     });
                 }
             }
-            return HttpStatusCode.OK;
         }
-        return HttpStatusCode.NoContent;        
+        return messages;
+    }
+
+    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
+    {
+        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        _lambdaContext.Logger.Log("await json.ReadAsStringAsync()");
+        _lambdaContext.Logger.Log(await json.ReadAsStringAsync());
+
+        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+
+        return HttpStatusCode.OK;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
@@ -150,19 +168,6 @@ public class CapabilityReportEventFunction
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
-    }
-
-    private async Task GenerateMessages(MessagingRequest messagingRequest)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
     }
 
     private async Task<List<DataSource>> LoadDataSource()
