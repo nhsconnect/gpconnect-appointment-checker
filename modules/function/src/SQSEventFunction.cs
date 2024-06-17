@@ -57,6 +57,8 @@ public class SQSEventFunction
                 var reportRequest = await ProcessMessageAsync(message);
                 var response = await RouteReportRequest(reportRequest);
 
+                _lambdaContext.Logger.LogLine("RouteReportRequest IsSuccessStatusCode " + response.IsSuccessStatusCode);
+
                 if (response.IsSuccessStatusCode)
                 {
                     await GenerateTransientJsonForReport(reportRequest.ObjectKeyJson, response);
@@ -77,13 +79,17 @@ public class SQSEventFunction
     {
         try
         {
+            _lambdaContext.Logger.LogLine("Processing message " + message.Body);
+            _lambdaContext.Logger.LogLine(message.Body);
             ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
+                _lambdaContext.Logger.LogLine("messageRequest.DataSource.OdsCode " + messageRequest.DataSource.OdsCode);
                 var hierarchy = await GetOrganisationHierarchy(messageRequest.DataSource.OdsCode);
                 if (hierarchy != null)
-                {                    
+                {
+                    
                     reportInteraction = new()
                     {
                         ReportSource = new()
@@ -97,13 +103,17 @@ public class SQSEventFunction
                         Workflow = messageRequest.Workflow,
                         ReportId = messageRequest.ReportId
                     };
+                    _lambdaContext.Logger.LogLine("reportInteraction.ReportName " + reportInteraction.ReportName);
+                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.OdsCode " + reportInteraction.ReportSource.OdsCode);
+                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.SupplierName " + reportInteraction.ReportSource.SupplierName);
+                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.OrganisationHierarchy.SiteName " + reportInteraction.ReportSource.OrganisationHierarchy.SiteName);
                 }
             }
             return reportInteraction;
         }
         catch (Exception e)
         {
-            _lambdaContext.Logger.LogError(e.StackTrace);
+            _lambdaContext.Logger.LogError(e.Message);
             throw;
         }
     }
@@ -115,6 +125,8 @@ public class SQSEventFunction
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         });
+        _lambdaContext.Logger.LogLine("GetOrganisationHierarchy.StatusCode");
+        _lambdaContext.Logger.LogLine(response.StatusCode.ToString());
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<OrganisationHierarchy> (body, _options);
