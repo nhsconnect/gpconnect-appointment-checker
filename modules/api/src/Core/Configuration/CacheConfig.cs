@@ -2,5 +2,5 @@
 
 public class CacheConfig
 {
-    public int Timeout { get; set; }
+    public int TimeoutHours { get; set; }
 }
