@@ -81,31 +81,17 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                for (var i = 0; i < messageRequest.DataSource.Where(x => x.OdsCode == "C86020").Count(); i++)
-                {
-                    _lambdaContext.Logger.LogLine("ODS Code is " + messageRequest.DataSource[i].OdsCode);
-                }                
-
-                var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options),
-                    Encoding.UTF8,
-                    MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-                var response = await _httpClient.PostWithHeadersAsync("/hierarchy", new Dictionary<string, string>()
-                {
-                    [Headers.UserId] = _endUserConfiguration.UserId,
-                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
-                }, json);
-
-                response.EnsureSuccessStatusCode();
-
-                if (response != null)
-                {
-                    var body = await response.Content.ReadAsStringAsync();
-                    var hierarchySource = JsonConvert.DeserializeObject<List<OrganisationHierarchy>>(body, _options);
-
-                    reportInteraction = new ReportInteraction()
+                var hierarchy = await GetOrganisationHierarchy(messageRequest.DataSource.OdsCode);
+                if (hierarchy != null)
+                {                    
+                    reportInteraction = new()
                     {
-                        ReportSource = messageRequest.DataSource.Select(x => new ReportSource() { OdsCode = x.OdsCode, SupplierName = x.SupplierName, OrganisationHierarchy = hierarchySource.FirstOrDefault(y => y.OdsCode == x.OdsCode) }).ToList(),
+                        ReportSource = new()
+                        {
+                            OdsCode = messageRequest.DataSource.OdsCode,
+                            SupplierName = messageRequest.DataSource.SupplierName,
+                            OrganisationHierarchy = hierarchy
+                        },
                         ReportName = messageRequest.ReportName,
                         Interaction = messageRequest.Interaction,
                         Workflow = messageRequest.Workflow,
@@ -121,6 +107,18 @@ public class SQSEventFunction
             throw;
         }
     }
+
+    private async Task<OrganisationHierarchy> GetOrganisationHierarchy(string odsCode)
+    {
+        var response = await _httpClient.GetWithHeadersAsync($"/hierarchy?odsCode={odsCode}", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        });
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<OrganisationHierarchy> (body, _options);
+    }   
 
     private async Task<HttpResponseMessage?> RouteReportRequest(ReportInteraction reportInteraction)
     {

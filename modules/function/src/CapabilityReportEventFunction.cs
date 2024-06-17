@@ -7,7 +7,6 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -61,9 +60,8 @@ public class CapabilityReportEventFunction
         await PurgeObjects();
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
-        var messages = await AddMessagesToQueue(odsList);        
-        var statusCode = await GenerateMessages(messages);
-        return statusCode;
+        var messages = await AddMessagesToQueue(odsList);
+        return messages;
     }
 
     private async Task PurgeObjects()
@@ -93,34 +91,26 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<IEnumerable<MessagingRequest>> AddMessagesToQueue(string[] odsList)
+    private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
 
-        var messages = new ConcurrentDictionary<MessagingRequest, int>();
+        var messages = new List<MessagingRequest>();
 
         if (dataSource != null && dataSource.Any())
         {
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var batchSize = 40;
-            var iterationCount = dataSourceCount / batchSize;
-
-            await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
+            for (var i = 0; i < capabilityReports.Count; i++)
             {
-                var x = 0;
-                var y = 0;
-
-                var messageGroupId = Guid.NewGuid();
-
                 var interactionRequest = new InteractionRequest
                 {
-                    WorkflowId = capabilityReport.Workflow != null ? capabilityReport.Workflow.FirstOrDefault() : null,
-                    InteractionId = capabilityReport.Interaction != null ? capabilityReport.Interaction.FirstOrDefault() : null,
-                    ReportName = capabilityReport.ReportName,
-                    ReportId = capabilityReport.ReportId
+                    WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
+                    InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
+                    ReportName = capabilityReports[i].ReportName,
+                    ReportId = capabilityReports[i].ReportId
                 };
 
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
@@ -128,27 +118,26 @@ public class CapabilityReportEventFunction
                 await StorageManager.Post(new StorageUploadRequest
                 {
                     BucketName = _storageConfiguration.BucketName,
-                    Key = capabilityReport.ObjectKey,
+                    Key = capabilityReports[i].ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
-                while (y <= iterationCount)
-                {                    
-                    messages.TryAdd(new MessagingRequest()
+                for (var j = 0; j < dataSourceCount; j++)
+                {
+                    await GenerateMessages(new MessagingRequest()
                     {
-                        DataSource = dataSource.GetRange(x, x + batchSize > dataSourceCount ? dataSourceCount - x : batchSize),
-                        ReportName = capabilityReport.ReportName,
-                        Interaction = capabilityReport.Interaction,
-                        Workflow = capabilityReport.Workflow,
-                        MessageGroupId = messageGroupId,
-                        ReportId = capabilityReport.ReportId
-                    }, Environment.CurrentManagedThreadId);
-                    x += batchSize;
-                    y++;
+                        DataSource = new() { OdsCode = dataSource[j].OdsCode, SupplierName = dataSource[j].SupplierName },
+                        ReportName = capabilityReports[i].ReportName,
+                        Interaction = capabilityReports[i].Interaction,
+                        Workflow = capabilityReports[i].Workflow,
+                        MessageGroupId = capabilityReports[i].MessageGroupId,
+                        ReportId = capabilityReports[i].ReportId
+                    });
                 }
-            });
+            }
+            return HttpStatusCode.OK;
         }
-        return messages.Select(x => x.Key);
+        return HttpStatusCode.NoContent;        
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
@@ -163,24 +152,17 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<List<CapabilityReport>>(body, _options);
     }
 
-    private async Task<HttpStatusCode> GenerateMessages(IEnumerable<MessagingRequest> messagingRequests)
+    private async Task GenerateMessages(MessagingRequest messagingRequest)
     {
-        await Parallel.ForEachAsync(messagingRequests, _parallelOptions, async (messagingRequest, ct) =>
+        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
+            Encoding.UTF8,
+            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         {
-            var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
-                Encoding.UTF8,
-                MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-            {
-                [Headers.UserId] = _endUserConfiguration.UserId,
-                [Headers.ApiKey] = _endUserConfiguration.ApiKey
-            }, json);
-        });
-
-        _stopwatch.Stop();
-        _lambdaContext.Logger.LogLine($"Completed generation of {messagingRequests.Count()} messages in {_stopwatch.Elapsed:mm':'ss' minutes'}");
-        return HttpStatusCode.OK;
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
     }
 
     private async Task<List<DataSource>> LoadDataSource()
