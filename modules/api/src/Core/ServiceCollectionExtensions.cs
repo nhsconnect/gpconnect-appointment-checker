@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.Configure<MessageConfig>(configuration.GetSection("MessageConfig"));
         services.Configure<MeshConfig>(configuration.GetSection("MeshConfig"));
         services.Configure<HierarchyConfig>(configuration.GetSection("HierarchyConfig"));
+        services.Configure<CacheConfig>(configuration.GetSection("CacheConfig"));
 
         services.AddSingleton<ISqsClientFactory, SqsClientFactory>();
 
