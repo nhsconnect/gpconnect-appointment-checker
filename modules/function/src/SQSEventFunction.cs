@@ -110,7 +110,7 @@ public class SQSEventFunction
 
     private async Task<OrganisationHierarchy> GetOrganisationHierarchy(string odsCode)
     {
-        var response = await _httpClient.GetWithHeadersAsync($"/hierarchy?odsCode={odsCode}", new Dictionary<string, string>()
+        var response = await _httpClient.GetWithHeadersAsync($"/hierarchy/{odsCode}", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
