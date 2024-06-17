@@ -81,6 +81,11 @@ public class SQSEventFunction
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
+                for (var i = 0; i < messageRequest.DataSource.Where(x => x.OdsCode == "C86020").Count(); i++)
+                {
+                    _lambdaContext.Logger.LogLine("ODS Code is " + messageRequest.DataSource[i].OdsCode);
+                }                
+
                 var json = new StringContent(JsonConvert.SerializeObject(messageRequest.DataSource.Select(x => x.OdsCode).ToList(), null, _options),
                     Encoding.UTF8,
                     MediaTypeHeaderValue.Parse("application/json").MediaType);

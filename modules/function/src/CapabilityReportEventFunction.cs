@@ -61,7 +61,7 @@ public class CapabilityReportEventFunction
         await PurgeObjects();
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
-        var messages = await AddMessagesToQueue(odsList);
+        var messages = await AddMessagesToQueue(odsList);        
         var statusCode = await GenerateMessages(messages);
         return statusCode;
     }
@@ -105,7 +105,7 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var batchSize = 50;
+            var batchSize = 40;
             var iterationCount = dataSourceCount / batchSize;
 
             await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
@@ -133,7 +133,7 @@ public class CapabilityReportEventFunction
                 });
 
                 while (y <= iterationCount)
-                {
+                {                    
                     messages.TryAdd(new MessagingRequest()
                     {
                         DataSource = dataSource.GetRange(x, x + batchSize > dataSourceCount ? dataSourceCount - x : batchSize),
