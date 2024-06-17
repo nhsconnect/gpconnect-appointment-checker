@@ -9,7 +9,6 @@ using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Data;
 using System.Linq.Dynamic.Core;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
@@ -39,135 +38,131 @@ public class InteractionService : IInteractionService
     {
         try
         {
-            var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var interactions = new List<IDictionary<string, object>>();
 
-            if (odsCodesInScope.Count > 0)
+            if (routeReportRequest.ReportSource.OdsCode != null)
             {
-                for (var i = 0; i < odsCodesInScope.Count; i++)
+                switch (typeof(T))
                 {
-                    switch (typeof(T))
-                    {
-                        case Type type when type == typeof(AccessRecordStructuredReporting):
+                    case Type type when type == typeof(AccessRecordStructuredReporting):
 
-                            var accessRecordStructuredReporting = new AccessRecordStructuredReporting()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
-                                DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
-                                DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
-                                Profile = null,
-                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE,
-                                
-                            };
+                        var accessRecordStructuredReporting = new AccessRecordStructuredReporting()
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            SupplierName = routeReportRequest.ReportSource.SupplierName,
+                            Hierarchy = routeReportRequest.ReportSource.OrganisationHierarchy,
+                            DocumentsVersion = ActiveInactiveConstants.NOTAVAILABLE,
+                            DocumentsInProfile = ActiveInactiveConstants.NOTAVAILABLE,
+                            Profile = null,
+                            ApiVersion = ActiveInactiveConstants.NOTAVAILABLE,
 
-                            var accessRecordStructuredReportingData = await GetInteractionData(new InteractionDataRequest
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                Interaction = routeReportRequest.Interaction[0],
-                                Client = Clients.GPCONNECTCLIENT,
-                                HostIdentifier = "https://fhir.nhs.uk",
-                                HasId = true
-                            });
+                        };
 
-                            if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
-                            {
-                                accessRecordStructuredReporting.Rest = accessRecordStructuredReportingData.Rest;
-                                accessRecordStructuredReporting.Profile = accessRecordStructuredReportingData.Profile;
-                                accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
-                            }
+                        var accessRecordStructuredReportingData = await GetInteractionData(new InteractionDataRequest
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            Interaction = routeReportRequest.Interaction[0],
+                            Client = Clients.GPCONNECTCLIENT,
+                            HostIdentifier = "https://fhir.nhs.uk",
+                            HasId = true
+                        });
 
-                            var accessRecordStructuredReportingDataDocuments = await GetInteractionData(new InteractionDataRequest
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                Interaction = routeReportRequest.Interaction[1],
-                                Client = Clients.GPCONNECTCLIENT,
-                                HostIdentifier = "https://fhir.nhs.uk",
-                                HasId = true
-                            });
+                        if (accessRecordStructuredReportingData != null && accessRecordStructuredReportingData.NoIssues)
+                        {
+                            accessRecordStructuredReporting.Rest = accessRecordStructuredReportingData.Rest;
+                            accessRecordStructuredReporting.Profile = accessRecordStructuredReportingData.Profile;
+                            accessRecordStructuredReporting.ApiVersion = $"v{accessRecordStructuredReportingData.Version}";
+                        }
 
-                            if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
-                            {
-                                accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
-                                accessRecordStructuredReporting.DocumentsInProfile = accessRecordStructuredReportingDataDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
-                            }
+                        var accessRecordStructuredReportingDataDocuments = await GetInteractionData(new InteractionDataRequest
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            Interaction = routeReportRequest.Interaction[1],
+                            Client = Clients.GPCONNECTCLIENT,
+                            HostIdentifier = "https://fhir.nhs.uk",
+                            HasId = true
+                        });
 
-                            var jsonStringARS = JsonConvert.SerializeObject(accessRecordStructuredReporting);
-                            var jObjectARS = JObject.Parse(jsonStringARS);
-                            var jDictObjARS = jObjectARS.Flatten();
+                        if (accessRecordStructuredReportingDataDocuments != null && accessRecordStructuredReportingDataDocuments.NoIssues)
+                        {
+                            accessRecordStructuredReporting.DocumentsVersion = $"v{accessRecordStructuredReportingDataDocuments.Version}";
+                            accessRecordStructuredReporting.DocumentsInProfile = accessRecordStructuredReportingDataDocuments.Rest?.Count(x => x.Resource.Any(y => y.Type == "Binary")) > 0 ? ActiveInactiveConstants.ACTIVE : ActiveInactiveConstants.INACTIVE;
+                        }
 
-                            interactions.Add(jDictObjARS);
-                            break;
+                        var jsonStringARS = JsonConvert.SerializeObject(accessRecordStructuredReporting);
+                        var jObjectARS = JObject.Parse(jsonStringARS);
+                        var jDictObjARS = jObjectARS.Flatten();
 
-                        case Type type when type == typeof(AccessRecordHtmlReporting):
+                        interactions.Add(jDictObjARS);
+                        break;
 
-                            var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
-                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
-                            };
+                    case Type type when type == typeof(AccessRecordHtmlReporting):
 
-                            var accessRecordHtmlReportingData = await GetReportingInteractionData(new InteractionDataRequest()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                Interaction = routeReportRequest.Interaction[0],
-                                Client = Clients.GPCONNECTCLIENTLEGACY,
-                                HostIdentifier = "http://fhir.nhs.net",
-                                AuthenticationAudience = "https://authorize.fhir.nhs.net/token",
-                                HasId = false
-                            });
+                        var accessRecordHtmlReporting = new AccessRecordHtmlReporting()
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            SupplierName = routeReportRequest.ReportSource.SupplierName,
+                            Hierarchy = routeReportRequest.ReportSource.OrganisationHierarchy,
+                            ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                        };
 
-                            if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
-                            {
-                                accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
-                                accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
-                            }
+                        var accessRecordHtmlReportingData = await GetReportingInteractionData(new InteractionDataRequest()
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            Interaction = routeReportRequest.Interaction[0],
+                            Client = Clients.GPCONNECTCLIENTLEGACY,
+                            HostIdentifier = "http://fhir.nhs.net",
+                            AuthenticationAudience = "https://authorize.fhir.nhs.net/token",
+                            HasId = false
+                        });
 
-                            var jsonStringARH = JsonConvert.SerializeObject(accessRecordHtmlReporting);
-                            var jObjectARH = JObject.Parse(jsonStringARH);
-                            var jDictObjARH = jObjectARH.Flatten();
+                        if (accessRecordHtmlReportingData != null && accessRecordHtmlReportingData.NoIssues)
+                        {
+                            accessRecordHtmlReporting.Rest = accessRecordHtmlReportingData.Rest;
+                            accessRecordHtmlReporting.ApiVersion = $"v{accessRecordHtmlReportingData.Version}";
+                        }
 
-                            interactions.Add(jDictObjARH);
-                            break;
-                        case Type type when type == typeof(AppointmentManagementReporting):
+                        var jsonStringARH = JsonConvert.SerializeObject(accessRecordHtmlReporting);
+                        var jObjectARH = JObject.Parse(jsonStringARH);
+                        var jDictObjARH = jObjectARH.Flatten();
 
-                            var appointmentManagementReporting = new AppointmentManagementReporting()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                                Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy,
-                                ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
-                            };
+                        interactions.Add(jDictObjARH);
+                        break;
+                    case Type type when type == typeof(AppointmentManagementReporting):
 
-                            var appointmentManagementReportingData = await GetInteractionData(new InteractionDataRequest()
-                            {
-                                OdsCode = odsCodesInScope[i],
-                                Interaction = routeReportRequest.Interaction[0],
-                                Client = Clients.GPCONNECTCLIENT,
-                                HostIdentifier = "https://fhir.nhs.uk",
-                                HasId = true
-                            });
+                        var appointmentManagementReporting = new AppointmentManagementReporting()
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            SupplierName = routeReportRequest.ReportSource.SupplierName,
+                            Hierarchy = routeReportRequest.ReportSource.OrganisationHierarchy,
+                            ApiVersion = ActiveInactiveConstants.NOTAVAILABLE
+                        };
 
-                            if (appointmentManagementReportingData != null && appointmentManagementReportingData.NoIssues)
-                            {
-                                appointmentManagementReporting.Rest = appointmentManagementReportingData.Rest;
-                                appointmentManagementReporting.ApiVersion = $"v{appointmentManagementReportingData.Version}";
-                            }
+                        var appointmentManagementReportingData = await GetInteractionData(new InteractionDataRequest()
+                        {
+                            OdsCode = routeReportRequest.ReportSource.OdsCode,
+                            Interaction = routeReportRequest.Interaction[0],
+                            Client = Clients.GPCONNECTCLIENT,
+                            HostIdentifier = "https://fhir.nhs.uk",
+                            HasId = true
+                        });
 
-                            var jsonStringAM = JsonConvert.SerializeObject(appointmentManagementReporting);
-                            var jObjectAM = JObject.Parse(jsonStringAM);
-                            var jDictObjAM = jObjectAM.Flatten();
+                        if (appointmentManagementReportingData != null && appointmentManagementReportingData.NoIssues)
+                        {
+                            appointmentManagementReporting.Rest = appointmentManagementReportingData.Rest;
+                            appointmentManagementReporting.ApiVersion = $"v{appointmentManagementReportingData.Version}";
+                        }
 
-                            interactions.Add(jDictObjAM);
-                            break;
-                    }
+                        var jsonStringAM = JsonConvert.SerializeObject(appointmentManagementReporting);
+                        var jObjectAM = JObject.Parse(jsonStringAM);
+                        var jDictObjAM = jObjectAM.Flatten();
+
+                        interactions.Add(jDictObjAM);
+                        break;
                 }
                 jsonData = JsonConvert.SerializeObject(interactions);
-            }            
+            }
             return jsonData;
         }
         catch (Exception exc)
@@ -179,7 +174,7 @@ public class InteractionService : IInteractionService
 
     private async Task<CapabilityStatement?> GetInteractionData(InteractionDataRequest interactionDataRequest)
     {
-        var providerSpineDetails = await _spineService.GetProviderDetails(interactionDataRequest.OdsCode, interactionDataRequest.Interaction);        
+        var providerSpineDetails = await _spineService.GetProviderDetails(interactionDataRequest.OdsCode, interactionDataRequest.Interaction);
 
         if (providerSpineDetails != null)
         {

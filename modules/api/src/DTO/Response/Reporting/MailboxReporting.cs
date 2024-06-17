@@ -2,7 +2,7 @@
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using Newtonsoft.Json;
 
-namespace gpconnect_appointment_checker.api.DTO.Response.Reporting;
+namespace GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 
 public class MailboxReporting
 {
