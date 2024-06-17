@@ -83,6 +83,8 @@ public static class ServiceCollectionExtensions
         services.AddHttpClientServices(configuration);
         services.AddMeshClientServices(configuration);
 
+        services.AddMemoryCacheServices(configuration);
+
         return services;
     }
 }

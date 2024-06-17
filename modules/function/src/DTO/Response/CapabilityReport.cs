@@ -20,4 +20,5 @@ public class CapabilityReport
 
     public string ObjectKey => $"{Objects.Key}_{ReportName.ReplaceNonAlphanumeric()}.json".ToLower();
 
+    public Guid MessageGroupId => Guid.NewGuid();
 }

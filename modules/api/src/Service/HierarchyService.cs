@@ -3,6 +3,7 @@ using GpConnect.AppointmentChecker.Api.Dal.Enumerations;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Organisation.Hierarchy;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
@@ -18,14 +19,16 @@ public class HierarchyService : IHierarchyService
     private readonly HttpClient _odsClient;
     private readonly JsonSerializerSettings _options;
     private readonly IOptions<HierarchyConfig> _config;
+    private readonly IMemoryCache _memoryCache;
     private static string _bearerToken;
 
-    public HierarchyService(ILogger<HierarchyService> logger, IHttpClientFactory httpClientFactory, IOptions<HierarchyConfig> config, IOrganisationService organisationService)
+    public HierarchyService(ILogger<HierarchyService> logger, IHttpClientFactory httpClientFactory, IOptions<HierarchyConfig> config, IOrganisationService organisationService, IMemoryCache memoryCache)
     {
         _config = config;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory;
         _organisationService = organisationService ?? throw new ArgumentNullException(nameof(organisationService));
+        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
         _hierarchyClient = _httpClientFactory.CreateClient(Clients.HIERARCHYCLIENT);
         _odsClient = _httpClientFactory.CreateClient(Clients.ODSCLIENT);
@@ -53,37 +56,45 @@ public class HierarchyService : IHierarchyService
 
     public async Task<Hierarchy> GetHierarchyFromSpine(string odsCode)
     {
-        string? regionCode;
-        string? parentCode;
+        Hierarchy hierarchy;
 
-        var icbCode = await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE6) ?? await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE5) ?? await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE4);
-        parentCode = await GetOrganisationRelationshipCodeFromSpine(icbCode, SpineRelationship.RE5);
-        if (parentCode != null)
+        if (!_memoryCache.TryGetValue(odsCode, out hierarchy))
         {
-            regionCode = await GetOrganisationRelationshipCodeFromSpine(parentCode, SpineRelationship.RE2);
+            string? regionCode;
+            string? parentCode;
+
+            var icbCode = await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE6) ?? await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE5) ?? await GetOrganisationRelationshipCodeFromSpine(odsCode, SpineRelationship.RE4);
+            parentCode = await GetOrganisationRelationshipCodeFromSpine(icbCode, SpineRelationship.RE5);
+            if (parentCode != null)
+            {
+                regionCode = await GetOrganisationRelationshipCodeFromSpine(parentCode, SpineRelationship.RE2);
+            }
+            else
+            {
+                regionCode = await GetOrganisationRelationshipCodeFromSpine(icbCode, SpineRelationship.RE2);
+            }
+
+            var organisation = await _organisationService.GetOrganisation(odsCode);
+            var icb = await _organisationService.GetOrganisation(icbCode);
+            var higherHealthAuthority = await _organisationService.GetOrganisation(parentCode);
+            var nationalGrouping = await _organisationService.GetOrganisation(regionCode);
+
+            hierarchy = new Hierarchy()
+            {
+                OdsCode = organisation != null ? organisation.OdsCode : odsCode,
+                SiteName = organisation != null ? organisation.OrganisationName : ActiveInactiveConstants.NOTAVAILABLE,
+                Postcode = organisation != null ? organisation.PostalAddress.PostCode : ActiveInactiveConstants.NOTAVAILABLE,
+                IcbCode = icbCode,
+                HigherHealthAuthorityCode = parentCode,
+                NationalGroupingCode = regionCode,
+                IcbName = icb != null ? icb.OrganisationName : icbCode,
+                HigherHealthAuthorityName = higherHealthAuthority != null ? higherHealthAuthority.OrganisationName : parentCode,
+                NationalGroupingName = nationalGrouping != null ? nationalGrouping.OrganisationName : regionCode
+            };
+            _memoryCache.Set(odsCode, hierarchy);
         }
-        else
-        {
-            regionCode = await GetOrganisationRelationshipCodeFromSpine(icbCode, SpineRelationship.RE2);
-        }
+        return hierarchy;
 
-        var organisation = await _organisationService.GetOrganisation(odsCode);
-        var icb = await _organisationService.GetOrganisation(icbCode);
-        var higherHealthAuthority = await _organisationService.GetOrganisation(parentCode);
-        var nationalGrouping = await _organisationService.GetOrganisation(regionCode);
-
-        return new Hierarchy()
-        {
-            OdsCode = organisation != null ? organisation.OdsCode : odsCode,
-            SiteName = organisation != null ? organisation.OrganisationName : ActiveInactiveConstants.NOTAVAILABLE,
-            Postcode = organisation != null ? organisation.PostalAddress.PostCode : ActiveInactiveConstants.NOTAVAILABLE,
-            IcbCode = icbCode,
-            HigherHealthAuthorityCode = parentCode,
-            NationalGroupingCode = regionCode,
-            IcbName = icb != null ? icb.OrganisationName : icbCode,
-            HigherHealthAuthorityName = higherHealthAuthority != null ? higherHealthAuthority.OrganisationName : parentCode,
-            NationalGroupingName = nationalGrouping != null ? nationalGrouping.OrganisationName : regionCode
-        };
     }
 
     private async Task<string> GetOrganisationRelationshipCodeFromSpine(string odsCode, SpineRelationship relationshipId)
