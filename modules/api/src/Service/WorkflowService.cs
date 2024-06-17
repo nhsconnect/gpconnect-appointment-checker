@@ -2,12 +2,10 @@
 using GpConnect.AppointmentChecker.Api.Helpers;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
-using gpconnect_appointment_checker.api.DTO.Response.Reporting;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using JsonFlatten;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Data;
-using System.Linq.Dynamic.Core;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -26,36 +24,32 @@ public class WorkflowService : IWorkflowService
     {
         try
         {
-            var odsCodesInScope = routeReportRequest.ReportSource.DistinctBy(x => x.OdsCode).Select(x => x.OdsCode).ToList();
             string? jsonData = null;
             var workflows = new List<IDictionary<string, object>>();
 
-            if (odsCodesInScope.Count > 0)
+            if (routeReportRequest.ReportSource.OdsCode != null)
             {
-                for (var i = 0; i < odsCodesInScope.Count; i++)
+                var mailboxReporting = new MailboxReporting()
                 {
-                    var mailboxReporting = new MailboxReporting()
-                    {
-                        OdsCode = odsCodesInScope[i],
-                        SupplierName = routeReportRequest.ReportSource[i].SupplierName,
-                        Hierarchy = routeReportRequest.ReportSource[i].OrganisationHierarchy
-                    };
+                    OdsCode = routeReportRequest.ReportSource.OdsCode,
+                    SupplierName = routeReportRequest.ReportSource.SupplierName,
+                    Hierarchy = routeReportRequest.ReportSource.OrganisationHierarchy
+                };
 
-                    var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], odsCodesInScope[i]);
-                    if (workflowData != null)
-                    {
-                        mailboxReporting.Status = workflowData.Status;
-                    }
-                    else
-                    {
-                        mailboxReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
-                    }
-                    var jsonStringSD = JsonConvert.SerializeObject(mailboxReporting);
-                    var jObjectSD = JObject.Parse(jsonStringSD);
-                    var jDictSD = jObjectSD.Flatten();
-
-                    workflows.Add(jDictSD);
+                var workflowData = await GetWorkflowData(routeReportRequest.Workflow[0], routeReportRequest.ReportSource.OdsCode);
+                if (workflowData != null)
+                {
+                    mailboxReporting.Status = workflowData.Status;
                 }
+                else
+                {
+                    mailboxReporting.Status = ActiveInactiveConstants.NOTAVAILABLE;
+                }
+                var jsonStringSD = JsonConvert.SerializeObject(mailboxReporting);
+                var jObjectSD = JObject.Parse(jsonStringSD);
+                var jDictSD = jObjectSD.Flatten();
+
+                workflows.Add(jDictSD);
                 jsonData = JsonConvert.SerializeObject(workflows);
             }
             return jsonData;
