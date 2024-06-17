@@ -11,7 +11,7 @@ namespace GpConnect.AppointmentChecker.Api.Service;
 
 public class HierarchyService : IHierarchyService
 {
-    private readonly ILogger<NotificationService> _logger;
+    private readonly ILogger<HierarchyService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOrganisationService _organisationService;
     private readonly HttpClient _hierarchyClient;
@@ -20,7 +20,7 @@ public class HierarchyService : IHierarchyService
     private readonly IOptions<HierarchyConfig> _config;
     private static string _bearerToken;
 
-    public HierarchyService(ILogger<NotificationService> logger, IHttpClientFactory httpClientFactory, IOptions<HierarchyConfig> config, IOrganisationService organisationService)
+    public HierarchyService(ILogger<HierarchyService> logger, IHttpClientFactory httpClientFactory, IOptions<HierarchyConfig> config, IOrganisationService organisationService)
     {
         _config = config;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
