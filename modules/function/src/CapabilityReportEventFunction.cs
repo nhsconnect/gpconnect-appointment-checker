@@ -107,8 +107,8 @@ public class CapabilityReportEventFunction
             {
                 var interactionRequest = new InteractionRequest
                 {
-                    WorkflowId = capabilityReports[i].Workflow != null ? capabilityReports[i].Workflow.FirstOrDefault() : null,
-                    InteractionId = capabilityReports[i].Interaction != null ? capabilityReports[i].Interaction.FirstOrDefault() : null,
+                    WorkflowId = capabilityReports[i].Workflow?.FirstOrDefault(),
+                    InteractionId = capabilityReports[i].Interaction?.FirstOrDefault(),
                     ReportName = capabilityReports[i].ReportName,
                     ReportId = capabilityReports[i].ReportId
                 };
