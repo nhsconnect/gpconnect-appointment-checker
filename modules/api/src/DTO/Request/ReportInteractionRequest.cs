@@ -7,5 +7,5 @@ public class ReportInteractionRequest
     public List<string>? Workflow { get; set; }
     public string? ReportName { get; set; } = null;
     public string? ReportId { get; set; } = null;
-    public Guid? MessageGroupId { get; set; } = Guid.NewGuid();
+    public Guid MessageGroupId { get; set; }
 }

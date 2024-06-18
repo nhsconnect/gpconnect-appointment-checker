@@ -79,17 +79,14 @@ public class SQSEventFunction
     {
         try
         {
-            _lambdaContext.Logger.LogLine("Processing message " + message.Body);
             _lambdaContext.Logger.LogLine(message.Body);
             ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
             {
-                _lambdaContext.Logger.LogLine("messageRequest.DataSource.OdsCode " + messageRequest.DataSource.OdsCode);
                 var hierarchy = await GetOrganisationHierarchy(messageRequest.DataSource.OdsCode);
                 if (hierarchy != null)
-                {
-                    
+                {                    
                     reportInteraction = new()
                     {
                         ReportSource = new()
@@ -103,10 +100,6 @@ public class SQSEventFunction
                         Workflow = messageRequest.Workflow,
                         ReportId = messageRequest.ReportId
                     };
-                    _lambdaContext.Logger.LogLine("reportInteraction.ReportName " + reportInteraction.ReportName);
-                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.OdsCode " + reportInteraction.ReportSource.OdsCode);
-                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.SupplierName " + reportInteraction.ReportSource.SupplierName);
-                    _lambdaContext.Logger.LogLine("reportInteraction.ReportSource.OrganisationHierarchy.SiteName " + reportInteraction.ReportSource.OrganisationHierarchy.SiteName);
                 }
             }
             return reportInteraction;
