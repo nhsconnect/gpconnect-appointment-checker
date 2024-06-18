@@ -35,6 +35,28 @@ public class MessageService : IMessageService
         if (sqsClient != null)
         {
             var response = await sqsClient.SendMessageBatchAsync(sendMessageBatchRequest, CancellationToken.None);
+
+            if (response.Successful.Count > 0)
+            {
+                foreach (var success in response.Successful)
+                {
+                    _logger.LogInformation(success.Id);
+                    _logger.LogInformation(success.MessageId);
+                    _logger.LogInformation(success.MD5OfMessageBody);
+                }
+            }
+
+            if (response.Failed.Count > 0)
+            {
+                foreach (var fail in response.Failed)
+                {
+                    _logger.LogInformation(fail.Id);
+                    _logger.LogInformation(fail.Code);
+                    _logger.LogInformation(fail.Message);
+                    _logger.LogInformation(fail.SenderFault.ToString());
+                }
+            }
+
             return response.HttpStatusCode;
         }
         return HttpStatusCode.ServiceUnavailable;
