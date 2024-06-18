@@ -95,7 +95,7 @@ public class CapabilityReportEventFunction
     private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
-        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();        
+        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
 
         if (dataSource != null && dataSource.Any())
         {
@@ -104,8 +104,6 @@ public class CapabilityReportEventFunction
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
-                var messages = new List<MessagingRequest>();
-
                 var interactionRequest = new InteractionRequest
                 {
                     WorkflowId = capabilityReports[i].Workflow?.FirstOrDefault(),
@@ -123,20 +121,32 @@ public class CapabilityReportEventFunction
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
-                for (var j = 0; j < dataSourceCount; j++)
+                var start = 0;
+                var increment = 10;
+
+                while (start < dataSourceCount)
                 {
-                    messages.Add(new MessagingRequest()
+                    var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
+                    if (requests.Any())
                     {
-                        DataSource = new() { OdsCode = dataSource[j].OdsCode, SupplierName = dataSource[j].SupplierName },
-                        ReportName = capabilityReports[i].ReportName,
-                        Interaction = capabilityReports[i].Interaction,
-                        Workflow = capabilityReports[i].Workflow,
-                        MessageGroupId = capabilityReports[i].MessageGroupId,
-                        ReportId = capabilityReports[i].ReportId
-                    });
+                        var messages = new List<MessagingRequest>();
+
+                        foreach (var request in requests)
+                        {
+                            messages.Add(new MessagingRequest()
+                            {
+                                DataSource = new() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+                                ReportName = capabilityReports[i].ReportName,
+                                Interaction = capabilityReports[i].Interaction,
+                                Workflow = capabilityReports[i].Workflow,
+                                MessageGroupId = capabilityReports[i].MessageGroupId,
+                                ReportId = capabilityReports[i].ReportId
+                            });
+                        }
+                        await GenerateMessages(messages);
+                    }
+                    start += increment;
                 }
-                _lambdaContext.Logger.LogLine("Adding messages: " + messages.Count);
-                await GenerateMessages(messages);
             }
         }
         return HttpStatusCode.OK;
@@ -148,7 +158,7 @@ public class CapabilityReportEventFunction
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        _lambdaContext.Logger.LogLine("Calling API messages: " + messagingRequest.Count);
+        _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
         await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         {
