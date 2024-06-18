@@ -1,4 +1,5 @@
 using Amazon;
+using Amazon.Lambda.Core;
 using Amazon.S3;
 using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -78,7 +79,7 @@ public static class StorageManager
     }
 
 
-    public static async Task<DeleteObjectsResponse?> Purge(StorageListRequest storageListRequest)
+    public static async Task<DeleteObjectsResponse?> Purge(StorageListRequest storageListRequest, ILambdaContext lambdaContext)
     {
         try
         {
@@ -86,13 +87,19 @@ public static class StorageManager
 
             if (listResponse != null && listResponse.Count > 0)
             {
-                var deleteRequest = new DeleteObjectsRequest();
+                var deleteRequest = new DeleteObjectsRequest() { BucketName = storageListRequest.BucketName };
                 foreach (S3Object s3Object in listResponse)
                 {
-                    deleteRequest.BucketName = storageListRequest.BucketName;
                     deleteRequest.AddKey(s3Object.Key);
                 }
                 var deleteResponse = await s3Client.DeleteObjectsAsync(deleteRequest);
+
+                foreach(var deleteError in deleteResponse.DeleteErrors)
+                {
+                    lambdaContext.Logger.LogLine(deleteError.Message);
+                    lambdaContext.Logger.LogLine(deleteError.Key);
+                    lambdaContext.Logger.LogLine(deleteError.VersionId);
+                }
                 return deleteResponse;
             }
             return null;
