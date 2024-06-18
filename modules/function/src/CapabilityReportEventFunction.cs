@@ -156,7 +156,7 @@ public class CapabilityReportEventFunction
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
-        }
+        });
         return HttpStatusCode.OK;
     }
 
