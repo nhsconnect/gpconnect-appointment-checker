@@ -133,11 +133,9 @@ public class CapabilityReportEventFunction
                                 ReportId = capabilityReport.ReportId
                             });
                         }
-
-                        _lambdaContext.Logger.LogLine(messages.Count.ToString());
-                        _lambdaContext.Logger.LogLine("messages.Count.ToString()");
-
-                        //await GenerateMessages(messages);
+                        var response = await GenerateMessages(messages);
+                        _lambdaContext.Logger.LogLine("response.ToString()");
+                        _lambdaContext.Logger.LogLine(response.ToString());
                     }
                     start += increment;
                 }
@@ -146,7 +144,7 @@ public class CapabilityReportEventFunction
         return HttpStatusCode.OK;
     }
 
-    private async Task GenerateMessages(List<MessagingRequest> messagingRequest)
+    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
     {
         var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
             Encoding.UTF8,
@@ -154,11 +152,13 @@ public class CapabilityReportEventFunction
 
         _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
-        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
+
+        return response.StatusCode;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
