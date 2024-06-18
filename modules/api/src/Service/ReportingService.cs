@@ -39,18 +39,23 @@ public class ReportingService : IReportingService
 
         while (start < finish)
         {
-            var requests = reportInteractionRequest.GetRange(start, increment);
-            var request = JsonConvert.SerializeObject(requests, new JsonSerializerSettings
+            var requests = reportInteractionRequest.GetRange(start, !((start + increment) > finish) ? increment : finish - start);
+            if (requests.Any())
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented
-            });
-
-            var batchRequest = new SendMessageBatchRequest();
-            batchRequest.Entries.AddRange(request.Select(x => new SendMessageBatchRequestEntry() { MessageBody = x.ToString(), MessageGroupId = requests[start].MessageGroupId.ToString() }));
-            await _messageService.SendMessageBatchToQueue(batchRequest);
+                var batchRequest = new SendMessageBatchRequest();
+                foreach (var request in requests)
+                {
+                    var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        Formatting = Formatting.Indented
+                    });
+                    batchRequest.Entries.Add(new SendMessageBatchRequestEntry() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString() });
+                }
+                await _messageService.SendMessageBatchToQueue(batchRequest);
+            }            
             start += increment;
-        }        
+        }
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
@@ -176,7 +181,7 @@ public class ReportingService : IReportingService
     }
 
     private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null, string? filterTab = null)
-    {        
+    {
         var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
         worksheetPart.Worksheet = new Worksheet();

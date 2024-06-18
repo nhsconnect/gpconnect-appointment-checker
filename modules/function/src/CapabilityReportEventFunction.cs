@@ -62,7 +62,7 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        return await GenerateMessages(messages);
+        return messages;
     }
 
     private async Task PurgeObjects()
@@ -92,15 +92,14 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<List<MessagingRequest>> AddMessagesToQueue(string[] odsList)
+    private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
-        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-
-        var messages = new List<MessagingRequest>();
+        var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();        
 
         if (dataSource != null && dataSource.Any())
         {
+            var messages = new List<MessagingRequest>();
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
@@ -135,9 +134,10 @@ public class CapabilityReportEventFunction
                         ReportId = capabilityReports[i].ReportId
                     });
                 }
+                await GenerateMessages(messages);
             }
         }
-        return messages;
+        return HttpStatusCode.OK;
     }
 
     private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
@@ -145,9 +145,6 @@ public class CapabilityReportEventFunction
         var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        _lambdaContext.Logger.Log("await json.ReadAsStringAsync()");
-        _lambdaContext.Logger.Log(await json.ReadAsStringAsync());
 
         await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         {
