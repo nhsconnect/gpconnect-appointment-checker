@@ -139,10 +139,11 @@ public class CapabilityReportEventFunction
                                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
                             }, json);
 
-                        _lambdaContext.Logger.LogLine($"Finished sending messages for {capabilityReports[i].ReportName}");
+                        _lambdaContext.Logger.LogLine($"Finished sending messages for {capabilityReport.ReportName}");
                     }
                     start += increment;
                 }
+                return HttpStatusCode.OK;
             });
             var results = await Task.WhenAll(tasks);
         }
