@@ -107,34 +107,60 @@ public class CapabilityReportEventFunction
                 var start = 0;
                 var increment = 5000;
 
-                while (start < dataSourceCount)
-                {
-                    var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
-                    if (requests.Any())
+                //for (var i = 0; i < dataSource.Count; i++)
+                //{
+                    //var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
+                    var messages = from request in dataSource
+                                   select new MessagingRequest
+                                   {
+                                       DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+                                       ReportName = capabilityReport.ReportName,
+                                       ReportId = capabilityReport.ReportId,
+                                       Interaction = capabilityReport.Interaction,
+                                       Workflow = capabilityReport.Workflow,
+                                       MessageGroupId = capabilityReport.MessageGroupId
+                                   };
+
+                    var json = new StringContent(JsonConvert.SerializeObject(messages, null, _options),
+                        Encoding.UTF8,
+                        MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+                    await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
                     {
-                        var messages = from request in requests
-                                       select new MessagingRequest
-                                       {
-                                           DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
-                                           ReportName = capabilityReport.ReportName,
-                                           ReportId = capabilityReport.ReportId,
-                                           Interaction = capabilityReport.Interaction,
-                                           Workflow = capabilityReport.Workflow,
-                                           MessageGroupId = capabilityReport.MessageGroupId
-                                       };
+                        [Headers.UserId] = _endUserConfiguration.UserId,
+                        [Headers.ApiKey] = _endUserConfiguration.ApiKey
+                    }, json);
+                //}
+                //}
+                //    }
+                //    while (start < dataSourceCount)
+                //    {
+                //        var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
+                //        if (requests.Any())
+                //        {
+                //            var messages = from request in requests
+                //                           select new MessagingRequest
+                //                           {
+                //                               DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+                //                               ReportName = capabilityReport.ReportName,
+                //                               ReportId = capabilityReport.ReportId,
+                //                               Interaction = capabilityReport.Interaction,
+                //                               Workflow = capabilityReport.Workflow,
+                //                               MessageGroupId = capabilityReport.MessageGroupId
+                //                           };
 
-                        var json = new StringContent(JsonConvert.SerializeObject(messages, null, _options),
-                            Encoding.UTF8,
-                            MediaTypeHeaderValue.Parse("application/json").MediaType);
+                //            var json = new StringContent(JsonConvert.SerializeObject(messages, null, _options),
+                //                Encoding.UTF8,
+                //                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-                        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-                            {
-                                [Headers.UserId] = _endUserConfiguration.UserId,
-                                [Headers.ApiKey] = _endUserConfiguration.ApiKey
-                            }, json);
-                    }
-                    start += increment;
-                }
+                //            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+                //                {
+                //                    [Headers.UserId] = _endUserConfiguration.UserId,
+                //                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
+                //                }, json);
+                //        }
+                //        start += increment;
+                //    }
                 return HttpStatusCode.OK;
             });
             var results = await Task.WhenAll(tasks);
