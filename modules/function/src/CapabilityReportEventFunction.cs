@@ -7,12 +7,12 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -25,6 +25,7 @@ public class CapabilityReportEventFunction
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
     private Stopwatch _stopwatch;
+    private ParallelOptions _parallelOptions;
 
     public CapabilityReportEventFunction()
     {
@@ -32,6 +33,11 @@ public class CapabilityReportEventFunction
         _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
+
+        _parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
+        };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
@@ -56,7 +62,8 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        return messages;
+        var statusCode = await GenerateMessages(messages);
+        return statusCode;
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -76,17 +83,18 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
+    private async Task<IEnumerable<MessagingRequest>> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
+        var messages = new ConcurrentDictionary<MessagingRequest, int>();
 
         if (dataSource != null && dataSource.Any())
         {
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            await Parallel.ForEachAsync(capabilityReports, async (capabilityReport, ct) =>
+            await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
             {
                 var interactionRequest = new InteractionRequest
                 {
@@ -113,11 +121,9 @@ public class CapabilityReportEventFunction
                     var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
                     if (requests.Any())
                     {
-                        var messages = new List<MessagingRequest>();
-
                         foreach (var request in requests)
                         {
-                            messages.Add(new MessagingRequest()
+                            messages.TryAdd(new MessagingRequest()
                             {
                                 DataSource = new() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
                                 ReportName = capabilityReport.ReportName,
@@ -125,30 +131,33 @@ public class CapabilityReportEventFunction
                                 Workflow = capabilityReport.Workflow,
                                 MessageGroupId = capabilityReport.MessageGroupId,
                                 ReportId = capabilityReport.ReportId
-                            });
+                            }, Environment.CurrentManagedThreadId);
                         }
-                        await GenerateMessages(messages);
                     }
                     start += increment;
                 }
             });
         }
-        return HttpStatusCode.OK;
+        return messages.Select(x => x.Key);
     }
 
-    private async Task GenerateMessages(List<MessagingRequest> messagingRequest)
+    private async Task<HttpStatusCode> GenerateMessages(IEnumerable<MessagingRequest> messagingRequests)
     {
-        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
+        await Parallel.ForEachAsync(messagingRequests, _parallelOptions, async (messagingRequest, ct) =>
+        {
+            var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
+            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
-        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
+            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);
+        });
+        return HttpStatusCode.OK;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
