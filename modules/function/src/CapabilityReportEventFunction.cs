@@ -10,7 +10,9 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +27,6 @@ public class CapabilityReportEventFunction
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
     private Stopwatch _stopwatch;
-    private ParallelOptions _parallelOptions;
 
     public CapabilityReportEventFunction()
     {
@@ -33,11 +34,6 @@ public class CapabilityReportEventFunction
         _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
-
-        _parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
-        };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
@@ -92,7 +88,14 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>
+            var cts = new CancellationTokenSource();
+            ParallelOptions parallelOptions = new()
+            {
+                MaxDegreeOfParallelism = 2,
+                CancellationToken = cts.Token
+            };
+
+            await Parallel.ForEachAsync(capabilityReports, parallelOptions, async (capabilityReport, ct) =>
             {
                 var interactionRequest = new InteractionRequest
                 {
@@ -133,32 +136,23 @@ public class CapabilityReportEventFunction
                                 ReportId = capabilityReport.ReportId
                             });
                         }
-                        var response = await GenerateMessages(messages);
-                        _lambdaContext.Logger.LogLine("response.ToString()");
-                        _lambdaContext.Logger.LogLine(response.ToString());
+
+                        var json = new StringContent(JsonConvert.SerializeObject(messages, null, _options),
+                            Encoding.UTF8,
+                            MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+                        using var response =
+                            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+                            {
+                                [Headers.UserId] = _endUserConfiguration.UserId,
+                                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+                            }, json);
                     }
                     start += increment;
                 }
             });
         }
         return HttpStatusCode.OK;
-    }
-
-    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
-    {
-        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
-
-        return response.StatusCode;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
