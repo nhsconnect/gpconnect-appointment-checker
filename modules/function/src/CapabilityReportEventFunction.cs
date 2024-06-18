@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.S3.Model;
 using Amazon.SecretsManager.Model.Internal.MarshallTransformations;
 using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
@@ -13,6 +14,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Xml.Xsl;
+using ThirdParty.BouncyCastle.Utilities.IO.Pem;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -67,11 +70,12 @@ public class CapabilityReportEventFunction
 
     private async Task PurgeObjects()
     {
-        var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
-        await Parallel.ForEachAsync(keyObjects, _parallelOptions, async (keyObject, ct) =>
-        {
-            await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}");
-        });
+        await Reset(Objects.Transient);
+        //var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
+        //await Parallel.ForEachAsync(keyObjects, _parallelOptions, async (keyObject, ct) =>
+        //{
+        //    await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}");
+        //});
         await Reset(Objects.Key, Objects.Completion);
     }
 
@@ -196,11 +200,17 @@ public class CapabilityReportEventFunction
     {
         for (int i = 0; i < objectPrefix.Length; i++)
         {
-            await StorageManager.Purge(new StorageListRequest
+            var response = await StorageManager.Purge(new StorageListRequest
             {
                 BucketName = _storageConfiguration.BucketName,
                 ObjectPrefix = objectPrefix[i]
-            });
+            }, _lambdaContext);
+
+            _lambdaContext.Logger.LogLine(response.DeletedObjects.Count.ToString());
+            foreach (var deletedObject in response.DeletedObjects)
+            {
+                _lambdaContext.Logger.LogLine(deletedObject.Key);
+            }
         }
     }
 }
