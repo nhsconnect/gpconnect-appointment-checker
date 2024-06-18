@@ -99,12 +99,13 @@ public class CapabilityReportEventFunction
 
         if (dataSource != null && dataSource.Any())
         {
-            var messages = new List<MessagingRequest>();
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
             for (var i = 0; i < capabilityReports.Count; i++)
             {
+                var messages = new List<MessagingRequest>();
+
                 var interactionRequest = new InteractionRequest
                 {
                     WorkflowId = capabilityReports[i].Workflow?.FirstOrDefault(),
@@ -134,25 +135,26 @@ public class CapabilityReportEventFunction
                         ReportId = capabilityReports[i].ReportId
                     });
                 }
+                _lambdaContext.Logger.LogLine("Adding messages: " + messages.Count);
                 await GenerateMessages(messages);
             }
         }
         return HttpStatusCode.OK;
     }
 
-    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
+    private async Task GenerateMessages(List<MessagingRequest> messagingRequest)
     {
         var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        _lambdaContext.Logger.LogLine("Calling API messages: " + messagingRequest.Count);
 
         await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         {
             [Headers.UserId] = _endUserConfiguration.UserId,
             [Headers.ApiKey] = _endUserConfiguration.ApiKey
         }, json);
-
-        return HttpStatusCode.OK;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
