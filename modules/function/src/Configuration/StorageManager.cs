@@ -96,9 +96,9 @@ public static class StorageManager
 
                 foreach(var deleteError in deleteResponse.DeleteErrors)
                 {
-                    lambdaContext.Logger.LogLine(deleteError.Message);
-                    lambdaContext.Logger.LogLine(deleteError.Key);
-                    lambdaContext.Logger.LogLine(deleteError.VersionId);
+                    lambdaContext.Logger.LogLine(deleteError?.Message);
+                    lambdaContext.Logger.LogLine(deleteError?.Key);
+                    lambdaContext.Logger.LogLine(deleteError?.VersionId);
                 }
                 return deleteResponse;
             }
