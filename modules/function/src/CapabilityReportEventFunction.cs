@@ -122,7 +122,7 @@ public class CapabilityReportEventFunction
                 });
 
                 var start = 0;
-                var increment = 10;
+                var increment = 500;
 
                 while (start < dataSourceCount)
                 {
