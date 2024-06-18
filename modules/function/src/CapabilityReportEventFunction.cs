@@ -91,7 +91,6 @@ public class CapabilityReportEventFunction
             var cts = new CancellationTokenSource();
             ParallelOptions parallelOptions = new()
             {
-                MaxDegreeOfParallelism = 2,
                 CancellationToken = cts.Token
             };
 
@@ -122,24 +121,24 @@ public class CapabilityReportEventFunction
                     var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
                     if (requests.Any())
                     {
-                        var messages = new List<MessagingRequest>();
-
-                        foreach (var request in requests)
-                        {
-                            messages.Add(new MessagingRequest()
-                            {
-                                DataSource = new() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
-                                ReportName = capabilityReport.ReportName,
-                                Interaction = capabilityReport.Interaction,
-                                Workflow = capabilityReport.Workflow,
-                                MessageGroupId = capabilityReport.MessageGroupId,
-                                ReportId = capabilityReport.ReportId
-                            });
-                        }
+                        var messages = from request in requests
+                                       select new MessagingRequest
+                                       {
+                                           DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+                                           ReportName = capabilityReport.ReportName,
+                                           ReportId = capabilityReport.ReportId,
+                                           Interaction = capabilityReport.Interaction,
+                                           Workflow = capabilityReport.Workflow,
+                                           MessageGroupId = capabilityReport.MessageGroupId
+                                       };
 
                         var json = new StringContent(JsonConvert.SerializeObject(messages, null, _options),
                             Encoding.UTF8,
                             MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+
+                        _lambdaContext.Logger.LogLine($"Sending messages for {capabilityReport.ReportName}");
+                        _lambdaContext.Logger.LogLine(messages.Count().ToString());
 
                         using var response =
                             await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
@@ -147,6 +146,8 @@ public class CapabilityReportEventFunction
                                 [Headers.UserId] = _endUserConfiguration.UserId,
                                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
                             }, json);
+
+                        _lambdaContext.Logger.LogLine($"Finished sending messages for {capabilityReport.ReportName}");
                     }
                     start += increment;
                 }
