@@ -87,8 +87,6 @@ public class CapabilityReportEventFunction
 
             var tasks = capabilityReports.Select(async (capabilityReport) =>
             {
-                _lambdaContext.Logger.LogLine($"Sending messages for {capabilityReport.ReportName}");
-
                 var interactionRequest = new InteractionRequest
                 {
                     WorkflowId = capabilityReport.Workflow?.FirstOrDefault(),
@@ -107,7 +105,7 @@ public class CapabilityReportEventFunction
                 });
 
                 var start = 0;
-                var increment = 1000;
+                var increment = 5000;
 
                 while (start < dataSourceCount)
                 {
@@ -129,17 +127,11 @@ public class CapabilityReportEventFunction
                             Encoding.UTF8,
                             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-
-                        _lambdaContext.Logger.LogLine(messages.Count().ToString());
-
-                        using var response =
-                            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+                        await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
                             {
                                 [Headers.UserId] = _endUserConfiguration.UserId,
                                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
                             }, json);
-
-                        _lambdaContext.Logger.LogLine($"Finished sending messages for {capabilityReport.ReportName}");
                     }
                     start += increment;
                 }
