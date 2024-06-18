@@ -206,10 +206,13 @@ public class CapabilityReportEventFunction
                 ObjectPrefix = objectPrefix[i]
             }, _lambdaContext);
 
-            _lambdaContext.Logger.LogLine(response.DeletedObjects.Count.ToString());
-            foreach (var deletedObject in response.DeletedObjects)
+            if (response != null)
             {
-                _lambdaContext.Logger.LogLine(deletedObject.Key);
+                _lambdaContext.Logger.LogLine(response.DeletedObjects.Count.ToString());
+                foreach (var deletedObject in response.DeletedObjects)
+                {
+                    _lambdaContext.Logger.LogLine(deletedObject.Key);
+                }
             }
         }
     }
