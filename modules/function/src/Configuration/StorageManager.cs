@@ -5,6 +5,7 @@ using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Sockets;
 
 namespace GpConnect.AppointmentChecker.Function.Configuration;
 
@@ -73,19 +74,18 @@ public static class StorageManager
         var listRequest = new ListObjectsV2Request
         {
             BucketName = storageListRequest.BucketName,
-            Prefix = storageListRequest.ObjectPrefix
+            Prefix = storageListRequest.ObjectPrefix,
+            MaxKeys = 100
         };
         return (await s3Client.ListObjectsV2Async(listRequest)).S3Objects;
     }
-
 
     public static async Task<DeleteObjectsResponse?> Purge(StorageListRequest storageListRequest, ILambdaContext lambdaContext)
     {
         try
         {
             var listResponse = await GetObjects(storageListRequest);
-
-            if (listResponse != null && listResponse.Count > 0)
+            while (listResponse != null && listResponse.Count > 0)
             {
                 var deleteRequest = new DeleteObjectsRequest() { BucketName = storageListRequest.BucketName };
                 foreach (S3Object s3Object in listResponse)
@@ -93,14 +93,14 @@ public static class StorageManager
                     deleteRequest.AddKey(s3Object.Key);
                 }
                 var deleteResponse = await s3Client.DeleteObjectsAsync(deleteRequest);
-
-                foreach(var deleteError in deleteResponse.DeleteErrors)
+                if (deleteResponse.HttpStatusCode == HttpStatusCode.OK)
                 {
-                    lambdaContext.Logger.LogLine(deleteError?.Message);
-                    lambdaContext.Logger.LogLine(deleteError?.Key);
-                    lambdaContext.Logger.LogLine(deleteError?.VersionId);
+                    listResponse = await GetObjects(storageListRequest);
                 }
-                return deleteResponse;
+                else
+                {
+                    listResponse = null;
+                }
             }
             return null;
         }
@@ -143,15 +143,16 @@ public static class StorageManager
             Key = storageUploadRequest.Key,
             Verb = httpVerb,
             Expires = DateTime.UtcNow.AddDays(7)
-        };        
+        };
 
         return s3Client.GetPreSignedURL(request);
     }
 
     private static AmazonS3Client GetS3Client()
     {
-        var config = new AmazonS3Config { 
-            RegionEndpoint = RegionEndpoint.EUWest2            
+        var config = new AmazonS3Config
+        {
+            RegionEndpoint = RegionEndpoint.EUWest2
         };
         var client = new AmazonS3Client(config);
         return client;
