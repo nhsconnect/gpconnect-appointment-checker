@@ -51,7 +51,7 @@ public class ReportingService : IReportingService
                         NullValueHandling = NullValueHandling.Ignore,
                         Formatting = Formatting.Indented
                     });
-                    batchRequest.Entries.Add(new SendMessageBatchRequestEntry() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString(), Id = $"{request.ReportId}_{request.MessageGroupId}_{Guid.NewGuid()}" });
+                    batchRequest.Entries.Add(new SendMessageBatchRequestEntry() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString(), Id = $"{request.ReportId}_{Guid.NewGuid()}" });
                 }
                 await _messageService.SendMessageBatchToQueue(batchRequest);
             }            
