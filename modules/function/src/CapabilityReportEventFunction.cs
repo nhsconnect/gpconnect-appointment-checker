@@ -1,6 +1,4 @@
 using Amazon.Lambda.Core;
-using Amazon.S3.Model;
-using Amazon.SecretsManager.Model.Internal.MarshallTransformations;
 using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -14,8 +12,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Xml.Xsl;
-using ThirdParty.BouncyCastle.Utilities.IO.Pem;
+using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -28,7 +25,6 @@ public class CapabilityReportEventFunction
     private readonly StorageConfiguration _storageConfiguration;
     private ILambdaContext _lambdaContext;
     private Stopwatch _stopwatch;
-    private ParallelOptions _parallelOptions;
 
     public CapabilityReportEventFunction()
     {
@@ -36,11 +32,6 @@ public class CapabilityReportEventFunction
         _stopwatch = new Stopwatch();
         _endUserConfiguration = JsonConvert.DeserializeObject<EndUserConfiguration>(_secretManager.Get("enduser-configuration"));
         _storageConfiguration = JsonConvert.DeserializeObject<StorageConfiguration>(_secretManager.Get("storage-configuration"));
-
-        _parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0))
-        };
 
         var apiUrl = _endUserConfiguration?.ApiBaseUrl ?? throw new ArgumentNullException("ApiBaseUrl");
 
@@ -61,22 +52,11 @@ public class CapabilityReportEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
-        await PurgeObjects();
+        await Reset(Objects.Transient, Objects.Key, Objects.Completion);
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
         return messages;
-    }
-
-    private async Task PurgeObjects()
-    {
-        await Reset(Objects.Transient);
-        //var keyObjects = await StorageManager.GetObjects(new StorageListRequest { BucketName = _storageConfiguration.BucketName, ObjectPrefix = Objects.Key });
-        //await Parallel.ForEachAsync(keyObjects, _parallelOptions, async (keyObject, ct) =>
-        //{
-        //    await Reset($"{Objects.Transient}_{keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } })}");
-        //});
-        await Reset(Objects.Key, Objects.Completion);
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -106,14 +86,14 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            for (var i = 0; i < capabilityReports.Count; i++)
+            await Parallel.ForEachAsync(capabilityReports, async (capabilityReport, ct) =>
             {
                 var interactionRequest = new InteractionRequest
                 {
-                    WorkflowId = capabilityReports[i].Workflow?.FirstOrDefault(),
-                    InteractionId = capabilityReports[i].Interaction?.FirstOrDefault(),
-                    ReportName = capabilityReports[i].ReportName,
-                    ReportId = capabilityReports[i].ReportId
+                    WorkflowId = capabilityReport.Workflow?.FirstOrDefault(),
+                    InteractionId = capabilityReport.Interaction?.FirstOrDefault(),
+                    ReportName = capabilityReport.ReportName,
+                    ReportId = capabilityReport.ReportId
                 };
 
                 var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
@@ -121,12 +101,12 @@ public class CapabilityReportEventFunction
                 await StorageManager.Post(new StorageUploadRequest
                 {
                     BucketName = _storageConfiguration.BucketName,
-                    Key = capabilityReports[i].ObjectKey,
+                    Key = capabilityReport.ObjectKey,
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
                 var start = 0;
-                var increment = 500;
+                var increment = 1000;
 
                 while (start < dataSourceCount)
                 {
@@ -140,18 +120,18 @@ public class CapabilityReportEventFunction
                             messages.Add(new MessagingRequest()
                             {
                                 DataSource = new() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
-                                ReportName = capabilityReports[i].ReportName,
-                                Interaction = capabilityReports[i].Interaction,
-                                Workflow = capabilityReports[i].Workflow,
-                                MessageGroupId = capabilityReports[i].MessageGroupId,
-                                ReportId = capabilityReports[i].ReportId
+                                ReportName = capabilityReport.ReportName,
+                                Interaction = capabilityReport.Interaction,
+                                Workflow = capabilityReport.Workflow,
+                                MessageGroupId = capabilityReport.MessageGroupId,
+                                ReportId = capabilityReport.ReportId
                             });
                         }
                         await GenerateMessages(messages);
                     }
                     start += increment;
                 }
-            }
+            });
         }
         return HttpStatusCode.OK;
     }
