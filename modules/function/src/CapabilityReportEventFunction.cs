@@ -7,12 +7,12 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GpConnect.AppointmentChecker.Function;
 
@@ -62,8 +62,7 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        var statusCode = await GenerateMessages(messages);
-        return statusCode;
+        return messages;
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -83,11 +82,10 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<IEnumerable<MessagingRequest>> AddMessagesToQueue(string[] odsList)
+    private async Task<HttpStatusCode> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
-        var messages = new ConcurrentDictionary<MessagingRequest, int>();
 
         if (dataSource != null && dataSource.Any())
         {
@@ -121,9 +119,11 @@ public class CapabilityReportEventFunction
                     var requests = dataSource.GetRange(start, !((start + increment) > dataSourceCount) ? increment : dataSourceCount - start);
                     if (requests.Any())
                     {
+                        var messages = new List<MessagingRequest>();
+
                         foreach (var request in requests)
                         {
-                            messages.TryAdd(new MessagingRequest()
+                            messages.Add(new MessagingRequest()
                             {
                                 DataSource = new() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
                                 ReportName = capabilityReport.ReportName,
@@ -131,33 +131,34 @@ public class CapabilityReportEventFunction
                                 Workflow = capabilityReport.Workflow,
                                 MessageGroupId = capabilityReport.MessageGroupId,
                                 ReportId = capabilityReport.ReportId
-                            }, Environment.CurrentManagedThreadId);
+                            });
                         }
+                        var response = await GenerateMessages(messages);
+                        _lambdaContext.Logger.LogLine("response.ToString()");
+                        _lambdaContext.Logger.LogLine(response.ToString());
                     }
                     start += increment;
                 }
             });
         }
-        return messages.Select(x => x.Key);
+        return HttpStatusCode.OK;
     }
 
-    private async Task<HttpStatusCode> GenerateMessages(IEnumerable<MessagingRequest> messagingRequests)
+    private async Task<HttpStatusCode> GenerateMessages(List<MessagingRequest> messagingRequest)
     {
-        await Parallel.ForEachAsync(messagingRequests, _parallelOptions, async (messagingRequest, ct) =>
-        {
-            var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
+        var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
             Encoding.UTF8,
             MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
+        _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
-            await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-            {
-                [Headers.UserId] = _endUserConfiguration.UserId,
-                [Headers.ApiKey] = _endUserConfiguration.ApiKey
-            }, json);
-        });
-        return HttpStatusCode.OK;
+        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        {
+            [Headers.UserId] = _endUserConfiguration.UserId,
+            [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        }, json);
+
+        return response.StatusCode;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
