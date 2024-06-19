@@ -140,9 +140,6 @@ public class CapabilityReportEventFunction
         //    Encoding.UTF8,
         //    MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-        //_lambdaContext.Logger.LogLine("await json.ReadAsStringAsync()");
-        //_lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
-
         //var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         //{
         //    [Headers.UserId] = _endUserConfiguration.UserId,
