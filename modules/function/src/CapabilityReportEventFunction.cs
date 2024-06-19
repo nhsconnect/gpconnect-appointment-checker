@@ -7,6 +7,7 @@ using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -55,7 +56,8 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        return await ProcessMessages(messages);
+        return HttpStatusCode.OK;
+        //return await ProcessMessages(messages);
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -75,7 +77,7 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<IEnumerable<MessagingRequest>[]?> AddMessagesToQueue(string[] odsList)
+    private async Task<int?> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
@@ -85,7 +87,8 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var tasks = capabilityReports.Select(async (capabilityReport) =>
+            var bag = new ConcurrentBag<object>();
+            var tasks = capabilityReports.Select(async capabilityReport =>
             {
                 var interactionRequest = new InteractionRequest
                 {
@@ -113,11 +116,46 @@ public class CapabilityReportEventFunction
                                    Interaction = capabilityReport.Interaction,
                                    Workflow = capabilityReport.Workflow,
                                    MessageGroupId = capabilityReport.MessageGroupId
-                               };                
-                return messages;
+                               };
+                bag.Add(messages);
             });
-            var results = await Task.WhenAll(tasks);
-            return results;
+            await Task.WhenAll(tasks);
+            return bag.Count;
+
+
+            //var tasks = capabilityReports.Select(async (capabilityReport) =>
+            //{
+            //    var interactionRequest = new InteractionRequest
+            //    {
+            //        WorkflowId = capabilityReport.Workflow?.FirstOrDefault(),
+            //        InteractionId = capabilityReport.Interaction?.FirstOrDefault(),
+            //        ReportName = capabilityReport.ReportName,
+            //        ReportId = capabilityReport.ReportId
+            //    };
+
+            //    var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
+
+            //    await StorageManager.Post(new StorageUploadRequest
+            //    {
+            //        BucketName = _storageConfiguration.BucketName,
+            //        Key = capabilityReport.ObjectKey,
+            //        InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
+            //    });
+
+            //    var messages = from request in dataSource
+            //                   select new MessagingRequest
+            //                   {
+            //                       DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+            //                       ReportName = capabilityReport.ReportName,
+            //                       ReportId = capabilityReport.ReportId,
+            //                       Interaction = capabilityReport.Interaction,
+            //                       Workflow = capabilityReport.Workflow,
+            //                       MessageGroupId = capabilityReport.MessageGroupId
+            //                   };                
+            //    return messages;
+            //});
+            //var results = await Task.WhenAll(tasks);
+            //return results;
         }
         return null;
     }
