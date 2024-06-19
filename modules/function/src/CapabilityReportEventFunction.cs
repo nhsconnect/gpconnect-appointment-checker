@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -56,8 +55,6 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
-        _lambdaContext.Logger.LogLine("{messages.Length}");
-        _lambdaContext.Logger.LogLine($"{messages.Length}");
         return await ProcessMessages(messages);
     }
 
@@ -126,22 +123,33 @@ public class CapabilityReportEventFunction
     }
 
     private async Task<HttpStatusCode> ProcessMessages(IEnumerable<MessagingRequest>[] messages)
-    {     
-        
-        var json = new StringContent(JsonConvert.SerializeObject(messages.ToList(), null, _options),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        _lambdaContext.Logger.LogLine("await json.ReadAsStringAsync()");
-        _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+    {   
+        foreach (var message in messages)
         {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);
+            for(var i = 0; i < message.Count(); i++)
+            {
+                _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
+                _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
+                _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
+            }
+            
+        }
+        return HttpStatusCode.OK;
 
-        return response.StatusCode;
+        //var json = new StringContent(JsonConvert.SerializeObject(messages.ToList(), null, _options),
+        //    Encoding.UTF8,
+        //    MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+        //_lambdaContext.Logger.LogLine("await json.ReadAsStringAsync()");
+        //_lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
+
+        //var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+        //{
+        //    [Headers.UserId] = _endUserConfiguration.UserId,
+        //    [Headers.ApiKey] = _endUserConfiguration.ApiKey
+        //}, json);
+
+        //return response.StatusCode;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
@@ -179,14 +187,7 @@ public class CapabilityReportEventFunction
                 ObjectPrefix = objectPrefix[i]
             }, _lambdaContext);
 
-            if (response != null)
-            {
-                _lambdaContext.Logger.LogLine(response.DeletedObjects.Count.ToString());
-                foreach (var deletedObject in response.DeletedObjects)
-                {
-                    _lambdaContext.Logger.LogLine(deletedObject.Key);
-                }
-            }
+            response?.DeletedObjects.ForEach(x => _lambdaContext.Logger.LogLine(x.Key));
         }
     }
 }
