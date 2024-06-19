@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.SecretsManager.Model.Internal.MarshallTransformations;
 using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -52,16 +54,15 @@ public class CapabilityReportEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
+        _lambdaContext.Logger.LogLine("Removing current transaction objects");
         await Reset(Objects.Transient, Objects.Key, Objects.Completion);
+        _lambdaContext.Logger.LogLine("Obtaining list of roles");
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
+        _lambdaContext.Logger.LogLine("Obtaining organisational ods data");
         var odsList = await GetOdsData(rolesSource.ToArray());
-        var messages = await AddMessagesToQueue(odsList);
-        for (int i = 0; i < messages.Count; i++)
-        {
-            _lambdaContext.Logger.LogLine(messages[i].Count.ToString());
-        }
-        return HttpStatusCode.OK;
-        //return await ProcessMessages(messages);
+        _lambdaContext.Logger.LogLine("Setting up messages for queue");
+        var messages = await AddMessagesToQueue(odsList);        
+        return await ProcessMessages(messages);
     }
 
     private async Task<string[]> GetOdsData(string[] roles)
@@ -133,57 +134,23 @@ public class CapabilityReportEventFunction
             });
             await Task.WhenAll(tasks);
             return bag.ToList();
-
-
-            //var tasks = capabilityReports.Select(async (capabilityReport) =>
-            //{
-            //    var interactionRequest = new InteractionRequest
-            //    {
-            //        WorkflowId = capabilityReport.Workflow?.FirstOrDefault(),
-            //        InteractionId = capabilityReport.Interaction?.FirstOrDefault(),
-            //        ReportName = capabilityReport.ReportName,
-            //        ReportId = capabilityReport.ReportId
-            //    };
-
-            //    var interactionBytes = JsonConvert.SerializeObject(interactionRequest, _options);
-
-            //    await StorageManager.Post(new StorageUploadRequest
-            //    {
-            //        BucketName = _storageConfiguration.BucketName,
-            //        Key = capabilityReport.ObjectKey,
-            //        InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
-            //    });
-
-            //    var messages = from request in dataSource
-            //                   select new MessagingRequest
-            //                   {
-            //                       DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
-            //                       ReportName = capabilityReport.ReportName,
-            //                       ReportId = capabilityReport.ReportId,
-            //                       Interaction = capabilityReport.Interaction,
-            //                       Workflow = capabilityReport.Workflow,
-            //                       MessageGroupId = capabilityReport.MessageGroupId
-            //                   };                
-            //    return messages;
-            //});
-            //var results = await Task.WhenAll(tasks);
-            //return results;
         }
         return null;
     }
 
-    private async Task<HttpStatusCode> ProcessMessages(IEnumerable<MessagingRequest>[] messages)
+    private async Task<HttpStatusCode> ProcessMessages(List<List<MessagingRequest>> messages)
     {
-        foreach (var message in messages)
+        for (int i = 0; i < messages.Count; i++)
         {
-            _lambdaContext.Logger.LogLine("Message count is " + message.Count().ToString());
-            for (var i = 0; i < message.Count(); i++)
-            {
-                _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
-                _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
-                _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
-            }
+            _lambdaContext.Logger.LogLine($"Number of messages in batch {i + 1} is {messages[i].Count}");
         }
+            //for (var i = 0; i < message.Count(); i++)
+            //{
+            //    _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
+            //    _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
+            //    _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
+            //}
+        
         return HttpStatusCode.OK;
 
         //var json = new StringContent(JsonConvert.SerializeObject(messages.ToList(), null, _options),
