@@ -126,22 +126,19 @@ public class CapabilityReportEventFunction
     {   
         foreach (var message in messages)
         {
-            for(var i = 0; i < message.Count(); i++)
+            _lambdaContext.Logger.LogLine("Message count is " + message.Count().ToString());
+            for (var i = 0; i < message.Count(); i++)
             {
                 _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
                 _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
                 _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
-            }
-            
+            }            
         }
         return HttpStatusCode.OK;
 
         //var json = new StringContent(JsonConvert.SerializeObject(messages.ToList(), null, _options),
         //    Encoding.UTF8,
         //    MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        //_lambdaContext.Logger.LogLine("await json.ReadAsStringAsync()");
-        //_lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
         //var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
         //{
