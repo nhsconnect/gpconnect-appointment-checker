@@ -56,6 +56,10 @@ public class CapabilityReportEventFunction
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
         var messages = await AddMessagesToQueue(odsList);
+        for (int i = 0; i < messages.Count; i++)
+        {
+            _lambdaContext.Logger.LogLine(messages[i].Count.ToString());
+        }
         return HttpStatusCode.OK;
         //return await ProcessMessages(messages);
     }
@@ -77,7 +81,7 @@ public class CapabilityReportEventFunction
         return JsonConvert.DeserializeObject<string[]>(body, _options);
     }
 
-    private async Task<int?> AddMessagesToQueue(string[] odsList)
+    private async Task<List<List<MessagingRequest>>?> AddMessagesToQueue(string[] odsList)
     {
         var codesSuppliers = await LoadDataSource();
         var dataSource = codesSuppliers.Where(x => odsList.Contains(x.OdsCode)).ToList();
@@ -87,7 +91,7 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var bag = new ConcurrentBag<object>();
+            var bag = new ConcurrentBag<List<MessagingRequest>>();
             var tasks = capabilityReports.Select(async capabilityReport =>
             {
                 var interactionRequest = new InteractionRequest
@@ -107,20 +111,28 @@ public class CapabilityReportEventFunction
                     InputBytes = Encoding.UTF8.GetBytes(interactionBytes)
                 });
 
-                var messages = from request in dataSource
-                               select new MessagingRequest
-                               {
-                                   DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
-                                   ReportName = capabilityReport.ReportName,
-                                   ReportId = capabilityReport.ReportId,
-                                   Interaction = capabilityReport.Interaction,
-                                   Workflow = capabilityReport.Workflow,
-                                   MessageGroupId = capabilityReport.MessageGroupId
-                               };
-                bag.Add(messages);
+                var start = 0;
+                var finish = dataSourceCount;
+                var increment = 100;
+
+                while (start < finish)
+                {
+                    var messages = from request in dataSource.GetRange(start, !((start + increment) > finish) ? increment : finish - start)
+                                   select new MessagingRequest
+                                   {
+                                       DataSource = new DataSource() { OdsCode = request.OdsCode, SupplierName = request.SupplierName },
+                                       ReportName = capabilityReport.ReportName,
+                                       ReportId = capabilityReport.ReportId,
+                                       Interaction = capabilityReport.Interaction,
+                                       Workflow = capabilityReport.Workflow,
+                                       MessageGroupId = capabilityReport.MessageGroupId
+                                   };
+                    bag.Add(messages.ToList());
+                    start += increment;
+                }
             });
             await Task.WhenAll(tasks);
-            return bag.Count;
+            return bag.ToList();
 
 
             //var tasks = capabilityReports.Select(async (capabilityReport) =>
@@ -161,7 +173,7 @@ public class CapabilityReportEventFunction
     }
 
     private async Task<HttpStatusCode> ProcessMessages(IEnumerable<MessagingRequest>[] messages)
-    {   
+    {
         foreach (var message in messages)
         {
             _lambdaContext.Logger.LogLine("Message count is " + message.Count().ToString());
@@ -170,7 +182,7 @@ public class CapabilityReportEventFunction
                 _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
                 _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
                 _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
-            }            
+            }
         }
         return HttpStatusCode.OK;
 
