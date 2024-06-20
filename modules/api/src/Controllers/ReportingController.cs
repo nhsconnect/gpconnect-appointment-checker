@@ -44,10 +44,10 @@ public class ReportingController : ControllerBase
     }
 
     [HttpPost("createinteractionmessage")]
-    public IActionResult SendMessageToCreateInteractionReportContentAsync([FromBody] ReportInteractionRequest reportInteractionRequest)
+    public async Task<IActionResult> SendMessageToCreateInteractionReportContentAsync([FromBody] ReportInteractionRequest reportInteractionRequest)
     {
-        var result = _service.SendMessageToCreateInteractionReportContent(reportInteractionRequest);
-        return Ok(result);
+        await _service.SendMessageToCreateInteractionReportContent(reportInteractionRequest);
+        return Ok();
     }
 
     private FileStreamResult? SendReport(Stream result)
