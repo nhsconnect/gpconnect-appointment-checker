@@ -1,6 +1,5 @@
 ﻿using Amazon.SQS.Model;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
@@ -12,6 +11,7 @@ using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -32,31 +32,19 @@ public class ReportingService : IReportingService
         _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
     }
 
-    public async Task SendMessageToCreateInteractionReportContent(List<ReportInteractionRequest> reportInteractionRequest)
+    public HttpStatusCode SendMessageToCreateInteractionReportContent(List<ReportInteractionRequest> reportInteractionRequest)
     {
-        var start = 0;
-        var finish = reportInteractionRequest.Count;
-        var increment = 10;
-
-        while (start < finish)
+        Parallel.ForEach(reportInteractionRequest, new ParallelOptions() { MaxDegreeOfParallelism = 30 }, request =>
         {
-            var requests = reportInteractionRequest.GetRange(start, !((start + increment) > finish) ? increment : finish - start);
-            if (requests.Any())
+            var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings
             {
-                var batchRequest = new SendMessageBatchRequest();
-                foreach (var request in requests)
-                {
-                    var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        Formatting = Formatting.Indented
-                    });
-                    batchRequest.Entries.Add(new SendMessageBatchRequestEntry() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString(), Id = $"{request.ReportId}_{Guid.NewGuid()}" });
-                }
-                await _messageService.SendMessageBatchToQueue(batchRequest);
-            }            
-            start += increment;
-        }
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented
+            });
+            var sendMessageRequest = new SendMessageRequest() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString() };
+            _messageService.SendMessageToQueue(sendMessageRequest);
+        });
+        return HttpStatusCode.OK;
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
