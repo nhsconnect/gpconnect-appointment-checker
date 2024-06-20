@@ -4,7 +4,7 @@ namespace GpConnect.AppointmentChecker.Function.DTO.Request;
 
 public class ReportInteraction
 {
-    public ReportSource ReportSource { get; set; } = null;
+    public List<ReportSource> ReportSource { get; set; } = null;
     public List<string>? Interaction { get; set; }
     public List<string>? Workflow { get; set; }
     public string ObjectKeyJson => $"{Helpers.Constants.Objects.Transient}_{ReportName?.ReplaceNonAlphanumeric()}_{DateTime.Now.ToString("s").ReplaceNonAlphanumeric()}_{GetTypeLabel(Interaction, Workflow)}_{ Guid.NewGuid() }.json".ToLower();
