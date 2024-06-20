@@ -141,7 +141,7 @@ public class CapabilityReportEventFunction
     private async Task<HttpStatusCode> ProcessMessages(List<List<MessagingRequest>> messages)
     {
         _lambdaContext.Logger.LogLine("Processing messages: " + messages.Count);
-        Parallel.ForEach(messages, new ParallelOptions() { MaxDegreeOfParallelism = 30 }, message =>
+        Parallel.ForEach(messages, new ParallelOptions() { MaxDegreeOfParallelism = 3 }, message =>
         {
             _lambdaContext.Logger.LogLine("Number of messages being sent is " + message.Count);
             var json = new StringContent(JsonConvert.SerializeObject(message, null, _options),
