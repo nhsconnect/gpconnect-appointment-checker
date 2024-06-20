@@ -1,5 +1,4 @@
 using Amazon.Lambda.Core;
-using Amazon.SecretsManager.Model.Internal.MarshallTransformations;
 using CsvHelper;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
@@ -13,7 +12,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace GpConnect.AppointmentChecker.Function;
@@ -61,7 +59,8 @@ public class CapabilityReportEventFunction
         _lambdaContext.Logger.LogLine("Obtaining organisational ods data");
         var odsList = await GetOdsData(rolesSource.ToArray());
         _lambdaContext.Logger.LogLine("Setting up messages for queue");
-        var messages = await AddMessagesToQueue(odsList);        
+        var messages = await AddMessagesToQueue(odsList);
+        _lambdaContext.Logger.LogLine("Processing messages in queue");
         return await ProcessMessages(messages);
     }
 
@@ -140,30 +139,24 @@ public class CapabilityReportEventFunction
 
     private async Task<HttpStatusCode> ProcessMessages(List<List<MessagingRequest>> messages)
     {
-        for (int i = 0; i < messages.Count; i++)
+        _lambdaContext.Logger.LogLine("Processing messages: message count is " + messages.Count);
+        var bag = new ConcurrentBag<List<MessagingRequest>>();
+        var tasks = messages.Select(async message =>
         {
-            _lambdaContext.Logger.LogLine($"Number of messages in batch {i + 1} is {messages[i].Count}");
-        }
-            //for (var i = 0; i < message.Count(); i++)
-            //{
-            //    _lambdaContext.Logger.LogLine(message.ToList()[i].ReportName);
-            //    _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.OdsCode);
-            //    _lambdaContext.Logger.LogLine(message.ToList()[i].DataSource.SupplierName);
-            //}
-        
+            _lambdaContext.Logger.LogLine("Number of messages being sent is " +  message.Count);
+            var json = new StringContent(JsonConvert.SerializeObject(message, null, _options),
+                Encoding.UTF8,
+                MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _endUserConfiguration.UserId,
+                [Headers.ApiKey] = _endUserConfiguration.ApiKey
+            }, json);            
+        });
+        await Task.WhenAll(tasks);
+        _lambdaContext.Logger.LogLine("Finished processing messages: task count is " + tasks.Count());
         return HttpStatusCode.OK;
-
-        //var json = new StringContent(JsonConvert.SerializeObject(messages.ToList(), null, _options),
-        //    Encoding.UTF8,
-        //    MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        //var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
-        //{
-        //    [Headers.UserId] = _endUserConfiguration.UserId,
-        //    [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        //}, json);
-
-        //return response.StatusCode;
     }
 
     private async Task<List<CapabilityReport>> GetCapabilityReports()
