@@ -8,6 +8,7 @@ using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -139,23 +140,21 @@ public class CapabilityReportEventFunction
 
     private async Task<HttpStatusCode> ProcessMessages(List<List<MessagingRequest>> messages)
     {
-        _lambdaContext.Logger.LogLine("Processing messages: message count is " + messages.Count);
-        var bag = new ConcurrentBag<List<MessagingRequest>>();
-        var tasks = messages.Select(async message =>
+        _lambdaContext.Logger.LogLine("Processing messages: " + messages.Count);
+        Parallel.ForEach(messages, new ParallelOptions() { MaxDegreeOfParallelism = 30 }, message =>
         {
-            _lambdaContext.Logger.LogLine("Number of messages being sent is " +  message.Count);
+            _lambdaContext.Logger.LogLine("Number of messages being sent is " + message.Count);
             var json = new StringContent(JsonConvert.SerializeObject(message, null, _options),
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-            var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
+            
+            var response = _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
-            }, json);            
+            }, json).Result;
         });
-        await Task.WhenAll(tasks);
-        _lambdaContext.Logger.LogLine("Finished processing messages: task count is " + tasks.Count());
+        _lambdaContext.Logger.LogLine("Completed Processing messages: " + messages.Count);
         return HttpStatusCode.OK;
     }
 
