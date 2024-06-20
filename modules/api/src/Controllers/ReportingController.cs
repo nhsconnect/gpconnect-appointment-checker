@@ -44,7 +44,7 @@ public class ReportingController : ControllerBase
     }
 
     [HttpPost("createinteractionmessage")]
-    public IActionResult SendMessageToCreateInteractionReportContentAsync([FromBody] List<ReportInteractionRequest> reportInteractionRequest)
+    public IActionResult SendMessageToCreateInteractionReportContentAsync([FromBody] ReportInteractionRequest reportInteractionRequest)
     {
         var result = _service.SendMessageToCreateInteractionReportContent(reportInteractionRequest);
         return Ok(result);
