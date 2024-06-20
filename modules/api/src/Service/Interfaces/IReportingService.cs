@@ -1,7 +1,6 @@
 using GpConnect.AppointmentChecker.Api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using System.Data;
-using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 
