@@ -11,7 +11,7 @@ public interface IReportingService
     public Task<Stream> ExportReport(ReportRequest reportRequest);
     public Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
     public Task<string> RouteReportRequest(RouteReportRequest routeReportRequest);
-    public HttpStatusCode SendMessageToCreateInteractionReportContent(List<ReportInteractionRequest> reportInteractionRequest);
+    public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
     public Task<List<Report>> GetReports();    
     public Task<List<CapabilityReport>> GetCapabilityReports();
     public Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName);

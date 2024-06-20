@@ -11,7 +11,6 @@ using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq.Dynamic.Core;
-using System.Net;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -32,19 +31,19 @@ public class ReportingService : IReportingService
         _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
     }
 
-    public HttpStatusCode SendMessageToCreateInteractionReportContent(List<ReportInteractionRequest> reportInteractionRequest)
+    public async Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest)
     {
-        Parallel.ForEach(reportInteractionRequest, new ParallelOptions() { MaxDegreeOfParallelism = 30 }, request =>
+        var request = JsonConvert.SerializeObject(reportInteractionRequest, new JsonSerializerSettings
         {
-            var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented
-            });
-            var sendMessageRequest = new SendMessageRequest() { MessageBody = json, MessageGroupId = request.MessageGroupId.ToString() };
-            _messageService.SendMessageToQueue(sendMessageRequest);
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented
         });
-        return HttpStatusCode.OK;
+
+        await _messageService.SendMessageToQueue(new SendMessageRequest()
+        {
+            MessageGroupId = reportInteractionRequest.MessageGroupId.ToString(),
+            MessageBody = request
+        });
     }
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)

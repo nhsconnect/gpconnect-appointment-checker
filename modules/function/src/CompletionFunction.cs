@@ -3,11 +3,8 @@ using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -93,7 +90,7 @@ public class CompletionFunction
                 responses.Add(jsonData);
             }
 
-            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token).OrderBy(x => x["ODS_Code"]);
+            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token).DistinctBy(x => x["ODS_Code"]).OrderBy(x => x["ODS_Code"]);
             string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
 
             var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
