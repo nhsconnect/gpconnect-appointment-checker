@@ -58,10 +58,14 @@ public class CapabilityReportEventFunction
     {
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
+        _lambdaContext.Logger.LogInformation("Purging json objects from S3");
         await Reset(Objects.Transient, Objects.Key, Objects.Completion);
+        _lambdaContext.Logger.LogInformation("Obtaining roles data from S3");
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
+        _lambdaContext.Logger.LogInformation("Preparing to add messages to SQS");
         var messages = await AddMessagesToQueue(odsList);
+        _lambdaContext.Logger.LogInformation("Sending messages to SQS");
         var statusCode = await GenerateMessages(messages);
         return statusCode;
     }
@@ -148,8 +152,6 @@ public class CapabilityReportEventFunction
             var json = new StringContent(JsonConvert.SerializeObject(messagingRequest, null, _options),
                 Encoding.UTF8,
                 MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-            _lambdaContext.Logger.LogLine(await json.ReadAsStringAsync());
 
             await _httpClient.PostWithHeadersAsync("/reporting/createinteractionmessage", new Dictionary<string, string>()
             {
