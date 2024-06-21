@@ -59,7 +59,7 @@ public class CapabilityReportEventFunction
         _stopwatch.Start();
         _lambdaContext = lambdaContext;
         _lambdaContext.Logger.LogInformation("Purging json objects from S3");
-        await Reset(Objects.Transient, Objects.Key, Objects.Completion);
+        await Reset(Objects.Key, Objects.Completion);
         _lambdaContext.Logger.LogInformation("Obtaining roles data from S3");
         var rolesSource = await StorageManager.Get<List<string>>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = _storageConfiguration.RolesObject });
         var odsList = await GetOdsData(rolesSource.ToArray());
@@ -99,7 +99,7 @@ public class CapabilityReportEventFunction
             var dataSourceCount = dataSource.Count;
             var capabilityReports = await GetCapabilityReports();
 
-            var batchSize = 50;
+            var batchSize = 20;
             var iterationCount = dataSourceCount / batchSize;
 
             await Parallel.ForEachAsync(capabilityReports, _parallelOptions, async (capabilityReport, ct) =>

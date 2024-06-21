@@ -18,6 +18,7 @@ public class SearchController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult> ExecuteSearch([FromBody] SearchRequest searchRequest)
     {
+
         if (!searchRequest.ValidSearchCombination)
         {
             return BadRequest();
