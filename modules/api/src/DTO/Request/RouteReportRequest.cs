@@ -7,4 +7,5 @@ public class RouteReportRequest
     public List<string>? Workflow { get; set; }
     public string? ReportName { get; set; } = null;
     public string? ReportId { get; set; } = null;
+    public string? ObjectKeyJson { get; set; } = null;
 }

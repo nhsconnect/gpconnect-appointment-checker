@@ -9,7 +9,7 @@ public interface IReportingService
     public Task<string> GetReport(string functionName);
     public Task<Stream> ExportReport(ReportRequest reportRequest);
     public Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
-    public Task<string> RouteReportRequest(RouteReportRequest routeReportRequest);
+    public Task RouteReportRequest(RouteReportRequest routeReportRequest);
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
     public Task<List<Report>> GetReports();    
     public Task<List<CapabilityReport>> GetCapabilityReports();

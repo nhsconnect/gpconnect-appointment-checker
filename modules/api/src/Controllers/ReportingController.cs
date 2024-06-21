@@ -39,8 +39,8 @@ public class ReportingController : ControllerBase
     [HttpPost("routereportrequest")]
     public async Task<IActionResult> RouteReportRequest([FromBody] RouteReportRequest routeReportRequest)
     {        
-        var result = await _service.RouteReportRequest(routeReportRequest);
-        return Ok(result);
+        await _service.RouteReportRequest(routeReportRequest);
+        return Ok();
     }
 
     [HttpPost("createinteractionmessage")]

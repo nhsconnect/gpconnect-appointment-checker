@@ -55,12 +55,7 @@ public class SQSEventFunction
             try
             {
                 var reportRequest = await ProcessMessageAsync(message);
-                var response = await RouteReportRequest(reportRequest);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    await GenerateTransientJsonForReport(reportRequest.ObjectKeyJson, response);
-                }
+                await RouteReportRequest(reportRequest);
                 await Task.CompletedTask;
             }
             catch (Exception)
@@ -77,7 +72,6 @@ public class SQSEventFunction
     {
         try
         {
-            _lambdaContext.Logger.LogLine(message.Body);
             ReportInteraction? reportInteraction = null;
             var messageRequest = JsonConvert.DeserializeObject<MessagingRequest>(message.Body);
             if (messageRequest != null)
@@ -113,12 +107,12 @@ public class SQSEventFunction
         }
         catch (Exception e)
         {
-            _lambdaContext.Logger.LogError(e.Message);
+            _lambdaContext.Logger.LogError(e.StackTrace);
             throw;
         }
     }
 
-    private async Task<HttpResponseMessage?> RouteReportRequest(ReportInteraction reportInteraction)
+    private async Task RouteReportRequest(ReportInteraction reportInteraction)
     {
         try
         {
@@ -126,34 +120,16 @@ public class SQSEventFunction
                Encoding.UTF8,
                MediaTypeHeaderValue.Parse("application/json").MediaType);
 
-            var response = await _httpClient.PostWithHeadersAsync("/reporting/routereportrequest", new Dictionary<string, string>()
+            await _httpClient.PostWithHeadersAsync("/reporting/routereportrequest", new Dictionary<string, string>()
             {
                 [Headers.UserId] = _endUserConfiguration.UserId,
                 [Headers.ApiKey] = _endUserConfiguration.ApiKey
             }, json);
-
-            return response;
         }
         catch (Exception e)
         {
             _lambdaContext.Logger.LogError(e.Message);
             throw;
         }
-    }
-
-    private async Task<string?> GenerateTransientJsonForReport(string objectKeyJson, HttpResponseMessage? httpResponseMessage)
-    {
-        if (httpResponseMessage != null)
-        {
-            var inputBytes = await StreamExtensions.GetByteArray(httpResponseMessage);
-            var url = await StorageManager.Post(new StorageUploadRequest()
-            {
-                BucketName = _storageConfiguration.BucketName,
-                Key = objectKeyJson,
-                InputBytes = inputBytes
-            });
-            return url;
-        }
-        return null;
     }
 }

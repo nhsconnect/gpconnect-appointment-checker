@@ -1,4 +1,5 @@
 ﻿using Amazon.SQS.Model;
+using Dapper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -58,30 +59,49 @@ public class ReportingService : IReportingService
         return CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
-    public async Task<string> RouteReportRequest(RouteReportRequest routeReportRequest)
+    public async Task RouteReportRequest(RouteReportRequest routeReportRequest)
     {
         try
         {
+            string? transientData = null;
             switch (routeReportRequest.ReportId.ToUpper())
             {
                 case "ACCESSRECORDSTRUCTURED":
-                    return await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                    transientData = await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                    break;
                 case "APPOINTMENTMANAGEMENT":
-                    return await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
+                    transientData = await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
+                    break;
                 case "ACCESSRECORDHTML":
-                    return await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
+                    transientData = await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
+                    break;
                 case "UPDATERECORD":
                 case "SENDDOCUMENT":
-                    return await _workflowService.CreateWorkflowData<MailboxReporting>(routeReportRequest);
+                    transientData = await _workflowService.CreateWorkflowData<MailboxReporting>(routeReportRequest);
+                    break;
                 default:
                     break;
             }
-            return null;
+            await CreateTransientData(transientData, routeReportRequest);
         }
         catch (Exception exc)
         {
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
+        }
+    }
+
+    private async Task CreateTransientData(string? transientData, RouteReportRequest routeReportRequest)
+    {
+        if (transientData != null)
+        {
+            var functionName = "reporting.add_transient_data";
+            var parameters = new DynamicParameters();
+            parameters.Add("_transient_id", routeReportRequest.ObjectKeyJson);
+            parameters.Add("_transient_data", transientData);
+            parameters.Add("_transient_report_id", routeReportRequest.ReportId);
+            parameters.Add("_transient_report_name", routeReportRequest.ReportName);
+            await _dataService.ExecuteQuery(functionName, parameters);
         }
     }
 

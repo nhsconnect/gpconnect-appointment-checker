@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
 using GpConnect.AppointmentChecker.Function.Helpers;
@@ -84,7 +85,25 @@ public class CompletionFunction
                 ObjectPrefix = $"{Objects.Transient}_{sourceKey}_{DateTime.Now:yyyy_MM_dd}"
             });
 
-            for( var i = 0; i < bucketObjects.Count; i++ )
+            while (bucketObjects != null && bucketObjects.Count > 0)
+            {
+                var deleteRequest = new DeleteObjectsRequest() { BucketName = storageListRequest.BucketName };
+                foreach (S3Object s3Object in listResponse)
+                {
+                    deleteRequest.AddKey(s3Object.Key);
+                }
+                var deleteResponse = await s3Client.DeleteObjectsAsync(deleteRequest);
+                if (deleteResponse.HttpStatusCode == HttpStatusCode.OK)
+                {
+                    listResponse = await GetObjects(storageListRequest);
+                }
+                else
+                {
+                    listResponse = null;
+                }
+            }
+
+            for ( var i = 0; i < bucketObjects.Count; i++ )
             {
                 var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
                 responses.Add(jsonData);
