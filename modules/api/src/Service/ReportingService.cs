@@ -82,7 +82,10 @@ public class ReportingService : IReportingService
                 default:
                     break;
             }
-            await CreateTransientData(transientData, routeReportRequest);
+            if (transientData != null)
+            {
+                await CreateTransientData(transientData, routeReportRequest);
+            }
         }
         catch (Exception exc)
         {
@@ -91,7 +94,12 @@ public class ReportingService : IReportingService
         }
     }
 
-    private async Task CreateTransientData(string? transientData, RouteReportRequest routeReportRequest)
+    public async Task TruncateInteractionReportData()
+    {
+        await _dataService.ExecuteQuery("reporting.truncate_transient_data");
+    }
+
+    private async Task CreateTransientData(string transientData, RouteReportRequest routeReportRequest)
     {
         if (transientData != null)
         {

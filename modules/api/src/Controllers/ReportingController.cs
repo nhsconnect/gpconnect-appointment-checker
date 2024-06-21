@@ -66,6 +66,13 @@ public class ReportingController : ControllerBase
         return Ok(reports);
     }
 
+    [HttpGet("truncateinteractionreportdata")]
+    public async Task<ActionResult> TruncateInteractionReportData()
+    {
+        await _service.TruncateInteractionReportData();
+        return Ok();
+    }
+
     [HttpGet("capabilitylist")]
     public async Task<ActionResult> CapabilityList()
     {

@@ -10,6 +10,7 @@ public interface IReportingService
     public Task<Stream> ExportReport(ReportRequest reportRequest);
     public Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
     public Task RouteReportRequest(RouteReportRequest routeReportRequest);
+    public Task TruncateInteractionReportData();
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);
     public Task<List<Report>> GetReports();    
     public Task<List<CapabilityReport>> GetCapabilityReports();
