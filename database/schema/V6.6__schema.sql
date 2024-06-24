@@ -9,4 +9,4 @@ create table reporting.transient
 	entry_date timestamp without time zone not null
 );
 
-grant select, insert, update, delete on table reporting.transient to app_user;
+grant select, insert on table reporting.transient to app_user;

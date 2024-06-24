@@ -68,19 +68,19 @@ public class ReportingService : IReportingService
         try
         {
             string? transientData = null;
-            switch (routeReportRequest.ReportId.ToUpper())
+            switch (routeReportRequest.ReportId.ToLower())
             {
-                case "ACCESSRECORDSTRUCTURED":
+                case "accessrecordstructured":
                     transientData = await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
                     break;
-                case "APPOINTMENTMANAGEMENT":
+                case "appointmentmanagement":
                     transientData = await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
                     break;
-                case "ACCESSRECORDHTML":
+                case "accessrecordhtml":
                     transientData = await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
                     break;
-                case "UPDATERECORD":
-                case "SENDDOCUMENT":
+                case "updaterecord":
+                case "senddocument":
                     transientData = await _workflowService.CreateWorkflowData<MailboxReporting>(routeReportRequest);
                     break;
                 default:
