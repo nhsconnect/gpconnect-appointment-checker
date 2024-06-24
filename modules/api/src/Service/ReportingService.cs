@@ -54,17 +54,13 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<Stream?> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
+    public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
         var functionName = "reporting.get_transient_data";
         var parameters = new DynamicParameters();
         parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
         var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);
-        if(response.Data != null)
-        {
-            return CreateReport(response.Data.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
-        }
-        return null;
+        return CreateReport(response?.Data?.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
     public async Task RouteReportRequest(RouteReportRequest routeReportRequest)
@@ -72,19 +68,19 @@ public class ReportingService : IReportingService
         try
         {
             string? transientData = null;
-            switch (routeReportRequest.ReportId.ToUpper())
+            switch (routeReportRequest.ReportId.ToLower())
             {
-                case "ACCESSRECORDSTRUCTURED":
+                case "accessrecordstructured":
                     transientData = await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
                     break;
-                case "APPOINTMENTMANAGEMENT":
+                case "appointmentmanagement":
                     transientData = await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
                     break;
-                case "ACCESSRECORDHTML":
+                case "accessrecordhtml":
                     transientData = await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
                     break;
-                case "UPDATERECORD":
-                case "SENDDOCUMENT":
+                case "updaterecord":
+                case "senddocument":
                     transientData = await _workflowService.CreateWorkflowData<MailboxReporting>(routeReportRequest);
                     break;
                 default:
@@ -124,8 +120,7 @@ public class ReportingService : IReportingService
                 { "_spine_message_id", spineMessageId }
             };
         var result = await _dataService.ExecuteFunctionAndGetDataTable("application.get_spine_message_by_id", parameters);
-        var report = CreateReport(result);
-        return report;
+        return CreateReport(result);
     }
 
     public async Task<string> GetReport(string functionName)
@@ -149,47 +144,50 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    public MemoryStream CreateReport(DataTable result, string reportName = "", List<ReportFilterRequest>? reportFilterRequest = null)
+    public MemoryStream CreateReport(DataTable? result, string reportName = "", List<ReportFilterRequest>? reportFilterRequest = null)
     {
         try
         {
             var memoryStream = new MemoryStream();
-            reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
+            if (result != null)
+            {                
+                reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
 
-            using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
-            {
-                var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
-                workbookPart.Workbook = new Workbook();
-
-                var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
-                workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
-                workbookStylesPart.Stylesheet.Save();
-
-                if (reportFilterRequest != null)
+                using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
                 {
-                    for (var i = 0; i < reportFilterRequest.Count; i++)
+                    var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
+                    workbookPart.Workbook = new Workbook();
+
+                    var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+                    workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
+                    workbookStylesPart.Stylesheet.Save();
+
+                    if (reportFilterRequest != null)
                     {
-                        var filteredList = result.AsEnumerable().Where(r => r.Field<string>(reportFilterRequest[i].FilterColumn) == reportFilterRequest[i].FilterValue);
-                        if (filteredList.Any())
+                        for (var i = 0; i < reportFilterRequest.Count; i++)
                         {
-                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
-                            var toDelete = new List<DataRow>();
-                            toDelete.AddRange(filteredList.AsEnumerable());
-                            toDelete.ForEach(dr => result.Rows.Remove(dr));
+                            var filteredList = result.AsEnumerable().Where(r => r.Field<string>(reportFilterRequest[i].FilterColumn) == reportFilterRequest[i].FilterValue);
+                            if (filteredList.Any())
+                            {
+                                CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
+                                var toDelete = new List<DataRow>();
+                                toDelete.AddRange(filteredList.AsEnumerable());
+                                toDelete.ForEach(dr => result.Rows.Remove(dr));
+                            }
                         }
+                        CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
                     }
-                    CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
-                }
-                else
-                {
-                    CreateSheet(result, reportName, spreadsheetDocument, 1);
+                    else
+                    {
+                        CreateSheet(result, reportName, spreadsheetDocument, 1);
+                    }
+
+                    spreadsheetDocument.WorkbookPart.Workbook.Save();
+                    spreadsheetDocument.Dispose();
                 }
 
-                spreadsheetDocument.WorkbookPart.Workbook.Save();
-                spreadsheetDocument.Dispose();
+                memoryStream.Seek(0, SeekOrigin.Begin);
             }
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
             return memoryStream;
         }
         catch (Exception ex)
