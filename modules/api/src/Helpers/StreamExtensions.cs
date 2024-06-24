@@ -36,10 +36,15 @@ public static class StreamExtensions
         var json = JsonConvert.SerializeObject(inputObject);
         return json;
     }
-    
-    public static DataTable ConvertJsonDataToDataTable(this string inputObject)
+
+    public static DataTable ConvertJsonDataToDataTable(this string inputObject, string? sortColumn = null)
     {
         var dataTable = (DataTable)JsonConvert.DeserializeObject(inputObject, typeof(DataTable));
+        if (dataTable != null && sortColumn != null)
+        {
+            dataTable.DefaultView.Sort = sortColumn;
+            dataTable = dataTable.DefaultView.ToTable();
+        }
         return dataTable;
     }
 }

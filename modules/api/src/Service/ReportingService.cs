@@ -60,7 +60,7 @@ public class ReportingService : IReportingService
         var parameters = new DynamicParameters();
         parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
         var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);        
-        var dataTable = response?.Data?.ConvertJsonDataToDataTable();
+        var dataTable = response?.Data?.ConvertJsonDataToDataTable("ODS_Code");
         return CreateReport(dataTable, reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
