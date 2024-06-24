@@ -75,7 +75,7 @@ public class CompletionFunction
 
         foreach (var keyObject in keyObjects)
         {
-            var key = await StorageManager.Get<InteractionKey>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = keyObject.Key });#
+            var key = await StorageManager.Get<InteractionKey>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = keyObject.Key });
 
             if (key != null)           
             {
