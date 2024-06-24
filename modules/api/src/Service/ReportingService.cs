@@ -59,8 +59,9 @@ public class ReportingService : IReportingService
         var functionName = "reporting.get_transient_data";
         var parameters = new DynamicParameters();
         parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
-        var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);
-        return CreateReport(response?.Data?.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
+        var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);        
+        var dataTable = response?.Data?.ConvertJsonDataToDataTable();
+        return CreateReport(dataTable, reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
 
     public async Task RouteReportRequest(RouteReportRequest routeReportRequest)
