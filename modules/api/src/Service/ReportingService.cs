@@ -104,10 +104,10 @@ public class ReportingService : IReportingService
         {
             var functionName = "reporting.add_transient_data";
             var parameters = new DynamicParameters();
-            parameters.Add("_transient_id", routeReportRequest.ObjectKeyJson);
-            parameters.Add("_transient_data", transientData);
-            parameters.Add("_transient_report_id", routeReportRequest.ReportId);
-            parameters.Add("_transient_report_name", routeReportRequest.ReportName);
+            parameters.Add("_transient_id", routeReportRequest.ObjectKeyJson, DbType.String, ParameterDirection.Input);
+            parameters.Add("_transient_data", transientData, DbType.String, ParameterDirection.Input);
+            parameters.Add("_transient_report_id", routeReportRequest.ReportId, DbType.String, ParameterDirection.Input);
+            parameters.Add("_transient_report_name", routeReportRequest.ReportName, DbType.String, ParameterDirection.Input);
             await _dataService.ExecuteQuery(functionName, parameters);
         }
     }
