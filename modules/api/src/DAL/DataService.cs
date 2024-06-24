@@ -106,7 +106,7 @@ public class DataService : IDataService
         }
     }    
 
-    public async Task<int> ExecuteQuery(string query, DynamicParameters parameters)
+    public async Task<int> ExecuteQuery(string query, DynamicParameters? parameters = null)
     {
         try
         {

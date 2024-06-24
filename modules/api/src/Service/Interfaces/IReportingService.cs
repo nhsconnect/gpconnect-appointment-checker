@@ -7,7 +7,7 @@ namespace GpConnect.AppointmentChecker.Api.Service.Interfaces;
 public interface IReportingService
 {
     public Task<string> GetReport(string functionName);
-    public Task<Stream> ExportReport(ReportRequest reportRequest);
+    public Task<Stream?> ExportReport(ReportRequest reportRequest);
     public Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest);
     public Task RouteReportRequest(RouteReportRequest routeReportRequest);
     public Task SendMessageToCreateInteractionReportContent(ReportInteractionRequest reportInteractionRequest);

@@ -26,6 +26,7 @@ public static class MappingExtensions
             config.AddMap(new ReportMap());
             config.AddMap(new CapabilityReportMap());
             config.AddMap(new SpineMessageMap());
+            config.AddMap(new TransientDataMap());
         });
     }
 }

@@ -1,11 +1,10 @@
 using Amazon.Lambda.Core;
-using Amazon.S3.Model;
 using GpConnect.AppointmentChecker.Function.Configuration;
 using GpConnect.AppointmentChecker.Function.DTO.Request;
+using GpConnect.AppointmentChecker.Function.DTO.Response;
 using GpConnect.AppointmentChecker.Function.Helpers;
 using GpConnect.AppointmentChecker.Function.Helpers.Constants;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -58,7 +57,7 @@ public class CompletionFunction
         {
             _reportFilterRequest = completionFunctionRequest.ReportFilter;
             _distributionList = completionFunctionRequest.DistributionList;
-            await BundleUpJsonResponsesAndSendReport();
+            await CreateReport();
             _stopwatch.Stop();
             _lambdaContext.Logger.LogInformation($"CompletionFunction took {_stopwatch.Elapsed:%m} minutes {_stopwatch.Elapsed:%s} seconds to process");
             return HttpStatusCode.OK;
@@ -66,83 +65,45 @@ public class CompletionFunction
         return HttpStatusCode.BadRequest;
     }
 
-    private async Task BundleUpJsonResponsesAndSendReport()
+    private async Task CreateReport()
     {
         var keyObjects = await StorageManager.GetObjects(new StorageListRequest
         {
             BucketName = _storageConfiguration.BucketName,
             ObjectPrefix = $"{Objects.Key}"
         });
-        
+
         foreach (var keyObject in keyObjects)
         {
-            var responses = new List<string>();
-            var sourceKey = keyObject.Key.SearchAndReplace(new Dictionary<string, string>() { { ".json", string.Empty }, { "key_", string.Empty } });
+            var key = await StorageManager.Get<InteractionKey>(new StorageDownloadRequest { BucketName = _storageConfiguration.BucketName, Key = keyObject.Key });#
 
-            var bucketObjects = await StorageManager.GetObjects(new StorageListRequest
+            if (key != null)           
             {
-                BucketName = _storageConfiguration.BucketName,
-                ObjectPrefix = $"{Objects.Transient}_{sourceKey}_{DateTime.Now:yyyy_MM_dd}"
-            });
-
-            while (bucketObjects != null && bucketObjects.Count > 0)
-            {
-                var deleteRequest = new DeleteObjectsRequest() { BucketName = storageListRequest.BucketName };
-                foreach (S3Object s3Object in listResponse)
+                var reportCreationRequest = new ReportCreationRequest
                 {
-                    deleteRequest.AddKey(s3Object.Key);
-                }
-                var deleteResponse = await s3Client.DeleteObjectsAsync(deleteRequest);
-                if (deleteResponse.HttpStatusCode == HttpStatusCode.OK)
+                    ReportFilter = _reportFilterRequest,
+                    ReportName = key.ReportName,
+                    ReportId = key.ReportId
+                };
+
+                var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
+                       Encoding.UTF8,
+                       MediaTypeHeaderValue.Parse("application/json").MediaType);
+
+                var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
                 {
-                    listResponse = await GetObjects(storageListRequest);
-                }
-                else
-                {
-                    listResponse = null;
-                }
-            }
+                    [Headers.UserId] = _endUserConfiguration.UserId,
+                    [Headers.ApiKey] = _endUserConfiguration.ApiKey
+                }, json);
+                response.EnsureSuccessStatusCode();
 
-            for ( var i = 0; i < bucketObjects.Count; i++ )
-            {
-                var jsonData = await StorageManager.Get(new StorageDownloadRequest { BucketName = bucketObjects[i].BucketName, Key = bucketObjects[i].Key });
-                responses.Add(jsonData);
-            }
+                var fileStream = await response.Content.ReadAsStreamAsync();
+                var byteArray = StreamExtensions.UseBufferedStream(fileStream);
 
-            var responseObject = responses.Select(JArray.Parse).SelectMany(token => token).DistinctBy(x => x["ODS_Code"]).OrderBy(x => x["ODS_Code"]);
-            string combinedJson = JsonConvert.SerializeObject(responseObject, Formatting.Indented);
-
-            var interactionObject = await StorageManager.Get<ReportInteraction>(new StorageDownloadRequest { BucketName = keyObject.BucketName, Key = keyObject.Key });
-            await CreateReport(combinedJson, interactionObject);
+                reportCreationRequest.ReportBytes = byteArray;
+                await PostReport(reportCreationRequest);
+            }            
         }        
-    }
-
-    private async Task CreateReport(string jsonData, ReportInteraction interactionObject)
-    {
-        var reportCreationRequest = new ReportCreationRequest
-        {
-            JsonData = jsonData,
-            ReportFilter = _reportFilterRequest,
-            ReportName = interactionObject.ReportName,
-            ReportId = interactionObject.ReportId
-        };
-
-        var json = new StringContent(JsonConvert.SerializeObject(reportCreationRequest, null, _options),
-               Encoding.UTF8,
-               MediaTypeHeaderValue.Parse("application/json").MediaType);
-
-        var response = await _httpClient.PostWithHeadersAsync("/reporting/createinteractionreport", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        }, json);        
-        response.EnsureSuccessStatusCode();
-
-        var fileStream = await response.Content.ReadAsStreamAsync();
-        var byteArray = StreamExtensions.UseBufferedStream(fileStream);
-
-        reportCreationRequest.ReportBytes = byteArray;
-        await PostReport(reportCreationRequest);
     }
 
     private async Task PostReport(ReportCreationRequest reportCreationRequest)
