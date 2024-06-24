@@ -1,4 +1,5 @@
 drop table if exists reporting.transient;
+
 create table reporting.transient
 (
     transient_id varchar(100) not null,
