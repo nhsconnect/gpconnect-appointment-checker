@@ -54,9 +54,17 @@ public class ReportingService : IReportingService
         return memoryStream;
     }
 
-    public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
+    public async Task<Stream?> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        return CreateReport(reportCreationRequest.JsonData.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
+        var functionName = "reporting.get_transient_data";
+        var parameters = new DynamicParameters();
+        parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
+        var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);
+        if(response.Data != null)
+        {
+            return CreateReport(response.Data.ConvertJsonDataToDataTable(), reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
+        }
+        return null;
     }
 
     public async Task RouteReportRequest(RouteReportRequest routeReportRequest)
@@ -92,11 +100,6 @@ public class ReportingService : IReportingService
             _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
-    }
-
-    public async Task TruncateInteractionReportData()
-    {
-        await _dataService.ExecuteQuery("reporting.truncate_transient_data");
     }
 
     private async Task CreateTransientData(string transientData, RouteReportRequest routeReportRequest)

@@ -202,11 +202,5 @@ public class CapabilityReportEventFunction
 
             response?.DeletedObjects.ForEach(x => _lambdaContext.Logger.LogLine(x.Key));
         }
-        var truncate = await _httpClient.GetWithHeadersAsync("/reporting/truncateinteractionreportdata", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _endUserConfiguration.UserId,
-            [Headers.ApiKey] = _endUserConfiguration.ApiKey
-        });
-        truncate.EnsureSuccessStatusCode();
     }
 }
