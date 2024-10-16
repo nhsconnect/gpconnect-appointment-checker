@@ -33,6 +33,6 @@ begin
 		u.org_type_search_enabled
 	from application.user u
 	inner join application.organisation o on u.organisation_id = o.organisation_id	
-	where u.email_address = _email_address;
+	where lower(u.email_address) = lower(_email_address);
 end;
 $$ language plpgsql;
