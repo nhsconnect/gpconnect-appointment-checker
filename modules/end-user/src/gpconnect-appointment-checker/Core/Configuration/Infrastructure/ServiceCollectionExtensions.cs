@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddSession(s =>
         {
             s.Cookie.Name = ".GpConnectAppointmentChecker.Session";
-            s.IdleTimeout = new TimeSpan(0, 30, 0);
+            s.IdleTimeout = new TimeSpan(0, 15, 0);
             s.Cookie.HttpOnly = true;
             s.Cookie.IsEssential = true;
         });

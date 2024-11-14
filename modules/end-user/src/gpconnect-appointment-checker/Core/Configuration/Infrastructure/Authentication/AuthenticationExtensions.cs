@@ -76,6 +76,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                         OnTokenValidated = context =>
                         {
                             var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+                            context.HttpContext.Session.SetString("UserSession", "Active");
                             return tokenService.HandleOnTokenValidatedAsync(context);
                         },
                         OnAuthenticationFailed = context =>
