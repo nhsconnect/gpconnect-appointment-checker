@@ -44,6 +44,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             app.Use(async (context, next) =>
             {
+                context.Session.SetString("SessionKey", "Session");
+                await next();
+            });
+            
+            app.Use(async (context, next) =>
+            {
                 context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
                 {
                     NoStore = true,
