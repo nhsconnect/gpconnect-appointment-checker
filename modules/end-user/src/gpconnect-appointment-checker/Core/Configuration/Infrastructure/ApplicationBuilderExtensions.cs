@@ -21,6 +21,12 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             if (!env.IsDevelopment())
             {
+                app.Use(async (context, next) =>
+                {
+                    context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload";
+                    await next();
+                });
+
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
