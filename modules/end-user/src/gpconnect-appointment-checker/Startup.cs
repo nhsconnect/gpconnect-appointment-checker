@@ -33,7 +33,7 @@ namespace gpconnect_appointment_checker
             authenticationExtensions.ConfigureAuthenticationServices(services);
 
             services.ConfigureLoggingServices(_configuration);
-            services.ConfigureApplicationServices(_configuration, _webHostEnvironment);            
+            services.ConfigureApplicationServices(_configuration, _webHostEnvironment);
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
