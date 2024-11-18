@@ -1,9 +1,11 @@
 ﻿using System;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
@@ -21,12 +23,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
 
             if (!env.IsDevelopment())
             {
-                app.Use(async (context, next) =>
-                {
-                    context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload";
-                    await next();
-                });
-
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
@@ -48,6 +44,13 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.UseSession();
             app.UseResponseCaching();
 
+            app.Use(async (context, next) =>
+            {
+                var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+                antiforgery.SetCookieTokenAndHeader(context);
+                await next(context);
+            });
+            
             app.Use(async (context, next) =>
             {
                 context.Session.SetString("SessionKey", "Session");
