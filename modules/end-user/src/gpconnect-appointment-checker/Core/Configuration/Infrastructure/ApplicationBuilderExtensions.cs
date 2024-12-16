@@ -89,11 +89,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     AllowCachingResponses = false
                 });
             });
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions()
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedProto
-            });
         }
 
         private static void AddResponseHeaders(HttpContext context)
