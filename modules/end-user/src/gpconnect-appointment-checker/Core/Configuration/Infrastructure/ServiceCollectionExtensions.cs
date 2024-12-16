@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
             s.Cookie.MaxAge = TimeSpan.FromMinutes(15);
             s.Cookie.HttpOnly = true;
             s.Cookie.IsEssential = true;
-            s.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            s.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         });
 
         services.Configure<CookiePolicyOptions>(options =>
