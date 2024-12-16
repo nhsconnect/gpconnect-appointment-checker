@@ -36,7 +36,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authenticat
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
                 options.Cookie.Name = ".GpConnectAppointmentChecker.AuthenticationCookie";
                 options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             })
             .AddOpenIdConnect(
                 _singleSignOnConfig.ChallengeScheme,
