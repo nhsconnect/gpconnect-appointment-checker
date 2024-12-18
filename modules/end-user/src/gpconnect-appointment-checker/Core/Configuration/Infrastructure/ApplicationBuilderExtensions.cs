@@ -54,7 +54,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             app.Use(async (context, next) =>
             {
                 context.Session.SetString("SessionKey", "Session");
-                await next();
+                await next(context);
             });
             
             app.Use(async (context, next) =>
