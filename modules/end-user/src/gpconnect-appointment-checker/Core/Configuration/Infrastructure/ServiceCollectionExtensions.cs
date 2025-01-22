@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
         {
             options.IncludeSubDomains = true;
             options.MaxAge = TimeSpan.FromDays(730);
+            options.Preload = true;
         });        
 
         services.AddResponseCaching();
