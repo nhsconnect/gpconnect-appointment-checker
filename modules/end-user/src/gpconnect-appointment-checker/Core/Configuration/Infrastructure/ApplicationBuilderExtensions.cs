@@ -1,5 +1,7 @@
 ﻿using System;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,11 +38,25 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     context.Context.Response.Headers[HeaderNames.CacheControl] = $"public, max-age={TimeSpan.FromSeconds(60 * 60 * 24)}";
                 }
             });
-            app.UseSession();
+            
             app.UseCookiePolicy();            
             app.UseRouting();
+            app.UseSession();
             app.UseResponseCaching();
 
+            app.Use(async (context, next) =>
+            {
+                var antiForgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+                antiForgery.SetCookieTokenAndHeader(context);
+                await next(context);
+            });
+
+            app.Use(async (context, next) =>
+            {
+                context.Session.SetString("SessionKey", "Session");
+                await next();
+            });
+            
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
