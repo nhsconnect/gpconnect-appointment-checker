@@ -255,3 +255,6 @@ paket-files/
 
 # CodeRush
 .cr/
+
+# Config
+appsettings.local.json
