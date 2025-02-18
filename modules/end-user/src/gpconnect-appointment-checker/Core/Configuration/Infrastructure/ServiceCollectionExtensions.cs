@@ -33,8 +33,8 @@ public static class ServiceCollectionExtensions
         {
             options.ConsentCookie.Name = ".GpConnectAppointmentChecker.ConsentCookie";
             options.CheckConsentNeeded = context => true;
-            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            options.MinimumSameSitePolicy = SameSiteMode.Lax;
+            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
         services.Configure<FormOptions>(x => x.ValueCountLimit = 100000);
@@ -113,8 +113,8 @@ public static class ServiceCollectionExtensions
         { 
             options.SuppressXFrameOptionsHeader = true;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.None;
         });
 
         services
