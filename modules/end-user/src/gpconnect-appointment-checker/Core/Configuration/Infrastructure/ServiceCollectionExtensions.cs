@@ -26,14 +26,14 @@ public static class ServiceCollectionExtensions
             s.Cookie.MaxAge = TimeSpan.FromMinutes(15);
             s.Cookie.HttpOnly = true;
             s.Cookie.IsEssential = true;
-            s.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            s.Cookie.SecurePolicy = CookieSecurePolicy.None;
         });
 
         services.Configure<CookiePolicyOptions>(options =>
         {
             options.ConsentCookie.Name = ".GpConnectAppointmentChecker.ConsentCookie";
             options.CheckConsentNeeded = context => true;
-            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.ConsentCookie.SecurePolicy = CookieSecurePolicy.None;
             options.MinimumSameSitePolicy = SameSiteMode.Lax;
         });
 
@@ -113,7 +113,7 @@ public static class ServiceCollectionExtensions
         { 
             options.SuppressXFrameOptionsHeader = true;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.None;
             options.Cookie.SameSite = SameSiteMode.Lax;
         });
 
