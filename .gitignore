@@ -8,3 +8,4 @@
 database/flyway-7.0.0/
 /aws
 /awscliv2.zip
+.DS_Store
