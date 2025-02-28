@@ -1,48 +1,51 @@
-using Autofac.Extensions.DependencyInjection;
-using GpConnect.AppointmentChecker.Core.Configuration;
 using gpconnect_appointment_checker.Configuration.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using NLog.Web;
 using System;
+using gpconnect_appointment_checker.Configuration.Infrastructure.Authentication;
+using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 
-namespace gpconnect_appointment_checker
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
+try
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+    logger.Debug("Starting application...");
 
-            try
-            {
-                logger.Debug("init main");
-                CreateHostBuilder(args, logger).Build().Run();
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, "Stopped program because of exception");
-                throw;
-            }
-            finally
-            {
-                LogManager.Shutdown();
-            }
-        }
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseNLog();
+    builder.Host.ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration);
 
-        public static IHostBuilder CreateHostBuilder(string[] args, Logger logger) =>
-            Host.CreateDefaultBuilder(args)
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>().ConfigureKestrel(options => options.AddServerHeader = false);
-                })
-                .ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration)
-                .ConfigureLogging((builderContext, logging) =>
-                {
-                    LoggingConfigurationBuilder.AddLoggingConfiguration(builderContext, logging);
-                })
-                .UseNLog();
-    }
+    var configuration = builder.Configuration;
+    var environment = builder.Environment;
+
+    var services = builder.Services;
+    services.AddOptions();
+    services.AddHttpContextAccessor();
+
+    var authenticationExtensions = new AuthenticationExtensions(configuration);
+    authenticationExtensions.ConfigureAuthenticationServices(services);
+
+    services.ConfigureLoggingServices(configuration);
+    services.ConfigureApplicationServices(configuration, environment);
+    services.AddScoped<ITokenService, TokenService>();
+
+    var app = builder.Build();
+
+    // Configure app services
+    app.ConfigureApplicationBuilderServices(environment);
+
+    app.Run();
+}
+catch (Exception exception)
+{
+    logger.Error(exception, "Application startup failed");
+    throw;
+}
+finally
+{
+    LogManager.Shutdown();
 }
