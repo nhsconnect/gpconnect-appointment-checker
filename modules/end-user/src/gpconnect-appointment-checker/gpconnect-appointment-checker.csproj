@@ -23,8 +23,6 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.AspNetCore.DataProtection.SSM" Version="3.1.0" />
-    <PackageReference Include="Autofac" Version="7.0.1" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.102.35" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.2" />
@@ -40,13 +38,13 @@
   </ItemGroup>  
 
   <ItemGroup>
-    <Folder Include="Core\Configuration\Infrastructure\Authentication\Interfaces\" />
-  </ItemGroup>  
-
-  <ItemGroup>
     <Content Update="appsettings.local.json">
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>  
+
+  <ItemGroup>
+    <Folder Include="Core\Configuration\Infrastructure\Authentication\Interfaces\" />
   </ItemGroup>
 
 </Project>
