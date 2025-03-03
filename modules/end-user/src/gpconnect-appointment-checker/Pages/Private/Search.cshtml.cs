@@ -26,7 +26,10 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IConfigurationService _configurationService;
         private readonly ISearchService _searchService;
 
-        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchModel> logger, IExportService exportService, IApplicationService applicationService, IConfigurationService configurationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor,
+            ILogger<SearchModel> logger, IExportService exportService, IApplicationService applicationService,
+            IConfigurationService configurationService, ISearchService searchService,
+            ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
         {
             _applicationService = applicationService;
             _configurationService = configurationService;
@@ -43,8 +46,8 @@ namespace gpconnect_appointment_checker.Pages
             }
             else
             {
-                var userCode = User.GetClaimValue("ODS");
-                if (!string.IsNullOrEmpty(userCode)) ProviderOdsCode = userCode;
+                ProviderOdsCode = string.Empty;
+                ConsumerOdsCode = string.Empty;
             }
 
             //OrganisationTypes = await GetOrganisationTypes();
@@ -64,6 +67,7 @@ namespace gpconnect_appointment_checker.Pages
                 ConsumerOdsCode = CleansedConsumerOdsCodeInput;
                 await GetSearchResults();
             }
+
             return Page();
         }
 
@@ -88,6 +92,7 @@ namespace gpconnect_appointment_checker.Pages
                 SelectedOrganisationType = searchGroup.ConsumerOrganisationTypeDropdown;
                 await PopulateSearchResultsForGroup(searchGroupId);
             }
+
             ModelState.ClearValidationState("ProviderOdsCode");
             ModelState.ClearValidationState("ConsumerOdsCode");
             ModelState.ClearValidationState("SelectedOrganisationType");
@@ -96,23 +101,25 @@ namespace gpconnect_appointment_checker.Pages
 
         public async Task<FileStreamResult> OnPostExportSearchResult(int searchResultId)
         {
-            var filestream = await _exportService.ExportSearchResultFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport() 
-            {
-                ExportRequestId = searchResultId, 
-                UserId = UserId,
-                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
-            });
+            var filestream = await _exportService.ExportSearchResultFromDatabase(
+                new GpConnect.AppointmentChecker.Models.Request.SearchExport()
+                {
+                    ExportRequestId = searchResultId,
+                    UserId = UserId,
+                    ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+                });
             return filestream;
         }
 
         public async Task<FileStreamResult> OnPostExportSearchGroup(int searchGroupId)
         {
-            var filestream = await _exportService.ExportSearchGroupFromDatabase(new GpConnect.AppointmentChecker.Models.Request.SearchExport()
-            {
-                ExportRequestId = searchGroupId,
-                UserId = UserId,
-                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
-            });
+            var filestream = await _exportService.ExportSearchGroupFromDatabase(
+                new GpConnect.AppointmentChecker.Models.Request.SearchExport()
+                {
+                    ExportRequestId = searchGroupId,
+                    UserId = UserId,
+                    ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+                });
             return filestream;
         }
 
@@ -145,15 +152,19 @@ namespace gpconnect_appointment_checker.Pages
 
         private void CheckInputs()
         {
-            if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) && string.IsNullOrEmpty(SelectedOrganisationType))
+            if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) &&
+                string.IsNullOrEmpty(SelectedOrganisationType))
             {
                 ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODENOTENTEREDERRORMESSAGE);
-                ModelState.AddModelError("SelectedOrganisationType", SearchConstants.CONSUMERORGTYPENOTENTEREDERRORMESSAGE);
+                ModelState.AddModelError("SelectedOrganisationType",
+                    SearchConstants.CONSUMERORGTYPENOTENTEREDERRORMESSAGE);
             }
+
             if (!OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0))
             {
                 ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE);
             }
+
             if ((string.IsNullOrEmpty(ProviderOdsCode) || ProviderOdsCodeAsList?.Count == 0))
             {
                 ModelState.AddModelError("ProviderOdsCode", SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE);
@@ -162,17 +173,18 @@ namespace gpconnect_appointment_checker.Pages
 
         private async Task GetSearchResults()
         {
-            var response = await _searchService.ExecuteSearch(new GpConnect.AppointmentChecker.Models.Request.SearchRequest()
-            {
-                ProviderOdsCode = ProviderOdsCode,
-                ConsumerOdsCode = ConsumerOdsCode,
-                ConsumerOrganisationType = SelectedOrganisationType,
-                DateRange = SelectedDateRange,
-                RequestUri = FullUrl,
-                UserId = UserId,
-                UserSessionId = UserSessionId,
-                Sid = Sid
-            });
+            var response = await _searchService.ExecuteSearch(
+                new GpConnect.AppointmentChecker.Models.Request.SearchRequest()
+                {
+                    ProviderOdsCode = ProviderOdsCode,
+                    ConsumerOdsCode = ConsumerOdsCode,
+                    ConsumerOrganisationType = SelectedOrganisationType,
+                    DateRange = SelectedDateRange,
+                    RequestUri = FullUrl,
+                    UserId = UserId,
+                    UserSessionId = UserSessionId,
+                    Sid = Sid
+                });
 
             IsMultiSearch = response.Count > 1;
 
@@ -182,11 +194,15 @@ namespace gpconnect_appointment_checker.Pages
 
                 ProviderODSCodeFound = searchResponse.ProviderOdsCodeFound;
                 ConsumerODSCodeFound = searchResponse.ConsumerOdsCodeFound;
-                ProviderEnabledForGpConnectAppointmentManagement = searchResponse.ProviderEnabledForGpConnectAppointmentManagement;
-                ConsumerEnabledForGpConnectAppointmentManagement = searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
+                ProviderEnabledForGpConnectAppointmentManagement =
+                    searchResponse.ProviderEnabledForGpConnectAppointmentManagement;
+                ConsumerEnabledForGpConnectAppointmentManagement =
+                    searchResponse.ConsumerEnabledForGpConnectAppointmentManagement;
                 ProviderASIDPresent = searchResponse.ProviderASIDPresent;
                 SearchAtResultsText = searchResponse.FormattedProviderOrganisationDetails;
-                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(searchResponse.FormattedConsumerOrganisationDetails, searchResponse.FormattedConsumerOrganisationType);
+                SearchOnBehalfOfResultsText = GetSearchOnBehalfOfResultsText(
+                    searchResponse.FormattedConsumerOrganisationDetails,
+                    searchResponse.FormattedConsumerOrganisationType);
                 ProviderPublisher = searchResponse.ProviderPublisher;
 
                 SearchResultsTotalCount = searchResponse.SearchResultsTotalCount;
@@ -199,7 +215,7 @@ namespace gpconnect_appointment_checker.Pages
                 SearchGroupId = searchResponse.SearchGroupId;
                 SearchResultId = searchResponse.SearchResultId;
 
-                if(searchResponse.ProviderError != null)
+                if (searchResponse.ProviderError != null)
                 {
                     ProviderError = searchResponse.ProviderError;
                 }
@@ -245,6 +261,7 @@ namespace gpconnect_appointment_checker.Pages
                 dateRange.Add(week);
                 firstDayOfCurrentWeek = firstDayOfCurrentWeek.AddDays(7);
             }
+
             return dateRange;
         }
 
