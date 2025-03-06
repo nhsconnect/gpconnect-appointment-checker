@@ -17,17 +17,17 @@ namespace gpconnect_appointment_checker.Pages
 
         public List<SlotEntrySummary> SearchResultsSummary { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE)]
-        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.PROVIDERODSCODEVALIDERRORMESSAGE)]
+        [Required(ErrorMessage = SearchConstants.Providerodscoderequirederrormessage)]
+        [RegularExpression(ValidationConstants.AlphaNumericCharactersWithLeadingTrailingSpacesAndCommaSpaceOnly, ErrorMessage = SearchConstants.Providerodscodevaliderrormessage)]
         [BindProperty(SupportsGet = true)]
-        [MaximumNumberOfCodes("MaxNumberProviderCodesSearch", SearchConstants.PROVIDERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE)]
-        [RepeatedCodesCheck(SearchConstants.PROVIDERODSCODEREPEATEDCODERRORMESSAGE)]
+        [MaximumNumberOfCodes("MaxNumberProviderCodesSearch", SearchConstants.Providerodscodemaxlengtherrormessage, SearchConstants.Providerodscodemaxlengthmultisearchnotenablederrormessage)]
+        [RepeatedCodesCheck(SearchConstants.Providerodscoderepeatedcoderrormessage)]
         public string ProviderOdsCode { get; set; }
 
-        [RegularExpression(ValidationConstants.ALPHANUMERICCHARACTERSWITHLEADINGTRAILINGSPACESANDCOMMASPACEONLY, ErrorMessage = SearchConstants.CONSUMERODSCODEVALIDERRORMESSAGE)]
+        [RegularExpression(ValidationConstants.AlphaNumericCharactersWithLeadingTrailingSpacesAndCommaSpaceOnly, ErrorMessage = SearchConstants.Consumerodscodevaliderrormessage)]
         [BindProperty(SupportsGet = true)]
-        [MaximumNumberOfCodes("MaxNumberConsumerCodesSearch", SearchConstants.CONSUMERODSCODEMAXLENGTHERRORMESSAGE, SearchConstants.CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE)]
-        [RepeatedCodesCheck(SearchConstants.CONSUMERODSCODEREPEATEDCODERRORMESSAGE)]
+        [MaximumNumberOfCodes("MaxNumberConsumerCodesSearch", SearchConstants.Consumerodscodemaxlengtherrormessage, SearchConstants.Consumerodscodemaxlengthmultisearchnotenablederrormessage)]
+        [RepeatedCodesCheck(SearchConstants.Consumerodscoderepeatedcoderrormessage)]
         public string? ConsumerOdsCode { get; set; }
 
         [BindProperty(SupportsGet = true)]
@@ -38,11 +38,11 @@ namespace gpconnect_appointment_checker.Pages
 
         public int SearchInputBoxLength => MultiSearchEnabled ? 100 : 10;
         public string ProviderOdsCodeInputBoxLabel => MultiSearchEnabled ? 
-            SearchConstants.SEARCHINPUTPROVIDERODSCODEMULTILABEL : 
-            SearchConstants.SEARCHINPUTPROVIDERODSCODELABEL;
+            SearchConstants.Searchinputproviderodscodemultilabel : 
+            SearchConstants.Searchinputproviderodscodelabel;
 
         public string ProviderOdsCodeInputBoxHintText => MultiSearchEnabled ?
-            SearchConstants.SEARCHINPUTPROVIDERODSCODEHINTTEXT : string.Empty;
+            SearchConstants.Searchinputproviderodscodehinttext : string.Empty;
 
         public string ConsumerOdsCodeInputBoxHintText => GetConsumerOdsCodeInputHelpText();
 
@@ -50,11 +50,11 @@ namespace gpconnect_appointment_checker.Pages
         {
             if(MultiSearchEnabled && OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
+                return SearchConstants.Searchinputconsumerrodscodehinttext;
             }
             if (MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTCONSUMERRODSCODEHINTTEXT;
+                return SearchConstants.Searchinputconsumerrodscodehinttext;
             }
             return string.Empty;
         }
@@ -65,19 +65,19 @@ namespace gpconnect_appointment_checker.Pages
         {
             if(MultiSearchEnabled && OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTCONSUMERMULTILABEL;
+                return SearchConstants.Searchinputconsumermultilabel;
             }
             if (MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTCONSUMERODSCODEMULTILABEL;
+                return SearchConstants.Searchinputconsumerodscodemultilabel;
             }
             if (!MultiSearchEnabled && OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT;
+                return SearchConstants.Searchinputmustenterconsumerorgtypehinttext;
             }
             if (!MultiSearchEnabled && !OrgTypeSearchEnabled)
             {
-                return SearchConstants.SEARCHINPUTCONSUMERODSCODELABEL;
+                return SearchConstants.Searchinputconsumerodscodelabel;
             }
             return string.Empty;
         }

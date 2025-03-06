@@ -73,7 +73,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 ExportRequestId = searchResultId,
                 UserId = UserId,
-                ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+                ReportName = ReportConstants.Slotsummaryreportheading
             });
             return filestream;
         }

@@ -9,15 +9,15 @@ namespace gpconnect_appointment_checker.Pages
         [BindProperty(SupportsGet = true)]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.JOBROLEREQUIREDERRORMESSAGE)]
+        [Required(ErrorMessage = SearchConstants.Jobrolerequirederrormessage)]
         [BindProperty(SupportsGet = true)]
         public string JobRole { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.ORGANISATIONREQUIREDERRORMESSAGE)]
+        [Required(ErrorMessage = SearchConstants.Organisationrequirederrormessage)]
         [BindProperty(SupportsGet = true)]
         public string Organisation { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.ACCESSREQUESTREASONREQUIREDERRORMESSAGE)]
+        [Required(ErrorMessage = SearchConstants.Accessrequestreasonrequirederrormessage)]
         [BindProperty(SupportsGet = true)]
         public string AccessRequestReason { get; set; }
 

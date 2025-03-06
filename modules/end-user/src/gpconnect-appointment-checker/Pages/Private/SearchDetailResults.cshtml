@@ -6,17 +6,17 @@
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-care-card">
             <div class="nhsuk-care-card__heading-container">
-                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHATTEXT</span></h3>
+                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.Searchresultssearchattext</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
             <div class="nhsuk-care-card__content">
                 <p>@Model.SearchAtResultsText</p>
-                <p><em>@SearchConstants.SEARCHRESULTSPUBLISHERLABEL</em>&nbsp;@Model.ProviderPublisher</p>
+                <p><em>@SearchConstants.Searchresultspublisherlabel</em>&nbsp;@Model.ProviderPublisher</p>
             </div>
         </div>
         <div class="nhsuk-care-card">
             <div class="nhsuk-care-card__heading-container">
-                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFTEXT</span></h3>
+                <h3 class="nhsuk-care-card__heading"><span role="text">@SearchConstants.Searchresultssearchonbehalfoftext</span></h3>
                 <span class="nhsuk-care-card__arrow" aria-hidden="true"></span>
             </div>
             <div class="nhsuk-care-card__content">
@@ -30,7 +30,7 @@
         {
             <div class="nhsuk-grid-row">
                 <div class="nhsuk-grid-column-full">
-                    <button class="nhsuk-button" asp-page="SearchDetail" asp-page-handler="ExportSearchResult" asp-route-searchresultid="@Model.SearchResultId" type="submit">@SearchConstants.EXPORTSEARCHRESULTSBUTTONTEXT</button>
+                    <button class="nhsuk-button" asp-page="SearchDetail" asp-page-handler="ExportSearchResult" asp-route-searchresultid="@Model.SearchResultId" type="submit">@SearchConstants.Exportsearchresultsbuttontext</button>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@
             {
                 <details class="nhsuk-details nhsuk-expander">
                     <summary class="nhsuk-details__summary">
-                        <span class="nhsuk-details__summary-text">@SearchConstants.SEARCHRESULTSPASTSLOTSTEXT</span>
+                        <span class="nhsuk-details__summary-text">@SearchConstants.Searchresultspastslotstext</span>
                         <div class="nhsuk-inset-text nhsuk-details">
                             <span class="nhsuk-u-visually-hidden">Past Slots: </span>
                             <p>
@@ -63,7 +63,7 @@
                                     }
                                     else
                                     {
-                                        <em>@SearchConstants.SEARCHRESULTSNOADDRESSPROVIDEDTEXT</em>
+                                        <em>@SearchConstants.Searchresultsnoaddressprovidedtext</em>
                                     }
                                 </h4>
                             }
@@ -111,7 +111,7 @@
                             }
                             else
                             {
-                                <em>@SearchConstants.SEARCHRESULTSNOADDRESSPROVIDEDTEXT</em>
+                                <em>@SearchConstants.Searchresultsnoaddressprovidedtext</em>
                             }
                         </h4>
                     }
@@ -143,7 +143,7 @@
         }
         else
         {
-            <p>@SearchConstants.SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT</p>
+            <p>@SearchConstants.Searchresultsnoavailableappointmentslotstext</p>
         }
     </div>
 </div>

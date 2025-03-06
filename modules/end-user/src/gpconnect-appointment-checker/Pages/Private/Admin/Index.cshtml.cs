@@ -21,7 +21,7 @@ namespace gpconnect_appointment_checker.Pages
         public async Task OnGet()
         {
             SortByColumn = SortBy.EmailAddress;
-            SortByState = SortDirection.ASC;
+            SortByState = SortDirection.Asc;
             SortByDirectionIcon = GetSortDirectionIcon(SortByState);
             await RefreshPage();
         }
@@ -30,7 +30,7 @@ namespace gpconnect_appointment_checker.Pages
         {
             switch (sortDirection)
             {
-                case SortDirection.ASC:
+                case SortDirection.Asc:
                     return "&nbsp;&uarr;";
                 default:
                     return "&nbsp;&darr;";

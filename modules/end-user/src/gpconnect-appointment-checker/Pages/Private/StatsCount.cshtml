@@ -5,7 +5,7 @@
 {
     <div class="nhsuk-inset-text">
         <span class="nhsuk-u-visually-hidden">Information: </span>
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSCOUNTTEXT, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SEARCHSTATSPASTCOUNTTEXT, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.Searchstatscounttext, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.Searchstatspastcounttext, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
     </div>
 }

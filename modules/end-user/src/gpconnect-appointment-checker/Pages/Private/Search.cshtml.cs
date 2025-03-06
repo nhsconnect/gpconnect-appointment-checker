@@ -106,7 +106,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchResultId,
                     UserId = UserId,
-                    ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+                    ReportName = ReportConstants.Slotsummaryreportheading
                 });
             return filestream;
         }
@@ -118,7 +118,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchGroupId,
                     UserId = UserId,
-                    ReportName = ReportConstants.SLOTSUMMARYREPORTHEADING
+                    ReportName = ReportConstants.Slotsummaryreportheading
                 });
             return filestream;
         }
@@ -155,19 +155,19 @@ namespace gpconnect_appointment_checker.Pages
             if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) &&
                 string.IsNullOrEmpty(SelectedOrganisationType))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODENOTENTEREDERRORMESSAGE);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscodenotenterederrormessage);
                 ModelState.AddModelError("SelectedOrganisationType",
-                    SearchConstants.CONSUMERORGTYPENOTENTEREDERRORMESSAGE);
+                    SearchConstants.Consumerorgtypenotenterederrormessage);
             }
 
             if (!OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.CONSUMERODSCODEREQUIREDERRORMESSAGE);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscoderequirederrormessage);
             }
 
             if ((string.IsNullOrEmpty(ProviderOdsCode) || ProviderOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ProviderOdsCode", SearchConstants.PROVIDERODSCODEREQUIREDERRORMESSAGE);
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Providerodscoderequirederrormessage);
             }
         }
 
