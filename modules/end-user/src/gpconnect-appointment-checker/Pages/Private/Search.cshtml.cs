@@ -61,12 +61,11 @@ namespace gpconnect_appointment_checker.Pages
         public async Task<IActionResult> OnPostSearchAsync()
         {
             CheckInputs();
-            if (ModelState.IsValid)
-            {
-                ProviderOdsCode = CleansedProviderOdsCodeInput;
-                ConsumerOdsCode = CleansedConsumerOdsCodeInput;
-                await GetSearchResults();
-            }
+            if (!ModelState.IsValid) return Page();
+
+            ProviderOdsCode = CleansedProviderOdsCodeInput;
+            ConsumerOdsCode = CleansedConsumerOdsCodeInput;
+            await GetSearchResults();
 
             return Page();
         }
@@ -152,6 +151,13 @@ namespace gpconnect_appointment_checker.Pages
 
         private void CheckInputs()
         {
+            // check the following rules:
+            if (!ValidSearchCombination)
+            {
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Issuewithodscodesinputtext);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Issuewithodscodesinputtext);
+            }
+
             if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) &&
                 string.IsNullOrEmpty(SelectedOrganisationType))
             {
