@@ -3,7 +3,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-12-cron \
     apt-utils
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 ARG BUILD_TAG
 ENV BUILD_TAG=$BUILD_TAG
 RUN apt-get update && apt-get install -y libldap-2.4-2

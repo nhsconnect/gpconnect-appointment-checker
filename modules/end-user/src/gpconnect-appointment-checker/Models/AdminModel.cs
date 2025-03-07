@@ -9,8 +9,8 @@ namespace gpconnect_appointment_checker.Pages
 {
     public partial class AdminModel
     {
-        [Required(ErrorMessage = SearchConstants.EMAILADDRESSREQUIREDERRORMESSAGE)]
-        [RegularExpression(ValidationConstants.NHSNETEMAILADDRESS, ErrorMessage = SearchConstants.USEREMAILADDRESSVALIDERRORMESSAGE)]
+        [Required(ErrorMessage = SearchConstants.Emailaddressrequirederrormessage)]
+        [RegularExpression(ValidationConstants.Nhsnetemailaddress, ErrorMessage = SearchConstants.Useremailaddressvaliderrormessage)]
         [BindProperty]
         public string UserEmailAddress { get; set; }
 

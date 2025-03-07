@@ -6,8 +6,8 @@
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHODSCODESLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHODSCODESTEXT, Model.ProviderOdsCode, Model.ConsumerOdsCode)</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithodscodeslabel</h3>
+                <p>@string.Format(SearchConstants.Issuewithodscodestext, Model.ProviderOdsCode, Model.ConsumerOdsCode)</p>
             </div>
         </div>
     </div>
@@ -17,8 +17,8 @@ else if (!Model.ConsumerODSCodeFound && string.IsNullOrEmpty(Model.SelectedOrgan
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHCONSUMERODSCODELABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHCONSUMERODSCODETEXT, Model.ConsumerOdsCode)</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithconsumerodscodelabel</h3>
+                <p>@string.Format(SearchConstants.Issuewithconsumerodscodetext, Model.ConsumerOdsCode)</p>
             </div>
         </div>
     </div>
@@ -28,8 +28,8 @@ else if (!Model.ProviderODSCodeFound)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHPROVIDERODSCODELABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHPROVIDERODSCODETEXT, Model.ProviderOdsCode)</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithproviderodscodelabel</h3>
+                <p>@string.Format(SearchConstants.Issuewithproviderodscodetext, Model.ProviderOdsCode)</p>
             </div>
         </div>
     </div>
@@ -39,8 +39,8 @@ else if (!Model.ProviderASIDPresent)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
-                <p>@SearchConstants.ISSUEWITHGPCONNECTPROVIDERTEXT</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithgpconnectproviderlabel</h3>
+                <p>@SearchConstants.Issuewithgpconnectprovidertext</p>
             </div>
         </div>
     </div>
@@ -50,8 +50,8 @@ else if (!Model.ProviderEnabledForGpConnectAppointmentManagement)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTPROVIDERLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT, Model.ProviderOdsCode)</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithgpconnectproviderlabel</h3>
+                <p>@string.Format(SearchConstants.Issuewithgpconnectprovidernotenabledtext, Model.ProviderOdsCode)</p>
             </div>
         </div>
     </div>
@@ -61,8 +61,8 @@ else if (!Model.CapabilityStatementOk || !Model.SlotSearchOk || Model.ProviderEr
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL</h3>
-                <p>@string.Format(SearchConstants.ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT, Model.ProviderError.Display, Model.ProviderError.Code)</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithsendingmessagetoprovidersystemlabel</h3>
+                <p>@string.Format(SearchConstants.Issuewithsendingmessagetoprovidersystemtext, Model.ProviderError.Display, Model.ProviderError.Code)</p>
                 <p>@Model.ProviderError.Diagnostics</p>
             </div>
         </div>
@@ -73,8 +73,8 @@ else if (Model.LdapErrorRaised)
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
             <div class="nhsuk-warning-callout">
-                <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHLDAPLABEL</h3>
-                <p>@SearchConstants.ISSUEWITHLDAPTEXT</p>
+                <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithldaplabel</h3>
+                <p>@SearchConstants.Issuewithldaptext</p>
             </div>
         </div>
     </div>

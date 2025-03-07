@@ -13,45 +13,45 @@
         <div class="nhsuk-grid-column-full">
             <h1>Appointment Checker Admin</h1>
             <div class="nhsuk-do-dont-list">
-                <h3 class="nhsuk-do-dont-list__label">@SearchConstants.ADDNEWUSERTEXT</h3>
+                <h3 class="nhsuk-do-dont-list__label">@SearchConstants.Addnewusertext</h3>
                 <div class="nhsuk-form-group@(UserEmailAddressInvalid ? " nhsuk-form-group--error" : string.Empty)">
-                    <label class="nhsuk-label" for="input-useremailaddress">@SearchConstants.NEWUSEREMAILADDRESS</label>
+                    <label class="nhsuk-label" for="input-useremailaddress">@SearchConstants.Newuseremailaddress</label>
                     @if (UserEmailAddressInvalid)
                     {
                         @Html.ValidationMessageFor(m => m.UserEmailAddress, "", new { @class = "nhsuk-error-message" })
                     }
                     <input class="nhsuk-input nhsuk-input--width-100@(UserEmailAddressInvalid ? " nhsuk-input--error" : string.Empty)" id="input-useremailaddress" no-validate asp-for="@Model.UserEmailAddress" name="useremailaddress" value="@Model.UserEmailAddress" type="text" aria-describedby="input-useremailaddress-hint-text">
                 </div>
-                <button class="nhsuk-button" asp-page-handler="SaveNewUser" type="submit">@SearchConstants.SAVENEWUSERBUTTONTEXT</button>
+                <button class="nhsuk-button" asp-page-handler="SaveNewUser" type="submit">@SearchConstants.Savenewuserbuttontext</button>
             </div>
 
             <div class="nhsuk-table__panel-with-heading-tab">
-                <h3 class="nhsuk-table__heading-tab">@SearchConstants.USERLISTTEXT</h3>
+                <h3 class="nhsuk-table__heading-tab">@SearchConstants.Userlisttext</h3>
                 <table class="nhsuk-table">
-                    <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">@SearchConstants.USERLISTTEXT</caption>
+                    <caption class="nhsuk-table__caption nhsuk-u-visually-hidden">@SearchConstants.Userlisttext</caption>
                     <thead role="rowgroup" class="nhsuk-table__head">
                         <tr role="row">
                             <th role="columnheader" class="" scope="col">
-                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
-                                @SortDirection.DESC.ToString()
+                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.EmailAddress" asp-route-sortdirection="@if (Model.SortByState == SortDirection.Asc) {
+                                @SortDirection.Desc.ToString()
  } else {
-                                @SortDirection.ASC.ToString()
+                                @SortDirection.Asc.ToString()
  }" asp-page-handler="SortBy" type="submit">
-                                    @SearchConstants.USERLISTRESULTSEMAILADDRESS
+                                    @SearchConstants.Userlistresultsemailaddress
                                     @if (Model.SortByColumn == SortBy.EmailAddress)
                                     {
                                         @Html.Raw(Model.SortByDirectionIcon)
                                     }
                                 </button>
                             </th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSDISPLAYNAME</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.Userlistresultsdisplayname</th>
                             <th role="columnheader" class="" scope="col">
-                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
-                                @SortDirection.DESC.ToString()
+                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.LastLogonDate" asp-route-sortdirection="@if (Model.SortByState == SortDirection.Asc) {
+                                @SortDirection.Desc.ToString()
  } else {
-                                @SortDirection.ASC.ToString()
+                                @SortDirection.Asc.ToString()
  }" asp-page-handler="SortBy" type="submit">
-                                    @SearchConstants.USERLISTRESULTSLASTLOGONDATE
+                                    @SearchConstants.Userlistresultslastlogondate
                                     @if (Model.SortByColumn == SortBy.LastLogonDate)
                                     {
                                         @Html.Raw(Model.SortByDirectionIcon)
@@ -59,22 +59,22 @@
                                 </button>
                             </th>
                             <th role="columnheader" class="" scope="col">
-                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.AccessRequests" asp-route-sortdirection="@if (Model.SortByState == SortDirection.ASC) {
-                                @SortDirection.DESC.ToString()
+                                <button class="nhsuk-tag nhsuk-label" asp-route-sortby="@SortBy.AccessRequests" asp-route-sortdirection="@if (Model.SortByState == SortDirection.Asc) {
+                                @SortDirection.Desc.ToString()
  } else {
-                                @SortDirection.ASC.ToString()
+                                @SortDirection.Asc.ToString()
  }" asp-page-handler="SortBy" type="submit">
-                                    @SearchConstants.USERLISTRESULTSACCESSREQUESTCOUNT
+                                    @SearchConstants.Userlistresultsaccessrequestcount
                                     @if (Model.SortByColumn == SortBy.AccessRequests)
                                     {
                                         @Html.Raw(Model.SortByDirectionIcon)
                                     }
                                 </button>
                             </th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSACCESSLEVEL</th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSSTATUS</th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSMULTISEARCHENABLED</th>
-                            <th role="columnheader" class="" scope="col">@SearchConstants.USERLISTRESULTSORGTYPESEARCHENABLED</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.Userlistresultsaccesslevel</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.Userlistresultsstatus</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.Userlistresultsmultisearchenabled</th>
+                            <th role="columnheader" class="" scope="col">@SearchConstants.Userlistresultsorgtypesearchenabled</th>
                         </tr>
                     </thead>
                     <tbody class="nhsuk-table__body">
@@ -124,8 +124,8 @@
                         </tr>
                         <tr role="row">
                             <td colspan=9 role="cell" class="" scope="nhsuk-table__cell">
-                                <button class="nhsuk-button" asp-page-handler="ApplyFilter" type="submit">@SearchConstants.APPLYFILTERBUTTONTEXT</button>
-                                <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+                                <button class="nhsuk-button" asp-page-handler="ApplyFilter" type="submit">@SearchConstants.Applyfilterbuttontext</button>
+                                <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="ClearSearch" type="submit">@SearchConstants.Clearbuttontext</button>
                             </td>
                         </tr>
                         @if (Model.UserList.Count > 0)
@@ -185,7 +185,7 @@
                             }
                         }
                         <tr role="row" scope="nhsuk-table__cell">
-                            <td role="cell" colspan="9" class="" scope="nhsuk-table__cell">@string.Format(SearchConstants.USERSFOUNDTEXT, Model.UserList.Count)</td>
+                            <td role="cell" colspan="9" class="" scope="nhsuk-table__cell">@string.Format(SearchConstants.Usersfoundtext, Model.UserList.Count)</td>
                         </tr>
                     </tbody>
                 </table>
