@@ -1,5 +1,5 @@
 -- create user
-create user app_user;
+if not exists create user app_user;
 alter user app_user valid until 'infinity';
 
 -- revoke default public permissions
