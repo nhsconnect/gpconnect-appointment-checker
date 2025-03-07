@@ -279,7 +279,11 @@ namespace gpconnect_appointment_checker.Pages
                 Text = ot.OrganisationTypeDescription,
                 Value = ot.OrganisationTypeCode
             }).ToList();
-            options.Insert(0, new SelectListItem());
+            options.Insert(0, new SelectListItem()
+            {
+                Text = "N/A",
+                Value = string.Empty
+            });
             return options;
         }
     }
