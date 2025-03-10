@@ -2,7 +2,7 @@
 do
 $$
 BEGIN
-	IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'app_user') AND NOT EXISTS (SELECT * FROM pg_roles WHERE rolname = 'app_user') THEN
+	IF NOT EXISTS (SELECT * FROM pg_roles WHERE rolname = 'app_user') THEN
 		CREATE USER app_user;
 	END IF;
 END
