@@ -1,5 +1,13 @@
 -- create user
-if not exists create user app_user;
+do
+$$
+BEGIN
+	IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'app_user') AND NOT EXISTS (SELECT * FROM pg_roles WHERE rolname = 'app_user') THEN
+		CREATE USER app_user;
+	END IF;
+END
+$$;
+
 alter user app_user valid until 'infinity';
 
 -- revoke default public permissions
