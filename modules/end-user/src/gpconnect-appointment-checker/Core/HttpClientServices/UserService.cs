@@ -1,22 +1,24 @@
-using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models;
-using GpConnect.AppointmentChecker.Models.Request;
-using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.Helpers.Constants;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Helpers;
+using gpconnect_appointment_checker.Helpers.Constants;
+using gpconnect_appointment_checker.Models;
+using GpConnect.AppointmentChecker.Core.Configuration;
+using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+using GpConnect.AppointmentChecker.Models;
+using GpConnect.AppointmentChecker.Models.Request;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
-namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
+namespace gpconnect_appointment_checker.Core.HttpClientServices;
 
 public class UserService : IUserService
 {
@@ -25,7 +27,8 @@ public class UserService : IUserService
     private readonly JsonSerializerSettings _options;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public UserService(ILogger<UserService> logger, HttpClient httpClient, IHttpContextAccessor contextAccessor, IOptions<ApplicationConfig> config)
+    public UserService(ILogger<UserService> logger, HttpClient httpClient, IHttpContextAccessor contextAccessor,
+        IOptions<ApplicationConfig> config)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new UriBuilder(config.Value.ApiBaseUrl).Uri;
@@ -40,35 +43,18 @@ public class UserService : IUserService
 
     public async Task<Organisation> GetOrganisationAsync(string odsCode)
     {
-        var response = await _httpClient.GetWithHeadersAsync($"/user/organisation/{odsCode}", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
-        });
+        var response = await _httpClient.GetWithHeadersAsync($"/user/organisation/{odsCode}",
+            new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+            });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<Organisation>(body, _options);
     }
 
 
-    public async Task<List<User>> GetUsersAsync(UserListSimple userListSimple)
-    {
-        try
-        {
-            var query = new Dictionary<string, string>
-            {
-                { "sort_by_column", userListSimple.SortByColumn.ToString() },
-                { "sort_direction", userListSimple.SortDirection.ToString() }
-            };
-            return await GetList(query, "user/user-simple");
-        }
-        catch (Exception exc)
-        {
-            _logger.LogError(exc, $"An exception has occurred while attempting to retrieve a list of use cases from the API");
-            throw;
-        }
-    }
-
-    public async Task<List<User>> GetUsersAsync(UserListAdvanced userListAdvanced)
+    public async Task<PagedData<User>> GetUsersAsync(UserListAdvanced userListAdvanced, int page)
     {
         try
         {
@@ -81,19 +67,21 @@ public class UserService : IUserService
                 { "user_account_status_filter", userListAdvanced.UserAccountStatusFilter.ToString() },
                 { "access_level_filter", userListAdvanced.AccessLevelFilter.ToString() },
                 { "multi_search_filter", userListAdvanced.MultiSearchFilter.ToString() },
-                { "org_type_search_filter", userListAdvanced.OrgTypeSearchFilter.ToString() }
+                { "org_type_search_filter", userListAdvanced.OrgTypeSearchFilter.ToString() },
+                { "page", page.ToString() }
             };
 
             return await GetList(query, "user/user-advanced");
         }
         catch (Exception exc)
         {
-            _logger.LogError(exc, $"An exception has occurred while attempting to retrieve a list of use cases from the API");
+            _logger.LogError(exc,
+                $"An exception has occurred while attempting to retrieve a list of use cases from the API");
             throw;
         }
     }
 
-    private async Task<List<User>> GetList(Dictionary<string, string?> keyValuePairs, string url)
+    private async Task<PagedData<User>> GetList(Dictionary<string, string?> keyValuePairs, string url)
     {
         var request = QueryHelpers.AddQueryString(url, keyValuePairs);
 
@@ -103,7 +91,7 @@ public class UserService : IUserService
         });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<List<User>>(body, _options);
+        return JsonConvert.DeserializeObject<PagedData<User>>(body, _options);
     }
 
     public async Task<User> LogonUser(LogonUser logonUser)
@@ -178,10 +166,11 @@ public class UserService : IUserService
 
     public async Task<User?> GetUser(string emailAddress)
     {
-        var response = await _httpClient.GetWithHeadersAsync($"/user/emailaddress/{emailAddress}", new Dictionary<string, string>()
-        {
-            [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
-        });
+        var response = await _httpClient.GetWithHeadersAsync($"/user/emailaddress/{emailAddress}",
+            new Dictionary<string, string>()
+            {
+                [Headers.UserId] = _contextAccessor.HttpContext?.User?.GetClaimValue(Headers.UserId)
+            });
 
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {

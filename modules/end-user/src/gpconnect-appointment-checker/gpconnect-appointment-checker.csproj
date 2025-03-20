@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <Folder Include="Core\Configuration\Infrastructure\Authentication\Interfaces\" />
+    <Folder Include="Pages\Private\Components\" />
   </ItemGroup>
 
 </Project>

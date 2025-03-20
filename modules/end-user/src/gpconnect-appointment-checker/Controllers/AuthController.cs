@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 
 namespace gpconnect_appointment_checker.Controllers
 {

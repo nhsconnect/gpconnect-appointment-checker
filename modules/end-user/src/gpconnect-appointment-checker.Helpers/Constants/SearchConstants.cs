@@ -192,6 +192,7 @@
         public const string Continuebuttontext = "Continue";
         public const string Cancelbuttontext = "Cancel";
         public const string Clearbuttontext = "Clear";
+        public const string Refreshbuttontext = "Refresh";
         public const string Registerbuttontext = "Start registration";
 
         public const string Searchresultssearchatheadingtext = "Search at";

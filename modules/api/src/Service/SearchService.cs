@@ -84,6 +84,14 @@ public class SearchService : ISearchService
 
     public async Task<List<SearchResponse>> ExecuteSearch(SearchRequest searchRequest)
     {
+        //
+        // // GET FROM CACHE
+        //
+        // // IF NO CACHE
+        //
+        // // CACHE KEY
+        // var cacheKey = $"appointments:{providers}:{consumers}:{date_range}";
+        
         try
         {
             var createdSearchGroup = await AddSearchGroupToSearchResponse(searchRequest);
