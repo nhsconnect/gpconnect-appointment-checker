@@ -42,7 +42,7 @@ public class LogService : ILogService
         {
             var url = _contextAccessor.HttpContext.Request?.Path.Value;            
 
-            if (!url.Contains(SystemConstants.HEALTHCHECKERPATH))
+            if (!url.Contains(SystemConstants.Healthcheckerpath))
             {
                 var webRequest = new WebRequest()
                 {

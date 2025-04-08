@@ -49,7 +49,7 @@ namespace gpconnect_appointment_checker.Pages
             }
             if (!string.IsNullOrEmpty(selectedOrganisationType))
             {
-                searchOnBehalfOfResultsText.Append($"<p><em>{SearchConstants.SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT}</em>&nbsp;{selectedOrganisationType}</p>");
+                searchOnBehalfOfResultsText.Append($"<p><em>{SearchConstants.Searchresultssearchonbehalfoforgtypetext}</em>&nbsp;{selectedOrganisationType}</p>");
             }
             return searchOnBehalfOfResultsText.ToString();
         }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 

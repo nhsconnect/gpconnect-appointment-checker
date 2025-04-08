@@ -12,6 +12,9 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 using GpConnect.AppointmentChecker.Api.Service.Ldap;
 using System.Net;
+using gpconnect_appointment_checker.api.Service;
+using gpconnect_appointment_checker.api.Service.Interfaces;
+using StackExchange.Redis;
 using DalInterfaces = GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using DalServices = GpConnect.AppointmentChecker.Api.DAL;
 
@@ -19,7 +22,8 @@ namespace GpConnect.AppointmentChecker.Api.Core;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -40,11 +44,12 @@ public static class ServiceCollectionExtensions
         services.Configure<MeshConfig>(configuration.GetSection("MeshConfig"));
         services.Configure<HierarchyConfig>(configuration.GetSection("HierarchyConfig"));
         services.Configure<CacheConfig>(configuration.GetSection("CacheConfig"));
+        services.Configure<RedisConfig>(configuration.GetSection("Redis"));
 
         services.AddSingleton<ISqsClientFactory, SqsClientFactory>();
 
         services.AddScoped<DalInterfaces.IDataService, DalServices.DataService>();
-        services.AddScoped<IUserService, UserService>();        
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILogService, LogService>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IApplicationService, ApplicationService>();
@@ -55,8 +60,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFhirService, FhirService>();
         services.AddScoped<IFhirRequestExecution, FhirRequestExecution>();
         services.AddScoped<ILdapRequestExecution, LdapRequestExecution>();
-        services.AddScoped<ILdapService, LdapService>(); 
-        services.AddScoped<ISpineService, SpineService>();        
+        services.AddScoped<ILdapService, LdapService>();
+        services.AddScoped<ISpineService, SpineService>();
         services.AddScoped<IReportingService, ReportingService>();
         services.AddScoped<ICapabilityStatement, CapabilityStatement>();
         services.AddScoped<IGpConnectQueryExecutionService, GpConnectQueryExecutionService>();
@@ -72,6 +77,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInteractionService, InteractionService>();
         services.AddScoped<IReportingTokenDependencies, ReportingTokenDependencies>();
         services.AddScoped<IReportingTokenService, ReportingTokenService>();
+
+        var redisConnectionString = configuration.GetSection("Redis")["RedisConnectionString"]
+                                    ?? throw new Exception("Missing Redis connection string");
+
+        var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+
+        services.AddSingleton<IConnectionMultiplexer>(redis);
+        services.AddScoped<ICacheService, RedisCacheService>();
+
 
         services.AddResponseCaching();
         services.AddResponseCompression();
@@ -89,4 +103,3 @@ public static class ServiceCollectionExtensions
         return services;
     }
 }
-

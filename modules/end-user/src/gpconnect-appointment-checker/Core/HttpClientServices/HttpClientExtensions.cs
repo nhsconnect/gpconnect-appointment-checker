@@ -9,6 +9,8 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
+using gpconnect_appointment_checker.Core.HttpClientServices;
+using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 

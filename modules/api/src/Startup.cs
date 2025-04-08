@@ -10,7 +10,8 @@ public class Startup
 
     public Startup(IConfiguration configuration)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration)); ;
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        ;
     }
 
     public void ConfigureServices(IServiceCollection services)

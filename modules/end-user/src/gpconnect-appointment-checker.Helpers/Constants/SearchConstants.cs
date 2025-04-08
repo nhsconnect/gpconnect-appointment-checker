@@ -2,187 +2,262 @@
 {
     public class SearchConstants
     {
-        public const string ISSUEWITHODSCODESLABEL = "Issue with ODS codes";
-        public const string ISSUEWITHCONSUMERODSCODELABEL = "Issue with Consumer ODS code";
-        public const string ISSUEWITHPROVIDERODSCODELABEL = "Issue with Provider ODS code";
-        public const string ISSUEWITHGPCONNECTPROVIDERLABEL = "Issue with GP Connect Provider";
-        public const string ISSUEWITHGPCONNECTCONSUMERLABEL = "Issue with GP Connect Consumer";
-        public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMLABEL = "An error occured when sending a message to the provider system";
-        public const string ISSUEWITHLDAPLABEL = "An LDAP error has occurred";
-        public const string MULTIPLECODEHINTTEXT = "Please be aware that the search may take a while if multiple codes have been entered.";
+        public const string Issuewithodscodeslabel = "Issue with ODS codes";
+        public const string Issuewithconsumerodscodelabel = "Issue with Consumer ODS code";
+        public const string Issuewithproviderodscodelabel = "Issue with Provider ODS code";
+        public const string Issuewithgpconnectproviderlabel = "Issue with GP Connect Provider";
+        public const string Issuewithgpconnectconsumerlabel = "Issue with GP Connect Consumer";
 
-        public const string ACCESSLABEL = "Access to GP Connect Appointment Checker";
-        public const string ACCESSTEXT = "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
-        public const string ACCESSGRANTEDTEXT = "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
-        public const string ACCESSTEXTALT = "This application is restricted to registered users of the NHS. Please sign in to use it.";
-        public const string ACCESSTEXTREGISTERALT = "If you don't have an account, please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a>.";
+        public const string Issuewithsendingmessagetoprovidersystemlabel =
+            "An error occured when sending a message to the provider system";
 
-        public const string NOTREGISTEREDTEXT = "You are not registered to use the Appointment Checker.";
-        public const string NOTREGISTEREDLINKTEXT = "Please <a href=\"{0}\">" + CREATEACCOUNTBUTTONTEXT + "</a> for an account.";
-        
-        public const string CREATEACCOUNTINTERSTITIALLABEL = "Register for GP Connect Appointment Checker";
-        public const string CREATEACCOUNTINTERSTITIALTEXT = "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
-        public const string CREATEACCOUNTINTERSTITIALALTTEXT = "Or <a href=\"{0}\">Cancel</a> to return to the home page.";
+        public const string Issuewithldaplabel = "An LDAP error has occurred";
 
-        public const string CREATEACCOUNTCANCELTEXT = "If you do not wish to continue, please <a href=\"{0}\">" + CANCELTEXT + "</a> to return to the home page.";
-        
-        public const string USERNAMELABEL = "User name";
-        public const string JOBROLELABEL = "Job role";
-        public const string ORGANISATIONLABEL = "Organisation (if different to the one shown above)";
-        public const string ACCESSREQUESTREASONLABEL = "Reason for requesting access to the Appointment Checker.";
-        public const string ACCESSREQUESTREASONHINTTEXT = "Please provide as much information as possible, this will allow your account to be created quickly. For example, \"I am responsible for setting up slots across my PCN and want to check them.\"";
+        public const string Multiplecodehinttext =
+            "Please be aware that the search may take a while if multiple codes have been entered.";
 
-        public const string SIGNEDINTEXT = "Signed in to GP Connect Appointment Checker as {0}";
-        public const string RUNASEARCHTEXT = "Run a search";
-        public const string ALREADYHAVEANACCOUNTTEXT = "You already have an account and can use the Appointment Checker";
-        public const string SEARCHTEXT = "Search";
-        public const string ADMINTEXT = "Admin";
-        public const string REPORTSTEXT = "Reports";
-        public const string HOMETEXT = "Home";
-        public const string HELPTEXT = "Help";
-        public const string SIGNINBUTTONTEXT = "Sign in";
-        public const string CREATEACCOUNTBUTTONTEXT = "Register";
-        public const string CANCELTEXT = "Cancel";
-        public const string REGISTERTOUSETEXT = "Register to use the Appointment Checker";
+        public const string Accesslabel = "Access to GP Connect Appointment Checker";
 
-        public const string PENDINGACCOUNTTEXT = "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
-                
-        public const string ACCOUNTDISABLEDLABEL = "Account Disabled";
-        public const string REQUESTSUBMITTEDLABEL = "Request Submitted";
-        public const string REQUESTSUBMITTEDTEXT = "Your request to create an account has been submitted. You will receive an email as soon as your account has been set up.";
-        public const string REQUESTSUBMITTEDERRORTEXT = "There was a problem creating your Appointment Checker account. Please email <a href=\"mailto:{0}\">{0}</a> and your account will be set up manually.";
+        public const string Accesstext =
+            "You must be authorised to use this application. Please contact <a href=\"mailto:{0}?subject=Appointment%20checker%20user%20auth%20request\">{0}</a> to request access, providing your name, role and organisation.";
 
-        public const string SUBMITUSERFORMLABEL = "Access Denied";
-        public const string SUBMITUSERFORMTEXT = "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";
-        
-        public const string SIGNOUTBUTTONTEXT = "Sign out";
-        public const string DEAUTHORISEBUTTONTEXT = "De-authorise";
-        public const string AUTHORISEBUTTONTEXT = "Authorise";
+        public const string Accessgrantedtext =
+            "Once you have been granted access, please click <a href=\"{0}\">here</a> to return to the login page.";
 
-        public const string APPLYFILTERBUTTONTEXT = "Apply filters";
+        public const string Accesstextalt =
+            "This application is restricted to registered users of the NHS. Please sign in to use it.";
 
-        public const string PRIVACYANDCOOKIESTEXT = "Privacy and Cookies";
-        public const string ACCESSIBILITYSTATEMENTTEXT = "Accessibility Statement";
-        public const string TERMSANDCONDITIONSTEXT = "Terms and Conditions";
+        public const string Accesstextregisteralt =
+            "If you don't have an account, please <a href=\"{0}\">" + Createaccountbuttontext + "</a>.";
 
-        public const string ISSUEWITHODSCODESINPUTLABEL = "Issue with ODS codes entered";
-        public const string ISSUEWITHODSCODESINPUTTEXT = "Sorry, but you cannot enter multiple Provider ODS codes and multiple Consumer ODS codes at the same time.";
+        public const string Notregisteredtext = "You are not registered to use the Appointment Checker.";
 
-        public const string ISSUEWITHODSCODESTEXT = "Sorry, but the Provider ODS code '{0}' and the Consumer ODS code '{1}' have not been found";
-        public const string ISSUEWITHCONSUMERODSCODETEXT = "Sorry, but the Consumer ODS code '{0}' has not been found";
-        public const string ISSUEWITHPROVIDERODSCODETEXT = "Sorry, but the Provider ODS code '{0}' has not been found";
-        public const string ISSUEWITHGPCONNECTPROVIDERTEXT = "Sorry, this organisation is not enabled for GP Connect";
-        public const string ISSUEWITHGPCONNECTPROVIDERNOTENABLEDTEXT = "Sorry, but the Provider ODS code {0} is not enabled for GP Connect Appointment Management";
-        public const string ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT = "The Consumer ODS code {0} is not enabled for GP Connect";
+        public const string Notregisteredlinktext =
+            "Please <a href=\"{0}\">" + Createaccountbuttontext + "</a> for an account.";
 
-        public const string ISSUEWITHSENDINGMESSAGETOPROVIDERSYSTEMTEXT = "The error returned was \"{0} ({1})\".";
-        public const string ISSUEWITHLDAPTEXT = "The SDS server is currently unavailable. Please try your search again.";
+        public const string Createaccountinterstitiallabel = "Register for GP Connect Appointment Checker";
 
-        public const string ERRORHEADERTITLETEXT = "Error in GP Connect Appointment Checker";
-        public const string STATUSCODEERRORTITLETEXT = "Status Code Error in GP Connect Appointment Checker";
-        public const string ERRORTEXT = "Sorry, but it looks like an error has occurred in the application. The error has been logged and will be investigated.";
-        public const string RETURNTOHOMEPAGETEXT = "Please click here to return to the Home page.";
-        public const string RETURNTOSEARCHPAGETEXT = "Please click here to return to the Search page.";
+        public const string Createaccountinterstitialtext =
+            "<p>Your NHS Mail email address is needed to register to use the GP Connect Appointment Checker.</p><p>Please sign in with your NHS Mail account to start the registration process.</p>";
 
-        public const string ISSUEWITHTIMEOUTTITLETEXT = "Issue with timeout";
-        public const string ISSUEWITHTIMEOUTTEXT = "Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.";
-        
-        public const string SEARCHSTATSTEXT = "Search took {0} and completed at {1}";
+        public const string Createaccountinterstitialalttext =
+            "Or <a href=\"{0}\">Cancel</a> to return to the home page.";
 
-        public const string SEARCHSTATSCOUNTTEXT = "{0} free slot{1} found";
-        public const string SEARCHSTATSPASTCOUNTTEXT = "{0} past slot{1} found";
+        public const string Createaccountcanceltext = "If you do not wish to continue, please <a href=\"{0}\">" +
+                                                      Canceltext + "</a> to return to the home page.";
 
-        public const string SEARCHDETAILSBUTTONTEXT = "Details";
-        public const string SEARCHDETAILSLABEL = "Details:";
-        public const string BACKTORESULTSSUMMARYLABEL = "Back to results summary";
+        public const string Usernamelabel = "User name";
+        public const string Jobrolelabel = "Job role";
+        public const string Organisationlabel = "Organisation (if different to the one shown above)";
+        public const string Accessrequestreasonlabel = "Reason for requesting access to the Appointment Checker.";
 
-        public const string PROVIDERODSCODEREQUIREDERRORMESSAGE = "You must enter a provider ODS code";
-        public const string CONSUMERODSCODEREQUIREDERRORMESSAGE = "You must enter a consumer ODS code";
+        public const string Accessrequestreasonhinttext =
+            "Please provide as much information as possible, this will allow your account to be created quickly. For example, \"I am responsible for setting up slots across my PCN and want to check them.\"";
 
-        public const string CONSUMERORGTYPENOTENTEREDERRORMESSAGE = "You have not selected a consumer organisation type. You must enter a consumer ODS code";
-        public const string CONSUMERODSCODENOTENTEREDERRORMESSAGE = "You have not entered a consumer ODS code. You must select a consumer organisation type";
+        public const string Signedintext = "Signed in to GP Connect Appointment Checker as {0}";
+        public const string Runasearchtext = "Run a search";
 
-        public const string CONSUMERINPUTREQUIREDERRORMESSAGE = "You must enter a consumer ODS code OR select a consumer organisation type";
-        public const string JOBROLEREQUIREDERRORMESSAGE = "You must enter a job role";
-        public const string ORGANISATIONREQUIREDERRORMESSAGE = "You must enter an organisation";
-        public const string ACCESSREQUESTREASONREQUIREDERRORMESSAGE = "You must enter a reason";
+        public const string Alreadyhaveanaccounttext =
+            "You already have an account and can use the Appointment Checker";
 
-        public const string CONSUMERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of consumer ODS codes which you can enter ({0})";
-        public const string PROVIDERODSCODEMAXLENGTHERRORMESSAGE = "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
-        public const string PROVIDERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple provider ODS codes because multi search is not enabled";
-        public const string CONSUMERODSCODEMAXLENGTHMULTISEARCHNOTENABLEDERRORMESSAGE = "You cannot enter multiple consumer ODS codes because multi search is not enabled";
+        public const string Searchtext = "Search";
+        public const string Admintext = "Admin";
+        public const string Reportstext = "Reports";
+        public const string Hometext = "Home";
+        public const string Helptext = "Help";
+        public const string Signinbuttontext = "Sign in";
+        public const string Createaccountbuttontext = "Register";
+        public const string Canceltext = "Cancel";
+        public const string Registertousetext = "Register to use the Appointment Checker";
 
-        public const string PROVIDERODSCODEREPEATEDCODERRORMESSAGE = "Please remove the following repeated provider codes: {0}";
-        public const string CONSUMERODSCODEREPEATEDCODERRORMESSAGE = "Please remove the following repeated consumer codes: {0}";
+        public const string Pendingaccounttext =
+            "You have previously asked for an account to be created, and the request is pending. You will receive an email when the request has been authorised.";
 
-        public const string PROVIDERODSCODEVALIDERRORMESSAGE = "You must enter a valid provider ODS code";
-        public const string CONSUMERODSCODEVALIDERRORMESSAGE = "You must enter a valid consumer ODS code";
-        public const string USEREMAILADDRESSVALIDERRORMESSAGE = "You must enter a valid nhs.net email address";
-        public const string EMAILADDRESSREQUIREDERRORMESSAGE = "You must enter an nhs.net email address";
+        public const string Accountdisabledlabel = "Account Disabled";
+        public const string Requestsubmittedlabel = "Request Submitted";
 
-        public const string ADDNEWUSERTEXT = "Add a new user";
-        public const string NEWUSEREMAILADDRESS = ADDNEWUSERTEXT + ". Enter an nhs.net email address";
-        public const string SAVENEWUSERBUTTONTEXT = "Save";
-        public const string EXPORTSEARCHRESULTSBUTTONTEXT = "Export results";
-        public const string USERLISTTEXT = "User list";
+        public const string Requestsubmittedtext =
+            "Your request to create an account has been submitted. You will receive an email as soon as your account has been set up.";
 
-        public const string SUBMITBUTTONTEXT = "Submit";
-        public const string CONTINUEBUTTONTEXT = "Continue";
-        public const string CANCELBUTTONTEXT = "Cancel";
-        public const string CLEARBUTTONTEXT = "Clear";
-        public const string REGISTERBUTTONTEXT = "Start registration";
+        public const string Requestsubmittederrortext =
+            "There was a problem creating your Appointment Checker account. Please email <a href=\"mailto:{0}\">{0}</a> and your account will be set up manually.";
 
-        public const string SEARCHRESULTSSEARCHATHEADINGTEXT = "Search at";
-        public const string SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT = "Search on behalf of";
+        public const string Submituserformlabel = "Access Denied";
 
-        public const string SEARCHRESULTSSEARCHATTEXT = "Searching at:";
-        public const string SEARCHRESULTSPUBLISHERLABEL = "Provider system:";
-        public const string SEARCHRESULTSSEARCHONBEHALFOFTEXT = "Searching on behalf of:";
-        public const string SEARCHRESULTSSEARCHONBEHALFOFCONSUMERORGTYPETEXT = "Searching with organisation type:";
-        public const string SEARCHRESULTSSEARCHONBEHALFOFORGTYPETEXT = "Organisation type:";
-        public const string SEARCHRESULTSAVAILABLEAPPOINTMENTSLOTSTEXT = "Available Appointment Slots";
-        public const string SEARCHRESULTSNOAVAILABLEAPPOINTMENTSLOTSTEXT = "No available appointment slots found";
-        public const string SEARCHRESULTSNOADDRESSPROVIDEDTEXT = "(no address provided)";
-        public const string SEARCHRESULTSPASTSLOTSTEXT = "Past Appointment Slots";
+        public const string Submituserformtext =
+            "You do not have the necessary authorisation to use the Appointment Checker, or a previous request was denied. You need to complete a short form and confirm that you have agreed to the Terms and Conditions. Click on the button below to continue.";
 
-        public const string SEARCHRESULTSAPPOINTMENTDATECOLUMNHEADERTEXT = "Appointment date";
-        public const string SEARCHRESULTSSESSIONNAMECOLUMNHEADERTEXT = "Session name";
-        public const string SEARCHRESULTSSTARTTIMECOLUMNHEADERTEXT = "Start time";
-        public const string SEARCHRESULTSDURATIONCOLUMNHEADERTEXT = "Duration";
-        public const string SEARCHRESULTSSLOTTYPECOLUMNHEADERTEXT = "Slot type";
-        public const string SEARCHRESULTSMODEOFAPPOINTMENTCOLUMNHEADERTEXT = "Mode of appointment";
-        public const string SEARCHRESULTSPRACTITIONERCOLUMNHEADERTEXT = "Practitioner";
+        public const string Signoutbuttontext = "Sign out";
+        public const string Deauthorisebuttontext = "De-authorise";
+        public const string Authorisebuttontext = "Authorise";
 
-        public const string USERLISTRESULTSEMAILADDRESS = "Email";
-        public const string USERLISTRESULTSDISPLAYNAME = "Name (Organisation)";
-        public const string USERLISTRESULTSSTATUS = "Status";
-        public const string USERLISTRESULTSACCESSLEVEL = "Access Level";
-        public const string USERLISTRESULTSLASTLOGONDATE = "Last signed on";
-        public const string USERLISTRESULTSMULTISEARCHENABLED = "Multi Search?";
-        public const string USERLISTRESULTSACCESSREQUESTCOUNT = "Number of access requests";
-        public const string USERLISTRESULTSORGTYPESEARCHENABLED = "Org Type Search?";
-        public const string USERLISTRESULTSISADMIN = "Is Admin?";
+        public const string Applyfilterbuttontext = "Apply filters";
 
-        public const string SEARCHINPUTPROVIDERODSCODELABEL = "Enter a provider ODS code";
-        public const string SEARCHINPUTCONSUMERODSCODELABEL = "Enter a consumer ODS code";
-        public const string SEARCHINPUTCONSUMERORGANISATIONTYPELABEL = "Select a consumer organisation type";
+        public const string Privacyandcookiestext = "Privacy and Cookies";
+        public const string Accessibilitystatementtext = "Accessibility Statement";
+        public const string Termsandconditionstext = "Terms and Conditions";
 
-        public const string SEARCHINPUTPROVIDERODSCODEMULTILABEL = "Enter one or more provider ODS codes";
-        public const string SEARCHINPUTCONSUMERODSCODEMULTILABEL = "Enter one or more consumer ODS codes";
-        public const string SEARCHINPUTCONSUMERMULTILABEL = "Enter one or more consumer ODS codes, or select a consumer organisation type, or both";
+        public const string Issuewithodscodesinputlabel = "Issue with ODS codes entered";
 
-        public const string SEARCHBYCONSUMERODSCODETEXT = "Search by consumer ODS code";
-        public const string SEARCHBYCONSUMERORGANISATIONTYPETEXT = "Search by consumer organisation type";
+        public const string Issuewithodscodesinputtext =
+            "Sorry, but you cannot enter multiple Provider ODS codes and multiple Consumer ODS codes at the same time.";
 
-        public const string SEARCHINPUTPROVIDERODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one consumer ODS code in '" + SEARCHRESULTSSEARCHONBEHALFOFHEADINGTEXT + "' below.";
-        public const string SEARCHINPUTCONSUMERRODSCODEHINTTEXT = "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one provider ODS code in '" + SEARCHRESULTSSEARCHATHEADINGTEXT + "' above.";
+        public const string Issuewithodscodestext =
+            "Sorry, but the Provider ODS code '{0}' and the Consumer ODS code '{1}' have not been found";
 
-        public const string SEARCHINPUTMUSTENTERCONSUMERORGTYPEHINTTEXT = "Enter a consumer ODS code, or select a consumer organisation type, or both";
+        public const string Issuewithconsumerodscodetext = "Sorry, but the Consumer ODS code '{0}' has not been found";
+        public const string Issuewithproviderodscodetext = "Sorry, but the Provider ODS code '{0}' has not been found";
+        public const string Issuewithgpconnectprovidertext = "Sorry, this organisation is not enabled for GP Connect";
 
-        public const string SEARCHINPUTCONSUMERORGANISATIONTYPEHINTTEXT = "Select a consumer organisation type or enter a consumer ODS code above, or both";
+        public const string Issuewithgpconnectprovidernotenabledtext =
+            "Sorry, but the Provider ODS code {0} is not enabled for GP Connect Appointment Management";
 
-        public const string SEARCHINPUTDATERANGELABEL = "Select a date range";
-        public const string SEARCHFORFREESLOTSBUTTONTEXT = "Search for free slots";
-        public const string USERSFOUNDTEXT = "{0} user(s) found";
+        public const string Issuewithgpconnectconsumernotenabledtext =
+            "The Consumer ODS code {0} is not enabled for GP Connect";
+
+        public const string Issuewithsendingmessagetoprovidersystemtext = "The error returned was \"{0} ({1})\".";
+
+        public const string Issuewithldaptext =
+            "The SDS server is currently unavailable. Please try your search again.";
+
+        public const string Errorheadertitletext = "Error in GP Connect Appointment Checker";
+        public const string Statuscodeerrortitletext = "Status Code Error in GP Connect Appointment Checker";
+
+        public const string Errortext =
+            "Sorry, but it looks like an error has occurred in the application. The error has been logged and will be investigated.";
+
+        public const string Returntohomepagetext = "Please click here to return to the Home page.";
+        public const string Returntosearchpagetext = "Please click here to return to the Search page.";
+
+        public const string Issuewithtimeouttitletext = "Issue with timeout";
+
+        public const string Issuewithtimeouttext =
+            "Sorry, the search has timed out before it returned the results. The error has been logged and will be investigated.";
+
+        public const string Searchstatstext = "Search took {0} and completed at {1}";
+
+        public const string Searchstatscounttext = "{0} free slot{1} found";
+        public const string Searchstatspastcounttext = "{0} past slot{1} found";
+
+        public const string Searchdetailsbuttontext = "Details";
+        public const string Searchdetailslabel = "Details:";
+        public const string Backtoresultssummarylabel = "Back to results summary";
+
+        public const string Providerodscoderequirederrormessage = "You must enter a provider ODS code";
+        public const string Consumerodscoderequirederrormessage = "You must enter a consumer ODS code";
+
+        public const string Consumerorgtypenotenterederrormessage =
+            "You have not selected a consumer organisation type. You must enter a consumer ODS code";
+
+        public const string Consumerodscodenotenterederrormessage =
+            "You have not entered a consumer ODS code. You must select a consumer organisation type";
+
+        public const string Consumerinputrequirederrormessage =
+            "You must enter a consumer ODS code OR select a consumer organisation type";
+
+        public const string Jobrolerequirederrormessage = "You must enter a job role";
+        public const string Organisationrequirederrormessage = "You must enter an organisation";
+        public const string Accessrequestreasonrequirederrormessage = "You must enter a reason";
+
+        public const string Consumerodscodemaxlengtherrormessage =
+            "You have exceeded the maximum number of consumer ODS codes which you can enter ({0})";
+
+        public const string Providerodscodemaxlengtherrormessage =
+            "You have exceeded the maximum number of provider ODS codes which you can enter ({0})";
+
+        public const string Providerodscodemaxlengthmultisearchnotenablederrormessage =
+            "You cannot enter multiple provider ODS codes because multi search is not enabled";
+
+        public const string Consumerodscodemaxlengthmultisearchnotenablederrormessage =
+            "You cannot enter multiple consumer ODS codes because multi search is not enabled";
+
+        public const string Providerodscoderepeatedcoderrormessage =
+            "Please remove the following repeated provider codes: {0}";
+
+        public const string Consumerodscoderepeatedcoderrormessage =
+            "Please remove the following repeated consumer codes: {0}";
+
+        public const string Providerodscodevaliderrormessage = "You must enter a valid provider ODS code";
+        public const string Consumerodscodevaliderrormessage = "You must enter a valid consumer ODS code";
+        public const string Useremailaddressvaliderrormessage = "You must enter a valid nhs.net email address";
+        public const string Emailaddressrequirederrormessage = "You must enter an nhs.net email address";
+
+        public const string Addnewusertext = "Add a new user";
+        public const string Newuseremailaddress = Addnewusertext + ". Enter an nhs.net email address";
+        public const string Savenewuserbuttontext = "Save";
+        public const string Exportsearchresultsbuttontext = "Export results";
+        public const string Userlisttext = "User list";
+
+        public const string Submitbuttontext = "Submit";
+        public const string Continuebuttontext = "Continue";
+        public const string Cancelbuttontext = "Cancel";
+        public const string Clearbuttontext = "Clear";
+        public const string Refreshbuttontext = "Refresh";
+        public const string Registerbuttontext = "Start registration";
+
+        public const string Searchresultssearchatheadingtext = "Search at";
+        public const string Searchresultssearchonbehalfofheadingtext = "Search on behalf of";
+
+        public const string Searchresultssearchattext = "Searching at:";
+        public const string Searchresultspublisherlabel = "Provider system:";
+        public const string Searchresultssearchonbehalfoftext = "Searching on behalf of:";
+        public const string Searchresultssearchonbehalfofconsumerorgtypetext = "Searching with organisation type:";
+        public const string Searchresultssearchonbehalfoforgtypetext = "Organisation type:";
+        public const string Searchresultsavailableappointmentslotstext = "Available Appointment Slots";
+        public const string Searchresultsnoavailableappointmentslotstext = "No available appointment slots found";
+        public const string Searchresultsnoaddressprovidedtext = "(no address provided)";
+        public const string Searchresultspastslotstext = "Past Appointment Slots";
+
+        public const string Searchresultsappointmentdatecolumnheadertext = "Appointment date";
+        public const string Searchresultssessionnamecolumnheadertext = "Session name";
+        public const string Searchresultsstarttimecolumnheadertext = "Start time";
+        public const string Searchresultsdurationcolumnheadertext = "Duration";
+        public const string Searchresultsslottypecolumnheadertext = "Slot type";
+        public const string Searchresultsmodeofappointmentcolumnheadertext = "Mode of appointment";
+        public const string Searchresultspractitionercolumnheadertext = "Practitioner";
+
+        public const string Userlistresultsemailaddress = "Email";
+        public const string Userlistresultsdisplayname = "Name (Organisation)";
+        public const string Userlistresultsstatus = "Status";
+        public const string Userlistresultsaccesslevel = "Access Level";
+        public const string Userlistresultslastlogondate = "Last signed on";
+        public const string Userlistresultsmultisearchenabled = "Multi Search?";
+        public const string Userlistresultsaccessrequestcount = "Number of access requests";
+        public const string Userlistresultsorgtypesearchenabled = "Org Type Search?";
+        public const string Userlistresultsisadmin = "Is Admin?";
+
+        public const string Searchinputproviderodscodelabel = "Enter a provider ODS code";
+        public const string Searchinputconsumerodscodelabel = "Enter a consumer ODS code";
+        public const string Searchinputconsumerorganisationtypelabel = "Select a consumer organisation type";
+
+        public const string Searchinputproviderodscodemultilabel = "Enter one or more provider ODS codes";
+        public const string Searchinputconsumerodscodemultilabel = "Enter one or more consumer ODS codes";
+
+        public const string Searchinputconsumermultilabel =
+            "Enter one or more consumer ODS codes, or select a consumer organisation type, or both";
+
+        public const string Searchbyconsumerodscodetext = "Search by consumer ODS code";
+        public const string Searchbyconsumerorganisationtypetext = "Search by consumer organisation type";
+
+        public const string Searchinputproviderodscodehinttext =
+            "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one consumer ODS code in '" +
+            Searchresultssearchonbehalfofheadingtext + "' below.";
+
+        public const string Searchinputconsumerrodscodehinttext =
+            "Enter up to {0} codes, separated by a space or a comma. If you enter more than one, you can only enter one provider ODS code in '" +
+            Searchresultssearchatheadingtext + "' above.";
+
+        public const string Searchinputmustenterconsumerorgtypehinttext =
+            "Enter a consumer ODS code, or select a consumer organisation type, or both";
+
+        public const string Searchinputconsumerorganisationtypehinttext =
+            "Select a consumer organisation type or enter a consumer ODS code above, or both";
+
+        public const string Searchinputdaterangelabel = "Select a date range";
+        public const string Searchforfreeslotsbuttontext = "Search for free slots";
+        public const string Usersfoundtext = "{0} user(s) found";
+
+        public const string OdsLookup =
+            "If you don't know the ODS code for the organisation, <a href='{0}' target='_blank'>click here to find it</a>";
     }
 }

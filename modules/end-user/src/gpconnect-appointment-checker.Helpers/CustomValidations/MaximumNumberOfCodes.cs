@@ -6,22 +6,22 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
 {
     public class MaximumNumberOfCodesAttribute : ValidationAttribute
     {
-        public string _customErrorMessage { get; }
-        public string _multiSearchErrorMessage { get; }
-        private IHttpContextAccessor _httpContextAccessor { get; set; }
+        public string CustomErrorMessage { get; }
+        public string MultiSearchErrorMessage { get; }
+        private IHttpContextAccessor HttpContextAccessor { get; set; }
         private string _dependentProperty;
 
         public MaximumNumberOfCodesAttribute(string dependentProperty, string customErrorMessage, string multiSearchErrorMessage)
         {
             _dependentProperty = dependentProperty;
-            _customErrorMessage = customErrorMessage;
-            _multiSearchErrorMessage = multiSearchErrorMessage;
+            CustomErrorMessage = customErrorMessage;
+            MultiSearchErrorMessage = multiSearchErrorMessage;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            _httpContextAccessor = (IHttpContextAccessor)validationContext.GetService(typeof(IHttpContextAccessor));
-            var multiSearchEnabled = (_httpContextAccessor?.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false)).GetValueOrDefault();
+            HttpContextAccessor = (IHttpContextAccessor)validationContext.GetService(typeof(IHttpContextAccessor));
+            var multiSearchEnabled = (HttpContextAccessor?.HttpContext.User.GetClaimValue("MultiSearchEnabled").StringToBoolean(false)).GetValueOrDefault();
             var propertyTestedInfo = validationContext.ObjectType.GetProperty(this._dependentProperty);
             if (propertyTestedInfo == null)
             {
@@ -36,12 +36,12 @@ namespace gpconnect_appointment_checker.Helpers.CustomValidations
 
                 if(!multiSearchEnabled && valueElements > 1)
                 {
-                    return new ValidationResult(_multiSearchErrorMessage);
+                    return new ValidationResult(MultiSearchErrorMessage);
                 }
 
                 if (valueElements > (int)propertyTestedValue)
                 {
-                    var validationErrorMessage = multiSearchEnabled ? string.Format(_customErrorMessage, (int)propertyTestedValue) : _multiSearchErrorMessage;
+                    var validationErrorMessage = multiSearchEnabled ? string.Format(CustomErrorMessage, (int)propertyTestedValue) : MultiSearchErrorMessage;
                     return new ValidationResult(validationErrorMessage);
                 }
             }

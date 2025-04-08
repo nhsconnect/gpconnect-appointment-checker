@@ -1,15 +1,14 @@
+using System.Threading.Tasks;
+using gpconnect_appointment_checker.Models;
 using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
+namespace gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 
 public interface IUserService
 {
     Task<Organisation> GetOrganisationAsync(string odsCode);
-    Task<List<User>> GetUsersAsync(UserListSimple userListSimple);
-    Task<List<User>> GetUsersAsync(UserListAdvanced userListAdvanced);
+    Task<PagedData<User>> GetUsersAsync(UserListAdvanced userListAdvanced, int page);
     Task<User> LogonUser(LogonUser user);
     Task<User> LogoffUser(LogoffUser user);
     Task SetUserStatus(UserUpdateStatus userUpdateStatus);

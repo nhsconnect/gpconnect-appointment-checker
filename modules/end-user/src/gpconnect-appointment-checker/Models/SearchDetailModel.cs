@@ -27,7 +27,7 @@ namespace gpconnect_appointment_checker.Pages
         //public int SearchExportId { get; set; }
         public double SearchDuration { get; set; }
 
-        public string SearchStats => string.Format(SearchConstants.SEARCHSTATSTEXT, SearchDuration.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"));
+        public string SearchStats => string.Format(SearchConstants.Searchstatstext, SearchDuration.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"));
 
         public int SearchResultsTotalCount { get; set; }
         public int SearchResultsCurrentCount { get; set; }

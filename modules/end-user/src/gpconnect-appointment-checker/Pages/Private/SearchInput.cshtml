@@ -10,7 +10,7 @@
         <div class="nhsuk-card nhsuk-card--feature">
             <div class="nhsuk-card__content nhsuk-card__content--feature">
                 <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
-                    @SearchConstants.SEARCHINPUTDATERANGELABEL
+                    @SearchConstants.Searchinputdaterangelabel
                 </h2>
                 <div class="nhsuk-form-group">
                     <select asp-for="@Model.SelectedDateRange" asp-items="@Model.DateRanges" class="nhsuk-select" id="@Model.SelectedDateRange"></select>
@@ -20,9 +20,9 @@
 
         @if (Model.DisplayMultiSearchHelpText)
         {
-            <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.MULTIPLECODEHINTTEXT</div>
+            <div class="nhsuk-hint" id="multisearch-hint-text">@SearchConstants.Multiplecodehinttext</div>
         }
-        <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.SEARCHFORFREESLOTSBUTTONTEXT</button>
-        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.CLEARBUTTONTEXT</button>
+        <button class="nhsuk-button" asp-page-handler="Search" asp-route-providerOdsCode="@Model.ProviderOdsCode" asp-route-consumerOdsCode="@Model.ConsumerOdsCode" type="submit">@SearchConstants.Searchforfreeslotsbuttontext</button>
+        <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.Clearbuttontext</button>
     </div>
 </div>
