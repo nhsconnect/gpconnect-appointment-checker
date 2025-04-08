@@ -44,7 +44,6 @@ public static class ServiceCollectionExtensions
         services.Configure<MeshConfig>(configuration.GetSection("MeshConfig"));
         services.Configure<HierarchyConfig>(configuration.GetSection("HierarchyConfig"));
         services.Configure<CacheConfig>(configuration.GetSection("CacheConfig"));
-        services.Configure<RedisConfig>(configuration.GetSection("Redis"));
 
         services.AddSingleton<ISqsClientFactory, SqsClientFactory>();
 
