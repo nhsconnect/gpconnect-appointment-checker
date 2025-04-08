@@ -67,4 +67,3 @@ BEGIN
     WHERE u.user_id = _user_id;
 END;
 $function$;
-;
