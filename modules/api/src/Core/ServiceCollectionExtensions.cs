@@ -80,9 +80,13 @@ public static class ServiceCollectionExtensions
         var redisConnectionString = configuration.GetSection("Redis")["RedisConnectionString"]
                                     ?? throw new Exception("Missing Redis connection string");
 
-        var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+        var configurationOptions = ConfigurationOptions.Parse(redisConnectionString);
+        configurationOptions.Ssl = true;
+        configurationOptions.AbortOnConnectFail = false;
 
-        services.AddSingleton<IConnectionMultiplexer>(redis);
+        var connection = ConnectionMultiplexer.Connect(configurationOptions);
+
+        services.AddSingleton<IConnectionMultiplexer>(connection);
         services.AddScoped<ICacheService, RedisCacheService>();
 
 
