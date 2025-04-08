@@ -1,6 +1,6 @@
 drop function if exists application.set_user_is_admin;
 
-cCREATE OR REPLACE FUNCTION application.set_user_is_admin(
+CREATE OR REPLACE FUNCTION application.set_user_is_admin(
     _admin_user_id integer, 
     _user_id integer, 
     _is_admin boolean
