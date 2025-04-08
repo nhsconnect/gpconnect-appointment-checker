@@ -1,4 +1,4 @@
-drop function if exists application.set_user_status;
+DROP FUNCTION IF EXISTS application.set_user_status;
 
 CREATE OR REPLACE FUNCTION application.set_user_status(
     _user_id integer, 
@@ -48,11 +48,11 @@ BEGIN
 
     -- Only update if status has changed
     IF _status_changed THEN
-        UPDATE application.user
+        UPDATE application.user u
         SET
             user_account_status_id = _user_account_status_id,
             authorised_date = CASE WHEN _user_account_status_id = 2 THEN now() ELSE NULL END
-        WHERE user_id = _user_id;
+        WHERE u.user_id = _user_id;
 
         PERFORM audit.add_entry(
             _user_id, 
