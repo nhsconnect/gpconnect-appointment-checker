@@ -12,6 +12,7 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces.GpConnect;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces.Ldap;
 using GpConnect.AppointmentChecker.Api.Service.Ldap;
 using System.Net;
+using gpconnect_appointment_checker.api.Core.Caching;
 using gpconnect_appointment_checker.api.Service;
 using gpconnect_appointment_checker.api.Service.Interfaces;
 using StackExchange.Redis;
@@ -23,7 +24,7 @@ namespace GpConnect.AppointmentChecker.Api.Core;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration, IWebHostEnvironment environment)
     {
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -77,16 +78,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportingTokenDependencies, ReportingTokenDependencies>();
         services.AddScoped<IReportingTokenService, ReportingTokenService>();
 
-        var redisConnectionString = configuration.GetSection("Redis")["RedisConnectionString"]
-                                    ?? throw new Exception("Missing Redis connection string");
-
-        var configurationOptions = ConfigurationOptions.Parse(redisConnectionString);
-        configurationOptions.Ssl = true;
-        configurationOptions.AbortOnConnectFail = false;
-
-        var connection = ConnectionMultiplexer.Connect(configurationOptions);
-
-        services.AddSingleton<IConnectionMultiplexer>(connection);
+        services.AddRedisCache(configuration, environment.EnvironmentName);
         services.AddScoped<ICacheService, RedisCacheService>();
 
 
