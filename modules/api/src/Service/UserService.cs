@@ -384,7 +384,7 @@ public class UserService : IUserService
         parameters.Add("_organisation_id", user.OrganisationId);
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
-        await UpdateCacheRecord(result);
+        // await UpdateCacheRecord(result);
         return result;
     }
 
