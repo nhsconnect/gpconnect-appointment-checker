@@ -8,8 +8,8 @@ ARG BUILD_TAG
 ENV BUILD_TAG=$BUILD_TAG
 RUN apt-get update && apt-get install -y libldap-2.4-2
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
+EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 

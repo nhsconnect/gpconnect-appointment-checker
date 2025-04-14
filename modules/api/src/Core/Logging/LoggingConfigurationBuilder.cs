@@ -2,10 +2,10 @@
 
 public static class LoggingConfigurationBuilder
 {
-    public static void AddLoggingConfiguration(HostBuilderContext builderContext, ILoggingBuilder logging)
+    public static void AddLoggingConfiguration(ILoggingBuilder logging, IConfiguration configuration)
     {
         logging.ClearProviders();
         logging.SetMinimumLevel(LogLevel.Information);
-        logging.AddConfiguration(builderContext.Configuration.GetSection("Logging"));
+        logging.AddConfiguration(configuration.GetSection("Logging"));
     }
 }

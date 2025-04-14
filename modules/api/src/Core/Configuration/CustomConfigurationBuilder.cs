@@ -2,14 +2,13 @@ namespace GpConnect.AppointmentChecker.Api.Core.Configuration;
 
 public static class CustomConfigurationBuilder
 {
-    public static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+    public static void AddCustomConfiguration(ConfigurationManager configuration, IWebHostEnvironment environment)
     {
-        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-        builder.AddJsonFile($"appsettings.local.json", optional: true, reloadOnChange: true);
-
-        builder.AddEnvironmentVariables();
+        configuration
+            .SetBasePath(environment.ContentRootPath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables();
     }
 }
