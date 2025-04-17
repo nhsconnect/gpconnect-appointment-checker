@@ -13,6 +13,8 @@
     <PackageReference Include="Amazon.AspNetCore.DataProtection.SSM" Version="3.1.0" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.102.35" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.300.52" />
+    <PackageReference Include="AWSSDK.SSO" Version="3.7.400.135" />
+    <PackageReference Include="AWSSDK.SSOOIDC" Version="3.7.401.13" />
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
@@ -27,6 +29,11 @@
     <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="3.6.0" />
     <PackageReference Include="Npgsql" Version="6.0.11" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.AwsCloudWatch" Version="4.3.37" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
