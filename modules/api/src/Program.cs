@@ -1,53 +1,66 @@
-using Amazon.CloudWatchLogs;
-using Amazon.Runtime;
-using gpconnect_appointment_checker.api.Core.Logging;
-using GpConnect.AppointmentChecker.Api.Core;
-using GpConnect.AppointmentChecker.Api.Core.Configuration;
-using GpConnect.AppointmentChecker.Api.Core.Logging;
-using GpConnect.AppointmentChecker.Api.Core.Mapping;
-using NLog;
-using NLog.Web;
 using Serilog;
-using Serilog.Events;
 using Serilog.Formatting.Json;
+using Amazon.CloudWatchLogs;
+using GpConnect.AppointmentChecker.Api.Core;
 using Serilog.Sinks.AwsCloudWatch;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine("[Serilog SelfLog] " + msg));
 
 try
 {
-    var builder = WebApplication.CreateBuilder(args);
+    Log.Information("Starting web application");
+    var builder = WebApplication.CreateBuilder();
 
-    // Load Custom Configuration
-    CustomConfigurationBuilder.AddCustomConfiguration(builder.Configuration, builder.Environment);
+    // Add configuration files
+    builder.Configuration
+        .SetBasePath(builder.Environment.ContentRootPath)
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables();
 
+
+    // setup Serilog as sole log provider
+#if DEBUG
+    builder.Host.UseSerilog((context, services, loggerConfig) =>
+    {
+        loggerConfig
+            .ReadFrom.Configuration(context.Configuration)
+            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information);
+    });
+#else
+    builder.Host.UseSerilog((context, services, loggerConfig) =>
+    {
+        loggerConfig
+            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+            .WriteTo.AmazonCloudWatch(
+                logGroup: context.Configuration["Logging:LogGroupName"] ?? "/ecs/gpcac-application",
+                logStreamPrefix: context.Configuration["Logging:LogStreamPrefix"] ?? "gpcac-api-serilog",
+                cloudWatchClient: new AmazonCloudWatchLogsClient(Amazon.RegionEndpoint.EUWest2),
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
+                textFormatter: new JsonFormatter());
+    });
+#endif
+
+
+    // Add services
     builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
-
-    Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"Serilog: {msg}"));
-
-    // // Setup Logging
-    builder.Logging.ConfigureCloudWatchLogging(builder.Configuration);
-
-    // Register Services
-    builder.Services.AddOptions();
     builder.Services.AddHttpContextAccessor();
-
+    builder.Services.AddOptions();
     builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
-    // builder.Services.ConfigureLoggingServices(builder.Configuration);
 
-    var port = !builder.Environment.IsProduction() ? "5002" : "8080";
+    var port = builder.Environment.IsProduction() ? "8080" : "5002";
     var host = builder.Environment.IsProduction() ? "+" : "localhost";
     builder.WebHost.UseUrls($"http://{host}:{port}");
 
-
-    // Build the app
     var app = builder.Build();
+    Log.Information("Direct Serilog log — console sink test.");
 
-    // Configure Middleware Pipeline
     app.ConfigureApplicationBuilderServices(app.Environment);
-
-
-    //TODO: Remove AutoMapper - AutoMapper is the devil
-    MappingExtensions.ConfigureMappingServices();
 
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("Test log using ILogger — app has started tests 2.");
@@ -56,10 +69,10 @@ try
 }
 catch (Exception ex)
 {
-    Log.Error(ex, ex.Message);
-    throw;
+    Log.Fatal(ex, "Application start-up failed!");
 }
 finally
 {
-    LogManager.Shutdown();
+    // Flush logs and cleanly close logger on shutdown
+    Log.CloseAndFlush();
 }
