@@ -1,7 +1,7 @@
 using Serilog;
-using Serilog.Formatting.Json;
 using Amazon.CloudWatchLogs;
 using GpConnect.AppointmentChecker.Api.Core;
+using Serilog.Formatting.Json;
 using Serilog.Sinks.AwsCloudWatch;
 
 Log.Logger = new LoggerConfiguration()
@@ -25,14 +25,7 @@ try
 
 
     // setup Serilog as sole log provider
-#if DEBUG
-    builder.Host.UseSerilog((context, services, loggerConfig) =>
-    {
-        loggerConfig
-            .ReadFrom.Configuration(context.Configuration)
-            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information);
-    });
-#else
+
     builder.Host.UseSerilog((context, services, loggerConfig) =>
     {
         loggerConfig
@@ -43,8 +36,7 @@ try
                 cloudWatchClient: new AmazonCloudWatchLogsClient(Amazon.RegionEndpoint.EUWest2),
                 restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
                 textFormatter: new JsonFormatter());
-    });
-#endif
+    }, preserveStaticLogger: false);
 
 
     // Add services
