@@ -29,18 +29,11 @@ try
     builder.Host.UseSerilog((context, services, loggerConfig) =>
     {
         loggerConfig
-            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
-            .WriteTo.AmazonCloudWatch(
-                logGroup: context.Configuration["Logging:LogGroupName"] ?? "/ecs/gpcac-application",
-                logStreamPrefix: context.Configuration["Logging:LogStreamPrefix"] ?? "gpcac-api-serilog",
-                cloudWatchClient: new AmazonCloudWatchLogsClient(Amazon.RegionEndpoint.EUWest2),
-                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-                textFormatter: new JsonFormatter());
+            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information);
     }, preserveStaticLogger: false);
 
 
     // Add services
-    builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddOptions();
     builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
