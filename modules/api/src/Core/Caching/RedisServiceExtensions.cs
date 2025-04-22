@@ -13,12 +13,13 @@ public static class RedisServiceExtensions
         Console.WriteLine($"Redis connection string: {redisConnectionString}");
 
         var options = ConfigurationOptions.Parse(redisConnectionString);
-        options.Ssl = string.Equals(configuration.GetSection("Redis")["UseSsl"], "true",
-            StringComparison.OrdinalIgnoreCase);
+
+        // Always force these for AWS Valkey Serverless -- change to false when running redis via docker / or configure TLS on docker
+        options.Ssl = true;
+        options.AbortOnConnectFail = false;
 
         var redis = ConnectionMultiplexer.Connect(options);
         services.AddSingleton<IConnectionMultiplexer>(redis);
-
 
         return services;
     }
