@@ -25,14 +25,13 @@ try
     Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"Serilog: {msg}"));
 
     // // Setup Logging
-    builder.Logging.ConfigureCloudWatchLogging(builder.Configuration);
+    // builder.Logging.ConfigureCloudWatchLogging(builder.Configuration);
 
     // Register Services
     builder.Services.AddOptions();
     builder.Services.AddHttpContextAccessor();
 
     builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
-    // builder.Services.ConfigureLoggingServices(builder.Configuration);
 
     var port = !builder.Environment.IsProduction() ? "5002" : "8080";
     var host = builder.Environment.IsProduction() ? "+" : "localhost";
