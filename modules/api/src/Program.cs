@@ -5,6 +5,7 @@ using GpConnect.AppointmentChecker.Api.Core;
 using GpConnect.AppointmentChecker.Api.Core.Configuration;
 using GpConnect.AppointmentChecker.Api.Core.Logging;
 using GpConnect.AppointmentChecker.Api.Core.Mapping;
+using GpConnect.AppointmentChecker.Core.Configuration;
 using NLog;
 using NLog.Web;
 using Serilog;
@@ -18,11 +19,9 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // Load Custom Configuration
-    CustomConfigurationBuilder.AddCustomConfiguration(builder.Configuration, builder.Environment);
+    builder.Host.ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration);
 
     builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
-
-    Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"Serilog: {msg}"));
 
     // // Setup Logging
     // builder.Logging.ConfigureCloudWatchLogging(builder.Configuration);
@@ -32,6 +31,7 @@ try
     builder.Services.AddHttpContextAccessor();
 
     builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
+    // builder.Services.ConfigureLoggingServices(builder.Configuration);
 
     var port = !builder.Environment.IsProduction() ? "5002" : "8080";
     var host = builder.Environment.IsProduction() ? "+" : "localhost";
