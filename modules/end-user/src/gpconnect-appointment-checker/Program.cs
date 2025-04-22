@@ -29,7 +29,7 @@ try
     var authenticationExtensions = new AuthenticationExtensions(configuration);
     authenticationExtensions.ConfigureAuthenticationServices(services);
 
-    services.ConfigureLoggingServices(configuration);
+    // services.ConfigureLoggingServices(configuration);
     services.ConfigureApplicationServices(configuration, environment);
     services.AddScoped<ITokenService, TokenService>();
 

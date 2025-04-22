@@ -17,9 +17,14 @@ public static class RedisServiceExtensions
         // Always force these for AWS Valkey Serverless -- change to false when running redis via docker / or configure TLS on docker
         options.Ssl = true;
         options.AbortOnConnectFail = false;
-
-        var redis = ConnectionMultiplexer.Connect(options);
-        services.AddSingleton<IConnectionMultiplexer>(redis);
+    
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var logger = sp.GetRequiredService<ILogger<ConnectionMultiplexer>>();
+            var connection = ConnectionMultiplexer.Connect(options);
+            logger.LogInformation("Connected to Redis successfully.");
+            return connection;
+        });
 
         return services;
     }
