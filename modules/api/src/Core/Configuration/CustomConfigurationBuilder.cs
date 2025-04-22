@@ -6,7 +6,7 @@ namespace GpConnect.AppointmentChecker.Core.Configuration;
 
 public static class CustomConfigurationBuilder
 {
-    public static void AddCustomConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+    public static void AddCustomConfiguration(IConfigurationBuilder builder)
     {
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 

@@ -13,17 +13,12 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.AwsCloudWatch;
 
-
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Load Custom Configuration
-    builder.Host.ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration);
-
-    builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
-
-    // // Setup Logging
+    CustomConfigurationBuilder.AddCustomConfiguration(builder.Configuration);
+    // Setup Logging (commented out for now - you might want to enable it later)
     // builder.Logging.ConfigureCloudWatchLogging(builder.Configuration);
 
     // Register Services
@@ -33,10 +28,10 @@ try
     builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
     // builder.Services.ConfigureLoggingServices(builder.Configuration);
 
+    // Setup Host and Port based on environment
     var port = !builder.Environment.IsProduction() ? "5002" : "8080";
     var host = builder.Environment.IsProduction() ? "+" : "localhost";
     builder.WebHost.UseUrls($"http://{host}:{port}");
-
 
     // Build the app
     var app = builder.Build();
@@ -44,8 +39,7 @@ try
     // Configure Middleware Pipeline
     app.ConfigureApplicationBuilderServices(app.Environment);
 
-
-    //TODO: Remove AutoMapper - AutoMapper is the devil
+    // Configure Mapping (TODO: remove AutoMapper)
     MappingExtensions.ConfigureMappingServices();
 
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
