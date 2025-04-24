@@ -17,7 +17,7 @@ public static class RedisServiceExtensions
             var useSsl = string.Equals(useSslSetting, "true", StringComparison.OrdinalIgnoreCase);
 
             var options = ConfigurationOptions.Parse(connectionString);
-            options.AbortOnConnectFail = true; // Add this line
+            options.AbortOnConnectFail = true; 
             options.Ssl = useSsl;
 
             return ConnectionMultiplexer.Connect(options);
