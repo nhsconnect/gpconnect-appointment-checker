@@ -143,12 +143,6 @@ public class Tests
         var workbookPart = doc.WorkbookPart;
         var sheets = workbookPart?.Workbook.Descendants<Sheet>().ToList();
         sheets.ShouldNotBeNull();
-
-        Console.WriteLine(string.Join(", ", sheets.Select(s => s.Name)));
-
-        var sheetNames = sheets.Select(s => s.Name).ToList();
-        sheetNames.ForEach(name => Console.WriteLine($"Found sheet: {name}"));
-
         sheets.ShouldContain(s => s.Name == "Guidance");
         sheets.ShouldContain(s => s.Name == "Capability_Report_Test");
 
