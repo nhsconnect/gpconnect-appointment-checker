@@ -23,7 +23,8 @@ public class ReportingService : IReportingService
     private readonly IWorkflowService _workflowService;
     private readonly IInteractionService _interactionService;
 
-    public ReportingService(ILogger<ReportingService> logger, IMessageService messageService, IDataService dataService, IInteractionService interactionService, IWorkflowService workflowService)
+    public ReportingService(ILogger<ReportingService> logger, IMessageService messageService, IDataService dataService,
+        IInteractionService interactionService, IWorkflowService workflowService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
@@ -49,7 +50,8 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
     {
-        DataTable? dataTable = await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);
+        DataTable? dataTable =
+            await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);
         var memoryStream = CreateReport(dataTable, reportRequest.ReportName);
         return memoryStream;
     }
@@ -59,7 +61,7 @@ public class ReportingService : IReportingService
         var functionName = "reporting.get_transient_data";
         var parameters = new DynamicParameters();
         parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
-        var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);        
+        var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);
         var dataTable = response?.Data?.ConvertJsonDataToDataTable("ODS_Code");
         return CreateReport(dataTable, reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
     }
@@ -72,13 +74,18 @@ public class ReportingService : IReportingService
             switch (routeReportRequest.ReportId.ToLower())
             {
                 case "accessrecordstructured":
-                    transientData = await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(routeReportRequest);
+                    transientData =
+                        await _interactionService.CreateInteractionData<AccessRecordStructuredReporting>(
+                            routeReportRequest);
                     break;
                 case "appointmentmanagement":
-                    transientData = await _interactionService.CreateInteractionData<AppointmentManagementReporting>(routeReportRequest);
+                    transientData =
+                        await _interactionService.CreateInteractionData<AppointmentManagementReporting>(
+                            routeReportRequest);
                     break;
                 case "accessrecordhtml":
-                    transientData = await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
+                    transientData =
+                        await _interactionService.CreateInteractionData<AccessRecordHtmlReporting>(routeReportRequest);
                     break;
                 case "updaterecord":
                 case "senddocument":
@@ -87,6 +94,7 @@ public class ReportingService : IReportingService
                 default:
                     break;
             }
+
             if (transientData != null)
             {
                 await CreateTransientData(transientData, routeReportRequest);
@@ -94,7 +102,8 @@ public class ReportingService : IReportingService
         }
         catch (Exception exc)
         {
-            _logger?.LogError(exc, "An error has occurred while attempting to execute the function 'CreateInteractionData'");
+            _logger?.LogError(exc,
+                "An error has occurred while attempting to execute the function 'CreateInteractionData'");
             throw;
         }
     }
@@ -107,8 +116,10 @@ public class ReportingService : IReportingService
             var parameters = new DynamicParameters();
             parameters.Add("_transient_id", routeReportRequest.ObjectKeyJson, DbType.String, ParameterDirection.Input);
             parameters.Add("_transient_data", transientData, DbType.String, ParameterDirection.Input);
-            parameters.Add("_transient_report_id", routeReportRequest.ReportId, DbType.String, ParameterDirection.Input);
-            parameters.Add("_transient_report_name", routeReportRequest.ReportName, DbType.String, ParameterDirection.Input);
+            parameters.Add("_transient_report_id", routeReportRequest.ReportId, DbType.String,
+                ParameterDirection.Input);
+            parameters.Add("_transient_report_name", routeReportRequest.ReportName, DbType.String,
+                ParameterDirection.Input);
             await _dataService.ExecuteQuery(functionName, parameters);
         }
     }
@@ -116,11 +127,12 @@ public class ReportingService : IReportingService
     public async Task<MemoryStream> ExportBySpineMessage(int spineMessageId, string reportName)
     {
         var parameters = new Dictionary<string, int>
-            {
-                { "_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId) },
-                { "_spine_message_id", spineMessageId }
-            };
-        var result = await _dataService.ExecuteFunctionAndGetDataTable("application.get_spine_message_by_id", parameters);
+        {
+            { "_user_id", LoggingHelper.GetIntegerValue(Helpers.Constants.Headers.UserId) },
+            { "_spine_message_id", spineMessageId }
+        };
+        var result =
+            await _dataService.ExecuteFunctionAndGetDataTable("application.get_spine_message_by_id", parameters);
         return CreateReport(result);
     }
 
@@ -145,16 +157,18 @@ public class ReportingService : IReportingService
         return result;
     }
 
-    public MemoryStream CreateReport(DataTable? result, string reportName = "", List<ReportFilterRequest>? reportFilterRequest = null)
+    public MemoryStream CreateReport(DataTable? result, string reportName = "",
+        List<ReportFilterRequest>? reportFilterRequest = null)
     {
         try
         {
             var memoryStream = new MemoryStream();
             if (result != null)
-            {                
+            {
                 reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
 
-                using (var spreadsheetDocument = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
+                using (var spreadsheetDocument =
+                       SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
                 {
                     var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
                     workbookPart.Workbook = new Workbook();
@@ -163,19 +177,26 @@ public class ReportingService : IReportingService
                     workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
                     workbookStylesPart.Stylesheet.Save();
 
+                    // create cover sheet
+                    CreateDataDictionarySheet(spreadsheetDocument, "Guidance");
+
                     if (reportFilterRequest != null)
                     {
                         for (var i = 0; i < reportFilterRequest.Count; i++)
                         {
-                            var filteredList = result.AsEnumerable().Where(r => r.Field<string>(reportFilterRequest[i].FilterColumn) == reportFilterRequest[i].FilterValue);
-                            if (filteredList.Any())
-                            {
-                                CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1, reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
-                                var toDelete = new List<DataRow>();
-                                toDelete.AddRange(filteredList.AsEnumerable());
-                                toDelete.ForEach(dr => result.Rows.Remove(dr));
-                            }
+                            var filteredList = result.AsEnumerable().Where(r =>
+                                r.Field<string>(reportFilterRequest[i].FilterColumn) ==
+                                reportFilterRequest[i].FilterValue);
+
+                            if (!filteredList.Any()) continue;
+
+                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1,
+                                reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
+                            var toDelete = new List<DataRow>();
+                            toDelete.AddRange(filteredList.AsEnumerable());
+                            toDelete.ForEach(dr => result.Rows.Remove(dr));
                         }
+
                         CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
                     }
                     else
@@ -183,12 +204,12 @@ public class ReportingService : IReportingService
                         CreateSheet(result, reportName, spreadsheetDocument, 1);
                     }
 
-                    spreadsheetDocument.WorkbookPart.Workbook.Save();
-                    spreadsheetDocument.Dispose();
+                    spreadsheetDocument.WorkbookPart?.Workbook.Save();
                 }
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
             }
+
             return memoryStream;
         }
         catch (Exception ex)
@@ -198,7 +219,8 @@ public class ReportingService : IReportingService
         }
     }
 
-    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument, int sheetId, string? filterValue = null, string? filterTab = null)
+    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument,
+        int sheetId, string? filterValue = null, string? filterTab = null)
     {
         var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
@@ -208,7 +230,8 @@ public class ReportingService : IReportingService
         worksheetPart.Worksheet.Append(columns);
         worksheetPart.Worksheet.Append(sheetData);
 
-        var sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>() ?? spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
+        var sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>() ??
+                     spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
         var relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart);
 
         BuildWorksheetHeader(sheetData, filterValue != null ? $"{reportName} - {filterValue}" : $"{reportName}");
@@ -217,7 +240,11 @@ public class ReportingService : IReportingService
 
         if (result.Rows.Count > 0)
         {
-            Sheet sheet = new() { Id = relationshipId, SheetId = (uint)sheetId, Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other") };
+            Sheet sheet = new()
+            {
+                Id = relationshipId, SheetId = (uint)sheetId,
+                Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other")
+            };
             sheets.Append(sheet);
         }
     }
@@ -227,7 +254,8 @@ public class ReportingService : IReportingService
         var columns = new Columns();
         for (var i = 0; i < result.Columns.Count; i++)
         {
-            var maxColumnLength = result.AsEnumerable().Max(row => row.Field<object>(result.Columns[i].ColumnName)?.ToString()?.Length);
+            var maxColumnLength = result.AsEnumerable()
+                .Max(row => row.Field<object>(result.Columns[i].ColumnName)?.ToString()?.Length);
             var columnNameLength = result.Columns[i].ColumnName.Length;
             var col = new Column
             {
@@ -238,6 +266,7 @@ public class ReportingService : IReportingService
             };
             columns.AppendChild(col);
         }
+
         return columns;
     }
 
@@ -258,6 +287,7 @@ public class ReportingService : IReportingService
                 };
                 row.AppendChild(cell);
             }
+
             sheetData.AppendChild(row);
         }
     }
@@ -270,11 +300,13 @@ public class ReportingService : IReportingService
             var column = new Cell
             {
                 DataType = CellValues.String,
-                CellValue = new CellValue(dataColumnCollection[j].ColumnName.SearchAndReplace(new Dictionary<string, string>() { { "_", " " } })),
+                CellValue = new CellValue(dataColumnCollection[j].ColumnName
+                    .SearchAndReplace(new Dictionary<string, string>() { { "_", " " } })),
                 StyleIndex = 2
             };
             headerRow.AppendChild(column);
         }
+
         sheetData.AppendChild(headerRow);
     }
 
@@ -303,5 +335,90 @@ public class ReportingService : IReportingService
 
         var row3 = new Row { Height = 30 };
         sheetData.AppendChild(row3);
+    }
+
+    private static void CreateDataDictionarySheet(SpreadsheetDocument doc, string sheetName)
+    {
+        var worksheetPart = doc?.WorkbookPart?.AddNewPart<WorksheetPart>() ??
+                            throw new InvalidOperationException(" Workbook part is null");
+
+        var sheetData = new SheetData();
+
+        // Headers row
+        var headerRow = new Row();
+        headerRow.Append(
+            CreateTextCell("A", "Column"),
+            CreateTextCell("B", "Heading"),
+            CreateTextCell("C", "Description"),
+            CreateTextCell("D", "Example Data")
+        );
+        sheetData.Append(headerRow);
+
+        // Add your rows here:
+        var rows = new[]
+        {
+            ("A", "ODS Code", "A unique code to identify each healthcare organisation in England", "A81021"),
+            ("B", "Supplier name", "Attempts to identify GP IT suppliers using a static, rarely updated lookup table.",
+                "Egton medical Information Systems Limited (EMIS)"),
+            ("C", "Site name", "The name of the practice held within the ODS.", "Normanby Medical Centre"),
+            ("D", "Post-code", "The postal code of the practice held within the ODS.", "TS6 6TD"),
+            ("E", "ICB", "The parent organisation of the practice.", "NHS Northeast and North Cumbria ICB – 16C (16C)"),
+            ("F", "Higher Health Authority", "The parent organisation of the ICB.",
+                "NHS Northeast and North Cumbria Integrated Care Board (QHM)"),
+            ("G", "Commissioning Region", "The commissioning region of the practice and ICB.",
+                "Northeast and Yorkshire Commissioning Region (Y63)"),
+            ("H", "Version", "The version of Access Record: Structured deployed in the target GP practice", "v1.5.0"),
+            ("I", "Operation", "The FHIR operation called to determine status", "gpc.getstructuredrecord"),
+            ("J", "Allergies", "Can the practice flow Allergy info", "Active"),
+            ("K", "Medications", "Can the practice flow Medication info", "Inactive"),
+            ("L", "Immunisations", "Can the practice flow Immunisation info", "Active"),
+            ("M", "Problems", "Can the practice flow Problem info", "Active"),
+            ("N", "Consultations", "Can the practice flow Encounter-based info", "Inactive"),
+            ("O", "Uncategorised Data", "Flows Observation-based info – e.g., vitals", "Active"),
+            ("P", "Investigations", "Flows Investigation-based info – e.g., pathology", "Active"),
+            ("Q", "Diary Entries", "Flows Diary entry-based info", "Active"),
+            ("R", "Referrals", "Flows Referral entry-based info", "Inactive"),
+            ("S", "Documents", "Has Access Record: Document enabled", "Active"),
+            ("T", "Documents Version", "Version of Access Record: Documents", "Not available")
+        };
+
+        foreach (var (col, heading, desc, example) in rows)
+        {
+            var row = new Row();
+            row.Append(CreateTextCell("A", col));
+            row.Append(CreateTextCell("B", heading));
+            row.Append(CreateTextCell("C", desc));
+            row.Append(CreateTextCell("D", example));
+            sheetData.Append(row);
+        }
+
+        worksheetPart.Worksheet = new Worksheet(sheetData);
+
+        // Ensure Sheets collection exists before use
+        var workbook = doc.WorkbookPart.Workbook;
+        if (workbook.Sheets == null)
+        {
+            workbook.AppendChild(new Sheets());
+        }
+
+        var sheets = workbook.Sheets;
+
+        var sheetId = (uint)(sheets.Count() + 1);
+        var sheet = new Sheet
+        {
+            Id = doc.WorkbookPart.GetIdOfPart(worksheetPart),
+            SheetId = sheetId,
+            Name = sheetName
+        };
+        sheets.Append(sheet);
+    }
+
+    private static Cell CreateTextCell(string column, string text)
+    {
+        return new Cell
+        {
+            DataType = CellValues.String,
+            CellValue = new CellValue(text)
+        };
     }
 }
