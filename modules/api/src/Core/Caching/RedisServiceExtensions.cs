@@ -11,8 +11,7 @@ public static class RedisServiceExtensions
         {
             string connectionString = configuration.GetSection("Redis")["RedisConnectionString"]
                 ?? throw new Exception("Missing Redis connection string");
-            Console.WriteLine($"Cache connection string: {connectionString}");
-
+            
             var useSslSetting = configuration.GetSection("Redis")["UseSsl"];
             var useSsl = string.Equals(useSslSetting, "true", StringComparison.OrdinalIgnoreCase);
 
