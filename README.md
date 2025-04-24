@@ -57,7 +57,7 @@ listen_addresses = '*'
 
 This will allow Docker to speak to the Postgres host, if you don't wish to open to all IP ranges you can modify to specific host IP of docker.
 
-### Step 1: Create Local Database
+### Step 1: Create a Local Database
 
 Open PG Admin and create a new local database called gpcac . You can use the following command or the user interface, whichever you prefer:
 
@@ -65,7 +65,7 @@ Open PG Admin and create a new local database called gpcac . You can use the fol
 CREATE DATABASE gpcac;
 ```
 
-### Step 2: Create Database Migration Image
+### Step 2: Create a Database Migration Image
 
 You'll need to create the docker image for the dbpatcher by:
 
@@ -289,6 +289,37 @@ You should now be ready to run the application
 - Run the end user application using the dotnet run command, or in the IDE of your choice. Ensure that when running, the application runs at localhost:5001
 - Running the end user application using IIS or on any other port than `:5001`  will prevent you from being able to pass through authentication, as the `LOCAL DEV SSO` registration is configured to work with requests from `localhost:5001` only
 
+## Build and run via Docker
+
+Create a blank database in postgres, then build and run the docker database image to patch your blank database, replacing the `PG_` variables with your postgres database connection details:
+
+```
+cd database
+docker build -t gpconnect-appointment-checker-dbpatcher .
+docker run --rm gpconnect-appointment-checker-dbpatcher -url=jdbc:postgresql://PG_HOST/PG_DBNAME -user=PG_USER -password=PG_PASS migrate
+```
+
+before running the API start redis container...
+
+```
+docker run --name gpcac-valkey --network gpconnect-appointment-checker_gpcac -p 6379:6379 -d valkey/valkey:latest
+```
+
+ensure --name is and port is same in appsettings.json
+
+Then build and run the docker application image as follows, replacing the `PG_` variables with your postgres database connection details:
+
+```
+cd modules/api
+docker build -t gpconnect-appointment-checker-application .
+docker run -d --network gpconnect-appointment-checker_gpcac -p 8000:8080 -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" --name gpconnect-appointment-checker-application gpconnect-appointment-checker-application
+```
+
+To run over HTTPS replace the last command above with the following, replacing the `PG_` variables with your postgres database connection details, and supplying the path to PFX file via the command line:
+
+```
+docker run -d -p 5001:443 -e ASPNETCORE_URLS="https://+" -e ASPNETCORE_HTTPS_PORT=5001 -e ASPNETCORE_Kestrel__Certificates__Default__Path=/certs/localhost.pfx -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" -v /path/to/certs:/certs --name gpconnect-appointment-checker-application gpconnect-appointment-checker-application
+```
 
 
 ## Test

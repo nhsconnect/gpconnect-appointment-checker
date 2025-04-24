@@ -7,20 +7,21 @@ public static class RedisServiceExtensions
     public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration,
         string environmentName)
     {
-        var redisConnectionString = configuration.GetSection("Redis")["RedisConnectionString"]
-                                    ?? throw new Exception("Missing Redis connection string");
-
-        var useSslSetting = configuration.GetSection("Redis")["UseSsl"];
-        var useSsl = string.Equals(useSslSetting, "true", StringComparison.OrdinalIgnoreCase);
-
-        var options = new ConfigurationOptions
+        services.AddSingleton<IConnectionMultiplexer>(provider =>
         {
-            EndPoints = { redisConnectionString },
-            Ssl = useSsl
-        };
+            string connectionString = configuration.GetSection("Redis")["RedisConnectionString"]
+                ?? throw new Exception("Missing Redis connection string");
+            Console.WriteLine($"Cache connection string: {connectionString}");
 
-        var redis = ConnectionMultiplexer.Connect(options);
-        services.AddSingleton<IConnectionMultiplexer>(redis);
+            var useSslSetting = configuration.GetSection("Redis")["UseSsl"];
+            var useSsl = string.Equals(useSslSetting, "true", StringComparison.OrdinalIgnoreCase);
+
+            var options = ConfigurationOptions.Parse(connectionString);
+            options.AbortOnConnectFail = true; // Add this line
+            options.Ssl = useSsl;
+
+            return ConnectionMultiplexer.Connect(options);
+        });
 
         return services;
     }
