@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\api\src\gpconnect-appointment-checker.api.csproj" />
       <ProjectReference Include="..\src\gpconnect-appointment-checker.api.csproj" />
     </ItemGroup>
 

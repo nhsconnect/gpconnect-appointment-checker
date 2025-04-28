@@ -15,21 +15,21 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 
-COPY gpconnect-appointment-checker.api.sln ./
-COPY src/gpconnect-appointment-checker.api/gpconnect-appointment-checker.api.csproj ./src/gpconnect-appointment-checker.api/
+COPY src/*.csproj ./src/
 
-# Restore the dependencies only for the main API project
-RUN dotnet restore src/gpconnect-appointment-checker.api/gpconnect-appointment-checker.api.csproj
+# Restore only the API project
+RUN dotnet restore ./src/gpconnect-appointment-checker.api.csproj
 
-# Copy only the API project files (excluding tests)
-COPY src/gpconnect-appointment-checker.api ./src/gpconnect-appointment-checker.api/
+COPY . .
 
-# Build the main application project (not the test projects)
-RUN dotnet build src/gpconnect-appointment-checker.api/gpconnect-appointment-checker.api.csproj -c Debug -o /app/build
+# Build only the API project
+RUN dotnet build ./src/gpconnect-appointment-checker.api.csproj -c Debug -o /app/build
 
 FROM build AS publish
-WORKDIR /src/src/gpconnect-appointment-checker.api
-RUN dotnet publish -c Debug -o /app/publish
+WORKDIR /src/src
+
+# Publish only the API project
+RUN dotnet publish gpconnect-appointment-checker.api.csproj -c Debug -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
