@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-appointment-checker.api", "src\gpconnect-appointment-checker.api.csproj", "{031C3374-0CBA-47F0-87E0-6F1C633ECE33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GpConnect.AppointmentChecker.Api.Tests", "..\Tests\GpConnect.AppointmentChecker.Api.Tests\GpConnect.AppointmentChecker.Api.Tests.csproj", "{7584182F-2FB9-4C0C-AAF1-97767929DE98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,14 @@ Global
 		{031C3374-0CBA-47F0-87E0-6F1C633ECE33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{031C3374-0CBA-47F0-87E0-6F1C633ECE33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{031C3374-0CBA-47F0-87E0-6F1C633ECE33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0276F53-2428-411E-BCEA-92F306FC4320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0276F53-2428-411E-BCEA-92F306FC4320}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0276F53-2428-411E-BCEA-92F306FC4320}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0276F53-2428-411E-BCEA-92F306FC4320}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7584182F-2FB9-4C0C-AAF1-97767929DE98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7584182F-2FB9-4C0C-AAF1-97767929DE98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7584182F-2FB9-4C0C-AAF1-97767929DE98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7584182F-2FB9-4C0C-AAF1-97767929DE98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
