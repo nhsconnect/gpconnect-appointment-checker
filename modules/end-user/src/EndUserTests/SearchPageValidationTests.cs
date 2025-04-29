@@ -138,6 +138,6 @@ public class SearchModelTests
         _searchModel.ModelState.IsValid.Should().BeFalse();
         _searchModel.ModelState["ProviderOdsCode"]
             ?.Errors.Should()
-            .Contain(error => error.ErrorMessage == SearchConstants.Issuewithodscodesinputtext);
+            .Contain(error => error.ErrorMessage == SearchConstants.IssueWithOdsCodesInputText);
     }
 }

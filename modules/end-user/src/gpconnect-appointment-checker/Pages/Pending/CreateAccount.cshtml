@@ -13,13 +13,13 @@
 <form method="post" id="search-input-form">
     <div class="nhsuk-grid-row">
         <div class="nhsuk-grid-column-full">
-            <h2>@SearchConstants.Registertousetext</h2>
+            <h2>@SearchConstants.RegisterToUseText</h2>
             <div class="nhsuk-form-group">
                 <label class="nhsuk-label" for="input-username">@SearchConstants.Usernamelabel</label>
                 <input class="nhsuk-input" id="input-username" asp-for="@Model.UserName" name="username" value="@Model.UserName" type="text" disabled>
             </div>
             <div class="nhsuk-form-group @(jobRoleInvalid ? "nhsuk-form-group--error": string.Empty)">
-                <label class="nhsuk-label" for="input-jobrole">@SearchConstants.Jobrolelabel</label>
+                <label class="nhsuk-label" for="input-jobrole">@SearchConstants.JobRoleLabel</label>
                 @if (jobRoleInvalid)
                 {
                     @Html.ValidationMessageFor(m => m.JobRole, "", new { @class = "nhsuk-error-message" })
@@ -34,7 +34,7 @@
             <input type="hidden" name="DisplayName" id="DisplayName" value="@Model.DisplayName" />
 
             <div class="nhsuk-form-group @(organisationInvalid ? "nhsuk-form-group--error": string.Empty)">
-                <label class="nhsuk-label" for="input-organisation">@SearchConstants.Organisationlabel</label>
+                <label class="nhsuk-label" for="input-organisation">@SearchConstants.OrganisationLabel</label>
                 @if (organisationInvalid)
                 {
                     @Html.ValidationMessageFor(m => m.Organisation, "", new { @class = "nhsuk-error-message" })
@@ -42,8 +42,8 @@
                 <input class="nhsuk-input @(organisationInvalid ? "nhsuk-input--error": string.Empty)" id="input-organisation" no-validate asp-for="@Model.Organisation" name="organisation" value="@Model.Organisation" type="text">
             </div>
             <div class="nhsuk-form-group @(accessRequestReasonInvalid ? "nhsuk-form-group--error": string.Empty)">
-                <label class="nhsuk-label" for="input-accessrequestreason">@SearchConstants.Accessrequestreasonlabel</label>
-                <div class="nhsuk-hint" id="input-accessrequestreason-hint-text">@SearchConstants.Accessrequestreasonhinttext</div>
+                <label class="nhsuk-label" for="input-accessrequestreason">@SearchConstants.AccessRequestReasonLabel</label>
+                <div class="nhsuk-hint" id="input-accessrequestreason-hint-text">@SearchConstants.AccessRequestReasonHintText</div>
                 @if (accessRequestReasonInvalid)
                 {
                     @Html.ValidationMessageFor(m => m.AccessRequestReason, "", new { @class = "nhsuk-error-message" })
@@ -54,10 +54,10 @@
                 <p>By clicking on "Submit", you agree to abide by the Appointment Checker <a target="_blank" href="/TermsAndConditions">Terms and Conditions</a>&nbsp;(opens in a new window)</p>
             </div>
 
-            <button class="nhsuk-button" asp-page-handler="SendForm" type="submit">@SearchConstants.Submitbuttontext</button>
-            <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.Clearbuttontext</button>
+            <button class="nhsuk-button" asp-page-handler="SendForm" type="submit">@SearchConstants.SubmitButtonText</button>
+            <button class="nhsuk-button nhsuk-button--secondary" asp-page-handler="Clear" type="submit">@SearchConstants.ClearButtonText</button>
 
-            <p>@Html.Raw(string.Format(SearchConstants.Createaccountcanceltext, "/"))</p>
+            <p>@Html.Raw(string.Format(SearchConstants.CreateAccountCancelText, "/"))</p>
         </div>
     </div>
 </form>

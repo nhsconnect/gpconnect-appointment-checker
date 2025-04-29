@@ -9,7 +9,7 @@
 <div class="nhsuk-card nhsuk-card--feature">
     <div class="nhsuk-card__content nhsuk-card__content--feature">
         <h2 class="nhsuk-card__heading nhsuk-card__heading--feature nhsuk-heading-m">
-            @SearchConstants.Searchresultssearchonbehalfofheadingtext
+            @SearchConstants.SearchResultsSearchOnBehalfOfHeadingText
         </h2>
         <div class="nhsuk-form-group @(consumerOdsCodeInvalid ? "nhsuk-form-group--error" : string.Empty)">
             <label class="nhsuk-label" for="input-consumerodscode">@Model.ConsumerOdsCodeInputBoxLabel</label>
@@ -32,7 +32,7 @@
         @if (Model.ConsumerOrgTypeSearchEnabled)
         {
             <div class="nhsuk-form-group @(consumerOrganisationTypeInvalid ? "nhsuk-form-group--error" : string.Empty)">
-                <label class="nhsuk-label" for="@Model.SelectedOrganisationType">@SearchConstants.Searchinputconsumerorganisationtypelabel</label>
+                <label class="nhsuk-label" for="@Model.SelectedOrganisationType">@SearchConstants.SearchInputConsumerOrganisationTypeLabel</label>
                 @if (consumerOrganisationTypeInvalid)
                 {
                     @Html.ValidationMessageFor(m => m.SelectedOrganisationType, "", new { @class = "nhsuk-error-message" })

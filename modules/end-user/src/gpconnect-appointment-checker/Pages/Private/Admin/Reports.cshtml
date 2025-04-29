@@ -15,8 +15,8 @@
                 @Html.ValidationMessageFor(m => m.SelectedReport, "", new { @class = "nhsuk-error-message" })
                 <select asp-for="@Model.SelectedReport" asp-items="@Model.ReportsList" class="nhsuk-select @(SelectedReportInvalid ? "nhsuk-input--error" : string.Empty)" id="@Model.SelectedReport"></select>
             </div>
-            <button class="nhsuk-button" asp-page-handler="LoadReport" type="submit">@ReportConstants.Loadreportbuttontext</button>
-            <button class="nhsuk-button" asp-page-handler="ExportReport" type="submit">@ReportConstants.Exportreportbuttontext</button>
+            <button class="nhsuk-button" asp-page-handler="LoadReport" type="submit">@ReportConstants.LoadReportButtonText</button>
+            <button class="nhsuk-button" asp-page-handler="ExportReport" type="submit">@ReportConstants.ExportReportButtonText</button>
 
             @if (Model.ReportData != null)
             {
