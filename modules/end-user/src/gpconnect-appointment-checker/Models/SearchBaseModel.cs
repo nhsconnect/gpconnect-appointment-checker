@@ -15,10 +15,10 @@ namespace gpconnect_appointment_checker.Pages
         {
         }
 
-        public List<List<SearchResultEntry>> SearchResultsCurrent { get; set; } = null!;
-        public List<List<SearchResultEntry>> SearchResultsPast { get; set; } = null!;
+        public List<List<SearchResultEntry>> SearchResultsCurrent { get; set; }
+        public List<List<SearchResultEntry>> SearchResultsPast { get; set; }
 
-        public List<SearchResultList> SearchResultsAll { get; set; } = null!;
+        public List<SearchResultList> SearchResultsAll { get; set; }
 
         [BindProperty]
         public string? SearchAtResultsText { get; set; }
@@ -37,7 +37,7 @@ namespace gpconnect_appointment_checker.Pages
         public int SearchResultsCurrentCount { get; set; } = 0;
         public int SearchResultsPastCount { get; set; } = 0;
 
-        public string ProviderPublisher { get; set; } = null!;
+        public string ProviderPublisher { get; set; }
 
         public string GetSearchOnBehalfOfResultsText(string consumerFormattedOrganisationDetails, string selectedOrganisationType)
         {
