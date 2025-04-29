@@ -5,5 +5,5 @@ namespace GpConnect.AppointmentChecker.Models.Request;
 public class UserListSimple
 {
     public SortBy SortByColumn { get; set; } = SortBy.EmailAddress;
-    public SortDirection SortDirection { get; set; } = SortDirection.ASC;
+    public SortDirection SortDirection { get; set; } = SortDirection.Asc;
 }

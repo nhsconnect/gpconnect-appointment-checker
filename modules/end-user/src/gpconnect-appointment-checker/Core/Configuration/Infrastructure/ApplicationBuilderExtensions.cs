@@ -1,9 +1,11 @@
 ﻿using System;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
@@ -36,11 +38,25 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     context.Context.Response.Headers[HeaderNames.CacheControl] = $"public, max-age={TimeSpan.FromSeconds(60 * 60 * 24)}";
                 }
             });
-            app.UseSession();
+            
             app.UseCookiePolicy();            
             app.UseRouting();
+            app.UseSession();
             app.UseResponseCaching();
 
+            app.Use(async (context, next) =>
+            {
+                var antiForgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+                antiForgery.SetCookieTokenAndHeader(context);
+                await next(context);
+            });
+
+            app.Use(async (context, next) =>
+            {
+                context.Session.SetString("SessionKey", "Session");
+                await next();
+            });
+            
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
@@ -63,7 +79,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.HEALTHCHECKERPATH, new HealthCheckOptions()
+                endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.Healthcheckerpath, new HealthCheckOptions()
                 {
                     ResultStatusCodes =
                     {
@@ -72,6 +88,11 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                     },
                     AllowCachingResponses = false
                 });
+            });
+            
+            app.UseForwardedHeaders(new ForwardedHeadersOptions()
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto
             });
         }
 

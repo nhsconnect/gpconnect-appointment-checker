@@ -22,7 +22,8 @@ public static class ServiceCollectionExtensions
         services.AddSession(s =>
         {
             s.Cookie.Name = ".GpConnectAppointmentChecker.Session";
-            s.IdleTimeout = new TimeSpan(0, 30, 0);
+            s.IdleTimeout = new TimeSpan(0, 15, 0);
+            s.Cookie.MaxAge = TimeSpan.FromMinutes(15);
             s.Cookie.HttpOnly = true;
             s.Cookie.IsEssential = true;
         });
@@ -45,6 +46,7 @@ public static class ServiceCollectionExtensions
         {
             options.IncludeSubDomains = true;
             options.MaxAge = TimeSpan.FromDays(730);
+            options.Preload = true;
         });        
 
         services.AddResponseCaching();

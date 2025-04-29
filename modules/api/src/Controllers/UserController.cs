@@ -1,19 +1,22 @@
+using gpconnect_appointment_checker.api.Service.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request.Application;
 using GpConnect.AppointmentChecker.Api.Helpers.Constants;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GpConnect.AppointmentChecker.Api.Controllers;
+namespace gpconnect_appointment_checker.api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _service;
+    private ICacheService _cacheService;
 
-    public UserController(IUserService service)
+    public UserController(IUserService service, ICacheService cacheService)
     {
         _service = service ?? throw new ArgumentNullException();
+        _cacheService = cacheService;
     }
 
     [HttpGet("organisation/{odsCode}", Name = "GetOrganisation")]
@@ -25,34 +28,24 @@ public class UserController : ControllerBase
         {
             return NotFound();
         }
+
         return Ok(site);
     }
 
-    [HttpGet("user-simple")]
-    public async Task<ActionResult> Get([FromQuery] UserListSimple userListSimple)
-    {
-        userListSimple.RequestUserId = Convert.ToInt32(Request.Headers[Headers.UserId].ToString());
-        var users = await _service.GetUsers(userListSimple);
-        return Ok(users);
-    }
 
     [HttpGet("user-advanced")]
-    public async Task<ActionResult> Get([FromQuery] UserListAdvanced userListAdvanced)
+    public async Task<ActionResult> Get([FromQuery] UserListAdvanced userListAdvanced, [FromQuery] int page = 1)
     {
         userListAdvanced.RequestUserId = Convert.ToInt32(Request.Headers[Headers.UserId].ToString());
-        var users = await _service.GetUsers(userListAdvanced);
-        return Ok(users);
+        var results = await new UserQueryHandler(_service, _cacheService).HandleGetUserRequest(userListAdvanced, page);
+
+            return Ok(results);
     }
 
     [HttpPost("logonUser")]
     public async Task<ActionResult> LogonUser([FromBody] LogonUser request)
     {
         var user = await _service.LogonUser(request);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
 
         return Ok(user);
     }
@@ -62,11 +55,6 @@ public class UserController : ControllerBase
     {
         var user = await _service.LogoffUser(request);
 
-        if (user == null)
-        {
-            return NotFound();
-        }
-
         return Ok(user);
     }
 
@@ -74,11 +62,6 @@ public class UserController : ControllerBase
     public async Task<ActionResult> AddOrUpdateUser([FromBody] UserCreateAccount userCreateAccount)
     {
         var user = await _service.AddOrUpdateUser(userCreateAccount);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
 
         return Ok(user);
     }
@@ -88,11 +71,6 @@ public class UserController : ControllerBase
     {
         var user = await _service.AddUser(userAdd);
 
-        if (user == null)
-        {
-            return NotFound();
-        }
-
         return Ok(user);
     }
 
@@ -100,11 +78,6 @@ public class UserController : ControllerBase
     public async Task<ActionResult> GetUserByEmailAddress([FromRoute] string emailAddress)
     {
         var user = await _service.GetUser(emailAddress);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
 
         return Ok(user);
     }

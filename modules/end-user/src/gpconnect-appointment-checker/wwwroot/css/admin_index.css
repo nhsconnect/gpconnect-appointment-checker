@@ -1,0 +1,51 @@
+/* Container for both forms, stack them vertically */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Create a 2-column grid */
+.admin-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 1rem;
+}
+
+/* Ensure each form field has consistent alignment */
+.form-field, .form-field-button {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.form-field-button {
+    align-items: center;
+    flex-direction: row;
+}
+
+.form-field label {
+    font-weight: bold;
+    text-align: left;
+    width: 150px;
+}
+
+/* Make input fields and selects take available space */
+.nhsuk-input,
+.nhsuk-select {
+    width: 100%;
+}
+
+/* Button styling and positioning */
+form .form-field-button button {
+    justify-content: center;
+    min-width: 20%;
+}
+
+.button-row {
+    margin-top: 1rem;
+}
+
+.form-field-button > button {
+    margin-right: 4px;
+}

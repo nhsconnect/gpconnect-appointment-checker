@@ -7,10 +7,12 @@ namespace GpConnect.AppointmentChecker.Api;
 public class Startup
 {
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
 
-    public Startup(IConfiguration configuration)
+    public Startup(IConfiguration configuration, IWebHostEnvironment environment)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration)); ;
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -18,7 +20,7 @@ public class Startup
         services.AddOptions();
         services.AddHttpContextAccessor();
 
-        services.ConfigureApplicationServices(_configuration);
+        services.ConfigureApplicationServices(_configuration, _environment);
         services.ConfigureLoggingServices(_configuration);
     }
 

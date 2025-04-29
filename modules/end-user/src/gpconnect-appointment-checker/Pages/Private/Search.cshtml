@@ -3,7 +3,7 @@
 @model SearchModel
 
 <form method="post" id="search-input-form">
-    <partial name="SearchInput" />
+    <partial name="SearchInput"/>
 
     @if (!Model.IsMultiSearch)
     {
@@ -14,26 +14,27 @@
                 <div class="nhsuk-grid-row">
                     <div class="nhsuk-grid-column-full">
                         <div class="nhsuk-warning-callout">
-                            <h3 class="nhsuk-warning-callout__label">@SearchConstants.ISSUEWITHGPCONNECTCONSUMERLABEL</h3>
-                            <p>@string.Format(SearchConstants.ISSUEWITHGPCONNECTCONSUMERNOTENABLEDTEXT, Model.ConsumerOdsCode)</p>
+                            <h3 class="nhsuk-warning-callout__label">@SearchConstants.Issuewithgpconnectconsumerlabel</h3>
+                            <p>@string.Format(SearchConstants.Issuewithgpconnectconsumernotenabledtext, Model.ConsumerOdsCode)</p>
                         </div>
                     </div>
                 </div>
             }
-            <partial name="SearchResults" />
-            <partial name="SearchNav" />
+           
+            <partial name="SearchResults"/>
+            <partial name="SearchNav"/>
         }
         else
         {
-            <partial name="CodeErrorSingle" />
+            <partial name="CodeErrorSingle"/>
         }
     }
     else
     {
         @if (Model.SearchResultsSummary != null)
         {
-            <partial name="SearchResultsSummary" />
-            <partial name="SearchNav" />
+            <partial name="SearchResultsSummary"/>
+            <partial name="SearchNav"/>
         }
     }
 </form>

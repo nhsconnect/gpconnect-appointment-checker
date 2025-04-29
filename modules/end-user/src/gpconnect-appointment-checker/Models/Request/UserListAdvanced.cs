@@ -11,5 +11,5 @@ public class UserListAdvanced
     public bool? MultiSearchFilter { get; set; }
     public bool? OrgTypeSearchFilter { get; set; }
     public SortBy SortByColumn { get; set; } = SortBy.EmailAddress;
-    public SortDirection SortDirection { get; set; } = SortDirection.ASC;
+    public SortDirection SortDirection { get; set; } = SortDirection.Asc;
 }

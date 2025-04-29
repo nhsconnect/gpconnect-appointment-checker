@@ -5,15 +5,15 @@
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
         <div class="nhsuk-warning-callout">
-            <h3 class="nhsuk-warning-callout__label">@SearchConstants.REQUESTSUBMITTEDLABEL</h3>
+            <h3 class="nhsuk-warning-callout__label">@SearchConstants.Requestsubmittedlabel</h3>
             <p>
                 @if (TempData["EmailSent"] as bool? == false)
                 {
-                    @Html.Raw(string.Format(SearchConstants.REQUESTSUBMITTEDERRORTEXT, TempData["EmailAddressManual"]))
+                    @Html.Raw(string.Format(SearchConstants.Requestsubmittederrortext, TempData["EmailAddressManual"]))
                 }
                 else
                 {
-                    @SearchConstants.REQUESTSUBMITTEDTEXT
+                    @SearchConstants.Requestsubmittedtext
                 }
             </p>
         </div>

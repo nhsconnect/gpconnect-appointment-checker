@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 
 namespace gpconnect_appointment_checker.Pages
 {
