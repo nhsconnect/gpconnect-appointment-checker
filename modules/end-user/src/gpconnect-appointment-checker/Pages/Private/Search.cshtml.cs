@@ -105,7 +105,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchResultId,
                     UserId = UserId,
-                    ReportName = ReportConstants.Slotsummaryreportheading
+                    ReportName = ReportConstants.SlotSummaryReportHeading
                 });
             return filestream;
         }
@@ -117,7 +117,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchGroupId,
                     UserId = UserId,
-                    ReportName = ReportConstants.Slotsummaryreportheading
+                    ReportName = ReportConstants.SlotSummaryReportHeading
                 });
             return filestream;
         }
@@ -154,26 +154,26 @@ namespace gpconnect_appointment_checker.Pages
             // check the following rules:
             if (!ValidSearchCombination)
             {
-                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Issuewithodscodesinputtext);
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Issuewithodscodesinputtext);
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.IssueWithOdsCodesInputText);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.IssueWithOdsCodesInputText);
             }
 
             if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) &&
                 string.IsNullOrEmpty(SelectedOrganisationType))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscodenotenterederrormessage);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.ConsumerOdsCodeNotEnteredErrorMessage);
                 ModelState.AddModelError("SelectedOrganisationType",
-                    SearchConstants.Consumerorgtypenotenterederrormessage);
+                    SearchConstants.ConsumerOrgTypeNotEnteredErrorMessage);
             }
 
             if (!OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscoderequirederrormessage);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.ConsumerOdsCodeRequiredErrorMessage);
             }
 
             if ((string.IsNullOrEmpty(ProviderOdsCode) || ProviderOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Providerodscoderequirederrormessage);
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.ProviderOdsCodeRequiredErrorMessage);
             }
         }
 

@@ -35,18 +35,18 @@ public class UserQueryHandler
     }
 
     private static bool IsDefaultFilter(UserListAdvanced filter) =>
-        string.IsNullOrEmpty(filter.EmailAddress) &&
+        string.IsNullOrWhiteSpace(filter.EmailAddress) &&
         filter.AccessLevelFilter is null &&
         filter.MultiSearchFilter is null &&
         filter.OrgTypeSearchFilter is null &&
-        string.IsNullOrEmpty(filter.Surname) &&
+        string.IsNullOrWhiteSpace(filter.Surname) &&
         filter.UserAccountStatusFilter is null;
 
     private static bool IsStatusOnly(UserListAdvanced filter) =>
         filter.UserAccountStatusFilter is not null
-        && string.IsNullOrEmpty(filter.EmailAddress)
+        && string.IsNullOrWhiteSpace(filter.EmailAddress)
         && filter.AccessLevelFilter is null
         && filter.MultiSearchFilter is null
         && filter.OrgTypeSearchFilter is null
-        && string.IsNullOrEmpty(filter.Surname);
+        && string.IsNullOrWhiteSpace(filter.Surname);
 }

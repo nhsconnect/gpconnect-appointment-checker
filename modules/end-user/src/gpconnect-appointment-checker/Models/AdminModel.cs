@@ -12,9 +12,9 @@ namespace gpconnect_appointment_checker.Pages
     {
         [BindProperty(SupportsGet = true)] public AdminFilterModel FilterModel { get; set; }
 
-        [Required(ErrorMessage = SearchConstants.Emailaddressrequirederrormessage)]
-        [RegularExpression(ValidationConstants.Nhsnetemailaddress,
-            ErrorMessage = SearchConstants.Useremailaddressvaliderrormessage)]
+        [Required(ErrorMessage = SearchConstants.EmailAddressRequiredErrorMessage)]
+        [RegularExpression(ValidationConstants.NhsNetEmailAddress,
+            ErrorMessage = SearchConstants.UserEmailAddressValidErrorMessage)]
         [BindProperty]
         public string UserEmailAddress { get; set; }
 

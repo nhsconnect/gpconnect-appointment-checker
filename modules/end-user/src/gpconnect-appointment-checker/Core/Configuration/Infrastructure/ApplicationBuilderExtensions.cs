@@ -50,12 +50,6 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
                 antiForgery.SetCookieTokenAndHeader(context);
                 await next(context);
             });
-
-            app.Use(async (context, next) =>
-            {
-                context.Session.SetString("SessionKey", "Session");
-                await next();
-            });
             
             app.Use(async (context, next) =>
             {
@@ -79,7 +73,7 @@ namespace gpconnect_appointment_checker.Configuration.Infrastructure
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.Healthcheckerpath, new HealthCheckOptions()
+                endpoints.MapHealthChecks(Helpers.Constants.SystemConstants.HealthCheckerPath, new HealthCheckOptions()
                 {
                     ResultStatusCodes =
                     {

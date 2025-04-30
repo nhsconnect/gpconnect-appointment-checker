@@ -2,6 +2,6 @@
 {
     public class SystemConstants
     {
-        public const string Healthcheckerpath = "/Healthcheck";
+        public const string HealthCheckerPath = "/Healthcheck";
     }
 }
