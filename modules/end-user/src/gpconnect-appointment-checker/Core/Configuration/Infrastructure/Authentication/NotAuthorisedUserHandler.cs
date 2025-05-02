@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace gpconnect_appointment_checker.Configuration.Infrastructure.Authentication
 {
     public class NotAuthorisedUserHandler : AuthorizationHandler<NotAuthorisedUserRequirement>

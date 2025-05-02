@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
+using gpconnect_appointment_checker.Helpers.Extensions;
 using gpconnect_appointment_checker.Models;
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
@@ -99,7 +101,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(logonUser, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/user/logonUser", new Dictionary<string, string>()
         {
@@ -117,7 +119,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(logoffUser, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/user/logoffUser", new Dictionary<string, string>()
         {
@@ -134,7 +136,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(userCreateAccount, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/user/addOrUpdateUser", new Dictionary<string, string>()
         {
@@ -152,7 +154,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(addUser, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/user/addUser", new Dictionary<string, string>()
         {
@@ -186,7 +188,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(userUpdateStatus, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PutWithHeadersAsync("/user/setuserstatus", new Dictionary<string, string>()
         {
@@ -201,7 +203,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(userUpdateIsAdmin, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PutWithHeadersAsync("/user/setisadmin", new Dictionary<string, string>()
         {
@@ -216,7 +218,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(userUpdateMultiSearch, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PutWithHeadersAsync("/user/setmultisearch", new Dictionary<string, string>()
         {
@@ -230,7 +232,7 @@ public class UserService : IUserService
         var json = new StringContent(
             JsonConvert.SerializeObject(userUpdateOrgTypeSearch, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PutWithHeadersAsync("/user/setorgtypesearch", new Dictionary<string, string>()
         {

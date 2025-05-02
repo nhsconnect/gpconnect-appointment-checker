@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,16 +15,14 @@ namespace gpconnect_appointment_checker.Pages
     {
         protected ILogger<ReportsModel> _logger;
         protected IReportingService _reportingService;
-        protected readonly ILoggerManager _loggerManager;
 
-        public ReportsModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<ReportsModel> logger, IReportingService reportingService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public ReportsModel(IOptions<GeneralConfig> configuration,
+            IHttpContextAccessor contextAccessor,
+            ILogger<ReportsModel> logger,
+            IReportingService reportingService) : base(configuration, contextAccessor)
         {
             _logger = logger;
             _reportingService = reportingService;
-            if (null != loggerManager)
-            {
-                _loggerManager = loggerManager;
-            }
         }
 
         public async Task<IActionResult> OnGet()

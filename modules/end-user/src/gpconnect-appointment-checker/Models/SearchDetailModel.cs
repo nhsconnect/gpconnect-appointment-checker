@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace gpconnect_appointment_checker.Pages
 {
     public partial class SearchDetailModel : SearchBaseModel

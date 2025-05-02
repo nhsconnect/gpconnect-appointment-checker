@@ -9,6 +9,8 @@ using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 
+using Microsoft.Extensions.Logging;
+
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 
 try
@@ -16,10 +18,17 @@ try
     logger.Debug("Starting application...");
 
     var builder = WebApplication.CreateBuilder(args);
+    var configuration = builder.Configuration;
+
+    builder.Services.AddLogging(builder =>
+    {
+        builder.ClearProviders();
+        builder.AddConfiguration(configuration.GetSection("Logging"));
+    });
+
     builder.Host.UseNLog();
     builder.Host.ConfigureAppConfiguration(CustomConfigurationBuilder.AddCustomConfiguration);
 
-    var configuration = builder.Configuration;
     var environment = builder.Environment;
 
     var services = builder.Services;
@@ -29,7 +38,6 @@ try
     var authenticationExtensions = new AuthenticationExtensions(configuration);
     authenticationExtensions.ConfigureAuthenticationServices(services);
 
-    services.ConfigureLoggingServices(configuration);
     services.ConfigureApplicationServices(configuration, environment);
     services.AddScoped<ITokenService, TokenService>();
 

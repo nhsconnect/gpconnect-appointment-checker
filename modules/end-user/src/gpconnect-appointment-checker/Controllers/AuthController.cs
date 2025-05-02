@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace gpconnect_appointment_checker.Controllers
 {

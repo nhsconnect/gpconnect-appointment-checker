@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace gpconnect_appointment_checker.Helpers;
+namespace gpconnect_appointment_checker.Helpers.Extensions;
 
 public static class HttpClientExtensions
 {

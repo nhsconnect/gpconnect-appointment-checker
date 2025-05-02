@@ -11,8 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
@@ -39,7 +42,7 @@ public class ExportService : IExportService
         var json = new StringContent(
             JsonConvert.SerializeObject(searchExport, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/export/exportsearchresult", new Dictionary<string, string>()
         {
@@ -55,7 +58,7 @@ public class ExportService : IExportService
         var json = new StringContent(
             JsonConvert.SerializeObject(searchExport, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/export/exportsearchgroup", new Dictionary<string, string>()
         {
