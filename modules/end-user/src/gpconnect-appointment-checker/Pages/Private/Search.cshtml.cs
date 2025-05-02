@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +14,9 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -26,10 +28,13 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IConfigurationService _configurationService;
         private readonly ISearchService _searchService;
 
-        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor,
-            ILogger<SearchModel> logger, IExportService exportService, IApplicationService applicationService,
-            IConfigurationService configurationService, ISearchService searchService,
-            ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public SearchModel(IOptions<GeneralConfig> configuration,
+            IHttpContextAccessor contextAccessor,
+            ILogger<SearchModel> logger,
+            IExportService exportService,
+            IApplicationService applicationService,
+            IConfigurationService configurationService,
+            ISearchService searchService) : base(configuration, contextAccessor)
         {
             _applicationService = applicationService;
             _configurationService = configurationService;
@@ -105,7 +110,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchResultId,
                     UserId = UserId,
-                    ReportName = ReportConstants.Slotsummaryreportheading
+                    ReportName = ReportConstants.SlotSummaryReportHeading
                 });
             return filestream;
         }
@@ -117,7 +122,7 @@ namespace gpconnect_appointment_checker.Pages
                 {
                     ExportRequestId = searchGroupId,
                     UserId = UserId,
-                    ReportName = ReportConstants.Slotsummaryreportheading
+                    ReportName = ReportConstants.SlotSummaryReportHeading
                 });
             return filestream;
         }
@@ -154,26 +159,26 @@ namespace gpconnect_appointment_checker.Pages
             // check the following rules:
             if (!ValidSearchCombination)
             {
-                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Issuewithodscodesinputtext);
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Issuewithodscodesinputtext);
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.IssueWithOdsCodesInputText);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.IssueWithOdsCodesInputText);
             }
 
             if (OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0) &&
                 string.IsNullOrEmpty(SelectedOrganisationType))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscodenotenterederrormessage);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.ConsumerOdsCodeNotEnteredErrorMessage);
                 ModelState.AddModelError("SelectedOrganisationType",
-                    SearchConstants.Consumerorgtypenotenterederrormessage);
+                    SearchConstants.ConsumerOrgTypeNotEnteredErrorMessage);
             }
 
             if (!OrgTypeSearchEnabled && (string.IsNullOrEmpty(ConsumerOdsCode) || ConsumerOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.Consumerodscoderequirederrormessage);
+                ModelState.AddModelError("ConsumerOdsCode", SearchConstants.ConsumerOdsCodeRequiredErrorMessage);
             }
 
             if ((string.IsNullOrEmpty(ProviderOdsCode) || ProviderOdsCodeAsList?.Count == 0))
             {
-                ModelState.AddModelError("ProviderOdsCode", SearchConstants.Providerodscoderequirederrormessage);
+                ModelState.AddModelError("ProviderOdsCode", SearchConstants.ProviderOdsCodeRequiredErrorMessage);
             }
         }
 

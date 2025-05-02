@@ -4,7 +4,7 @@
 
 <div class="nhsuk-grid-row">
     <div class="nhsuk-grid-column-full">
-        <button class="nhsuk-button" asp-page-handler="ExportSearchGroup" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.Exportsearchresultsbuttontext</button>
+        <button class="nhsuk-button" asp-page-handler="ExportSearchGroup" asp-route-searchgroupid="@Model.SearchGroupId" type="submit">@SearchConstants.ExportSearchResultsButtonText</button>
     </div>
 </div>
 
@@ -15,7 +15,7 @@
             <a id="@searchResult.SearchResultId"></a>
             <dl class="nhsuk-summary-list nhsuk-summary-list--no-border @searchResult.DisplayClass">
                 <div class="nhsuk-summary-list__row">
-                    <dt class="nhsuk-summary-list__key">@SearchConstants.Searchresultssearchattext</dt>
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SearchResultsSearchAtText</dt>
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.DisplayProvider)
                         {
@@ -25,7 +25,7 @@
                     <dd class="nhsuk-summary-list__actions">&nbsp;</dd>
                 </div>
                 <div class="nhsuk-summary-list__row">
-                    <dt class="nhsuk-summary-list__key">@SearchConstants.Searchresultspublisherlabel</dt>
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SearchResultsPublisherLabel</dt>
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.DisplayProvider)
                         {
@@ -37,7 +37,7 @@
                 @if (searchResult.DisplayConsumer)
                 {
                     <div class="nhsuk-summary-list__row">
-                        <dt class="nhsuk-summary-list__key">@SearchConstants.Searchresultssearchonbehalfoftext</dt>
+                        <dt class="nhsuk-summary-list__key">@SearchConstants.SearchResultsSearchOnBehalfOfText</dt>
                         <dd class="nhsuk-summary-list__value">
                             <span>@searchResult.FormattedConsumerOrganisationDetails</span>
                         </dd>
@@ -47,7 +47,7 @@
                 @if (searchResult.DisplayConsumerOrganisationType)
                 {
                     <div class="nhsuk-summary-list__row">
-                        <dt class="nhsuk-summary-list__key">@SearchConstants.Searchresultssearchonbehalfofconsumerorgtypetext</dt>
+                        <dt class="nhsuk-summary-list__key">@SearchConstants.SearchResultsSearchOnBehalfOfConsumerOrgTypeText</dt>
                         <dd class="nhsuk-summary-list__value">
                             <span>@searchResult.ConsumerOrganisationType</span>
                         </dd>
@@ -55,7 +55,7 @@
                     </div>
                 }
                 <div class="nhsuk-summary-list__row">
-                    <dt class="nhsuk-summary-list__key">@SearchConstants.Searchdetailslabel</dt>
+                    <dt class="nhsuk-summary-list__key">@SearchConstants.SearchDetailsLabel</dt>
                     <dd class="nhsuk-summary-list__value">
                         @if (searchResult.SearchSummaryDetail != null)
                         {
@@ -68,11 +68,11 @@
                     <dd class="nhsuk-summary-list__actions">
                         @if (searchResult.DetailsEnabled)
                         {
-                            <a class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.Searchdetailsbuttontext</a>
+                            <a class="nhsuk-button" href="/SearchDetail/@searchResult.SearchResultId">@SearchConstants.SearchDetailsButtonText</a>
                         }
                         else
                         {
-                            <button class="nhsuk-button nhsuk-button--disabled" type="button" disabled="disabled" aria-disabled="true">@SearchConstants.Searchdetailsbuttontext</button>
+                            <button class="nhsuk-button nhsuk-button--disabled" type="button" disabled="disabled" aria-disabled="true">@SearchConstants.SearchDetailsButtonText</button>
                         }
                     </dd>
                 </div>

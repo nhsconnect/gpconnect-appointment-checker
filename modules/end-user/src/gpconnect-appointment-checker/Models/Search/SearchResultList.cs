@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace GpConnect.AppointmentChecker.Models.Search;
 
 public class SearchResultList
@@ -26,7 +28,7 @@ public class SearchResultList
     [JsonProperty("timeTaken")]
     public double TimeTaken { get; set; }
 
-    public string SearchStats => string.Format(SearchConstants.Searchstatstext, TimeTaken.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"));
+    public string SearchStats => string.Format(SearchConstants.SearchStatsText, TimeTaken.ToString("#.##s"), DateTime.Now.TimeZoneConverter("Europe/London", "d MMM yyyy HH:mm:ss"));
 
     [JsonProperty("searchResultsPast")]
     public List<SearchResultEntry> SearchResultsPast { get; set; }

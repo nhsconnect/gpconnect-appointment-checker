@@ -1,0 +1,41 @@
+networks:
+  gpcac: {}
+
+services:
+
+  migrator:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    networks:
+      - gpcac
+    depends_on:
+      - db
+    environment:
+      FLYWAY_PASSWORD: postgres
+    command:
+      - "-url=jdbc:postgresql://db/gpcac-local"
+      - "-user=postgres"
+      - "-connectRetries=10"
+      - "migrate"
+    restart: 'no'
+
+  db:
+    image: postgres:16.8-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=gpcac-local
+    networks:
+      - gpcac
+    ports:
+      - '5432:5432'
+    volumes:
+      - ../DockerData/gpcac-postgres:/var/lib/postgresql/data
+
+  vk:
+    image: valkey/valkey:8.1.0
+    ports:
+      - '6379:6379'
+    networks:
+      - gpcac

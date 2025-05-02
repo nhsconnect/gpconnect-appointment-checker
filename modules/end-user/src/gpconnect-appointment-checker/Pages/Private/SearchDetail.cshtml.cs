@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,20 +16,20 @@ namespace gpconnect_appointment_checker.Pages
         protected ILogger<SearchDetailModel> _logger;
         protected IApplicationService _applicationService;
         protected ISearchService _searchService;
-        protected readonly ILoggerManager _loggerManager;
         private readonly IExportService _exportService;
 
-        public SearchDetailModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor, ILogger<SearchDetailModel> logger, IExportService exportService, IApplicationService applicationService, ISearchService searchService, ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public SearchDetailModel(IOptions<GeneralConfig> configuration,
+            IHttpContextAccessor contextAccessor,
+            ILogger<SearchDetailModel> logger,
+            IExportService exportService,
+            IApplicationService applicationService,
+            ISearchService searchService) : base(configuration, contextAccessor)
         {
             _configuration = configuration;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _applicationService = applicationService;
             _searchService = searchService;
-            if (null != loggerManager)
-            {
-                _loggerManager = loggerManager;
-            }
             _exportService = exportService;
         }
 
@@ -73,7 +72,7 @@ namespace gpconnect_appointment_checker.Pages
             {
                 ExportRequestId = searchResultId,
                 UserId = UserId,
-                ReportName = ReportConstants.Slotsummaryreportheading
+                ReportName = ReportConstants.SlotSummaryReportHeading
             });
             return filestream;
         }

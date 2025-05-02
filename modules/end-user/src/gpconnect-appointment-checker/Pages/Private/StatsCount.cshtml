@@ -1,11 +1,12 @@
 ﻿@using gpconnect_appointment_checker.Helpers.Constants
 @using gpconnect_appointment_checker.Helpers
+@using gpconnect_appointment_checker.Helpers.Extensions
 
 @if (Model.SearchResultsTotalCount > 0)
 {
     <div class="nhsuk-inset-text">
         <span class="nhsuk-u-visually-hidden">Information: </span>
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.Searchstatscounttext, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.Searchstatspastcounttext, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsCountText, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsPastCountText, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
     </div>
 }

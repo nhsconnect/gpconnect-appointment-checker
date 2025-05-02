@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace gpconnect_appointment_checker.Helpers
+namespace gpconnect_appointment_checker.Helpers.Extensions
 {
     public static class StringExtensions
     {

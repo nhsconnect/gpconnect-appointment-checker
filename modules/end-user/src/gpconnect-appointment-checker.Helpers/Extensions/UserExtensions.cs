@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 
-namespace gpconnect_appointment_checker.Helpers
+namespace gpconnect_appointment_checker.Helpers.Extensions
 {
     public static class UserExtensions
     {

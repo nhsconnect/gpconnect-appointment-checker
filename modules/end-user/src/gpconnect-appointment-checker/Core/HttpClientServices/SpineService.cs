@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
 public class SpineService : ISpineService

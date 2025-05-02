@@ -9,6 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 using IApplicationService = GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces.IApplicationService;
 using SearchGroup = GpConnect.AppointmentChecker.Models.SearchGroup;
 using SearchResult = GpConnect.AppointmentChecker.Models.SearchResult;

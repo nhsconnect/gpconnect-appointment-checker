@@ -3,6 +3,7 @@
 @using gpconnect_appointment_checker.Helpers.Constants
 @using gpconnect_appointment_checker.Helpers.Enumerations
 @using gpconnect_appointment_checker.Helpers
+@using gpconnect_appointment_checker.Helpers.Extensions
 @{
     var userAccountStatus = User.GetClaimValue<UserAccountStatus>("UserAccountStatus");
 }
@@ -16,6 +17,6 @@
             @User.GetClaimValue("ODS")&nbsp;(@User.GetClaimValue("OrganisationName"))
         </div>
 
-        @Html.ActionLink(@SearchConstants.Signoutbuttontext, "Logout", "Auth", null, new { @style = "color:#ffffff" })
+        @Html.ActionLink(@SearchConstants.SignoutButtonText, "Logout", "Auth", null, new { @style = "color:#ffffff" })
     }
 }

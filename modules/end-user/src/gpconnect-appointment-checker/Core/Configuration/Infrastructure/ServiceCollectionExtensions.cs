@@ -99,7 +99,7 @@ public static class ServiceCollectionExtensions
 
         services.AddControllers();
 
-        if (env.IsDevelopment())
+        if (env.IsDevelopment() || env.IsEnvironment("LOCAL"))
         {
             builder.AddRazorRuntimeCompilation();
         }

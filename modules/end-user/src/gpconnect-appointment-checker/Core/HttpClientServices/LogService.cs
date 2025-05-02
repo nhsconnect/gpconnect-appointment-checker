@@ -11,8 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
@@ -42,7 +45,7 @@ public class LogService : ILogService
         {
             var url = _contextAccessor.HttpContext.Request?.Path.Value;            
 
-            if (!url.Contains(SystemConstants.Healthcheckerpath))
+            if (!url.Contains(SystemConstants.HealthCheckerPath))
             {
                 var webRequest = new WebRequest()
                 {
@@ -60,7 +63,7 @@ public class LogService : ILogService
                 var json = new StringContent(
                     JsonConvert.SerializeObject(webRequest, null, _options),
                     Encoding.UTF8,
-                    MediaTypeHeaderValue.Parse("application/json").MediaType);
+                    MediaTypeNames.Application.Json);
 
                 var response = await _httpClient.PostWithHeadersAsync("/log/webrequest", new Dictionary<string, string>()
                 {

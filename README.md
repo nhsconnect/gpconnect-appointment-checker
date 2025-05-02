@@ -321,6 +321,30 @@ To run over HTTPS replace the last command above with the following, replacing t
 docker run -d -p 5001:443 -e ASPNETCORE_URLS="https://+" -e ASPNETCORE_HTTPS_PORT=5001 -e ASPNETCORE_Kestrel__Certificates__Default__Path=/certs/localhost.pfx -e "ConnectionStrings:DefaultConnection=Server=PG_HOST;Port=PG_PORT;Database=PG_DBNAME;User Id=PG_USERID;Password=PG_PASS" -v /path/to/certs:/certs --name gpconnect-appointment-checker-application gpconnect-appointment-checker-application
 ```
 
+# Run services Via Docker Compose
+
+You can run DB, Migrator and Valkey using 
+docker compose file run
+```bash
+
+docker compose up
+```
+
+once services are running, you can run...
+
+### api
+```bash
+
+docker run -d --network gpconnect-appointment-checker_gpcac -p 8000:8080 -e "ConnectionStrings:DefaultConnection=Server=db;Port=5432;Database=pgcac-local;User Id=postgres;Password=postgres" --name gpconnect-appointment-checker-api gpconnect-appointment-checker-api
+```
+### end-user
+```bash
+
+docker run -d --network gpconnect-appointment-checker_gpcac -p 8001:8080 -e "ASPNETCORE_ENVIRONMENT=local" --name gpconnect-appointment-checker-end-user gpconnect-appointment-checker-end-user
+```
+
+
+
 
 ## Test
 
