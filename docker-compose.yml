@@ -39,13 +39,3 @@ services:
       - '6379:6379'
     networks:
       - gpcac
-
-#__api__
-#  cd modules/api
-#  docker build -t gpconnect-appointment-checker-api .
-#  docker run -d --network gpconnect-appointment-checker_gpcac -p 8000:8080 -e "ConnectionStrings:DefaultConnection=Server=db;Port=5432;Database=pgcac-local;User Id=postgres;Password=postgres" --name gpconnect-appointment-checker-api gpconnect-appointment-checker-api
-
-#__end_user__
-#  cd modules/end-user
-#  docker build -t gpconnect-appointment-checker-end-user .
-#  docker run -d --network gpconnect-appointment-checker_gpcac -p 8001:8080 -e "ASPNETCORE_ENVIRONMENT=local" --name gpconnect-appointment-checker-end-user gpconnect-appointment-checker-end-user
