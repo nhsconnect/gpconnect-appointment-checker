@@ -9,6 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 using OrganisationType = GpConnect.AppointmentChecker.Models.OrganisationType;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;

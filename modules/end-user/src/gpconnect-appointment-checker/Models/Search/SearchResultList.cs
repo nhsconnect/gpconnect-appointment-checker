@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace GpConnect.AppointmentChecker.Models.Search;
 
 public class SearchResultList

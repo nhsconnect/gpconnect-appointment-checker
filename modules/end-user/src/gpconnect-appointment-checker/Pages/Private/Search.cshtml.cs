@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Configuration.Infrastructure.Logging.Interface;
 using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +14,9 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 using SlotEntrySummary = GpConnect.AppointmentChecker.Models.SlotEntrySummary;
 
 namespace gpconnect_appointment_checker.Pages
@@ -26,10 +28,13 @@ namespace gpconnect_appointment_checker.Pages
         private readonly IConfigurationService _configurationService;
         private readonly ISearchService _searchService;
 
-        public SearchModel(IOptions<GeneralConfig> configuration, IHttpContextAccessor contextAccessor,
-            ILogger<SearchModel> logger, IExportService exportService, IApplicationService applicationService,
-            IConfigurationService configurationService, ISearchService searchService,
-            ILoggerManager loggerManager = null) : base(configuration, contextAccessor)
+        public SearchModel(IOptions<GeneralConfig> configuration,
+            IHttpContextAccessor contextAccessor,
+            ILogger<SearchModel> logger,
+            IExportService exportService,
+            IApplicationService applicationService,
+            IConfigurationService configurationService,
+            ISearchService searchService) : base(configuration, contextAccessor)
         {
             _applicationService = applicationService;
             _configurationService = configurationService;

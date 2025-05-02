@@ -17,11 +17,11 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.ConfigureLoggingServices(_configuration);
         services.AddOptions();
         services.AddHttpContextAccessor();
 
         services.ConfigureApplicationServices(_configuration, _environment);
-        services.ConfigureLoggingServices(_configuration);
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

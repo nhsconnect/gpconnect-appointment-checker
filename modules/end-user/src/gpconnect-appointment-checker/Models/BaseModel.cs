@@ -10,6 +10,8 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.IO;
 
+using gpconnect_appointment_checker.Helpers.Extensions;
+
 namespace gpconnect_appointment_checker.Pages
 {
     public abstract class BaseModel : PageModel

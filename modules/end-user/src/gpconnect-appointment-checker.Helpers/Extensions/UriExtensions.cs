@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace gpconnect_appointment_checker.Helpers
+namespace gpconnect_appointment_checker.Helpers.Extensions
 {
     public static class UriExtensions
     {

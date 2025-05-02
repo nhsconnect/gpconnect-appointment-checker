@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Data;
 
-namespace gpconnect_appointment_checker.Helpers
+namespace gpconnect_appointment_checker.Helpers.Extensions
 {
     public static class StreamExtensions
     {       

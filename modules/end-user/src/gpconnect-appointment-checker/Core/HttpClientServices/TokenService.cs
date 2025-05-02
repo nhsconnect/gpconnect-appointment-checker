@@ -10,6 +10,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
+using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 

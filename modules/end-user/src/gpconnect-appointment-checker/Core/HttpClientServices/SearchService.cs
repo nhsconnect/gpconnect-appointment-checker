@@ -13,8 +13,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+
+using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace GpConnect.AppointmentChecker.Core.HttpClientServices;
 
@@ -60,7 +63,7 @@ public class SearchService : ISearchService
         var json = new StringContent(
             JsonConvert.SerializeObject(searchRequest, null, _options),
             Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json").MediaType);        
+            MediaTypeNames.Application.Json);
 
         var response = await _httpClient.PostWithHeadersAsync("/search", new Dictionary<string, string>()
         {

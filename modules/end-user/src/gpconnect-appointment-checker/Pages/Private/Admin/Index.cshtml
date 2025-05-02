@@ -3,6 +3,7 @@
 @using gpconnect_appointment_checker.Helpers.Enumerations
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using gpconnect_appointment_checker.Helpers
+@using gpconnect_appointment_checker.Helpers.Extensions
 @model AdminModel
 @{
     var UserEmailAddressInvalid = Model.ModelState["UserEmailAddress"]?.ValidationState == ModelValidationState.Invalid;
