@@ -1,5 +1,5 @@
 # Use the ASP.NET Core runtime base image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 ARG BUILD_TAG
 ENV BUILD_TAG=$BUILD_TAG
 WORKDIR /app
