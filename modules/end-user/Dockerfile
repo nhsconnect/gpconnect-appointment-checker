@@ -7,7 +7,7 @@ EXPOSE 80
 EXPOSE 443
 
 # Use the .NET SDK image for build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy only the necessary project files first for efficient caching
