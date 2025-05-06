@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/dotnet:7 as base
+FROM public.ecr.aws/lambda/dotnet:9 as base
 FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
 
 WORKDIR /src
