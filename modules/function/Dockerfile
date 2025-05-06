@@ -1,5 +1,5 @@
 FROM public.ecr.aws/lambda/dotnet:7 as base
-FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 as build
 
 WORKDIR /src
 
