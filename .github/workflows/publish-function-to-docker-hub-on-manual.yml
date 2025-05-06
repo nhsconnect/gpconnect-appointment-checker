@@ -13,7 +13,7 @@ jobs:
       - name: Print the BUILD_TAG
         run: echo ${{ env.BUILD_TAG }}
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Push lambda image to docker hub
         uses: docker/build-push-action@v6
         with:
