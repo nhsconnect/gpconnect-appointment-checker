@@ -3,7 +3,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-12-cron \
     apt-utils
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 ARG BUILD_TAG
 ENV BUILD_TAG=$BUILD_TAG
 RUN apt-get update && apt-get install -y libldap-2.4-2
@@ -31,7 +31,7 @@ WORKDIR /src/src
 # Publish only the API project
 RUN dotnet publish gpconnect-appointment-checker.api.csproj -c Debug -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
