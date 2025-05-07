@@ -46,9 +46,14 @@ jobs:
       
       - name: Build dotnet api solution
         run: dotnet build modules/api/gpconnect-appointment-checker.api.sln
+      - name: Test dotnet api solution
+        run: dotnet test modules/api/gpconnect-appointment-checker.api.sln --no-build -v:detailed --consoleLoggerParameters:ErrorsOnly
+
 
       - name: Build dotnet end user solution
         run: dotnet build modules/end-user/gpconnect-appointment-checker.sln
+      - name: Test dotnet end user solution
+        run: dotnet test modules/end-user/gpconnect-appointment-checker.sln --no-build -v:detailed --consoleLoggerParameters:ErrorsOnly
 
       - name: Check Postgres running
         run: PGPASSWORD=postgres psql -U postgres -d postgres -h localhost -c "SELECT version()"
