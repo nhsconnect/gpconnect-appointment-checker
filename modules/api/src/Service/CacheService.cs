@@ -90,7 +90,13 @@ public class RedisCacheService : ICacheService
             return false;
         }
     }
-    
+
+    public async Task<bool> HashDeleteAsync(string key, string field)
+    {
+        return await _cache.HashDeleteAsync(key, field);
+    }
+
+
     public IBatch CreateBatch()
     {
         return _cache.CreateBatch();
