@@ -57,14 +57,11 @@ public class UserService : IUserService
     {
         try
         {
-            HashEntry[] hashEntries = [];
-            var cacheKey = string.Empty;
-
-            cacheKey = filter.UserAccountStatusFilter == UserAccountStatus.Pending
+            var cacheKey = filter.UserAccountStatusFilter == UserAccountStatus.Pending
                 ? PENDING_USERS_HASH_KEY
                 : ALL_USERS_HASH_KEY;
 
-            hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
+            var hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
 
             User[] allUsers = [];
 
