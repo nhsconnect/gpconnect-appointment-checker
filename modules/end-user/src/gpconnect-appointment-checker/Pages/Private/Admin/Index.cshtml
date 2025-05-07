@@ -244,12 +244,19 @@
                             </tr>
                         }
                     }
-                    <tr role="row" scope="nhsuk-table__cell">
-                        <td role="cell" colspan="9" class=""
-                            scope="nhsuk-table__cell">Showing
-                            @Model.UserList.Length
-                            result(s) of @string.Format(SearchConstants.UsersFoundText, Model.Paging.TotalItems)</td>
-                    </tr>
+                    @{
+                        if (Model.UserList.Length > 0)
+                        {
+                            <tr role="row" scope="nhsuk-table__cell">
+                                <td role="cell" colspan="9" class=""
+                                    scope="nhsuk-table__cell">Showing
+                                    @Model.UserList.Length
+                                    result(s)
+                                    of @string.Format(SearchConstants.UsersFoundText, Model.Paging.TotalItems)</td>
+                            </tr>
+                        }
+                    }
+
                     </tbody>
                 </table>
             </div>
