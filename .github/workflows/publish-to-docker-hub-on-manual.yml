@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: nhsgpconnect/gpconnect-appointment-checker-api-application
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
-          tag_with_ref: true
+          tags: nhsgpconnect/gpconnect-appointment-checker-api-application:${{ github.ref_name }}
           push: true
       - name: Push end user application image to docker hub
         uses: docker/build-push-action@v6
@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: nhsgpconnect/gpconnect-appointment-checker-end-user-application
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
-          tag_with_ref: true
+          tags: nhsgpconnect/gpconnect-appointment-checker-end-user-application:${{ github.ref_name }}
           push: true
       - name: Push database image to docker hub
         uses: docker/build-push-action@v6
@@ -42,5 +42,5 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: nhsgpconnect/gpconnect-appointment-checker-dbpatcher
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
-          tag_with_ref: true
+          tags: nhsgpconnect/gpconnect-appointment-checker-dbpatcher:${{ github.ref_name }}
           push: true
