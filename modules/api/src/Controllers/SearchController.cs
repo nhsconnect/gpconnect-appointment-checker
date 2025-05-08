@@ -9,10 +9,12 @@ namespace GpConnect.AppointmentChecker.Api.Controllers;
 public class SearchController : ControllerBase
 {
     private readonly ISearchService _service;
+    private readonly ILogger<SearchController> _logger;
 
-    public SearchController(ISearchService service)
+    public SearchController(ISearchService service, ILogger<SearchController> logger)
     {
         _service = service ?? throw new ArgumentNullException();
+        _logger = logger;
     }
 
     [HttpPost()]
@@ -30,6 +32,7 @@ public class SearchController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return BadRequest(ex.Message);
         }
     }
