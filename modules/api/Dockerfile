@@ -1,4 +1,4 @@
-FROM postgres:12.14
+FROM postgres:17.4
 RUN apt-get update && apt-get install -y \
     postgresql-12-cron \
     apt-utils
