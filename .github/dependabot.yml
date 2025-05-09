@@ -1,0 +1,69 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/modules/api/src"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "nuget"
+    directory: "/modules/end-user/src/gpconnect-appointment-checker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "nuget"
+    directory: "/modules/end-user/src/EndUserTests"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "nuget"
+    directory: "/modules/function/src"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "nuget"
+    directory: "/modules/Tests/GpConnect.AppointmentChecker.Api.Tests"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+  - package-ecosystem: "docker"
+    directory: "/database"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "docker"
+    directory: "/modules/api"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "docker"
+    directory: "/modules/end-user"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    
+  - package-ecosystem: "docker"
+    directory: "/modules/function"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
