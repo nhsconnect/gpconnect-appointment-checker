@@ -18,24 +18,32 @@ public class SearchController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult> ExecuteSearch([FromBody] SearchRequest searchRequest)
     {
-
         if (!searchRequest.ValidSearchCombination)
         {
             return BadRequest();
         }
 
-        var result = await _service.ExecuteSearch(searchRequest);
-        return Ok(result);
+        try
+        {
+            var result = await _service.ExecuteSearch(searchRequest);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet()]
-    public async Task<ActionResult> ExecuteFreeSlotSearchFromDatabase([FromQuery] SearchFromDatabaseRequest searchFromDatabaseRequest)
+    public async Task<ActionResult> ExecuteFreeSlotSearchFromDatabase(
+        [FromQuery] SearchFromDatabaseRequest searchFromDatabaseRequest)
     {
         var result = await _service.ExecuteFreeSlotSearchFromDatabase(searchFromDatabaseRequest);
         if (result == null)
         {
             return NotFound();
         }
+
         return Ok(result);
     }
 }
