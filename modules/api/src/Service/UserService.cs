@@ -57,13 +57,16 @@ public class UserService : IUserService
     {
         try
         {
-            var hashEntries = filter.UserAccountStatusFilter == UserAccountStatus.Pending
-                ? await _cacheService.GetAllHashFieldsForHashSetAsync(
-                    PENDING_USERS_HASH_KEY)
-                : await _cacheService.GetAllHashFieldsForHashSetAsync(ALL_USERS_HASH_KEY);
+            var cacheKey = filter.UserAccountStatusFilter == UserAccountStatus.Pending
+                ? PENDING_USERS_HASH_KEY
+                : ALL_USERS_HASH_KEY;
+
+            var hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
 
             User[] allUsers = [];
-            if (hashEntries.Length == 0)
+
+            // if no pages in the cache - goto db
+            if (!hashEntries.Any(x => x.Name.ToString().Contains("page")))
             {
                 allUsers = (await RetrieveUsersAndRebuildCache()).ToArray();
             }
@@ -86,7 +89,8 @@ public class UserService : IUserService
             }
 
             var filteredUsers = ApplyFilters(filter, allUsers.AsQueryable()).ToArray();
-            return new PagedData<User>(PagingHelpers.Paginate(filteredUsers.ToArray())[page - 1])
+            var pagedUsers = PagingHelpers.Paginate(filteredUsers.ToArray());
+            return new PagedData<User>(pagedUsers.ToArray().Length == 0 ? [] : pagedUsers[page - 1])
             {
                 TotalItems = filteredUsers.Length,
                 PageSize = 50
@@ -109,18 +113,16 @@ public class UserService : IUserService
 
         try
         {
-            if (status == UserAccountStatus.Authorised || status == UserAccountStatus.Pending)
+            if (status == UserAccountStatus.Pending)
             {
                 var pageData =
-                    await _cacheService.GetPageAsync<User[]>($"{ALL_USERS_HASH_KEY}:{status.ToString()}",
-                        $"page{page}");
+                    await _cacheService.GetPageAsync<User[]>(PENDING_USERS_HASH_KEY, $"page{page}");
+
                 if (pageData is not null)
                 {
                     return new PagedData<User>(PagingHelpers.Paginate(pageData)[page - 1])
                     {
-                        TotalItems =
-                            await _cacheService.GetPageAsync<int>($"{ALL_USERS_HASH_KEY}:{status.ToString()}",
-                                "totalItems"),
+                        TotalItems = await _cacheService.GetPageAsync<int>(PENDING_USERS_HASH_KEY, "totalItems"),
                         PageSize = 50
                     };
                 }
@@ -133,7 +135,7 @@ public class UserService : IUserService
                 UserAccountStatusFilter = status
             }, dbUsers.AsQueryable()).ToArray();
 
-            return new PagedData<User>(PagingHelpers.Paginate(statusUsers)[page - 1])
+            return new PagedData<User>(statusUsers.Length > 0 ? PagingHelpers.Paginate(statusUsers)[page - 1] : [])
             {
                 TotalItems = statusUsers.Length,
                 PageSize = 50
@@ -245,7 +247,7 @@ public class UserService : IUserService
         tasks.Add(batch.KeyExpireAsync(ALL_USERS_HASH_KEY, TimeSpan.FromHours(24)));
     }
 
-    private async Task UpdateCacheRecord(User user)
+    public async Task UpdateCacheRecord(User user)
     {
         try
         {
@@ -287,9 +289,16 @@ public class UserService : IUserService
 
             // ----- Update pending cache -------
 
+            // if status is not pending - ensure it doesn't exist in the pending cache
+            if (user.UserAccountStatusId != (int)UserAccountStatus.Pending)
+            {
+                await CheckAndRemovePendingUser(user);
+                return;
+            }
+
             if (pendingUsersPageKey == 0)
             {
-                _logger.LogWarning($"User: {user.UserId} not found in pending user index cache.");
+                _logger.LogInformation($"User: {user.UserId} not found in pending user index cache.");
                 await RetrieveUsersAndRebuildCache();
                 return;
             }
@@ -447,7 +456,7 @@ public class UserService : IUserService
 
                 var notificationRequest = new NotificationCreateRequest()
                 {
-                    EmailAddresses = new List<string>() { user.EmailAddress },
+                    EmailAddresses = new List<string> { user.EmailAddress },
                     RequestUrl = userUpdateStatus.RequestUrl,
                     TemplateId = GetTemplateForUserUpdateStatus(userUpdateStatus.UserAccountStatusId)
                 };
@@ -560,5 +569,49 @@ public class UserService : IUserService
         parameters.Add("_user_id", userId);
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
         return result;
+    }
+
+    private async Task CheckAndRemovePendingUser(User user)
+    {
+        var pendingUsersPageKey =
+            await _cacheService.HashGetAsync(PENDING_USERS_INDEX_HASH_KEY, user.UserId.ToString());
+
+        if (!pendingUsersPageKey.HasValue)
+        {
+            _logger.LogInformation($"User {user.UserId} not found in pending users index.");
+            return;
+        }
+
+        var pageKey = $"page{pendingUsersPageKey}";
+        var pageUsers = await _cacheService.GetPageAsync<List<User>>(PENDING_USERS_HASH_KEY, pageKey);
+
+        if (pageUsers == null)
+        {
+            _logger.LogWarning($"Pending user page {pageKey} not found.");
+            return;
+        }
+
+        var originalCount = pageUsers.Count;
+        pageUsers.RemoveAll(u => u.UserId == user.UserId);
+
+        if (pageUsers.Count == originalCount)
+        {
+            _logger.LogInformation($"User {user.UserId} not found in pending user page {pageKey}.");
+            return;
+        }
+
+        if (pageUsers.Count == 0)
+        {
+            _logger.LogInformation($"Removing empty page {pageKey} from pending users cache.");
+            await _cacheService.HashDeleteAsync(PENDING_USERS_HASH_KEY, pageKey);
+            await _cacheService.HashDeleteAsync(PENDING_USERS_INDEX_HASH_KEY, user.UserId.ToString());
+        }
+        else
+        {
+            _logger.LogInformation("Re-building cache");
+
+            //TODO: rather than re-building cache shift all users up 1 page if > 1 page of pending users (unlikely) 
+            await RetrieveUsersAndRebuildCache();
+        }
     }
 }
