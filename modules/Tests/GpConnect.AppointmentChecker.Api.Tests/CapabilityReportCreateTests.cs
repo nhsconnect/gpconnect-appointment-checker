@@ -8,6 +8,7 @@ using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using Shouldly;
+using Xunit;
 
 namespace GpConnect.AppointmentChecker.Api.Tests;
 
@@ -18,24 +19,9 @@ public class Tests
     private IDataService _mockDataServivce;
     private IInteractionService _mockInteractionService;
     private IWorkflowService _mockWorkFlowService;
-    private ReportingService _reportGenerator;
+    private readonly ReportingService _reportGenerator;
 
-    [OneTimeSetUp]
-    public void Setup()
-    {
-        _mockLogger = new FakeLogger<ReportingService>();
-        _mockMessageService = Substitute.For<IMessageService>();
-        _mockDataServivce = Substitute.For<IDataService>();
-        _mockInteractionService = Substitute.For<IInteractionService>();
-        _mockWorkFlowService = Substitute.For<IWorkflowService>();
-
-        _reportGenerator = new ReportingService(
-            _mockLogger, _mockMessageService,
-            _mockDataServivce, _mockInteractionService,
-            _mockWorkFlowService);
-    }
-
-    [Test]
+    [Fact]
     public void CreateReport_ShouldGenerateGuidanceSheet_WhenNoData()
     {
         // Arrange
@@ -77,7 +63,7 @@ public class Tests
         GetCellValue(firstDataRowCells[3], workbookPart).ShouldBe("A81021");
     }
 
-    [Test]
+    [Fact]
     public void CreateReport_ShouldGenerateGuidanceSheet_WhenData()
     {
         // Arrange
@@ -192,4 +178,18 @@ public class Tests
         string CommissioningRegion,
         string Version,
         string Status);
+
+    public Tests()
+    {
+        _mockLogger = new FakeLogger<ReportingService>();
+        _mockMessageService = Substitute.For<IMessageService>();
+        _mockDataServivce = Substitute.For<IDataService>();
+        _mockInteractionService = Substitute.For<IInteractionService>();
+        _mockWorkFlowService = Substitute.For<IWorkflowService>();
+
+        _reportGenerator = new ReportingService(
+            _mockLogger, _mockMessageService,
+            _mockDataServivce, _mockInteractionService,
+            _mockWorkFlowService);
+    }
 }
