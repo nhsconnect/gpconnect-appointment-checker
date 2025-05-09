@@ -13,9 +13,9 @@ jobs:
       - name: Print the BUILD_TAG
         run: echo ${{ env.BUILD_TAG }}
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Push api application image to docker hub
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v6
         with:
           path: modules/api
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -24,7 +24,7 @@ jobs:
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
       - name: Push end user application image to docker hub
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v6
         with:
           path: modules/end-user
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -33,7 +33,7 @@ jobs:
           build_args: ${{ format('BUILD_TAG={0}', env.BUILD_TAG) }}
           tag_with_ref: true
       - name: Push database image to docker hub
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v6
         with:
           path: database
           username: ${{ secrets.DOCKER_USERNAME }}
