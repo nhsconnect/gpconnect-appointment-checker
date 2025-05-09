@@ -15,5 +15,7 @@ public interface ICacheService
 
     Task<bool> RemoveAsync(string key);
 
+    Task<bool> HashDeleteAsync(string key, string field);
+
     IBatch CreateBatch();
 }
