@@ -62,7 +62,7 @@ public class UserService : IUserService
                 : ALL_USERS_HASH_KEY;
 
             var hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
-
+            
             User[] allUsers = [];
 
             // if no pages in the cache - goto db
