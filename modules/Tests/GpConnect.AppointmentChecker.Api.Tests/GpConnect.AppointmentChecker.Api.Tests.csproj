@@ -11,15 +11,6 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-<<<<<<< HEAD
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.4.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="NSubstitute" Version="5.3.0" />
-        <PackageReference Include="NUnit" Version="3.14.0"/>
-        <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
-        <PackageReference Include="Shouldly" Version="4.3.0" />
-=======
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.4.0"/>
         <PackageReference Include="NSubstitute" Version="5.3.0"/>
         <PackageReference Include="testcontainers" Version="4.4.0"/>
@@ -31,22 +22,9 @@
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
         <PackageReference Include="Shouldly" Version="4.3.0"/>
->>>>>>> 858ada3 (GCS-279 fix admin page error when no results / cache)
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\api\src\gpconnect-appointment-checker.api.csproj"/>
-
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.4.0"/>
-        <PackageReference Include="NSubstitute" Version="5.3.0"/>
-        <PackageReference Include="testcontainers" Version="4.4.0"/>
-        <PackageReference Include="testcontainers.redis" Version="4.4.0"/>
-        <PackageReference Include="xunit" Version="2.9.3"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
-        <PackageReference Include="Shouldly" Version="4.3.0"/>
     </ItemGroup>
 
 </Project>
