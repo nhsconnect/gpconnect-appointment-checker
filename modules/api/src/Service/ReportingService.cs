@@ -12,6 +12,8 @@ using gpconnect_appointment_checker.api.DTO.Response.Reporting;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Security.Policy;
+using gpconnect_appointment_checker.api.DTO.Request;
 
 namespace GpConnect.AppointmentChecker.Api.Service;
 
@@ -22,6 +24,7 @@ public class ReportingService : IReportingService
     private readonly IMessageService _messageService;
     private readonly IWorkflowService _workflowService;
     private readonly IInteractionService _interactionService;
+    private const string CoverSheetName = "Guidance";
 
     public ReportingService(ILogger<ReportingService> logger, IMessageService messageService, IDataService dataService,
         IInteractionService interactionService, IWorkflowService workflowService)
@@ -58,12 +61,13 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> CreateInteractionReport(ReportCreationRequest reportCreationRequest)
     {
-        var functionName = "reporting.get_transient_data";
+        const string functionName = "reporting.get_transient_data";
         var parameters = new DynamicParameters();
         parameters.Add("_transient_report_id", reportCreationRequest.ReportId, DbType.String, ParameterDirection.Input);
         var response = await _dataService.ExecuteQueryFirstOrDefault<TransientData>(functionName, parameters);
         var dataTable = response?.Data?.ConvertJsonDataToDataTable("ODS_Code");
-        return CreateReport(dataTable, reportCreationRequest.ReportName, reportCreationRequest.ReportFilter);
+        return CreateReport(dataTable, reportCreationRequest.ReportName, ReportType.Interaction,
+            reportCreationRequest.ReportFilter);
     }
 
     public async Task RouteReportRequest(RouteReportRequest routeReportRequest)
@@ -158,57 +162,74 @@ public class ReportingService : IReportingService
     }
 
     public MemoryStream CreateReport(DataTable? result, string reportName = "",
+        ReportType reportType = ReportType.SlotSummary,
         List<ReportFilterRequest>? reportFilterRequest = null)
     {
         try
         {
             var memoryStream = new MemoryStream();
-            if (result != null)
+            if (result == null) return memoryStream;
+
+            reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
+
+            using (var spreadsheetDocument =
+                   SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
             {
-                reportFilterRequest = reportFilterRequest?.OrderBy(x => x.FilterValue).ToList();
+                var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
 
-                using (var spreadsheetDocument =
-                       SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook))
+                var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+                workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
+                workbookStylesPart.Stylesheet.Save();
+
+                HashSet<string> usedSheetNames = [];
+                uint nextSheetId = 1;
+
+                // create cover sheet
+                if (reportType == ReportType.Capability)
                 {
-                    var workbookPart = spreadsheetDocument.WorkbookPart ?? spreadsheetDocument.AddWorkbookPart();
-                    workbookPart.Workbook = new Workbook();
-
-                    var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
-                    workbookStylesPart.Stylesheet = StyleSheetBuilder.CreateStylesheet();
-                    workbookStylesPart.Stylesheet.Save();
-
-                    // create cover sheet
-                    CreateDataDictionarySheet(spreadsheetDocument, "Guidance");
-
-                    if (reportFilterRequest != null)
-                    {
-                        for (var i = 0; i < reportFilterRequest.Count; i++)
-                        {
-                            var filteredList = result.AsEnumerable().Where(r =>
-                                r.Field<string>(reportFilterRequest[i].FilterColumn) ==
-                                reportFilterRequest[i].FilterValue);
-
-                            if (!filteredList.Any()) continue;
-
-                            CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument, i + 1,
-                                reportFilterRequest[i].FilterValue, reportFilterRequest[i].FilterTab);
-                            var toDelete = new List<DataRow>();
-                            toDelete.AddRange(filteredList.AsEnumerable());
-                            toDelete.ForEach(dr => result.Rows.Remove(dr));
-                        }
-
-                        CreateSheet(result, reportName, spreadsheetDocument, reportFilterRequest.Count + 1);
-                    }
-                    else
-                    {
-                        CreateSheet(result, reportName, spreadsheetDocument, 1);
-                    }
-
-                    spreadsheetDocument.WorkbookPart?.Workbook.Save();
+                    CreateDataDictionarySheet(spreadsheetDocument, CoverSheetName, nextSheetId++);
+                    usedSheetNames.Add(CoverSheetName);
                 }
 
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                if (reportFilterRequest != null)
+                {
+                    foreach (var request in reportFilterRequest)
+                    {
+                        var filteredList = result.AsEnumerable().Where(r =>
+                            r.Field<string>(request.FilterColumn) ==
+                            request.FilterValue);
+
+                        if (!filteredList.Any()) continue;
+
+                        CreateSheet(filteredList.CopyToDataTable(), reportName, spreadsheetDocument,
+                            nextSheetId++,
+                            usedSheetNames,
+                            request.FilterValue,
+                            request.FilterTab
+                        );
+
+                        var toDelete = new List<DataRow>();
+                        toDelete.AddRange(filteredList.AsEnumerable());
+                        toDelete.ForEach(dr => result.Rows.Remove(dr));
+                    }
+
+                    CreateSheet(
+                        result,
+                        reportName,
+                        spreadsheetDocument,
+                        nextSheetId,
+                        usedSheetNames: usedSheetNames);
+                }
+                else
+                {
+                    CreateSheet(result, reportName, spreadsheetDocument, nextSheetId, usedSheetNames);
+                }
+
+                spreadsheetDocument.WorkbookPart?.Workbook.Save();
             }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
 
             return memoryStream;
         }
@@ -219,8 +240,14 @@ public class ReportingService : IReportingService
         }
     }
 
-    private static void CreateSheet(DataTable result, string reportName, SpreadsheetDocument spreadsheetDocument,
-        int sheetId, string? filterValue = null, string? filterTab = null)
+    private static void CreateSheet(
+        DataTable result,
+        string reportName,
+        SpreadsheetDocument spreadsheetDocument,
+        uint sheetId,
+        HashSet<string> usedSheetNames,
+        string? filterValue = null,
+        string? filterTab = null)
     {
         var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
@@ -242,7 +269,7 @@ public class ReportingService : IReportingService
         {
             Sheet sheet = new()
             {
-                Id = relationshipId, SheetId = (uint)sheetId,
+                Id = relationshipId, SheetId = sheetId,
                 Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other")
             };
             sheets.Append(sheet);
@@ -337,7 +364,7 @@ public class ReportingService : IReportingService
         sheetData.AppendChild(row3);
     }
 
-    private static void CreateDataDictionarySheet(SpreadsheetDocument doc, string sheetName)
+    private static void CreateDataDictionarySheet(SpreadsheetDocument doc, string sheetName, uint sheetId)
     {
         var worksheetPart = doc?.WorkbookPart?.AddNewPart<WorksheetPart>() ??
                             throw new InvalidOperationException(" Workbook part is null");
@@ -402,8 +429,6 @@ public class ReportingService : IReportingService
         }
 
         var sheets = workbook.Sheets;
-
-        var sheetId = (uint)(sheets.Count() + 1);
         var sheet = new Sheet
         {
             Id = doc.WorkbookPart.GetIdOfPart(worksheetPart),

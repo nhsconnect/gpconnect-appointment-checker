@@ -1,8 +1,10 @@
 using System.Data;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using gpconnect_appointment_checker.api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
+using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Service;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Logging.Testing;
@@ -12,7 +14,7 @@ using Xunit;
 
 namespace GpConnect.AppointmentChecker.Api.Tests;
 
-public class Tests
+public class ReportTests
 {
     private FakeLogger<ReportingService> _mockLogger;
     private IMessageService _mockMessageService;
@@ -28,7 +30,7 @@ public class Tests
         var result = new DataTable();
 
         // Act
-        using var stream = _reportGenerator.CreateReport(result);
+        using var stream = _reportGenerator.CreateReport(result, "test report", reportType: ReportType.Capability);
         stream.Seek(0, SeekOrigin.Begin);
         using var doc = SpreadsheetDocument.Open(stream, false);
 
@@ -113,7 +115,7 @@ public class Tests
         }
 
         // Act
-        using var stream = _reportGenerator.CreateReport(dataTable, "Capability Report", [
+        using var stream = _reportGenerator.CreateReport(dataTable, "Capability Report", ReportType.Capability, [
             new ReportFilterRequest()
             {
                 FilterColumn = "ODS Code",
@@ -143,6 +145,88 @@ public class Tests
 
         cellValue.ShouldBe("A81021");
     }
+
+    [Fact]
+    public void CreateReport_ShouldNotGenerateGuidanceSheet_When_NotCapabilityReport()
+    {
+        // Arrange
+        var dataTable = new DataTable();
+        dataTable.Columns.Add("ODS Code");
+        dataTable.Columns.Add("Supplier Name");
+        dataTable.Columns.Add("Site Name");
+        dataTable.Columns.Add("Post-code");
+        dataTable.Columns.Add("ICB");
+        dataTable.Columns.Add("Higher Health Authority");
+        dataTable.Columns.Add("Commissioning Region");
+        dataTable.Columns.Add("Version");
+        dataTable.Columns.Add("Allergies");
+
+        var testData = new[]
+        {
+            new CapabilityData("A81021", "EGTON MEDICAL INFORMATION SYSTEMS LTD (EMIS)", "NORMANBY MEDICAL CENTRE",
+                "TS6 6TD", "NHS NORTH EAST AND NORTH CUMBRIA ICB - 16C (16C)",
+                "NHS NORTH EAST AND NORTH CUMBRIA INTEGRATED CARE BOARD (QHM)",
+                "NORTH EAST AND YORKSHIRE COMMISSIONING REGION (Y63)", "v0.7.2", "Active"
+            ),
+            new CapabilityData("A81035", "EGTON MEDICAL INFORMATION SYSTEMS LTD (EMIS)", "NEWLANDS MEDICAL CENTRE",
+                "TS1 3RX", "NHS NORTH EAST AND NORTH CUMBRIA ICB - 16C (16C)",
+                "NHS NORTH EAST AND NORTH CUMBRIA INTEGRATED CARE BOARD (QHM)",
+                "NORTH EAST AND YORKSHIRE COMMISSIONING REGION (Y63)", "v0.7.3", "Active"
+            ),
+            new CapabilityData("A81040", "EGTON MEDICAL INFORMATION SYSTEMS LTD (EMIS)", "MARSH HOUSE MEDICAL PRACTICE",
+                "TS23 2DG", "NHS NORTH EAST AND NORTH CUMBRIA ICB - 16C (16C)",
+                "NHS NORTH EAST AND NORTH CUMBRIA INTEGRATED CARE BOARD (QHM)",
+                "NORTH EAST AND YORKSHIRE COMMISSIONING REGION (Y63)", "v0.7.3", "Active"
+            )
+        };
+
+        foreach (var item in testData)
+        {
+            dataTable.Rows.Add(
+                item.ODSCode,
+                item.SupplierName,
+                item.SiteName,
+                item.Postcode,
+                item.ICB,
+                item.HigherHealthAuthority,
+                item.CommissioningRegion,
+                item.Version,
+                item.Status
+            );
+        }
+
+        // Act
+        using var stream = _reportGenerator.CreateReport(dataTable, "Capability Report", ReportType.Interaction, [
+            new ReportFilterRequest()
+            {
+                FilterColumn = "ODS Code",
+                FilterTab = "Capability Report Test",
+                FilterValue = "A81021"
+            }
+        ]);
+
+        // Assert
+        stream.Seek(0, SeekOrigin.Begin);
+        using var doc = SpreadsheetDocument.Open(stream, false);
+
+        var workbookPart = doc.WorkbookPart;
+        var sheets = workbookPart?.Workbook.Descendants<Sheet>().ToList();
+        sheets.ShouldNotBeNull();
+        sheets.ShouldContain(s => s.Name == "Guidance");
+        sheets.ShouldContain(s => s.Name == "Capability_Report_Test");
+
+        var sheet = sheets.First(s => s.Name == "Capability_Report_Test");
+        var worksheetPart = (WorksheetPart)workbookPart.GetPartById(sheet.Id);
+        var rows = worksheetPart.Worksheet.Descendants<Row>().ToList();
+
+        // First data row (after header), column A (ODS Code)
+        var firstDataRow = rows[4];
+        var firstCell = firstDataRow?.Elements<Cell>().First();
+        var cellValue = GetCellValue(workbookPart, firstCell);
+
+        cellValue.ShouldBe("A81021");
+    }
+
 
     private static string GetCellValue(WorkbookPart workbookPart, Cell cell)
     {
@@ -179,7 +263,7 @@ public class Tests
         string Version,
         string Status);
 
-    public Tests()
+    public ReportTests()
     {
         _mockLogger = new FakeLogger<ReportingService>();
         _mockMessageService = Substitute.For<IMessageService>();
