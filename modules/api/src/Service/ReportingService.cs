@@ -53,9 +53,10 @@ public class ReportingService : IReportingService
 
     public async Task<Stream> ExportReport(ReportRequest reportRequest)
     {
-        DataTable? dataTable =
+        var dataTable =
             await _dataService.ExecuteFunctionAndGetDataTable($"reporting.{reportRequest.FunctionName}", null);
-        var memoryStream = CreateReport(dataTable, reportRequest.ReportName);
+
+        var memoryStream = CreateReport(dataTable, reportRequest.ReportName, reportType: ReportType.Interaction);
         return memoryStream;
     }
 
