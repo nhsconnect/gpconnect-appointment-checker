@@ -22,6 +22,7 @@ public static class StringExtensions
             _ => input.First().ToString().ToUpper() + (restToLower ? input.Substring(1).ToLower() : input.Substring(1))
         };
 
+    // TODO: This is not coalescing - needs removed or renamed
     public static string Coalesce(params string[] strings)
     {
         return strings.FirstOrDefault(s => !string.IsNullOrEmpty(s));
@@ -50,7 +51,8 @@ public static class StringExtensions
         {
             null => string.Empty,
             "" => string.Empty,
-            _ => countValue == 1 ? string.Format(input, countValue, string.Empty) : countValue == 0 ? string.Empty : string.Format(input, countValue, "s")
+            _ => countValue == 1 ? string.Format(input, countValue, string.Empty) :
+                countValue == 0 ? string.Empty : string.Format(input, countValue, "s")
         } + endTag;
 
     public static bool IsJson(this string input)
@@ -60,8 +62,8 @@ public static class StringExtensions
             JObject.Parse(input);
             return true;
         }
-        catch(JsonReaderException)
-        {  
+        catch (JsonReaderException)
+        {
             return false;
         }
     }
