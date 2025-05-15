@@ -37,8 +37,10 @@ public class ExportService : IExportService
     {
         var json = (result.CurrentSlotEntrySimple.Concat(result.PastSlotEntrySimple)).ConvertObjectToJsonData();
         var dataTable = json.ConvertJsonDataToDataTable();
+
+        // we know the report type is SlotSummary as SlotSimple argument + exporting the slots from Search endpoint
         var memoryStream =
-            _reportingService.CreateReport(dataTable, request.ReportName, reportType: ReportType.Capability);
+            _reportingService.CreateReport(dataTable, request.ReportName, reportType: ReportType.SlotSummary);
         return memoryStream;
     }
 }
