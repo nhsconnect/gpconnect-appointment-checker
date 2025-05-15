@@ -249,31 +249,47 @@ public class ReportingService : IReportingService
         string? filterValue = null,
         string? filterTab = null)
     {
-        var worksheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
+        var baseName = filterTab?.ReplaceNonAlphanumeric() ?? "Sheet";
+        var sheetName = baseName;
+        var suffix = 1;
+        const int sheetNameCharLimit = 31;
+
+        // excel has char limit of 31 for sheet names
+        while (usedSheetNames.Contains(sheetName) || sheetName.Length > sheetNameCharLimit)
+        {
+            sheetName = baseName[..Math.Min(baseName.Length, 25)] + "_" + suffix++;
+        }
+
+        usedSheetNames.Add(sheetName);
+
+        var worksheetPart = spreadsheetDocument.WorkbookPart?.AddNewPart<WorksheetPart>();
         var sheetData = new SheetData();
+        if (worksheetPart == null) return;
+
         worksheetPart.Worksheet = new Worksheet();
 
         var columns = BuildColumns(result);
         worksheetPart.Worksheet.Append(columns);
         worksheetPart.Worksheet.Append(sheetData);
 
-        var sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>() ??
-                     spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
-        var relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart);
+        var sheets = spreadsheetDocument.WorkbookPart?.Workbook.GetFirstChild<Sheets>() ??
+                     spreadsheetDocument.WorkbookPart?.Workbook.AppendChild(new Sheets());
+
+        var relationshipId = spreadsheetDocument.WorkbookPart?.GetIdOfPart(worksheetPart);
 
         BuildWorksheetHeader(sheetData, filterValue != null ? $"{reportName} - {filterValue}" : $"{reportName}");
         BuildHeaderRow(sheetData, result.Columns);
         BuildDataRows(sheetData, result.Rows);
 
-        if (result.Rows.Count > 0)
+        if (result.Rows.Count <= 0) return;
+
+        Sheet sheet = new()
         {
-            Sheet sheet = new()
-            {
-                Id = relationshipId, SheetId = sheetId,
-                Name = StringExtensions.Coalesce(filterTab.ReplaceNonAlphanumeric(), "Other")
-            };
-            sheets.Append(sheet);
-        }
+            Id = relationshipId,
+            SheetId = sheetId,
+            Name = sheetName,
+        };
+        sheets?.Append(sheet);
     }
 
     private static Columns BuildColumns(DataTable result)
