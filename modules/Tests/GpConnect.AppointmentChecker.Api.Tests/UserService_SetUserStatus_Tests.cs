@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using StackExchange.Redis;
-using Testcontainers.Redis;
 using Xunit;
 using Shouldly;
 using User = GpConnect.AppointmentChecker.Api.DTO.Response.Application.User;
@@ -20,11 +19,8 @@ namespace GpConnect.AppointmentChecker.Api.Tests;
 
 public class UserServiceSetUserStatusTests
 {
-    private IConnectionMultiplexer _redis;
-    private RedisCacheService _cacheService;
-    private INotificationService _notificationService;
-    private IDataService _dataService;
-    private UserService _userService;
+    private readonly IDataService _dataService;
+    private readonly UserService _userService;
     private readonly IDatabase _mockDatabase;
 
     private const string PENDING_USERS_HASH_KEY = "users:pending";
@@ -34,12 +30,12 @@ public class UserServiceSetUserStatusTests
 
     public UserServiceSetUserStatusTests()
     {
-        _redis = Substitute.For<IConnectionMultiplexer>();
+        var redis = Substitute.For<IConnectionMultiplexer>();
         _mockDatabase = Substitute.For<IDatabase>();
-        _redis.GetDatabase().Returns(_mockDatabase);
-        _cacheService = new RedisCacheService(_redis, new LoggerFactory().CreateLogger<RedisCacheService>());
+        redis.GetDatabase().Returns(_mockDatabase);
+        var cacheService = new RedisCacheService(redis, new LoggerFactory().CreateLogger<RedisCacheService>());
 
-        _notificationService = Substitute.For<INotificationService>();
+        var notificationService = Substitute.For<INotificationService>();
         _dataService = Substitute.For<IDataService>();
         var notificationConfig = new NotificationConfig
         {
@@ -66,8 +62,8 @@ public class UserServiceSetUserStatusTests
         var generalOptionsMock = Substitute.For<IOptions<GeneralConfig>>();
         generalOptionsMock.Value.Returns(generalConfig);
 
-        _userService = new UserService(_dataService, _notificationService, notificationOption, generalOptionsMock,
-            _cacheService,
+        _userService = new UserService(_dataService, notificationService, notificationOption, generalOptionsMock,
+            cacheService,
             new FakeLogger<UserService>());
     }
 

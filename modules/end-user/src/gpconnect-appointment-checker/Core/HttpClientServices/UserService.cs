@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using gpconnect_appointment_checker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using gpconnect_appointment_checker.Helpers.Extensions;
 using gpconnect_appointment_checker.Models;
 using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models;
 using GpConnect.AppointmentChecker.Models.Request;
 using Microsoft.AspNetCore.Http;

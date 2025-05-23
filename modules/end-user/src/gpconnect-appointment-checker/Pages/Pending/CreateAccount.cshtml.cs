@@ -1,7 +1,5 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
-using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
 using GpConnect.AppointmentChecker.Models.Request;
-using gpconnect_appointment_checker.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

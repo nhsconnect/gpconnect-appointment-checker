@@ -1,6 +1,5 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +9,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using gpconnect_appointment_checker.Helpers.Extensions;
