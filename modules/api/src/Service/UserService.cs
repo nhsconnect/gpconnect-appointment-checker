@@ -62,7 +62,7 @@ public class UserService : IUserService
                 : ALL_USERS_HASH_KEY;
 
             var hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
-            
+
             User[] allUsers = [];
 
             // if no pages in the cache - goto db
@@ -304,11 +304,11 @@ public class UserService : IUserService
             }
 
             var pagePendingUserData =
-                await _cacheService.GetPageAsync<User[]>(ALL_USERS_HASH_KEY, $"page{allUsersPageKey}");
+                await _cacheService.GetPageAsync<User[]>(PENDING_USERS_HASH_KEY, $"page{allUsersPageKey}");
 
             if (pagePendingUserData == null)
             {
-                _logger.LogWarning($"Page{allUsersPageKey} not found in pending cache.");
+                _logger.LogWarning($"Page{pendingUsersPageKey} not found in pending cache.");
                 await RetrieveUsersAndRebuildCache();
                 return;
             }
@@ -448,6 +448,18 @@ public class UserService : IUserService
         parameters.Add("_user_account_status_id", userUpdateStatus.UserAccountStatusId);
         var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
+        if (userUpdateStatus.UserAccountStatusId == (int)UserAccountStatus.Authorised)
+        {
+            await SetMultiSearch(new UserUpdateMultiSearch()
+                {
+                    UserId = userUpdateStatus.UserId,
+                    MultiSearchEnabled = true
+                },
+                updateCache: false); // prevent multi-search cache update as done as part of status update
+
+            result.MultiSearchEnabled = true;
+        }
+
         switch (userUpdateStatus.UserAccountStatusId)
         {
             case (int)UserAccountStatus.Deauthorised:
@@ -456,7 +468,7 @@ public class UserService : IUserService
 
                 var notificationRequest = new NotificationCreateRequest()
                 {
-                    EmailAddresses = new List<string> { user.EmailAddress },
+                    EmailAddresses = [user.EmailAddress],
                     RequestUrl = userUpdateStatus.RequestUrl,
                     TemplateId = GetTemplateForUserUpdateStatus(userUpdateStatus.UserAccountStatusId)
                 };
@@ -511,7 +523,7 @@ public class UserService : IUserService
         await UpdateCacheRecord(updatedUser);
     }
 
-    public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch)
+    public async Task SetMultiSearch(UserUpdateMultiSearch userUpdateMultiSearch, bool updateCache = true)
     {
         const string functionName = "application.set_multi_search";
         var parameters = new DynamicParameters();
@@ -521,8 +533,11 @@ public class UserService : IUserService
         parameters.Add("_multi_search_enabled", userUpdateMultiSearch.MultiSearchEnabled);
         var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
 
-        // replenish cache
-        await UpdateCacheRecord(updatedUser);
+        if (updateCache)
+        {
+            // replenish cache
+            await UpdateCacheRecord(updatedUser);
+        }
     }
 
     public async Task SetOrgTypeSearch(UserUpdateOrgTypeSearch userUpdateOrgTypeSearch)

@@ -1,5 +1,4 @@
-﻿using gpconnect_appointment_checker.Helpers;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using System;
 using System.Threading.Tasks;
 

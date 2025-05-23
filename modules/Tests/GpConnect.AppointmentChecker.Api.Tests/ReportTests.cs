@@ -4,7 +4,6 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using gpconnect_appointment_checker.api.DTO.Request;
 using GpConnect.AppointmentChecker.Api.DAL.Interfaces;
 using GpConnect.AppointmentChecker.Api.DTO.Request;
-using GpConnect.AppointmentChecker.Api.DTO.Response.Reporting;
 using GpConnect.AppointmentChecker.Api.Service;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Logging.Testing;

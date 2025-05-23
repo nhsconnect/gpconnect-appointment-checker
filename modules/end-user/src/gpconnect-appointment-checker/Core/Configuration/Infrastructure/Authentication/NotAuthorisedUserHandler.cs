@@ -1,5 +1,4 @@
-﻿using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.Helpers.Enumerations;
+﻿using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;

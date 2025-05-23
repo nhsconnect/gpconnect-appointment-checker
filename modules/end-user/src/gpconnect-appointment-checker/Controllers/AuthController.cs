@@ -1,6 +1,4 @@
-﻿using GpConnect.AppointmentChecker.Core.HttpClientServices.Interfaces;
-using GpConnect.AppointmentChecker.Models.Request;
-using gpconnect_appointment_checker.Helpers;
+﻿using GpConnect.AppointmentChecker.Models.Request;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
