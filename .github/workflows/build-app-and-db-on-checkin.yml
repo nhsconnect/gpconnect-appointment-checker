@@ -1,21 +1,19 @@
 name: Build app and db on checkin
 
-on: 
+on:
   push:
     paths:
-      - 'modules/api/**'
-      - 'modules/end-user/**'
-      - '.github/**'
+      - "modules/api/**"
+      - "modules/end-user/**"
+      - ".github/**"
 
 env:
   DB_HOST: localhost
   DB_USERNAME: postgres
   DB_PASSWORD: postgres
 
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -27,23 +25,22 @@ jobs:
           POSTGRES_DB: gpconnect
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5         
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-
       - name: Print the current branch name
         run: echo "$GITHUB_REF"
 
       - name: Check out branch
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - name: Set up dotnet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
-      
+          dotnet-version: "8.0.x"
+
       - name: Build dotnet api solution
         run: dotnet build modules/api/gpconnect-appointment-checker.api.sln
 
