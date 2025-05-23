@@ -1,6 +1,5 @@
 using GpConnect.AppointmentChecker.Core.Configuration;
 using GpConnect.AppointmentChecker.Models.Search;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;

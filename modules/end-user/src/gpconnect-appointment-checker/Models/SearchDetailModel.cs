@@ -1,10 +1,5 @@
-﻿using GpConnect.AppointmentChecker.Models.Search;
-using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.Helpers.Constants;
-using Microsoft.AspNetCore.Mvc;
+﻿using gpconnect_appointment_checker.Helpers.Constants;
 using System;
-using System.Collections.Generic;
-
 using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace gpconnect_appointment_checker.Pages

@@ -1,15 +1,9 @@
 ﻿using GpConnect.AppointmentChecker.Core.Configuration;
-using gpconnect_appointment_checker.Helpers;
 using gpconnect_appointment_checker.Helpers.Enumerations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using System;
-using System.IO;
-
 using gpconnect_appointment_checker.Helpers.Extensions;
 
 namespace gpconnect_appointment_checker.Pages
