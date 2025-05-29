@@ -3,9 +3,20 @@
 
 @if (Model.SearchResultsTotalCount > 0)
 {
+    var ukTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+    var currentUkTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, ukTimeZone).ToString("dd MMM yyyy HH:m");
+
+    var message =
+        $"{string.Format(SearchConstants.SearchAtDate, currentUkTime)} - {StringExtensions.Pluraliser(SearchConstants.SearchStatsCountText, Model.SearchResultsCurrentCount)}";
+
+
     <div class="nhsuk-inset-text">
         <span class="nhsuk-u-visually-hidden">Information: </span>
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsCountText, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        <div class="nhsuk-hint">
+            <p style="font-weight: 700">@message</p>
+            <p>Note: Remember the free slot count can change, as some appointments may be embargoed currently and be released at a later date.</p>
+        </div>
+
         @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsPastCountText, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
     </div>
 }
