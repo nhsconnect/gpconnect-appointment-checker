@@ -19,7 +19,7 @@ public class UserQueryHandler
     }
 
 
-    public async Task<PagedData<User>> HandleGetUserRequest(UserListAdvanced userFilter, int page)
+    public async Task<PagedData<DAL.Models.User>> HandleGetUserRequest(UserListAdvanced userFilter, int page)
     {
         if (IsDefaultFilter(userFilter))
         {

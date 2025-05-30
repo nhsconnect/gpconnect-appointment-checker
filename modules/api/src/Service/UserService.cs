@@ -14,6 +14,7 @@ using GpConnect.AppointmentChecker.Api.Helpers.Enumerations;
 using GpConnect.AppointmentChecker.Api.Service.Interfaces;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Organisation = gpconnect_appointment_checker.api.DAL.Models.Organisation;
 using User = GpConnect.AppointmentChecker.Api.DTO.Response.Application.User;
 
 namespace gpconnect_appointment_checker.api.Service;
@@ -53,7 +54,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<PagedData<User>> GetUsersByFilter(UserListAdvanced filter, int page = 1)
+    public async Task<PagedData<DAL.Models.User>> GetUsersByFilter(UserListAdvanced filter, int page = 1)
     {
         try
         {
@@ -63,7 +64,7 @@ public class UserService : IUserService
 
             var hashEntries = await _cacheService.GetAllHashFieldsForHashSetAsync(cacheKey);
 
-            User[] allUsers = [];
+            DAL.Models.User[] allUsers = [];
 
             // if no pages in the cache - goto db
             if (!hashEntries.Any(x => x.Name.ToString().Contains("page")))
@@ -74,14 +75,14 @@ public class UserService : IUserService
             {
                 allUsers = hashEntries
                     .Where(e => e.Name.ToString().StartsWith("page"))
-                    .SelectMany(e => JsonSerializer.Deserialize<User[]>(e.Value.ToString()) ?? [])
+                    .SelectMany(e => JsonSerializer.Deserialize<DAL.Models.User[]>(e.Value.ToString()) ?? [])
                     .ToArray();
             }
 
             if (allUsers.Length == 0)
             {
                 _logger.LogWarning("No users found");
-                return new PagedData<User>([])
+                return new PagedData<DAL.Models.User>([])
                 {
                     TotalItems = 0,
                     PageSize = 50
@@ -90,7 +91,7 @@ public class UserService : IUserService
 
             var filteredUsers = ApplyFilters(filter, allUsers.AsQueryable()).ToArray();
             var pagedUsers = PagingHelpers.Paginate(filteredUsers.ToArray());
-            return new PagedData<User>(pagedUsers.ToArray().Length == 0 ? [] : pagedUsers[page - 1])
+            return new PagedData<DAL.Models.User>(pagedUsers.ToArray().Length == 0 ? [] : pagedUsers[page - 1])
             {
                 TotalItems = filteredUsers.Length,
                 PageSize = 50
@@ -116,11 +117,11 @@ public class UserService : IUserService
             if (status == UserAccountStatus.Pending)
             {
                 var pageData =
-                    await _cacheService.GetPageAsync<User[]>(PENDING_USERS_HASH_KEY, $"page{page}");
+                    await _cacheService.GetPageAsync<DAL.Models.User[]>(PENDING_USERS_HASH_KEY, $"page{page}");
 
                 if (pageData is not null)
                 {
-                    return new PagedData<User>(PagingHelpers.Paginate(pageData)[page - 1])
+                    return new PagedData<DAL.Models.User>(PagingHelpers.Paginate(pageData)[page - 1])
                     {
                         TotalItems = await _cacheService.GetPageAsync<int>(PENDING_USERS_HASH_KEY, "totalItems"),
                         PageSize = 50
@@ -135,7 +136,9 @@ public class UserService : IUserService
                 UserAccountStatusFilter = status
             }, dbUsers.AsQueryable()).ToArray();
 
-            return new PagedData<User>(statusUsers.Length > 0 ? PagingHelpers.Paginate(statusUsers)[page - 1] : [])
+            return new PagedData<DAL.Models.User>(statusUsers.Length > 0
+                ? PagingHelpers.Paginate(statusUsers)[page - 1]
+                : [])
             {
                 TotalItems = statusUsers.Length,
                 PageSize = 50
@@ -149,15 +152,15 @@ public class UserService : IUserService
     }
 
 
-    public async Task<PagedData<User>> GetAllUsers(int page = 1)
+    public async Task<PagedData<DAL.Models.User>> GetAllUsers(int page = 1)
     {
         try
         {
-            var pageData = await _cacheService.GetPageAsync<User[]>(ALL_USERS_HASH_KEY, $"page{page}");
+            var pageData = await _cacheService.GetPageAsync<DAL.Models.User[]>(ALL_USERS_HASH_KEY, $"page{page}");
             if (pageData is not null)
             {
                 var totalUsers = await _cacheService.GetPageAsync<int>(ALL_USERS_HASH_KEY, "totalItems");
-                return new PagedData<User>(pageData)
+                return new PagedData<DAL.Models.User>(pageData)
                 {
                     TotalItems = totalUsers,
                     PageSize = 50
@@ -166,7 +169,7 @@ public class UserService : IUserService
 
             var dbUsers = (await RetrieveUsersAndRebuildCache()).ToArray();
 
-            return new PagedData<User>(PagingHelpers.Paginate(dbUsers)[page - 1])
+            return new PagedData<DAL.Models.User>(PagingHelpers.Paginate(dbUsers)[page - 1])
             {
                 TotalItems = dbUsers.ToArray().Length,
                 PageSize = 50,
@@ -179,7 +182,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task RebuildBaseUserCache(User[] users)
+    public async Task RebuildBaseUserCache(DAL.Models.User[] users)
     {
         await _cacheService.RemoveAsync(ALL_USERS_HASH_KEY);
         await _cacheService.RemoveAsync(PENDING_USERS_HASH_KEY);
@@ -247,7 +250,7 @@ public class UserService : IUserService
         tasks.Add(batch.KeyExpireAsync(ALL_USERS_HASH_KEY, TimeSpan.FromHours(24)));
     }
 
-    public async Task UpdateCacheRecord(User user)
+    public async Task UpdateCacheRecord(DAL.Models.User user)
     {
         try
         {
@@ -267,7 +270,8 @@ public class UserService : IUserService
                 return;
             }
 
-            var pageUserData = await _cacheService.GetPageAsync<User[]>(ALL_USERS_HASH_KEY, $"page{allUsersPageKey}");
+            var pageUserData =
+                await _cacheService.GetPageAsync<DAL.Models.User[]>(ALL_USERS_HASH_KEY, $"page{allUsersPageKey}");
             if (pageUserData is null)
             {
                 _logger.LogWarning($"Page {allUsersPageKey} not found in cache.");
@@ -304,7 +308,7 @@ public class UserService : IUserService
             }
 
             var pagePendingUserData =
-                await _cacheService.GetPageAsync<User[]>(PENDING_USERS_HASH_KEY, $"page{allUsersPageKey}");
+                await _cacheService.GetPageAsync<DAL.Models.User[]>(PENDING_USERS_HASH_KEY, $"page{allUsersPageKey}");
 
             if (pagePendingUserData == null)
             {
@@ -335,20 +339,21 @@ public class UserService : IUserService
     }
 
 
-    private async Task<IEnumerable<User>> RetrieveUsersAndRebuildCache()
+    private async Task<IEnumerable<DAL.Models.User>> RetrieveUsersAndRebuildCache()
     {
         const string functionName = "application.get_users";
         var parameters = new DynamicParameters();
         parameters.Add("_admin_user_id",
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
-        var allUsers = await _dataService.ExecuteQuery<User>(functionName, parameters);
+        var allUsers = await _dataService.ExecuteQuery<DAL.Models.User>(functionName, parameters);
 
         // Re-populate the cache with latest data
         await RebuildBaseUserCache(allUsers.ToArray());
         return allUsers;
     }
 
-    private static IQueryable<User> ApplyFilters(UserListAdvanced userListAdvanced, IQueryable<User> usersToFilter)
+    private static IQueryable<DAL.Models.User> ApplyFilters(UserListAdvanced userListAdvanced,
+        IQueryable<DAL.Models.User> usersToFilter)
     {
         usersToFilter = !string.IsNullOrEmpty(userListAdvanced.Surname)
             ? usersToFilter.Where(x =>
@@ -384,32 +389,32 @@ public class UserService : IUserService
         return usersToFilter;
     }
 
-    public async Task<User> LogonUser(LogonUser user)
+    public async Task<DAL.Models.User> LogonUser(LogonUser user)
     {
         const string functionName = "application.logon_user";
         var parameters = new DynamicParameters();
         parameters.Add("_email_address", user.EmailAddress);
         parameters.Add("_display_name", user.DisplayName);
         parameters.Add("_organisation_id", user.OrganisationId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         // await UpdateCacheRecord(result);
         return result;
     }
 
-    public async Task<User> LogoffUser(LogoffUser user)
+    public async Task<DAL.Models.User> LogoffUser(LogoffUser user)
     {
         const string functionName = "application.logoff_user";
         var parameters = new DynamicParameters();
         parameters.Add("_user_id",
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         await UpdateCacheRecord(result);
         return result;
     }
 
-    public async Task<User> AddOrUpdateUser(UserCreateAccount userCreateAccount)
+    public async Task<DAL.Models.User> AddOrUpdateUser(UserCreateAccount userCreateAccount)
     {
         const string functionName = "application.add_or_update_user";
         var parameters = new DynamicParameters();
@@ -429,7 +434,7 @@ public class UserService : IUserService
             parameters.Add("_admin_user_id", DBNull.Value, DbType.Int32);
         }
 
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         await SendNewUserNotification(userCreateAccount);
 
@@ -438,7 +443,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<User> SetUserStatus(UserUpdateStatus userUpdateStatus)
+    public async Task<DAL.Models.User> SetUserStatus(UserUpdateStatus userUpdateStatus)
     {
         const string functionName = "application.set_user_status";
         var parameters = new DynamicParameters();
@@ -446,7 +451,7 @@ public class UserService : IUserService
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateStatus.UserId);
         parameters.Add("_user_account_status_id", userUpdateStatus.UserAccountStatusId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         if (userUpdateStatus.UserAccountStatusId == (int)UserAccountStatus.Authorised)
         {
@@ -518,7 +523,7 @@ public class UserService : IUserService
         parameters.Add("_admin_user_id", userId);
         parameters.Add("_user_id", userUpdateIsAdmin.UserId);
         parameters.Add("_is_admin", userUpdateIsAdmin.IsAdmin);
-        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         await UpdateCacheRecord(updatedUser);
     }
@@ -531,7 +536,7 @@ public class UserService : IUserService
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateMultiSearch.UserId);
         parameters.Add("_multi_search_enabled", userUpdateMultiSearch.MultiSearchEnabled);
-        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         if (updateCache)
         {
@@ -548,19 +553,19 @@ public class UserService : IUserService
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
         parameters.Add("_user_id", userUpdateOrgTypeSearch.UserId);
         parameters.Add("_org_type_search_enabled", userUpdateOrgTypeSearch.OrgTypeSearchEnabled);
-        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var updatedUser = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         await UpdateCacheRecord(updatedUser);
     }
 
-    public async Task<User> AddUser(UserAdd userAdd)
+    public async Task<DAL.Models.User> AddUser(UserAdd userAdd)
     {
         const string functionName = "application.add_user_manual";
         var parameters = new DynamicParameters();
         parameters.Add("_email_address", userAdd.EmailAddress);
         parameters.Add("_admin_user_id",
             LoggingHelper.GetIntegerValue(GpConnect.AppointmentChecker.Api.Helpers.Constants.Headers.UserId));
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
 
         //TODO: find nicer way for adjusting cache after adding new user rather than re-building
         await RetrieveUsersAndRebuildCache();
@@ -568,25 +573,25 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<User> GetUser(string emailAddress)
+    public async Task<DAL.Models.User> GetUser(string emailAddress)
     {
         const string functionName = "application.get_user";
         var parameters = new DynamicParameters();
         parameters.Add("_email_address", emailAddress);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
         return result;
     }
 
-    public async Task<User> GetUserById(int userId)
+    public async Task<DAL.Models.User> GetUserById(int userId)
     {
         const string functionName = "application.get_user_by_id";
         var parameters = new DynamicParameters();
         parameters.Add("_user_id", userId);
-        var result = await _dataService.ExecuteQueryFirstOrDefault<User>(functionName, parameters);
+        var result = await _dataService.ExecuteQueryFirstOrDefault<DAL.Models.User>(functionName, parameters);
         return result;
     }
 
-    private async Task CheckAndRemovePendingUser(User user)
+    private async Task CheckAndRemovePendingUser(DAL.Models.User user)
     {
         var pendingUsersPageKey =
             await _cacheService.HashGetAsync(PENDING_USERS_INDEX_HASH_KEY, user.UserId.ToString());
@@ -598,7 +603,7 @@ public class UserService : IUserService
         }
 
         var pageKey = $"page{pendingUsersPageKey}";
-        var pageUsers = await _cacheService.GetPageAsync<List<User>>(PENDING_USERS_HASH_KEY, pageKey);
+        var pageUsers = await _cacheService.GetPageAsync<List<DAL.Models.User>>(PENDING_USERS_HASH_KEY, pageKey);
 
         if (pageUsers == null)
         {
