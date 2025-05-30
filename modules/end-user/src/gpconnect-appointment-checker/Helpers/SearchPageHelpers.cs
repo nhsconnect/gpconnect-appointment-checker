@@ -14,7 +14,7 @@ public static class SearchPageHelpers
         var ukTimeZone = timeZoneProvider.FindSystemTimeZoneById("Europe/London");
         var currentUkTimeOffset = timeZoneProvider.ConvertTime(utcNow, ukTimeZone);
 
-        var formattedUkTime = currentUkTimeOffset.DateTime.ToString("dd MMM HH:mm");
+        var formattedUkTime = currentUkTimeOffset.DateTime.ToString("dd MMM yyyy HH:mm");
 
         return
             $"{string.Format(SearchConstants.SearchAtDate, formattedUkTime)} - {SearchConstants.SearchStatsCountText.Pluraliser(count)}";

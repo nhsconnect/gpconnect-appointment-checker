@@ -1,117 +1,101 @@
-using Xunit;
-using NSubstitute; // NSubstitute namespace
-using System;
-using Microsoft.Extensions.Time.Testing; // For FakeTimeProvider
-using FluentAssertions;
 using gpconnect_appointment_checker.Helpers;
-using gpconnect_appointment_checker.Helpers.Constants;
-using gpconnect_appointment_checker.Helpers.Extensions;
+using NSubstitute;
 
-// Make sure ITimeZoneProvider is in a namespace accessible here
-// using gpconnect_appointment_checker.Helpers.Time; // Example namespace
+namespace EndUserTests;
 
 public class SearchPageHelperTests
 {
-    [Theory]
-    [InlineData(2025, 5, 29, 14, 30, "Europe/London", "29 May 15:30", true, "BST (UTC+1) period")] // BST
-    [InlineData(2025, 1, 15, 14, 30, "Europe/London", "15 Jan 14:30", false, "GMT (UTC+0) period")] // GMT
-    [InlineData(2025, 5, 29, 14, 30, "America/New_York", "29 May 10:30", false, "Another timezone (EDT, UTC-4)")]
-    public void BuildSearchTimeCountString_HandlesTimeZonesCorrectly_WithNSubstitute(
-        int year, int month, int day, int hour, int minute,
-        string timeZoneId, string expectedTimePart, bool expectIsDst, string testDescription)
+    [Fact]
+    public void BuildSearchTimeCountString_ShowsCorrectTimeInBST()
     {
         // Arrange
-        var fakeTimeProvider = new FakeTimeProvider();
-        var subTimeZoneProvider = Substitute.For<ITimeZoneProvider>();
+        var utcNow = new DateTimeOffset(2025, 06, 15, 10, 0, 0, TimeSpan.Zero); // 10:00 UTC
+        var expectedUkTime = new DateTimeOffset(2025, 06, 15, 11, 0, 0, TimeSpan.FromHours(1)); // BST is UTC+1
 
-        var utcInputTime = new DateTimeOffset(year, month, day, hour, minute, 0, TimeSpan.Zero);
-        fakeTimeProvider.SetUtcNow(utcInputTime);
+        var timeProvider = Substitute.For<TimeProvider>();
+        timeProvider.GetUtcNow().Returns(utcNow);
 
-        var realTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-        subTimeZoneProvider.FindSystemTimeZoneById(timeZoneId).Returns(realTimeZoneInfo);
-
-        subTimeZoneProvider
-            .ConvertTime(Arg.Any<DateTimeOffset>(), Arg.Any<TimeZoneInfo>())
-            .ReturnsForAnyArgs(ci =>
-            {
-                // Get the actual DateTimeOffset passed to ConvertTime
-                var inputDto = ci.Arg<DateTimeOffset>();
-                // Get the actual TimeZoneInfo passed to ConvertTime
-                var destTz = ci.Arg<TimeZoneInfo>();
-
-                // Simulate the conversion based on the expected behavior for Europe/London
-                if (destTz.Id == "Europe/London")
-                {
-                    if (expectIsDst) // If it should be BST (UTC+1)
-                        return inputDto.ToOffset(TimeSpan.FromHours(1));
-                    else // If it should be GMT (UTC+0)
-                        return inputDto.ToOffset(TimeSpan.FromHours(0));
-                }
-
-                // For other time zones, you'd implement their specific conversion logic here
-                // For "America/New_York", EDT is UTC-4.
-                if (destTz.Id == "America/New_York")
-                {
-                    // For simplicity, hardcode the offset for the test date.
-                    // In a real scenario, you might have a more sophisticated fake for DST.
-                    return inputDto.ToOffset(TimeSpan.FromHours(-4)); // EDT is UTC-4
-                }
-
-                throw new InvalidOperationException($"Unexpected timezone ID for mock: {destTz.Id}");
-            });
-
-        const int count = 2; // Fixed count for simplicity in these tests
+        var timeZone = TimeZoneInfo.CreateCustomTimeZone("Europe/London", TimeSpan.FromHours(1), "BST", "BST");
+        var tzProvider = Substitute.For<ITimeZoneProvider>();
+        tzProvider.FindSystemTimeZoneById("Europe/London").Returns(timeZone);
+        tzProvider.ConvertTime(utcNow, timeZone).Returns(expectedUkTime);
 
         // Act
-        // Pass the NSubstitute substitute for ITimeZoneProvider
-        var result = SearchPageHelpers.BuildSearchTimeCountString(count, fakeTimeProvider, subTimeZoneProvider);
+        var result = SearchPageHelpers.BuildSearchTimeCountString(3, timeProvider, tzProvider);
 
         // Assert
-        var expectedSearchAtDate = string.Format(SearchConstants.SearchAtDate, expectedTimePart);
-        var expectedCountString = SearchConstants.SearchStatsCountText.Pluraliser(count);
-        var expected = $"{expectedSearchAtDate} - {expectedCountString}";
-
-        result.Should().Be(expected, $"because {testDescription}");
-
-        // Optional: Verify that the methods were called as expected
-        subTimeZoneProvider.Received(1).FindSystemTimeZoneById("Europe/London");
-        subTimeZoneProvider.Received(1).ConvertTime(utcInputTime, realTimeZoneInfo);
+        const string expectedString = "As of 15 Jun 2025 11:00 - 3 free slots found";
+        Assert.Equal(expectedString, result);
     }
 
     [Fact]
-    public void BuildSearchTimeCountString_PluraliserWorksForSingleCount_WithNSubstitute()
+    public void BuildSearchTimeCountString_ShowsCorrectTimeInGMT()
     {
         // Arrange
-        var fakeTimeProvider = new FakeTimeProvider();
-        var subTimeZoneProvider = Substitute.For<ITimeZoneProvider>();
+        var utcNow = new DateTimeOffset(2025, 01, 15, 10, 0, 0, TimeSpan.Zero); // 10:00 UTC
+        var expectedUkTime = new DateTimeOffset(2025, 01, 15, 10, 0, 0, TimeSpan.Zero); // GMT = UTC
 
-        var utcInputTime = new DateTimeOffset(2025, 5, 29, 14, 30, 0, TimeSpan.Zero); // BST period
-        fakeTimeProvider.SetUtcNow(utcInputTime);
+        var timeProvider = Substitute.For<TimeProvider>();
+        timeProvider.GetUtcNow().Returns(utcNow);
 
-        // Mock FindSystemTimeZoneById
-        var realLondonTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
-        subTimeZoneProvider.FindSystemTimeZoneById("Europe/London").Returns(realLondonTimeZone);
+        var timeZone = TimeZoneInfo.CreateCustomTimeZone("Europe/London", TimeSpan.Zero, "GMT", "GMT");
+        var tzProvider = Substitute.For<ITimeZoneProvider>();
 
-        // Mock ConvertTime to simulate BST conversion
-        subTimeZoneProvider
-            .ConvertTime(Arg.Any<DateTimeOffset>(), Arg.Any<TimeZoneInfo>())
-            .ReturnsForAnyArgs(utcInputTime.ToOffset(TimeSpan.FromHours(1))); // Simulate BST (UTC+1)
-
-        const int count = 1;
+        tzProvider.FindSystemTimeZoneById("Europe/London").Returns(timeZone);
+        tzProvider.ConvertTime(utcNow, timeZone).Returns(expectedUkTime);
 
         // Act
-        var result = SearchPageHelpers.BuildSearchTimeCountString(count, fakeTimeProvider, subTimeZoneProvider);
+        var result = SearchPageHelpers.BuildSearchTimeCountString(3, timeProvider, tzProvider);
 
         // Assert
-        var expectedTimePart = "29 May 15:30"; // 14:30 UTC + 1 hour BST
-        var expectedSearchAtDate = string.Format(SearchConstants.SearchAtDate, expectedTimePart);
-        var expectedCountString = SearchConstants.SearchStatsCountText.Pluraliser(count); // Should be "1 free slot"
-        var expected = $"{expectedSearchAtDate} - {expectedCountString}";
+        const string expectedString = "As of 15 Jan 2025 10:00 - 3 free slots found";
+        Assert.Equal(expectedString, result);
+    }
 
-        result.Should().Be(expected);
+    [Fact]
+    public void BuildSearchTimeCountString_ConvertsToSpecifiedTimeZone()
+    {
+        // Arrange
+        var utcNow = new DateTimeOffset(2025, 03, 10, 10, 0, 0, TimeSpan.Zero); // 10:00 UTC
+        var expectedTime = new DateTimeOffset(2025, 03, 10, 15, 0, 0, TimeSpan.FromHours(5)); // Simulate +5
 
-        // Optional: Verify calls
-        subTimeZoneProvider.Received(1).FindSystemTimeZoneById("Europe/London");
-        subTimeZoneProvider.Received(1).ConvertTime(utcInputTime, realLondonTimeZone);
+        var timeProvider = Substitute.For<TimeProvider>();
+        timeProvider.GetUtcNow().Returns(utcNow);
+
+        var customTimeZone = TimeZoneInfo.CreateCustomTimeZone("Custom/Zone", TimeSpan.FromHours(5), "UTC+5", "UTC+5");
+        var tzProvider = Substitute.For<ITimeZoneProvider>();
+
+        tzProvider.FindSystemTimeZoneById("Europe/London").Returns(customTimeZone);
+        tzProvider.ConvertTime(utcNow, customTimeZone).Returns(expectedTime);
+
+        // Act
+        var result = SearchPageHelpers.BuildSearchTimeCountString(2, timeProvider, tzProvider);
+
+        // Assert
+        const string expectedString = "As of 10 Mar 2025 15:00 - 2 free slots found";
+        Assert.Equal(expectedString, result);
+    }
+
+    [Fact]
+    public void BuildSearchTimeCountString_ReturnsNonPluralisedString_WhenSingleResult()
+    {
+        // Arrange
+        var utcNow = new DateTimeOffset(2025, 06, 15, 10, 0, 0, TimeSpan.Zero); // 10:00 UTC
+        var expectedUkTime = new DateTimeOffset(2025, 06, 15, 11, 0, 0, TimeSpan.FromHours(1)); // BST is UTC+1
+
+        var timeProvider = Substitute.For<TimeProvider>();
+        timeProvider.GetUtcNow().Returns(utcNow);
+
+        var timeZone = TimeZoneInfo.CreateCustomTimeZone("Europe/London", TimeSpan.FromHours(1), "BST", "BST");
+        var tzProvider = Substitute.For<ITimeZoneProvider>();
+        tzProvider.FindSystemTimeZoneById("Europe/London").Returns(timeZone);
+        tzProvider.ConvertTime(utcNow, timeZone).Returns(expectedUkTime);
+
+        // Act
+        var result = SearchPageHelpers.BuildSearchTimeCountString(1, timeProvider, tzProvider);
+
+        // Assert
+        const string expectedString = "As of 15 Jun 2025 11:00 - 1 free slot found";
+        Assert.Equal(expectedString, result);
     }
 }
