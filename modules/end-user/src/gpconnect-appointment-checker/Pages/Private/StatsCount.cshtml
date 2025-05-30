@@ -1,11 +1,17 @@
-﻿@using gpconnect_appointment_checker.Helpers.Constants
+﻿@using gpconnect_appointment_checker.Helpers
+@using gpconnect_appointment_checker.Helpers.Constants
 @using gpconnect_appointment_checker.Helpers.Extensions
 
 @if (Model.SearchResultsTotalCount > 0)
 {
     <div class="nhsuk-inset-text">
         <span class="nhsuk-u-visually-hidden">Information: </span>
-        @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsCountText, Model.SearchResultsCurrentCount, "<div class=\"nhsuk-hint\">", "</div>"))
+        <div class="nhsuk-hint">
+            <p style="font-weight: 700">@SearchPageHelpers.BuildSearchTimeCountString(Model.SearchResultsTotalCount, TimeProvider.System, new DefaultTimeZoneProvider())</p>
+            <p>Note: Remember the free slot count can change throughout the day, as some appointments may be embargoed
+                currently and be released at a later date.</p>
+        </div>
+
         @Html.Raw(StringExtensions.Pluraliser(SearchConstants.SearchStatsPastCountText, Model.SearchResultsPastCount, "<div class=\"nhsuk-hint\">", "</div>"))
     </div>
 }

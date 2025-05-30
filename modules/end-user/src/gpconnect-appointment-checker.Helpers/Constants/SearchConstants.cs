@@ -138,6 +138,7 @@
 
         public const string SearchStatsCountText = "{0} free slot{1} found";
         public const string SearchStatsPastCountText = "{0} past slot{1} found";
+        public const string SearchAtDate = "As of {0}";
 
         public const string SearchDetailsButtonText = "Details";
         public const string SearchDetailsLabel = "Details:";

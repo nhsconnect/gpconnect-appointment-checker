@@ -12,20 +12,20 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
+using NSubstitute; // Using NSubstitute instead of Moq
 
 namespace EndUserTests;
 
 public class SearchModelTests
 {
-    private readonly Mock<HttpContext> _mockHttpContext;
-    private readonly Mock<HttpRequest> _mockHttpRequest;
-    private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
-    private readonly Mock<IExportService> _mockExportService;
-    private readonly Mock<IApplicationService> _mockApplicationService;
-    private readonly Mock<IConfigurationService> _mockConfigurationService;
-    private readonly Mock<ISearchService> _mockSearchService;
-    private readonly Mock<ILogger<SearchModel>> _mockLogger;
+    private readonly HttpContext _mockHttpContext;
+    private readonly HttpRequest _mockHttpRequest;
+    private readonly IHttpContextAccessor _mockHttpContextAccessor;
+    private readonly IExportService _mockExportService;
+    private readonly IApplicationService _mockApplicationService;
+    private readonly IConfigurationService _mockConfigurationService;
+    private readonly ISearchService _mockSearchService;
+    private readonly ILogger<SearchModel> _mockLogger;
     private readonly SearchModel _searchModel;
 
     public SearchModelTests()
@@ -33,44 +33,43 @@ public class SearchModelTests
         var routeData = new RouteData();
         routeData.Values.Add("controller", "Search");
 
-        _mockHttpRequest = new Mock<HttpRequest>();
-        _mockHttpRequest.Setup(req => req.Scheme).Returns("https"); // Scheme like https
-        _mockHttpRequest.Setup(req => req.Host).Returns(new HostString("search")); // Set the host to 'search'
-        _mockHttpRequest.Setup(req => req.PathBase).Returns(new PathString("")); // Base path, can be empty
+        _mockHttpRequest = Substitute.For<HttpRequest>();
+        _mockHttpRequest.Scheme.Returns("https"); 
+        _mockHttpRequest.Host.Returns(new HostString("search")); 
+        _mockHttpRequest.PathBase.Returns(new PathString("")); 
 
-        _mockHttpContext = new Mock<HttpContext>();
-        _mockHttpContext.Setup(x => x.Request).Returns(_mockHttpRequest.Object);
-
+        _mockHttpContext = Substitute.For<HttpContext>();
+        _mockHttpContext.Request.Returns(_mockHttpRequest);
 
         var modelState = new ModelStateDictionary();
         var actionContext =
-            new ActionContext(_mockHttpContext.Object, routeData, new PageActionDescriptor(), modelState);
+            new ActionContext(_mockHttpContext, routeData, new PageActionDescriptor(), modelState);
 
         var modelMetadataProvider = new EmptyModelMetadataProvider();
         var viewData = new ViewDataDictionary(modelMetadataProvider, modelState);
-        var tempData = new TempDataDictionary(_mockHttpContext.Object, Mock.Of<ITempDataProvider>());
+        var tempData = new TempDataDictionary(_mockHttpContext, Substitute.For<ITempDataProvider>());
         var pageContext = new PageContext(actionContext)
         {
             ViewData = viewData,
-            HttpContext = _mockHttpContext.Object
+            HttpContext = _mockHttpContext
         };
 
-        // Mock other services
-        _mockExportService = new Mock<IExportService>();
-        _mockApplicationService = new Mock<IApplicationService>();
-        _mockConfigurationService = new Mock<IConfigurationService>();
-        _mockSearchService = new Mock<ISearchService>();
-        _mockLogger = new Mock<ILogger<SearchModel>>();
-        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        // Substitute other services
+        _mockExportService = Substitute.For<IExportService>();
+        _mockApplicationService = Substitute.For<IApplicationService>();
+        _mockConfigurationService = Substitute.For<IConfigurationService>();
+        _mockSearchService = Substitute.For<ISearchService>();
+        _mockLogger = Substitute.For<ILogger<SearchModel>>();
+        _mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
 
         _searchModel = new SearchModel(
-            Mock.Of<IOptions<GeneralConfig>>(),
-            _mockHttpContextAccessor.Object,
-            _mockLogger.Object,
-            _mockExportService.Object,
-            _mockApplicationService.Object,
-            _mockConfigurationService.Object,
-            _mockSearchService.Object)
+            Substitute.For<IOptions<GeneralConfig>>(),
+            _mockHttpContextAccessor,
+            _mockLogger,
+            _mockExportService,
+            _mockApplicationService,
+            _mockConfigurationService,
+            _mockSearchService)
         {
             PageContext = pageContext,
             TempData = tempData,
